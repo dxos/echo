@@ -161,7 +161,11 @@ test('Last writer wins', () => {
 
   // TODO(dboreham): Should be in ObjectModel.
   const getMostRecentMutation = (node) => {
-    return 'What goes here?';
+    // Find leaf nodes in the dependency graph for readFeeds
+    // Temporarily, pick one of them to return (depends should be an array because dependency is a lattice not a DAG).
+    // Even more temporarily pick the last mutation this node wrote.
+    // TODO(dboreham): Find elegant form of array.lastElement|undefined
+    return (node.writeFeed.length > 0) ? node.writeFeed[node.writeFeed.length - 1].id : undefined;
   };
 
   const testObjectId = createObjectId('testObjectType');
@@ -169,9 +173,11 @@ test('Last writer wins', () => {
 
   const appendMutation = (node, value) => {
     log(`appendMutation: ${node.name}, ${value}`);
+    const dependsValue = getMostRecentMutation(node);
+    const messageProperties = dependsValue ? { depends: dependsValue } : {};
     const message = MutationUtil.createMessage(
       testObjectId,
-      KeyValueUtil.createMessage(testProperty, value), { depends: getMostRecentMutation(node).id }
+      KeyValueUtil.createMessage(testProperty, value), messageProperties
     );
     log(`Message: ${JSON.stringify(message)}`);
     node.writeFeed.push(message);
