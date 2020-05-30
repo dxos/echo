@@ -152,7 +152,6 @@ test('Last writer wins', () => {
   };
 
   const createNode = (name) => {
-    log(`createNode: ${name}`);
     return {
       name,
       writeFeed: createFeed(),
@@ -161,7 +160,7 @@ test('Last writer wins', () => {
   };
 
   // TODO(dboreham): Should be in ObjectModel.
-  const getMostRecentMutation = () => {
+  const getMostRecentMutation = (node) => {
     return 'What goes here?';
   };
 
@@ -172,8 +171,9 @@ test('Last writer wins', () => {
     log(`appendMutation: ${node.name}, ${value}`);
     const message = MutationUtil.createMessage(
       testObjectId,
-      KeyValueUtil.createMessage(testProperty, value, { depends: getMostRecentMutation() })
+      KeyValueUtil.createMessage(testProperty, value), { depends: getMostRecentMutation(node).id }
     );
+    log(`Message: ${JSON.stringify(message)}`);
     node.writeFeed.push(message);
   };
 
