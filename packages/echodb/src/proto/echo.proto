@@ -14,7 +14,7 @@ syntax = "proto3";
 //
 // This package defines messages that can be used to form composite data structures, and arbitrary mutations.
 //
-package wireline.data;
+package dxos.echo;
 
 //
 // Value represents any scalar, collection, or composite data.

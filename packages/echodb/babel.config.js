@@ -3,12 +3,19 @@
 //
 
 module.exports = {
+  env: {
+    development: {
+      sourceMaps: 'inline',
+      plugins: ['source-map-support']
+    }
+  },
   presets: [
     [
       '@babel/preset-env'
     ]
   ],
   plugins: [
+    'add-module-exports',
     [
       'babel-plugin-inline-import', {
         extensions: [
