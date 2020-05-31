@@ -1,8 +1,8 @@
 {
   "nested": {
-    "wireline": {
+    "dxos": {
       "nested": {
-        "data": {
+        "echo": {
           "nested": {
             "Value": {
               "oneofs": {

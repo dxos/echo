@@ -49,6 +49,8 @@
     "babel-plugin-inline-import": "^3.0.0",
     "babel-plugin-source-map-support": "^2.1.1",
     "del-cli": "^3.0.1",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-jest": "^23.13.2",
     "jest": "^24.8.0",
     "semistandard": "^14.2.0"
   },
