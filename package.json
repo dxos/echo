@@ -37,8 +37,7 @@
   "devDependencies": {
     "babel-eslint": "^10.0.2",
     "lerna": "^3.11.1",
-    "lint-staged": "^8.1.0",
-    "pre-commit": "^1.2.2"
+    "lint-staged": "^8.1.0"
   },
   "eslintConfig": {
     "parser": "babel-eslint",
