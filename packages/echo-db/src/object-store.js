@@ -6,7 +6,7 @@ import assert from 'assert';
 import EventEmitter from 'events';
 
 import { MutationUtil, ValueUtil } from './mutation';
-import { parseId } from './util';
+import { parseObjectId } from './util';
 
 /**
  * Create a set mutation messages from a single object.
@@ -53,7 +53,7 @@ export class ObjectStore extends EventEmitter {
    */
   getTypes () {
     return Array.from(
-      Array.from(this._objectById.values()).reduce((set, { id }) => set.add(parseId(id).type), new Set())
+      Array.from(this._objectById.values()).reduce((set, { id }) => set.add(parseObjectId(id).type), new Set())
     );
   }
 
@@ -63,7 +63,7 @@ export class ObjectStore extends EventEmitter {
    */
   // TODO(burdon): orderBy?
   getObjectsByType (type) {
-    return Array.from(this._objectById.values()).filter(({ id }) => parseId(id).type === type);
+    return Array.from(this._objectById.values()).filter(({ id }) => parseObjectId(id).type === type);
   }
 
   /**

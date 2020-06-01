@@ -1,5 +1,8 @@
 # ECHO
 
+![Node.js Package](https://github.com/dxos/echo/workflows/Node.js%20Package/badge.svg?branch=master)
+
+
 Eventually Consistent Hierarchical Objects Database.
 
 

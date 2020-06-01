@@ -8,14 +8,15 @@ import debug from 'debug';
 import { Model } from '@dxos/data-client';
 
 import { MutationUtil } from './mutation';
-import { ObjectStore } from './object';
-import { createObjectId, fromObject, parseId } from './util';
+import { ObjectStore, fromObject } from './object-store';
+import { createObjectId, parseObjectId } from './util';
 
 const log = debug('dxos:echo:model');
 
 /**
  * Stream adapter.
  */
+// TODO(burdon): Rename ObjectModel.
 export class EchoModel extends Model {
   _model = new ObjectStore();
 
@@ -43,7 +44,7 @@ export class EchoModel extends Model {
   updateItem (id, properties) {
     log('update', id, properties);
 
-    const { type } = parseId(id);
+    const { type } = parseObjectId(id);
     const mutations = fromObject({
       id,
       properties
@@ -61,7 +62,7 @@ export class EchoModel extends Model {
   deleteItem (id) {
     log('delete', id);
 
-    const { type } = parseId(id);
+    const { type } = parseObjectId(id);
     const mutation = MutationUtil.createMessage(id, undefined, { deleted: true });
 
     this.appendMessage({

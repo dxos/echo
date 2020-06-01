@@ -24,7 +24,7 @@ export const createObjectId = (type, id = undefined) => {
  * @param {string} id
  * @return {{id: string, type: string}}
  */
-export const parseId = (id) => {
+export const parseObjectId = (id) => {
   const parts = id.split('/');
   assert(parts.length === 2 ? parts[0] : parts[1]);
 
