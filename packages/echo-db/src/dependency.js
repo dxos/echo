@@ -55,8 +55,8 @@ export function mergeFeeds (feeds) {
 
     // Continue if pending.
     const message = feeds[current].messages[index.position];
-    if (message.depends && !messages.has(message.depends)) {
-      index.pending = message.depends;
+    if (message.dependency && !messages.has(message.dependency)) {
+      index.pending = message.dependency;
       continue;
     }
 
