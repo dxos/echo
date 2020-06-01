@@ -1,70 +1,23 @@
 //
-// Copyright 2020 DxOS
+// Copyright 2020 DxOS.org
 //
 
-import { createId } from '@dxos/crypto';
-
-// import { Codec } from '@dxos/codec-protobuf';
-
 import { MutationUtil, KeyValueUtil } from './mutation';
-import { ObjectModel } from './object';
-import { createObjectId, fromObject } from './util';
+import { ObjectStore, fromObject } from './object-store';
+import { createObjectId } from './util';
 import { mergeFeeds } from './crdt';
 
-// import DataProtoDefs from './data.proto';
-
-// const codec = new Codec('.testing.Message')
-//   .addJson(require('./data.json'))
-//   .build();
-
-// TODO(burdon): Use protobuf defs.
-test('Protobuf', () => {
-  // expect(DataProto.Value.decode(DataProto.Value.encode({ isNull: true }))).toEqual({ isNull: true });
-});
-
-test('Mutations', () => {
-  const objectId = createObjectId('test');
-
-  const feed = {
-    id: createId,
-    messages: [
-      MutationUtil.createMessage(objectId, KeyValueUtil.createMessage('title', 'Test-1')),
-      MutationUtil.createMessage(objectId, KeyValueUtil.createMessage('priority', 1)),
-      MutationUtil.createMessage(objectId, KeyValueUtil.createMessage('complete', false))
-    ]
-  };
-
-  const model = new ObjectModel().applyMutations(feed.messages);
-
-  expect(model.getObjectsByType('test')).toHaveLength(1);
-  expect(model.getTypes()).toEqual(['test']);
-
-  const object = model.getObjectById(objectId);
-  expect(object).toEqual({
-    id: objectId,
-    properties: {
-      title: 'Test-1',
-      complete: false,
-      priority: 1
-    }
-  });
-
-  {
-    const messages = fromObject(object);
-    const model = new ObjectModel().applyMutations(messages);
-    const clone = model.getObjectById(object.id);
-    expect(object).toEqual(clone);
-  }
-});
-
-// TODO(burdon): Test with Framework (Gravity/wireline-core)?
-// TODO(burdon): Describe consistency constraints (e.g., each Object is independent; mutation references previous).
-test('Merge feeds', () => {
+test.skip('Merge feeds', () => {
   const obj = { x: createObjectId('test'), y: createObjectId('test') };
   const ref = {};
 
+  // TODO(burdon): unqiue ID for each message?
+
+  const feedz = [
+    fromObject({ id: obj.x, properties: { title: 'Text-1' } })
+  ];
+
   const feed1 = {
-    id: 'feed-1',
     messages: [
       (ref.a = MutationUtil.createMessage(obj.x, KeyValueUtil.createMessage('title', 'Test-1'))),
       (ref.b = MutationUtil.createMessage(obj.x, KeyValueUtil.createMessage('priority', 1))),
@@ -73,7 +26,6 @@ test('Merge feeds', () => {
   };
 
   const feed2 = {
-    id: 'feed-2',
     messages: [
       (ref.d = MutationUtil.createMessage(obj.y, KeyValueUtil.createMessage('title', 'Test-2'))),
       (ref.e = MutationUtil.createMessage(obj.x, KeyValueUtil.createMessage('priority', 3), { depends: ref.b.id })),
@@ -82,7 +34,6 @@ test('Merge feeds', () => {
   };
 
   const feed3 = {
-    id: 'feed-3',
     messages: [
       (ref.g = MutationUtil.createMessage(obj.y, KeyValueUtil.createMessage('complete', false), { depends: ref.f.id })),
       (ref.h = MutationUtil.createMessage(obj.x, KeyValueUtil.createMessage('priority', 2), { depends: ref.b.id }))
@@ -97,7 +48,7 @@ test('Merge feeds', () => {
   const test = (messages) => {
     expect(messages).toHaveLength(feed1.messages.length + feed2.messages.length + feed3.messages.length);
 
-    const model = new ObjectModel().applyMutations(messages);
+    const model = new ObjectStore().applyMutations(messages);
 
     {
       const object = model.getObjectById(obj.x);

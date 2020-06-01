@@ -1,5 +1,5 @@
 //
-// Copyright 2020 DxOS
+// Copyright 2020 DxOS.org
 //
 
 import debug from 'debug';
@@ -8,7 +8,7 @@ import debug from 'debug';
 import { Model } from '@dxos/data-client';
 
 import { MutationUtil } from './mutation';
-import { ObjectModel } from './object';
+import { ObjectStore } from './object';
 import { createObjectId, fromObject, parseId } from './util';
 
 const log = debug('dxos:echo:model');
@@ -17,7 +17,7 @@ const log = debug('dxos:echo:model');
  * Stream adapter.
  */
 export class EchoModel extends Model {
-  _model = new ObjectModel();
+  _model = new ObjectStore();
 
   getObjectsByType (type) {
     return this._model.getObjectsByType(type);

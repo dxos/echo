@@ -1,6 +1,6 @@
 {
   "name": "@dxos/echo-db",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.5",
   "description": "ECHO database.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echodb#readme",
   "bugs": {
@@ -36,7 +36,7 @@
     "@dxos/crypto": "^0.0.1",
     "@dxos/data-client": "^1.0.0-beta.0",
     "debug": "^4.1.1",
-    "protobufjs": "^6.8.8",
+    "protobufjs": "^6.9.0",
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
@@ -47,11 +47,11 @@
     "@babel/preset-env": "^7.4.5",
     "babel-plugin-add-module-exports": "^1.0.2",
     "babel-plugin-inline-import": "^3.0.0",
-    "babel-plugin-source-map-support": "^2.1.1",
-    "del-cli": "^3.0.1",
+    "del-cli": "^3.0.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-jest": "^23.13.2",
-    "jest": "^24.8.0"
+    "eslint-plugin-jest": "^23.13.1",
+    "jest": "^24.8.0",
+    "semistandard": "^14.2.0"
   },
   "publishConfig": {
     "access": "public"

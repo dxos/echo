@@ -2,61 +2,71 @@
 // Copyright 2020 DxOS.org
 //
 
-import { ValueUtil, MutationUtil, KeyValueUtil } from './mutation';
-import { createObjectId } from './util';
+import { ValueUtil } from './mutation';
 
 test('ValueUtil', () => {
   {
-    const value = null;
-    expect(ValueUtil.createMessage(value)).toStrictEqual({ isNull: true });
+    const message = ValueUtil.createMessage(null);
+
+    expect(message).toStrictEqual({
+      null: true
+    });
   }
 
   {
-    const value = {
+    const message = ValueUtil.createMessage({
       name: 'DxOS',
       data: {
         version: 1
       }
-    };
+    });
 
-    expect(ValueUtil.createMessage(value)).toStrictEqual({
-      objectValue: {
-        property: [
-          {
-            property: 'name',
-            value: {
-              stringValue: 'DxOS'
-            }
-          },
-          {
-            property: 'data',
-            value: {
-              objectValue: {
-                property: [
-                  {
-                    property: 'version',
-                    value: {
-                      intValue: 1
-                    }
-                  }
-                ]
-              }
-            }
+    expect(message).toStrictEqual({
+      object: [
+        {
+          key: 'name',
+          value: {
+            string: 'DxOS'
           }
-        ]
-      }
+        },
+        {
+          key: 'data',
+          value: {
+            object: [
+              {
+                key: 'version',
+                value: {
+                  int: 1
+                }
+              }
+            ]
+          }
+        }
+      ]
     });
   }
 });
 
-test('MutationUtil', () => {
+test('ValueUtil.applyValue null', () => {
+  const object = ValueUtil.applyValue({ title: 'DXOS' }, 'title', ValueUtil.createMessage(null));
+  expect(object.title).toBeUndefined();
+});
+
+// TODO(burdon): Test other scalars.
+test('ValueUtil.applyValue scalars', () => {
+  const object = ValueUtil.applyValue({}, 'title', ValueUtil.createMessage('DXOS'));
+  expect(object.title).toBe('DXOS');
+});
+
+test('ValueUtil.applyValue object', () => {
   const object = {
-    id: createObjectId('test')
+    version: '0.0.1',
+    packages: {
+      foo: 1,
+      bar: 2
+    }
   };
 
-  const mutation = MutationUtil.createMessage(object.id, KeyValueUtil.createMessage('name', 'DxOS'));
-  MutationUtil.applyMutation(object, mutation);
-  expect(object.name).toBe('DxOS');
-
-  // TODO(burdon): Test hierarchical mutations.
+  const { module } = ValueUtil.applyValue({}, 'module', ValueUtil.createMessage(object));
+  expect(module).toStrictEqual(object);
 });

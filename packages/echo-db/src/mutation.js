@@ -1,46 +1,29 @@
 //
-// Copyright 2020 DxOS
+// Copyright 2020 DxOS.org
 //
 
 import assert from 'assert';
 
-import { createId } from '@dxos/crypto';
-
 /**
  * @typedef {Object} Value
- * @typedef {Object} KeyValue
- * @typedef {Object} Mutation
+ * @typedef {{ key:string, value:Value }} KeyValue
+ * @typedef {Object} ObjectMutation
+ * @typedef {Object} ObjectMutationSet
  */
-
-/**
- * Represents a named property value.
- */
-export class KeyValueUtil {
-  static createMessage (property, value) {
-    console.assert(property);
-
-    return {
-      property,
-      // eslint-disable-next-line no-use-before-define
-      value: ValueUtil.createMessage(value)
-    };
-  }
-}
 
 const TYPE = {
-  NULL: 'isNull',
+  NULL: 'null',
 
-  // Scalar.
-  BOOLEAN: 'boolValue',
-  INTEGER: 'intValue',
-  FLOAT: 'floatValue',
-  STRING: 'stringValue',
+  BOOLEAN: 'bool',
+  INTEGER: 'int',
+  FLOAT: 'float',
+  STRING: 'string',
 
   BYTES: 'bytes',
   TIMESTAMP: 'timestamp',
   DATETIME: 'datetime',
 
-  OBJECT: 'objectValue'
+  OBJECT: 'object'
 };
 
 const SCALAR_TYPES = [
@@ -54,6 +37,21 @@ const SCALAR_TYPES = [
 ];
 
 /**
+ * Represents a named property value.
+ */
+export class KeyValueUtil {
+  static createMessage (key, value) {
+    assert(key);
+
+    return {
+      key,
+      // eslint-disable-next-line no-use-before-define
+      value: ValueUtil.createMessage(value)
+    };
+  }
+}
+
+/**
  * Represents scalar, array, and hierarchical values.
  * { null, boolean, number, string }
  */
@@ -62,8 +60,8 @@ export class ValueUtil {
    * @param {any} value
    * @return {{Value}}
    */
-  // TODO(burdon): Rename createScalarValue.
   static createMessage (value) {
+    // NOTE: Process `null` different from `undefined`.
     if (value === null) {
       return { [TYPE.NULL]: true };
     } else if (typeof value === 'boolean') {
@@ -101,10 +99,40 @@ export class ValueUtil {
 
   static object (value) {
     return {
-      [TYPE.OBJECT]: {
-        property: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
-      }
+      [TYPE.OBJECT]: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
     };
+  }
+
+  static applyValue (object, key, value) {
+    assert(object);
+    assert(key);
+    assert(value);
+
+    // Remove property.
+    // TODO(burdon): Null should stay set; remove if undefined?
+    if (value[TYPE.NULL]) {
+      delete object[key];
+      return object;
+    }
+
+    // Apply object properties.
+    if (value[TYPE.OBJECT]) {
+      const keyValues = value[TYPE.OBJECT];
+      const nestedObject = {};
+      keyValues.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key, value));
+      object[key] = nestedObject;
+      return object;
+    }
+
+    // Apply scalar.
+    const field = SCALAR_TYPES.find(field => value[field] !== undefined);
+    if (field) {
+      object[key] = value[field];
+      return object;
+    }
+
+    // Apply object.
+    throw new Error(`Unhandled value: ${JSON.stringify(value)}`);
   }
 }
 
@@ -114,55 +142,21 @@ export class ValueUtil {
  * { id, objectId, property, value, depends }
  */
 export class MutationUtil {
-  /**
-   * @param objectId
-   * @param value
-   * @param [properties]
-   * @return {{Mutation}}
-   */
-  static createMessage (objectId, value, properties) {
-    console.assert(objectId);
-
-    return {
-      id: createId(),
-      objectId,
-
-      value,
-
-      ...properties
-    };
-  }
-
   static applyMutations (object, messages) {
     messages.forEach(message => MutationUtil.applyMutation(object, message));
     return object;
   }
 
-  static applyMutation (object, message) {
-    // TODO(burdon): Currently assumes value property.
-    if (message.value !== undefined) {
-      MutationUtil.applyKeyValue(object, message.value);
-    }
-  }
-
-  static applyKeyValue (object, message) {
-    const { property, value } = message;
-    assert(property, value);
-
-    if (value[TYPE.NULL]) {
-      delete object[property];
-    } else {
-      // Apply scalar.
-      const field = SCALAR_TYPES.find(field => value[field] !== undefined);
-      if (field) {
-        object[property] = value[field];
-        return object;
+  static applyMutation (object, mutation) {
+    const { operation = 0, key, value } = mutation;
+    switch (operation) {
+      case 0: {
+        ValueUtil.applyValue(object, key, value);
+        break;
       }
 
-      // Apply object.
-      throw new Error(`Unhandled value: ${JSON.stringify(value)}`);
+      default:
+        throw new Error(`Operation not implemented: ${operation}`);
     }
-
-    return object;
   }
 }

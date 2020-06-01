@@ -1,10 +1,9 @@
 //
-// Copyright 2020 DxOS
+// Copyright 2020 DxOS.org
 //
 
 import { sortByProperty } from './util';
 
-// TODO(burdon): Move engineering docs here.
 // TODO(burdon): Dependency Graph: https://www.npmjs.com/package/dependency-graph
 
 /**
