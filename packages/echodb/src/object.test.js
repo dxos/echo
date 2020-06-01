@@ -3,6 +3,7 @@
 //
 
 import debug from 'debug';
+import { Graph } from 'js-data-structs';
 
 import { createId } from '@dxos/crypto';
 
@@ -159,37 +160,56 @@ test('Last writer wins', () => {
     };
   };
 
-  // TODO(dboreham): Should be in ObjectModel.
-  const getMostRecentMutation = (node) => {
+  /**
+   * Sort mutations into causal partial order, returned as a total ordered array of mutation ids.
+   * @param {NodeId:[{}Mutation}]} feeds
+   * @param {property} graphEdgeKey
+   * @return [{MutationId}]
+   */
+  // TODO(dboreham): The sort fn we use doesn't provide total order
+  // TODO(dbboreham): First messages should depend on object genesis message: currently returns undefined ancestor
+  const topoSortFeeds = (feeds, graphEdgeKey) => {
+    // Sort the messages in feeds into causal partial order according to the
+    // property graphEdgeKey.
+    const graph = Graph(true);
+    Object.keys(feeds).forEach((peer) => {
+      const feed = feeds[peer];
+      feed.forEach((message) => { graph.addEdge(message.id, message[graphEdgeKey]); });
+    });
+    return graph.topologicalSort();
+  };
+
+  // TODO(dboreham): Should be in crdt.js.
+  const getMostRecentMutationId = (node) => {
     // Find leaf nodes in the dependency graph for readFeeds
     // Temporarily, pick one of them to return (depends should be an array because dependency is a lattice not a DAG).
     // Even more temporarily pick the last mutation this node wrote.
-    // TODO(dboreham): Find elegant form of array.lastElement|undefined
-    return (node.writeFeed.length > 0) ? node.writeFeed[node.writeFeed.length - 1].id : undefined;
+    const sortedMutationIds = topoSortFeeds(node.readFeeds, 'depends');
+    log(`getMostRecentMutationId: ${sortedMutationIds}`);
+    return sortedMutationIds[0];
   };
 
   const testObjectId = createObjectId('testObjectType');
   const testProperty = 'testProperty';
 
   const appendMutation = (node, value) => {
-    log(`appendMutation: ${node.name}, ${value}`);
-    const dependsValue = getMostRecentMutation(node);
+    const dependsValue = getMostRecentMutationId(node);
     const messageProperties = dependsValue ? { depends: dependsValue } : {};
     const message = MutationUtil.createMessage(
       testObjectId,
       KeyValueUtil.createMessage(testProperty, value), messageProperties
     );
-    log(`Message: ${JSON.stringify(message)}`);
+    log(`appendMutation: ${message.id}: ${node.name} = ${value} -> ${dependsValue}`);
     node.writeFeed.push(message);
   };
 
   const getCurrentValue = (node) => {
     log('Merging:');
     Object.keys(node.readFeeds).forEach(peer => log(`${peer}: ${JSON.stringify(node.readFeeds[peer])}`));
-    const transformedFeeds = Object.keys(node.readFeeds).map(
+    const mappedFeeds = Object.keys(node.readFeeds).map(
       nodeName => { return { id: nodeName, messages: node.readFeeds[nodeName] }; }
     );
-    const mergedFeeds = mergeFeeds(transformedFeeds);
+    const mergedFeeds = mergeFeeds(mappedFeeds);
     log('Merged:');
     log(`${JSON.stringify(mergedFeeds)}`);
     const model = new ObjectModel().applyMutations(mergedFeeds);
@@ -218,6 +238,8 @@ test('Last writer wins', () => {
   replicateBetween(nodes.A, nodes.C);
 
   appendMutation(nodes.B, 'ValueB');
+  // Uncommenting the following line exposes the bug in our algorithm: ValueBPrime becomes the terminal value.
+  // appendMutation(nodes.B, 'ValueBPrime');
   appendMutation(nodes.C, 'ValueC');
 
   replicateBetween(nodes.A, nodes.B);
