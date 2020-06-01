@@ -21,21 +21,21 @@ package dxos.echo;
 //
 message Value {
   oneof Type {
-    bool    isNull                = 1;
+    bool    isNull                    = 1;
 
     // TODO(burdon): "Value" suffix not required?
-    bool    boolValue             = 2;
-    int32   intValue              = 3;
-    float   floatValue            = 4;
-    string  stringValue           = 5;
+    bool    boolValue                 = 2;
+    int32   intValue                  = 3;
+    float   floatValue                = 4;
+    string  stringValue               = 5;
 
-    bytes   bytes                 = 10;
-    string  timestamp             = 11;       // https://en.wikipedia.org/wiki/Unix_time
-    string  datetime              = 12;       // https://en.wikipedia.org/wiki/ISO_8601 (e.g., "2019-10-25T18:48:16Z")
+    bytes   bytes                     = 10;
+    string  timestamp                 = 11;   // https://en.wikipedia.org/wiki/Unix_time
+    string  datetime                  = 12;   // https://en.wikipedia.org/wiki/ISO_8601 (e.g., "2019-10-25T18:48:16Z")
 
-    Object  objectValue           = 20;
-    Set     setValue              = 21;
-    Array   arrayValue            = 22;
+    Object  objectValue               = 20;
+    Set     setValue                  = 21;
+    Array   arrayValue                = 22;
   }
 }
 
@@ -47,12 +47,12 @@ message Value {
 message Object {
 
   message KeyValue {
-    string property               = 1;
-    Value value                   = 2;
+    string property                   = 1;
+    Value value                       = 2;
   }
 
   // TODO(burdon): Rename properties?
-  repeated KeyValue property      = 1;
+  repeated KeyValue property          = 1;
 }
 
 //
@@ -63,12 +63,12 @@ message Array {
   // Splice mutation semantics.
   // TODO(burdon): Position only makes sense if reference previous state (not just previous mutation).
   message Mutation {
-    int32 position                = 1;        // -1 to append.
-    int32 delete                  = 2;
-    repeated Value value          = 3;
+    int32 position                    = 1;        // -1 to append.
+    int32 delete                      = 2;
+    repeated Value value              = 3;
   }
 
-  repeated Value value            = 1;
+  repeated Value value                = 1;
 }
 
 //
@@ -79,37 +79,38 @@ message Set {
 
   message Mutation {
     enum Operation {
-      ADD                         = 0;        // Default.
-      REMOVE                      = 1;
+      ADD                             = 0;        // Default.
+      REMOVE                          = 1;
     }
 
-    Operation op                  = 1;
-    Value value                   = 2;
+    Operation op                      = 1;
+    Value value                       = 2;
   }
 
-  repeated Value value            = 1;
+  repeated Value value                = 1;
 }
 
 //
 // Generic mutation.
 //
-message Mutation {
-  string id                       = 1;
-  string objectId                 = 2;
+message ObjectMutation {
+  string id                           = 1;
+  string objectId                     = 2;
 
-  string depends                  = 3;      // TODO(burdon): Currently ignored (generalize CRDT).
+  // TODO(burdon): Currently ignored (generalize vector clock).
+  string depends                      = 3;
 
   // TODO(burdon): Define array of hierarchical ObjectMutations.
   // Which should include array and set mutations (not just KeValue).
 
-  oneof Action {
-    bool deleted                  = 10;     // TODO(burdon): Currently ignored.
-    string property               = 11;     // TODO(burdon): Currently ignored.
-  }
-
   oneof Apply {
-    Object.KeyValue value         = 20;
-    Array.Mutation array          = 21;     // TODO(burdon): Currently ignored.
-    Set.Mutation set              = 22;     // TODO(burdon): Currently ignored.
+    bool deleted                      = 10;     // TODO(burdon): Currently ignored.
+    Object.KeyValue value             = 20;
+    Array.Mutation array              = 21;     // TODO(burdon): Currently ignored.
+    Set.Mutation set                  = 22;     // TODO(burdon): Currently ignored.
   }
+}
+
+message ObjectMutationSet {
+  repeated ObjectMutation mutations   = 1;
 }
