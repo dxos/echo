@@ -49,6 +49,7 @@ test('protobuf codec', () => {
   };
 
   const buffer = codec.encode(message);
+
   const { mutations } = codec.decode(buffer);
   expect(mutations).toHaveLength(2);
 });
@@ -58,7 +59,7 @@ test('protobuf stream', () => {
     const objectStore = new ObjectStore();
 
     // Process messages.
-    const consumer = through.obj(async (chunk, _, next) => {
+    const processor = through.obj(async (chunk, _, next) => {
       const { mutations } = codec.decode(chunk);
       objectStore.applyMutations(mutations);
       next(null, chunk);
@@ -66,8 +67,9 @@ test('protobuf stream', () => {
 
     const protoStream = new ReadableStreamBuffer();
 
-    const pipeline = pumpify(protoStream, consumer);
+    const pipeline = pumpify(protoStream, processor);
 
+    // Done.
     pipeline.on('finish', () => {
       const object = objectStore.getObjectById(createObjectId('test', '123'));
       expect(object.properties.title).toBe('DXOS');
