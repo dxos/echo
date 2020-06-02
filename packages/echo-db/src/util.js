@@ -12,7 +12,6 @@ import { createId } from '@dxos/crypto';
  * @param {string} [id]
  * @return {string} ID
  */
-// TODO(burdon): Make url safe?
 export const createObjectId = (type, id = undefined) => {
   assert(type, 'Required type');
 

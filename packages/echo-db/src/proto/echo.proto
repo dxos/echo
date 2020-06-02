@@ -8,29 +8,30 @@ syntax = "proto3";
 // https://developers.google.com/protocol-buffers/docs/proto#updating
 
 //
-// This package defines messages that can be used to form composite data structures, and arbitrary mutations.
+// Object mutation messages.
 //
+
 package dxos.echo;
 
-// TODO(burdon): Do we need to define schema for the underlying objects (not just the mutation semantics?)
+// TODO(burdon): Should we support schema defs for the underlying objects (not just these mutation semantics?)
 
 //
 // Generic value.
 //
 message Value {
   oneof Type {
-    bool            null              = 1;    // TODO(burdon): Explicit null vs undefined (remove semantics?)
+    bool      null                    = 1;    // TODO(burdon): Explicit null vs undefined (remove semantics?)
 
-    bool            bool              = 2;
-    int32           int               = 3;
-    float           float             = 4;
-    string          string            = 5;
+    bool      bool                    = 2;
+    int32     int                     = 3;
+    float     float                   = 4;
+    string    string                  = 5;
 
-    string          timestamp         = 10;   // https://en.wikipedia.org/wiki/Unix_time
-    string          datetime          = 11;   // https://en.wikipedia.org/wiki/ISO_8601 (e.g., "2019-10-25T18:48:16Z")
-    bytes           bytes             = 12;
+    string    timestamp               = 10;   // https://en.wikipedia.org/wiki/Unix_time
+    string    datetime                = 11;   // https://en.wikipedia.org/wiki/ISO_8601 (e.g., "2019-10-25T18:48:16Z")
+    bytes     bytes                   = 12;
 
-    KeyValue        object            = 20;
+    KeyValue  object                  = 20;
   }
 }
 
@@ -58,9 +59,10 @@ message ObjectMutation {
   }
 
   // Meta.
+  // TODO(burdon): Other meta (e.g., creation time?)
   string objectId                     = 1;
 
-  // TODO(burdon): Dependencies.
+  // TODO(burdon): Rethink dependencies/clock.
   string id                           = 2;
   string dependency                   = 3;
 
