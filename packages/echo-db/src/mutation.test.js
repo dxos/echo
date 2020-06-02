@@ -22,27 +22,31 @@ test('ValueUtil', () => {
     });
 
     expect(message).toStrictEqual({
-      object: [
-        {
-          key: 'name',
-          value: {
-            string: 'DxOS'
-          }
-        },
-        {
-          key: 'data',
-          value: {
-            object: [
-              {
-                key: 'version',
-                value: {
-                  int: 1
-                }
+      object: {
+        properties: [
+          {
+            key: 'name',
+            value: {
+              string: 'DxOS'
+            }
+          },
+          {
+            key: 'data',
+            value: {
+              object: {
+                properties: [
+                  {
+                    key: 'version',
+                    value: {
+                      int: 1
+                    }
+                  }
+                ]
               }
-            ]
+            }
           }
-        }
-      ]
+        ]
+      }
     });
   }
 });

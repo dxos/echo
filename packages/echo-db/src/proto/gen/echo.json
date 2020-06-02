@@ -54,7 +54,7 @@
                   "id": 12
                 },
                 "object": {
-                  "type": "KeyValue",
+                  "type": "Object",
                   "id": 20
                 }
               }
@@ -68,6 +68,15 @@
                 "value": {
                   "type": "Value",
                   "id": 2
+                }
+              }
+            },
+            "Object": {
+              "fields": {
+                "properites": {
+                  "rule": "repeated",
+                  "type": "KeyValue",
+                  "id": 1
                 }
               }
             },

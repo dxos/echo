@@ -99,7 +99,9 @@ export class ValueUtil {
 
   static object (value) {
     return {
-      [TYPE.OBJECT]: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
+      [TYPE.OBJECT]: {
+        properties: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
+      }
     };
   }
 
@@ -117,9 +119,9 @@ export class ValueUtil {
 
     // Apply object properties.
     if (value[TYPE.OBJECT]) {
-      const keyValues = value[TYPE.OBJECT];
+      const { properties } = value[TYPE.OBJECT];
       const nestedObject = {};
-      keyValues.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key, value));
+      properties.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key, value));
       object[key] = nestedObject;
       return object;
     }
@@ -155,6 +157,7 @@ export class MutationUtil {
         break;
       }
 
+      // TODO(burdon): Other mutation types.
       default:
         throw new Error(`Operation not implemented: ${operation}`);
     }

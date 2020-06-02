@@ -57,11 +57,10 @@ test('protobuf stream', () => {
   return new Promise((resolve, reject) => {
     const objectStore = new ObjectStore();
 
-    // TODO(burdon): Create adapter.
+    // Process messages.
     const consumer = through.obj(async (chunk, _, next) => {
       const { mutations } = codec.decode(chunk);
       objectStore.applyMutations(mutations);
-
       next(null, chunk);
     });
 
