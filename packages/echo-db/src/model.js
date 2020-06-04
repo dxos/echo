@@ -30,12 +30,9 @@ export class EchoModel extends Model {
     const id = createObjectId(type);
     const mutations = fromObject({ id, properties });
 
-    // TODO(burdon): Create single message.
-    mutations.forEach((mutation) => {
-      this.appendMessage({
-        __type_url: type,
-        ...mutation
-      });
+    this.appendMessage({
+      __type_url: type,
+      ...mutations
     });
 
     return id;
@@ -50,12 +47,9 @@ export class EchoModel extends Model {
       properties
     });
 
-    // TODO(burdon): Create single message.
-    mutations.forEach((mutation) => {
-      this.appendMessage({
-        __type_url: type,
-        ...mutation
-      });
+    this.appendMessage({
+      __type_url: type,
+      ...mutations
     });
   }
 
