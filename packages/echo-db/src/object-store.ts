@@ -4,7 +4,6 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import EventEmitter from 'events';
 import { EventEmitter } from 'events';
 
 import { MutationUtil, ValueUtil } from './mutation';
