@@ -5,19 +5,24 @@
 import assert from 'assert';
 import debug from 'debug';
 import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 
 import { MutationUtil, ValueUtil } from './mutation';
 import { parseObjectId } from './util';
+import { dxos } from './proto/gen/echo';
+
+interface ObjectBase {
+  id: string,
+  properties?: object,
+}
 
 const log = debug('dxos:echo:objectstore');
 
 /**
  * Create a set mutation messages from a single object.
- * @param {Object} object
- * @return {ObjectMutation[]}
  */
 // TODO(burdon): Rename.
-export const fromObject = ({ id, properties = {} }) => {
+export const fromObject = ({ id, properties = {} }: ObjectBase): dxos.echo.IObjectMutation => {
   assert(id);
 
   return {
@@ -31,13 +36,9 @@ export const fromObject = ({ id, properties = {} }) => {
 
 /**
  * Create a set mutation messages from a collection of objects.
- * @param {Object[]} objects
- * @return {ObjectMutation[]}
  */
-export const fromObjects = (objects) => {
-  return objects.reduce((messages, object) => {
-    return messages.concat(fromObject(object));
-  }, []);
+export const fromObjects = (objects: ObjectBase[]): dxos.echo.IObjectMutation[] => {
+  return objects.map(fromObject);
 };
 
 /**
@@ -65,16 +66,16 @@ export class ObjectStore extends EventEmitter {
    * @returns {Object[]}
    */
   // TODO(burdon): orderBy?
-  getObjectsByType (type) {
+  getObjectsByType (type: string) {
     return Array.from(this._objectById.values()).filter(({ id }) => parseObjectId(id).type === type);
   }
 
   /**
    * Returns the object with the given ID (or undefined).
    * @param id
-   * @returns {Object}
+   * @returns {{ id }}
    */
-  getObjectById (id) {
+  getObjectById (id: string) {
     return this._objectById.get(id);
   }
 
@@ -92,7 +93,7 @@ export class ObjectStore extends EventEmitter {
    * @param mutation
    * @returns {ObjectStore}
    */
-  applyMutation (mutation) {
+  applyMutation (mutation: dxos.echo.IObjectMutation) {
     const { objectId, deleted, mutations } = mutation;
     assert(objectId);
 
@@ -121,7 +122,7 @@ export class ObjectStore extends EventEmitter {
     return this;
   }
 
-  applyMutations (mutations) {
+  applyMutations (mutations: dxos.echo.IObjectMutation[]) {
     log(`applyMutations: ${JSON.stringify(mutations)}`);
     mutations.forEach(mutation => this.applyMutation(mutation));
 
