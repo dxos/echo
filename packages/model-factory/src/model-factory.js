@@ -19,14 +19,15 @@ import { bufferedStreamHandler } from './buffer-stream';
 export class ModelFactory {
   /**
    * @param {FeedStore} feedStore
-   * @param {function} onAppend
    * @param {Object} options
+   * @param {function} options.onAppend
    * @param {function} options.onMessages
    */
-  constructor (feedStore, onAppend, options = {}) {
-    assert(feedStore);
+  constructor (feedStore, options = {}) {
+    const { onAppend, onMessage } = options;
 
-    const { onMessage } = options;
+    assert(feedStore);
+    assert(onAppend);
 
     this._subscriber = new Subscriber(feedStore);
     this._onAppend = onAppend;
@@ -47,6 +48,8 @@ export class ModelFactory {
     assert(ModelClass);
 
     const { type, topic, subscriptionOptions = {}, batchPeriod = 50, ...rest } = options;
+
+    const feedInfo = subscriptionOptions.feedLevelIndexInfo;
 
     // TODO(burdon): Option to cache and reference count models.
     const model = new ModelClass(type, message => this._onAppend(message, options));
@@ -75,6 +78,10 @@ export class ModelFactory {
       }
 
       messages = messages.filter(message => !!message);
+
+      if (!feedInfo) {
+        messages = messages.map(m => m.data);
+      }
 
       await model.processMessages(messages);
       // metrics.inc(`model.${model.id}.length`, messages.length);
