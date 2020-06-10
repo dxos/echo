@@ -15,7 +15,7 @@ import eos from 'end-of-stream';
  *
  */
 class Queue {
-  constructor(stream, handler, period) {
+  constructor (stream, handler, period) {
     this._stream = stream;
     this._handler = handler;
 
@@ -30,17 +30,17 @@ class Queue {
     eos(stream, () => this._clear());
   }
 
-  add(message) {
+  add (message) {
     this._messages.push(message);
     this._debounced();
   }
 
-  _clear() {
+  _clear () {
     this._debounced.cancel();
     this._limit.clearQueue();
   }
 
-  _queueHandler() {
+  _queueHandler () {
     // fast return
     if (this._messages.length === 0 || this._stream.destroyed) {
       return this._clear();
@@ -49,7 +49,7 @@ class Queue {
     if (this._synced) return this._process();
   }
 
-  _process() {
+  _process () {
     this._limit(() => {
       this._clear();
 

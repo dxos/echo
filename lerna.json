@@ -1,12 +1,5 @@
 {
   "version": "1.0.0-beta.6",
   "useWorkspaces": true,
-  "npmClient": "yarn",
-  "command": {
-    "bootstrap": {
-      "nohoist": [
-        "@dxos/model-factory"
-      ]
-    }
-  }
+  "npmClient": "yarn"
 }
