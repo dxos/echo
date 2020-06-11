@@ -13,9 +13,16 @@ $ npm install @dxos/model-factory
 
 ## Usage
 
+...
+
 ## API
 
-#### `const broadcast = new Broadcast(middleware, [options])`
+#### `const modelFactory = new ModelFactory(feedStore, [options])`
+
+- `feedStore`: A [FeedStore](https://github.com/dxos/feed-store) instance.
+- `options`:
+  - `onAppend: (message: Object, options: Object) => Promise`: Hook to append model messages to external interfaces.
+  - `onMessage: (message: Object, options: Object) => Promise<Message|undefined>`: Function to map incoming messages.
 
 ## Contributing
 

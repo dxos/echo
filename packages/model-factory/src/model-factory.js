@@ -24,10 +24,9 @@ export class ModelFactory {
    * @param {function} options.onMessages
    */
   constructor (feedStore, options = {}) {
-    const { onAppend, onMessage } = options;
-
     assert(feedStore);
-    assert(onAppend);
+
+    const { onAppend = () => {}, onMessage } = options;
 
     this._subscriber = new Subscriber(feedStore);
     this._onAppend = onAppend;

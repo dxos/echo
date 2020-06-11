@@ -13,7 +13,7 @@ import { createId, humanize } from '@dxos/crypto';
  * Events: `append`, `update`, `destroy`
  */
 export class Model extends EventEmitter {
-  constructor (type, onAppend) {
+  constructor (type, onAppend = () => {}) {
     super();
 
     this._type = type;
