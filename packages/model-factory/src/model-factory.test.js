@@ -3,9 +3,9 @@
 //
 
 import bufferJson from 'buffer-json-encoding';
-import ram from 'random-access-memory';
 import pify from 'pify';
 
+import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { latch } from '@dxos/async';
 import { createId, randomBytes } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
@@ -29,7 +29,7 @@ const sleep = ms => {
 const randomInt = (min, max) => Math.floor(Math.random() * max) + min;
 
 const createFactory = async () => {
-  const feedStore = await FeedStore.create(ram, {
+  const feedStore = await FeedStore.create(createStorage('./temp', STORAGE_RAM), {
     feedOptions: {
       valueEncoding: 'buffer-json'
     },
