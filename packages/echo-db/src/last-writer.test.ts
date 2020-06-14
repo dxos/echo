@@ -28,7 +28,7 @@ test('Last writer wins', () => {
     return [];
   };
 
-  const createNode = (name) => {
+  const createNode = (name: string) : object => {
     return {
       name,
       writeFeed: createFeed(),
@@ -44,7 +44,7 @@ test('Last writer wins', () => {
    */
   // TODO(dboreham): The sort fn we use doesn't provide total order
   // TODO(dbboreham): First messages should depend on object genesis message: currently returns undefined ancestor
-  const topoSortFeeds = (feeds, graphEdgeKey) => {
+  const topoSortFeeds = (feeds: object, graphEdgeKey: string) => {
     // Sort the messages in feeds into causal partial order according to the
     // property graphEdgeKey.
     const graph = Graph(true);
