@@ -4,7 +4,7 @@
 
 // TODO(burdon): Dependency Graph: https://www.npmjs.com/package/dependency-graph
 
-import {dxos} from "./proto/gen/echo";
+import { dxos } from './proto/gen/echo';
 
 export interface MessageBase {
   id: string | number,
