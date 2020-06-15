@@ -1,14 +1,14 @@
 //
-// Copyright 2020 DxOS
+// Copyright 2020 DxOS.org
 //
 
 import debug from 'debug';
 import { Graph } from 'js-data-structs';
 
-import { ObjectStore, fromObject } from './object-store';
-import { createObjectId } from './util';
 import { mergeFeeds } from './dependency';
+import { ObjectStore, fromObject } from './object-store';
 import { dxos } from './proto/gen/echo';
+import { createObjectId } from './util';
 
 const log = debug('dxos:echo:test');
 
