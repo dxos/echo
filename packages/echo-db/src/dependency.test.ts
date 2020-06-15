@@ -5,7 +5,9 @@
 import { KeyValueUtil } from './mutation';
 import { ObjectStore } from './object-store';
 import { createObjectId } from './util';
-import { mergeFeeds } from './dependency';
+import { Feed as BaseFeed, mergeFeeds } from './dependency';
+import { dxos } from './proto/gen/echo';
+import IObjectMutation = dxos.echo.IObjectMutation;
 
 test('Merge feeds', () => {
   const obj = { x: { id: createObjectId('test') }, y: { id: createObjectId('test') } };
@@ -14,59 +16,64 @@ test('Merge feeds', () => {
   // TODO(burdon): Generate mutations by actually mutation different object stores?
   // TODO(burdon): Demonstrate conflicts.
 
-  const feed1 = {
+  type Feed = BaseFeed<IObjectMutation>;
+
+  const feed1: Feed = {
+    id: '1',
     messages: [
       {
-        id: 1,
+        id: '1',
         objectId: obj.x.id,
         mutations: [KeyValueUtil.createMessage('title', 'Test-1')]
       },
       {
-        id: 2,
+        id: '2',
         objectId: obj.x.id,
         mutations: [KeyValueUtil.createMessage('priority', 1)]
       },
       {
-        id: 3,
+        id: '3',
         objectId: obj.x.id,
         mutations: [KeyValueUtil.createMessage('complete', false)]
       }
     ]
   };
 
-  const feed2 = {
+  const feed2: Feed = {
+    id: '2',
     messages: [
       {
-        id: 4,
+        id: '4',
         objectId: obj.y.id,
         mutations: [KeyValueUtil.createMessage('title', 'Test-2')]
       },
       {
-        id: 5,
-        dependency: 2,
+        id: '5',
+        dependency: '2',
         objectId: obj.x.id,
         mutations: [KeyValueUtil.createMessage('priority', 3)]
       },
       {
-        id: 6,
-        dependency: 4,
+        id: '6',
+        dependency: '4',
         objectId: obj.y.id,
         mutations: [KeyValueUtil.createMessage('title', 'Test-2 Modified')]
       }
     ]
   };
 
-  const feed3 = {
+  const feed3: Feed = {
+    id: '3',
     messages: [
       {
-        id: 7,
-        dependency: 6,
+        id: '7',
+        dependency: '6',
         objectId: obj.y.id,
         mutations: [KeyValueUtil.createMessage('complete', false)]
       },
       {
-        id: 8,
-        dependency: 2,
+        id: '8',
+        dependency: '2',
         objectId: obj.x.id,
         mutations: [KeyValueUtil.createMessage('priority', 2)]
       }

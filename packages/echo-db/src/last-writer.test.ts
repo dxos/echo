@@ -8,7 +8,7 @@ import { Graph } from 'js-data-structs';
 import { ObjectStore, fromObject } from './object-store';
 import { createObjectId } from './util';
 import { mergeFeeds } from './dependency';
-import {dxos} from "./proto/gen/echo";
+import { dxos } from './proto/gen/echo';
 
 const log = debug('dxos:echo:test');
 
@@ -16,12 +16,12 @@ type NodeId = string;
 
 type Feed = dxos.echo.IObjectMutation[];
 
-interface FeedMap { [node: string]: Feed; }
+interface FeedMap { [node: string]: Feed }
 
 interface Node {
-  name: NodeId;
-  writeFeed: Feed;
-  readFeeds: FeedMap;
+  name: NodeId,
+  writeFeed: Feed,
+  readFeeds: FeedMap
 }
 
 test('Last writer wins', () => {
@@ -56,7 +56,7 @@ test('Last writer wins', () => {
    */
   // TODO(dboreham): The sort fn we use doesn't provide total order
   // TODO(dbboreham): First messages should depend on object genesis message: currently returns undefined ancestor
-  const topoSortFeeds = (feeds: FeedMap, graphEdgeKey: string) => {
+  const topoSortFeeds = (feeds: FeedMap) => {
     // Sort the messages in feeds into causal partial order according to the
     // property graphEdgeKey.
     const graph = Graph(true);
@@ -72,7 +72,7 @@ test('Last writer wins', () => {
     // Find leaf nodes in the dependency graph for readFeeds
     // Temporarily, pick one of them to return (depends should be an array because dependency is a lattice not a DAG).
     // Even more temporarily pick the last mutation this node wrote.
-    const sortedMutationIds = topoSortFeeds(node.readFeeds, 'dependency');
+    const sortedMutationIds = topoSortFeeds(node.readFeeds);
     log(`getMostRecentMutationId: ${sortedMutationIds}`);
     return sortedMutationIds[0];
   };
@@ -83,9 +83,12 @@ test('Last writer wins', () => {
   const appendMutation = (node: Node, value: string) => {
     const dependsValue = getMostRecentMutationId(node);
     const messageProperties: object = dependsValue ? { dependency: dependsValue } : {};
-    const message = {...messageProperties,  ...fromObject(
-      { id: testObjectId, properties: { [testProperty]: value } }
-    )};
+    const message = {
+      ...messageProperties,
+      ...fromObject(
+        { id: testObjectId, properties: { [testProperty]: value } }
+      )
+    };
     log(`appendMutation: ${message.id}: ${node.name} = ${value} -> ${dependsValue}`);
     node.writeFeed.push(message);
   };

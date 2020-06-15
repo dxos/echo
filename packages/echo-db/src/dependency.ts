@@ -4,13 +4,12 @@
 
 // TODO(burdon): Dependency Graph: https://www.npmjs.com/package/dependency-graph
 
-import { dxos } from './proto/gen/echo';
-
 export interface MessageBase {
-  id: string | number,
-  dependency?: string | number,
+  id?: (string | null),
+  dependency?: (string | null),
 }
 
+// TODO(dboreham): figure out how to prevent protobuf schema constraints leaking into our code (e.g. (string|null) ).
 export interface Feed<T extends MessageBase> {
   id?: string | number,
   messages: T[],
@@ -26,7 +25,7 @@ interface FeedCursor {
  * @param {[{ id, messages }]} feeds
  * @return {[{Message}]}
  */
-export function mergeFeeds (feeds: dxos.echo.IObjectMutation[]) {
+export function mergeFeeds<T extends MessageBase> (feeds: Feed<T>[]): T[] {
   // Ordered list of merged messages.
   // TODO(burdon): Convert to stream.
   const merged = [];
