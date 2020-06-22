@@ -8,4 +8,3 @@ export * from './object-store';
 export * from './util';
 export * from './ordered';
 export * from './partially-ordered';
-export * from './view-model';
