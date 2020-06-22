@@ -7,30 +7,38 @@ import { raise } from './util';
 export interface ViewMutation {
   __type_url: string
   viewId: string
-  [key: string]: any
+  displayName?: string
+  deleted?: boolean
+  metadata?: Record<string, any>
 }
 
-export interface View {
-  __type_url: string
+export interface View<M extends {} = {}> {
+  type: string
   viewId: string
-  title: string
+  displayName: string
+  deleted: boolean
+  metadata: M
 }
 
-export class ViewModel<T extends View = View> extends Model {
-  private readonly _views = new Map<string, T>()
+export class ViewModel<M extends {} = {}> extends Model {
+  private readonly _views = new Map<string, View<M>>()
 
-  getById(viewId: string): T | undefined {
-    return this._views.get(viewId)
+  getById(viewId: string): View<M> | undefined {
+     const view = this._views.get(viewId);
+     if (view?.deleted) {
+       return undefined
+     }
+     return view
   }
 
-  getAllViews(): T[] {
-    return Array.from(this._views.values());
+  getAllViews(): View<M>[] {
+    return Array.from(this._views.values()).filter(view => !view.deleted);
   }
 
-  getAllForType(type: string): T[] {
-    const res: T[] = [];
+  getAllForType(type: string): View<M>[] {
+    const res: View<M>[] = [];
     for(const view of this._views.values()) {
-      if(view.__type_url === type) {
+      if(view.type === type && !view.deleted) {
         res.push(view);
       }
     }
@@ -39,29 +47,42 @@ export class ViewModel<T extends View = View> extends Model {
 
   onUpdate (messages: ViewMutation[]) {
     console.log('apply', super.id, messages)
-    for(const { viewId, __type_url, ...props } of messages) {
-      const view = this.getById(viewId);
+    for(const message of messages) {
+      const view = this.getById(message.viewId);
       if(view) {
-        this._views.set(viewId, { ...view, ...props });
+        this._views.set(message.viewId, {
+           ...view,
+           displayName: message.displayName ?? view.displayName,
+           deleted: message.deleted || view.deleted,
+           metadata: {
+             ...message.metadata,
+             ...view.metadata,
+           },
+          });
       } else {
-        this._views.set(viewId, {
-          viewId,
-          __type_url,
-          title: props.title ?? viewId,
-           ...props,
-        } as T);
+        this._views.set(message.viewId, {
+          type: message.__type_url,
+          viewId: message.viewId,
+          displayName: message.displayName ?? message.viewId,
+          metadata: message.metadata ?? {},
+        } as View<M>);
       }
     }
   }
 
-  createView(type: string, title: string, props: Partial<Omit<T, keyof View>> = {}): string {
+  createView(type: string, displayName: string, metadata: M = {} as any): string {
     const viewId = createId();
-    super.appendMessage({ title, ...props, viewId, __type_url: type });
+    super.appendMessage({ __type_url: type, viewId, displayName, metadata });
     return viewId;
   }
 
-  editView(viewId: string, props: Partial<Omit<T, 'viewId' | '__type_url'>>) {
+  renameView(viewId: string, displayName: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
-    super.appendMessage({ ...props, viewId, __type_url: view.__type_url });
+    super.appendMessage({ viewId, __type_url: view.type, displayName });
+  }
+
+  editView(viewId: string, metdata: Partial<M>) {
+    const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
+    super.appendMessage({ viewId, __type_url: view.type, metdata });
   }
 }
