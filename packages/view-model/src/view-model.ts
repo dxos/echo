@@ -1,6 +1,7 @@
 import { createId } from '@dxos/crypto';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
+
 import { raise } from './util';
 
 // TODO(marik-d): Reuse existing ObjectModel mutation mechanisms and CRDTs
