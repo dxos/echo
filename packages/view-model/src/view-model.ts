@@ -95,7 +95,7 @@ export class ViewModel<M extends {} = {}> extends Model {
     super.appendMessage({ viewId, __type_url: view.type, deleted: true });
   }
 
-  unDeleteView (viewId: string) {
+  restoreView (viewId: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (!view.deleted) return;
     super.appendMessage({ viewId, __type_url: view.type, deleted: false });
