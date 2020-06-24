@@ -82,9 +82,9 @@ export class ViewModel<M extends {} = {}> extends Model {
     super.appendMessage({ viewId, __type_url: view.type, displayName });
   }
 
-  updateView (viewId: string, metdata: Partial<M>) {
+  updateView (viewId: string, metadata: Partial<M>) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
-    super.appendMessage({ viewId, __type_url: view.type, metdata });
+    super.appendMessage({ viewId, __type_url: view.type, metadata });
   }
 
   deleteView (viewId: string) {
