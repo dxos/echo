@@ -1,9 +1,9 @@
 {
-  "name": "@dxos/echo-benchmark",
+  "name": "@dxos/echo-environment-test",
   "version": "1.0.0-beta.18",
-  "description": "Echo benchmark.",
+  "description": "Echo environment test.",
   "private": true,
-  "homepage": "https://github.com/dxos/echo/tree/master/packages/echo-benchmark#readme",
+  "homepage": "https://github.com/dxos/echo/tree/master/packages/echo-environment-test#readme",
   "bugs": {
     "url": "https://github.com/dxos/echo/issues"
   },
@@ -37,9 +37,9 @@
     "@dxos/data-client": "^1.0.0-beta.91",
     "@dxos/feed-store": "^1.2.0-beta.22",
     "@dxos/model-factory": "^1.0.0-beta.17",
-    "@dxos/protocol": "^1.1.0-beta.4",
-    "@dxos/protocol-network-generator": "^1.1.0-beta.4",
-    "@dxos/protocol-plugin-replicator": "^1.1.0-beta.4",
+    "@dxos/protocol": "^1.1.0-beta.6",
+    "@dxos/protocol-network-generator": "^1.1.0-beta.6",
+    "@dxos/protocol-plugin-replicator": "^1.1.0-beta.6",
     "@dxos/random-access-multi-storage": "^1.1.0-beta.4",
     "buffer-json-encoding": "^1.0.2",
     "pify": "^5.0.0",

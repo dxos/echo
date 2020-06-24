@@ -16,8 +16,7 @@ import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { FeedStore } from '@dxos/feed-store';
 
 import { COMPLETE } from './topologies';
-
-const kGenerateData = Symbol('generateData');
+import { Environment } from './environment';
 
 export class EnvironmentFactory extends EventEmitter {
   constructor () {
@@ -33,7 +32,7 @@ export class EnvironmentFactory extends EventEmitter {
   }
 
   async create (opts = {}) {
-    const { topic = randomBytes(32), network: networkOptions = { type: COMPLETE, args: [5] } } = opts;
+    const { topic = randomBytes(32), network: networkOptions = { type: COMPLETE, args: [2] } } = opts;
 
     // create the local network
     const network = await this._generator[networkOptions.type]({
@@ -93,61 +92,19 @@ export class EnvironmentFactory extends EventEmitter {
   }
 }
 
-export class Environment extends EventEmitter {
-  constructor (topic, network) {
-    super();
-
-    this._topic = topic;
-    this._network = network;
-  }
-
-  get peers () {
-    return this._network.peers;
-  }
-
-  get models () {
-    return this._network.peers.reduce((prev, curr) => {
-      return [...prev, ...curr.models];
-    }, []);
-  }
-
-  addModels (models) {
-    return Promise.all(models.map(model => this.addModel(model)));
-  }
-
-  async addModel (opts = {}) {
-    const { ModelClass, generator, ...modelOptions } = opts;
-
-    assert(ModelClass);
-    assert(generator);
-
-    for (const peer of this._network.peers) {
-      const model = await peer.modelFactory.createModel(ModelClass, { ...modelOptions, topic: this._topic });
-      model[kGenerateData] = generator(this._topic, peer.id);
-      peer.models.push(model);
-      model.on('update', (_, messages) => {
-        this.emit('model-update', { peerId: peer.id, model, messages });
-      });
-    }
-  }
-
-  async appendMessages (maxMessages) {
-    for (let i = 0; i < maxMessages; i++) {
-      await Promise.all(this.models.map(async (model) => {
-        const data = await model[kGenerateData]();
-        return model.appendMessage(data);
-      }));
-    }
-  }
-}
-
-export const defaultModel = (_, peerId) => ({
+export const defaultModel = {
   ModelClass: DefaultModel,
-  generator () {
+  generator (_, peerId) {
     let i = 0;
-    return () => ({ value: `msg/${peerId.toString('hex').slice(0, 6)}/${i++}` });
+    return () => ({
+      __type_url: 'defaultModel',
+      id: `${peerId.toString('hex').slice(0, 6)}/${i++}`
+    });
+  },
+  options: {
+    type: 'defaultModel'
   }
-});
+};
 
 export const defaultProtocol = ({ topic, peerId, feedStore, feed }) => {
   assert(topic);
@@ -157,7 +114,15 @@ export const defaultProtocol = ({ topic, peerId, feedStore, feed }) => {
 
   const replicator = new DefaultReplicator({
     feedStore,
-    onLoad: () => [feed]
+    onLoad: () => {
+      const descriptor = feedStore.getDescriptorByDiscoveryKey(feed.discoveryKey);
+
+      return [{
+        key: feed.key,
+        discoveryKey: feed.key,
+        metadata: descriptor.metadata
+      }];
+    }
   });
 
   return () => new Protocol({
