@@ -1,4 +1,4 @@
-import { EnvironmentFactory, defaultModel } from './src';
+import { EnvironmentFactory, defaultModel, COMPLETE } from './src';
 
 (async () => {
   const factory = new EnvironmentFactory();
@@ -7,21 +7,34 @@ import { EnvironmentFactory, defaultModel } from './src';
   });
 
   try {
-    const env = await factory.create();
-
-    await env.addModel(defaultModel);
-
-    env.on('model-update', ({ topic, peerId, messages }) => {
-      console.log(peerId.toString('hex'), env.totalMessages);
+    const env = await factory.create({
+      network: {
+        type: COMPLETE,
+        parameters: [2]
+      }
     });
 
-    await env.appendMessages(5000);
+    env.addModel(defaultModel);
 
-    console.log(env.totalMessages)
+    // env.on('model-update', ({ topic, peerId, messages }) => {
+    //   console.log(peerId.toString('hex'), messages.length, env.totalStreamMessages);
+    // });
 
-    await env.waitForSync();
+    // env.on('stream-data', () => {
+    //   console.log('entra')
+    // });
 
-    console.log(env.totalMessages)
+    // await env.appendEnvironmentMessages(10);
+
+    console.log(env.updatedModelMessages);
+
+    const model = env.models[0];
+
+    await env.appendMessages(model, 10);
+
+    await env.waitForEnvironmentSync();
+
+    console.log(env.updatedModelMessages);
   } catch (err) {
     console.log(err);
   }

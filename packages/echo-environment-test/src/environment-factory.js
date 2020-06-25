@@ -15,15 +15,21 @@ import { ModelFactory, DefaultModel } from '@dxos/model-factory';
 import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { FeedStore } from '@dxos/feed-store';
 
-import { COMPLETE } from './topologies';
+import { NO_LINKS } from './topologies';
 import { Environment } from './environment';
 
 export class EnvironmentFactory extends EventEmitter {
   constructor () {
     super();
 
+    this._envs = new Set();
     this._generator = new ProtocolNetworkGenerator((...args) => this._createPeer(...args));
     this._generator.on('error', err => this.emit('error', err));
+    this.on('stream-data', data => {
+      this._envs.forEach(env => {
+        env.emit('stream-data', data);
+      });
+    });
   }
 
   onCreatePeer (cb) {
@@ -32,12 +38,13 @@ export class EnvironmentFactory extends EventEmitter {
   }
 
   async create (opts = {}) {
-    const { topic = randomBytes(32), network: networkOptions = { type: COMPLETE, args: [2] } } = opts;
+    const { topic = randomBytes(32), peer = {}, network: networkOptions = { type: NO_LINKS, parameters: [1] } } = opts;
 
     // create the local network
     const network = await this._generator[networkOptions.type]({
       topic,
-      parameters: networkOptions.args
+      parameters: networkOptions.parameters,
+      peer
     });
 
     this.emit('network-created', network);
@@ -45,12 +52,14 @@ export class EnvironmentFactory extends EventEmitter {
     const env = new Environment(topic, network);
     this.emit('environment-created', env);
 
+    this._envs.add(env);
+
     return env;
   }
 
-  async _createPeer (topic, peerId) {
+  async _createPeer (topic, peerId, peerOptions) {
     try {
-      const peer = await this._onCreatePeer(topic, peerId);
+      const peer = await this._onCreatePeer(topic, peerId, peerOptions);
 
       assert(peer.feedStore, 'peer.feedStore is required');
       assert(peer.modelFactory, 'peer.modelFactory is required');
@@ -58,6 +67,13 @@ export class EnvironmentFactory extends EventEmitter {
 
       peer.id = peerId;
       peer.models = [];
+      peer.feedStream = peer.feedStore.createBatchStream(d => {
+        if (d.metadata && d.metadata.topic && d.metadata.topic.equals(topic)) {
+          return { live: true };
+        }
+      }).on('data', messages => {
+        this.emit('stream-data', { topic, peerId, messages });
+      });
 
       this.emit('peer-created', topic, peer);
       return peer;
@@ -66,13 +82,15 @@ export class EnvironmentFactory extends EventEmitter {
     }
   }
 
-  async _onCreatePeer (topic, peerId) {
-    const feedStore = await FeedStore.create(createStorage(`.temp/${peerId.toString('hex')}`, STORAGE_RAM), {
+  async _onCreatePeer (topic, peerId, peerOptions = {}) {
+    const { storage = STORAGE_RAM, codec = bufferJson } = peerOptions;
+
+    const feedStore = await FeedStore.create(createStorage(`.temp/${peerId.toString('hex')}`, storage), {
       feedOptions: {
-        valueEncoding: 'buffer-json'
+        valueEncoding: 'custom-codec'
       },
       codecs: {
-        'buffer-json': bufferJson
+        'custom-codec': codec
       }
     });
 
@@ -114,15 +132,7 @@ export const defaultProtocol = ({ topic, peerId, feedStore, feed }) => {
 
   const replicator = new DefaultReplicator({
     feedStore,
-    onLoad: () => {
-      const descriptor = feedStore.getDescriptorByDiscoveryKey(feed.discoveryKey);
-
-      return [{
-        key: feed.key,
-        discoveryKey: feed.key,
-        metadata: descriptor.metadata
-      }];
-    }
+    onLoad: () => [feed]
   });
 
   return () => new Protocol({

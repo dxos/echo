@@ -1853,12 +1853,39 @@
     through2 "^3.0.1"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@dxos/metrics@^1.0.0-beta.8":
 =======
 "@dxos/feed-store@^1.2.0-beta.10", "@dxos/feed-store@^1.2.0-beta.21", "@dxos/feed-store@^1.2.0-beta.22":
+=======
+"@dxos/feed-store@^1.2.0-beta.10", "@dxos/feed-store@^1.2.0-beta.21":
+>>>>>>> a6502bd... more changes
   version "1.2.0-beta.22"
   resolved "https://registry.yarnpkg.com/@dxos/feed-store/-/feed-store-1.2.0-beta.22.tgz#9e621ca7a8174f85e76c68da965a3df00f838198"
   integrity sha512-C1M1yudemK7ejL/zg/DVIeEuPSSUP5tIyV7PdmQSkr1KaMCcx6hM5s6nstM3DQBh+JvNQewbjXumoZjKrF2CmA==
+  dependencies:
+    buffer-json-encoding "^1.0.2"
+    debug "^4.1.1"
+    end-of-stream "^1.4.4"
+    from2 "^2.3.0"
+    hypercore "^7.7.1"
+    hypercore-crypto "^1.0.0"
+    hypertrie "^3.8.0"
+    multi-read-stream "^2.0.0"
+    mutexify "^1.2.0"
+    nanoresource-promise "^2.0.0-beta.2"
+    p-event "^4.1.0"
+    p-timeout "^3.2.0"
+    pify "^5.0.0"
+    pump "^3.0.0"
+    random-access-file "^2.1.0"
+    source-map-support "^0.5.12"
+    through2 "^3.0.1"
+
+"@dxos/feed-store@^1.2.0-beta.23":
+  version "1.2.0-beta.23"
+  resolved "https://registry.yarnpkg.com/@dxos/feed-store/-/feed-store-1.2.0-beta.23.tgz#402f465b0393c8fe3f69a52cd0cd58aa602749ab"
+  integrity sha512-V62fjQIcG0zxTKAHpK5uMsHeKYzu00ppOJOsIC8IaPPiEp8HvYcsBXVHAIHKe4V/PawAQDD1U7NfimDW61zqsA==
   dependencies:
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
@@ -1963,10 +1990,10 @@
     pump "^3.0.0"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-network-generator@^1.1.0-beta.6":
-  version "1.1.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.6.tgz#d0411dfb52862085667adcc8784c55238fa94598"
-  integrity sha512-+8F4OQox1CqZiPMC00YCOTJ0wPBclQvYXGIxTZv8UTA3pyZGdig2GWljl5bP6b1Df811z+tMriRKpcsewqotSA==
+"@dxos/protocol-network-generator@^1.1.0-beta.7":
+  version "1.1.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.7.tgz#889992d1d2b5734c6ce3ea82463625ee4e33225c"
+  integrity sha512-85qWQ8zA/S3TAcEd/SdAWwOdcT5uSjyp/3aoM/GltvEJMNTdefxMJCgh6mtIGopb/kCOUfsEC9JEkrdHepsSGA==
   dependencies:
     "@dxos/network-generator" "^1.0.0-beta.1"
     debug "^4.1.1"
@@ -1984,13 +2011,13 @@
     debug "^4.1.1"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-plugin-replicator@^1.1.0-beta.6":
-  version "1.1.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.6.tgz#5ef1ae302b7fd978304a690adf0f883650f7b64a"
-  integrity sha512-bIkQMwEASVtfiErSKmmoBcLLmbCLjZIeoQxc83V3J/QKE2NwS5iqYCSRLDZ9yEZLgzyQYlDW3S3kGC3SMu7lsA==
+"@dxos/protocol-plugin-replicator@^1.1.0-beta.7":
+  version "1.1.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.7.tgz#26a1c16cd93ebd4c2c468b5adc1aeefdd1127f76"
+  integrity sha512-EEEPJWNESrxPzTIkHdIE7EFESEoPz8pPK4DywhDIBR2BziozVS3AJcNp+JotWnSj3wltYFVutw2L5O3I7HqIog==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
-    "@dxos/protocol" "^1.1.0-beta.6"
+    "@dxos/protocol" "^1.1.0-beta.7"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
     source-map-support "^0.5.12"
@@ -2013,10 +2040,10 @@
     signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@^1.1.0-beta.6":
-  version "1.1.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.6.tgz#e5a3008af4e784d2ed9163b50bd8464fd163edfb"
-  integrity sha512-tkb1W6wGDTTUkpilBGz+9gRCyutKesUhiqwJlPByYedOwgda/S2HWCWGY83IwIJROtIMH7bzSGqywZsABIHLxg==
+"@dxos/protocol@^1.1.0-beta.7":
+  version "1.1.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.7.tgz#17d66d3e70c1e690e047ff9368665c551a929e97"
+  integrity sha512-yoAoPZP4BmsrpL920bQkUuMx450Hj+usoYZBgyNib4xg5lFS2YskdUz/TAxbYxYe7IhvCMpOfkkw1leM5o/Ncg==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
     assert "^2.0.0"
