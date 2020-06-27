@@ -34,16 +34,18 @@
     "testEnvironment": "node"
   },
   "dependencies": {
+    "@dxos/benchmark-suite": "^1.0.0-beta.0",
     "@dxos/crypto": "^1.0.0-beta.1",
     "@dxos/data-client": "^1.0.0-beta.91",
     "@dxos/feed-store": "^1.2.0-beta.23",
     "@dxos/model-factory": "^1.0.0-beta.17",
-    "@dxos/protocol": "^1.1.0-beta.7",
-    "@dxos/protocol-network-generator": "^1.1.0-beta.7",
-    "@dxos/protocol-plugin-replicator": "^1.1.0-beta.7",
+    "@dxos/protocol": "^1.1.0-beta.8",
+    "@dxos/protocol-network-generator": "^1.1.0-beta.8",
+    "@dxos/protocol-plugin-replicator": "^1.1.0-beta.8",
     "@dxos/random-access-multi-storage": "^1.1.0-beta.4",
     "buffer-json-encoding": "^1.0.2",
     "end-of-stream": "^1.4.4",
+    "p-event": "^4.2.0",
     "pify": "^5.0.0",
     "source-map-support": "^0.5.12"
   },

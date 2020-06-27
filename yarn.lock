@@ -1632,6 +1632,16 @@
   integrity sha512-0orf1DtPKmS/eIkz9LWJ4FDtnHN4HhV1y8+Di33z7FW622rScK8eBT/W/wiKG1uORhQ2OgEZE8PUidpEpZr0jg==
 >>>>>>> ca63640... env
 
+"@dxos/benchmark-suite@^1.0.0-beta.0":
+  version "1.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@dxos/benchmark-suite/-/benchmark-suite-1.0.0-beta.0.tgz#2dc3158a94b9bc41a0b96f044c58b050633a574e"
+  integrity sha512-OHpqYI99FIF51rw8ElJQos5I2JCqr8ZVSWPbJwwEA+zOBZyNgaxHLtod5yR2Jyym0oUCsC0cWPqmuSbdsMYkpA==
+  dependencies:
+    browser-process-hrtime "^1.0.0"
+    mutexify "^1.3.0"
+    pretty-hrtime "^1.0.3"
+    source-map-support "^0.5.12"
+
 "@dxos/benchmark-suite@^1.0.0-beta.3":
   version "1.0.0-beta.3"
   resolved "https://registry.yarnpkg.com/@dxos/benchmark-suite/-/benchmark-suite-1.0.0-beta.3.tgz#bae87ca33e12270bd9f1515be5239a77f770b274"
@@ -1990,10 +2000,10 @@
     pump "^3.0.0"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-network-generator@^1.1.0-beta.7":
-  version "1.1.0-beta.7"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.7.tgz#889992d1d2b5734c6ce3ea82463625ee4e33225c"
-  integrity sha512-85qWQ8zA/S3TAcEd/SdAWwOdcT5uSjyp/3aoM/GltvEJMNTdefxMJCgh6mtIGopb/kCOUfsEC9JEkrdHepsSGA==
+"@dxos/protocol-network-generator@^1.1.0-beta.8":
+  version "1.1.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.8.tgz#1e3872ebe0d744e9d6510bbedd7bea18eafc7a18"
+  integrity sha512-1SCX9Q/340JJNktqUN7e9rthM8Jeim8B9Ah0+wWNbZAc75CYV1g4VJkset3BMKdN584TwkI4QjmQq7EEuQ4LKw==
   dependencies:
     "@dxos/network-generator" "^1.0.0-beta.1"
     debug "^4.1.1"
@@ -2011,13 +2021,13 @@
     debug "^4.1.1"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-plugin-replicator@^1.1.0-beta.7":
-  version "1.1.0-beta.7"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.7.tgz#26a1c16cd93ebd4c2c468b5adc1aeefdd1127f76"
-  integrity sha512-EEEPJWNESrxPzTIkHdIE7EFESEoPz8pPK4DywhDIBR2BziozVS3AJcNp+JotWnSj3wltYFVutw2L5O3I7HqIog==
+"@dxos/protocol-plugin-replicator@^1.1.0-beta.8":
+  version "1.1.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.8.tgz#4eef41314646e5df176affd9fe5f5b1589d4acb8"
+  integrity sha512-zDFxCniM3k3y//NOcReDAVXpBugorjALzbUT+37H06XvP4M/1U9wiOZ+Eq9UG0iyhhggHwmJXrPiiv2+XCaN/A==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
-    "@dxos/protocol" "^1.1.0-beta.7"
+    "@dxos/protocol" "^1.1.0-beta.8"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
     source-map-support "^0.5.12"
@@ -2040,10 +2050,10 @@
     signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@^1.1.0-beta.7":
-  version "1.1.0-beta.7"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.7.tgz#17d66d3e70c1e690e047ff9368665c551a929e97"
-  integrity sha512-yoAoPZP4BmsrpL920bQkUuMx450Hj+usoYZBgyNib4xg5lFS2YskdUz/TAxbYxYe7IhvCMpOfkkw1leM5o/Ncg==
+"@dxos/protocol@^1.1.0-beta.8":
+  version "1.1.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.8.tgz#2977118f2e3334c9d8360aba31a6bdaa1be747e5"
+  integrity sha512-60xqgoA7sZoam6bk1YuJRw2bi0rdb3etwPwxD9Vk2N18AF4b1+gWPFcFMOWRsqk4+6QTesgEC69wymamCvHIPg==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
     assert "^2.0.0"

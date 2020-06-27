@@ -3,38 +3,10 @@
 //
 
 import { EventEmitter } from 'events';
-import assert from 'assert';
 import eos from 'end-of-stream';
+import pEvent from 'p-event';
 
-import { randomBytes } from '@dxos/crypto';
-
-const kGenerateData = Symbol('generateData');
-const kModelId = Symbol('modelId');
-const kAppendMessages = Symbol('appendMessages');
-const kAppendedMessages = Symbol('appendedMessages');
-const kUpdatedMessages = Symbol('updatedMessages');
-const kStats = Symbol('stats');
-
-const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
-
-const waitForCondition = ({ emitter, event, timeout, condition }) => {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      emitter.removeListener(event, onEvent);
-      reject(new Error('timeout'));
-    }, timeout);
-
-    const onEvent = () => {
-      if (condition()) {
-        emitter.removeListener(event, onEvent);
-        clearTimeout(timer);
-        return resolve();
-      }
-    };
-
-    emitter.on(event, onEvent);
-  });
-};
+import { Agent } from './agent';
 
 export class Environment extends EventEmitter {
   constructor (topic, network) {
@@ -42,12 +14,13 @@ export class Environment extends EventEmitter {
 
     this._topic = topic;
     this._network = network;
-    this._modelStats = new Map();
+    this._agents = new Map();
+
     this._appendedMessages = 0;
-    this._updatedModelMessages = 0;
-    this._updatedStreamMessages = 0;
+    this._processedModelMessages = 0;
+    this._processedStreamMessages = 0;
     this.on('stream-data', ({ messages }) => {
-      this._updatedStreamMessages += messages.length;
+      this._processedStreamMessages += messages.length;
     });
   }
 
@@ -61,143 +34,75 @@ export class Environment extends EventEmitter {
 
   get models () {
     return this._network.peers.reduce((prev, curr) => {
-      return [...prev, ...curr.models];
+      return [...prev, ...Array.from(curr.models.values())];
     }, []);
+  }
+
+  get agents () {
+    return Array.from(this._agents.values());
   }
 
   get appendedMessages () {
     return this._appendedMessages;
   }
 
-  get updatedModelMessages () {
-    return this._updatedModelMessages;
+  get processedModelMessages () {
+    return this._processedModelMessages;
   }
 
-  get updatedStreamMessages () {
-    return this._updatedStreamMessages;
+  get processedStreamMessages () {
+    return this._processedStreamMessages;
   }
 
-  addModels (definitions) {
-    for (const definition of definitions) {
-      this.addModel(definition);
-    }
+  get expectedMaxMessages () {
+    return this._appendedMessages * Math.pow(this.models.length);
   }
 
-  addModel (definition = {}) {
-    const { id = randomBytes(6).toString('hex'), ModelClass, generator, options = {} } = definition;
-    assert(ModelClass);
-    assert(generator);
+  get sync () {
+    return this.__processedModelMessages === this.expectedMaxMessages;
+  }
 
-    let stats = this._modelStats.get(id);
-    if (!stats) {
-      stats = {
-        models: [],
-        appendedMessages: 0,
-        updatedMessages: 0
-      };
+  getAgent (agentId) {
+    return this._agents.get(agentId);
+  }
 
-      this._modelStats.set(id, stats);
+  addAgent (definition) {
+    const agent = new Agent(this._topic, definition);
+    if (this._agents.has(agent.id)) {
+      return this._agents.get(agent.id);
     }
 
-    for (const peer of this._network.peers) {
-      const model = peer.modelFactory.createModel(ModelClass, { ...options, topic: this._topic });
-      model[kGenerateData] = generator(this._topic, peer.id);
-      model[kModelId] = id;
-      model[kAppendedMessages] = 0;
-      model[kUpdatedMessages] = 0;
-      model[kStats] = stats;
-
-      model[kAppendMessages] = (messages) => {
-        // environment total appended messages
-        this._appendedMessages += messages;
-        // group of models total appended messages
-        stats.appendedMessages += messages;
-        // single model total appended messages
-        model[kAppendedMessages] += messages;
-      };
-
-      model.on('update', (_, messages) => {
-        // environment total updated messages
-        this._updatedModelMessages += messages.length;
-        // group of models total updated messages
-        stats.updatedMessages += messages.length;
-        // single total updated messages
-        model[kUpdatedMessages] += messages.length;
-        this.emit('model-update', { topic: this._topic, peerId: peer.id, model, messages });
-      });
-
-      peer.models.push(model);
-      stats.models.push(model);
-    }
-  }
-
-  getRandomModel (id) {
-    let models = this.models;
-
-    if (id) {
-      models = models.filter(m => m[kModelId] === id);
-    }
-
-    return models[random(0, this.models.length)];
-  }
-
-  async appendMessages (model, maxMessages) {
-    model[kAppendMessages](maxMessages);
-
-    return Promise.all([...Array(maxMessages).keys()].map(async () => {
-      const data = await model[kGenerateData]();
-      return model.appendMessage(data);
-    }));
-  }
-
-  async appendEnvironmentMessages (maxMessages) {
-    await Promise.all(this.models.map((model) => this.appendMessages(model, maxMessages)));
-  }
-
-  async waitForModelSync (model, timeout = 50 * 1000) {
-    const stats = model[kStats];
-
-    if (model[kUpdatedMessages] === stats.appendedMessages) {
-      return;
-    }
-
-    return waitForCondition({
-      emitter: model,
-      event: 'update',
-      timeout,
-      condition: () => {
-        return model[kUpdatedMessages] === stats.appendedMessages;
-      }
+    this._agents.set(agent.id, agent);
+    agent.on('preappend', () => {
+      this._appendedMessages++;
     });
+    agent.on('update', ({ messages }) => {
+      this._processedMessages += messages.length;
+      this.emit('model-update');
+    });
+
+    return agent;
   }
 
   async waitForEnvironmentSync (timeout = 50 * 1000) {
-    if (this._updatedModelMessages === this._appendedMessages * this._network.peers.length) {
+    if (this.sync) {
       return;
     }
 
-    return waitForCondition({
-      emitter: this,
-      event: 'model-update',
+    return pEvent(this, 'model-update', {
       timeout,
-      condition: () => {
-        return this._updatedModelMessages === this._appendedMessages * this._network.peers.length;
-      }
+      filter: () => this.sync
     });
   }
 
   async waitForStreamSync (timeout = 50 * 1000) {
-    if (this._updatedStreamMessages === this._appendedMessages * this._network.peers.length) {
+    if (this._processedStreamMessages === this.expectedMaxMessages) {
       return;
     }
 
-    return waitForCondition({
-      emitter: this,
-      event: 'peer-data',
+    return pEvent(this, 'stream-data', {
       timeout,
-      condition: () => {
-        return this._updatedStreamMessages === this._appendedMessages * this._network.peers.length;
-      }
+      filter: () => this._processedStreamMessages === this.expectedMaxMessages
     });
   }
 
