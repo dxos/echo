@@ -87,7 +87,9 @@ Next, each of those "list" Items embeds a `Growable Array` containing references
 that represent individual Tasks. And finally, a property of the task Items references an embedded `Concurrent Text Edit` 
 Item that allows users to make comments on the task.
 
-TODO: example messages session?, diagram, add embedded task chat.
+![Planner Models](https://github.com/dxos/kube/raw/dboreham/doc/docs/diagrams/planner_models.png)
+
+TODO: example messages session?, finish diagram, add embedded task chat.
 
 ### Snapshots
 
