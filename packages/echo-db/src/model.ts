@@ -17,8 +17,7 @@ const log = debug('dxos:echo:model');
 /**
  * Stream adapter.
  */
-// TODO(burdon): Rename ObjectModel.
-export class EchoModel extends Model {
+export class ObjectModel extends Model {
   _model = new ObjectStore();
 
   getObjectsByType (type: string) {
@@ -64,6 +63,12 @@ export class EchoModel extends Model {
       __type_url: type,
       ...mutation
     });
+  }
+
+  getItem (id: string) {
+    log('get', id);
+
+    return this._model.getObjectById(id);
   }
 
   onUpdate (messages: dxos.echo.IObjectMutation[]) {
