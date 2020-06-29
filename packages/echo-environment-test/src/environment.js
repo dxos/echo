@@ -115,4 +115,9 @@ export class Environment extends EventEmitter {
     }));
     await this._network.destroy();
   }
+
+  getRandomPeer () {
+    const peers = this._network.peers;
+    return peers[Math.floor(Math.random() * (peers.length - 0)) + 0];
+  }
 }

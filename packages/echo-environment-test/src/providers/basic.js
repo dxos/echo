@@ -9,23 +9,21 @@ import assert from 'assert';
 import { Protocol } from '@dxos/protocol';
 import { DefaultReplicator } from '@dxos/protocol-plugin-replicator';
 import { ModelFactory } from '@dxos/model-factory';
-import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { FeedStore } from '@dxos/feed-store';
 
 import { Provider } from './provider';
 
 export class BasicProvider extends Provider {
   constructor (options = {}) {
-    super();
+    super(options);
 
-    const { storageType = STORAGE_RAM, codec = bufferJson } = options;
+    const { codec = bufferJson } = options;
 
-    this._storageType = storageType;
     this._codec = codec;
   }
 
   async run (topic, peerId) {
-    const feedStore = await FeedStore.create(createStorage(`.temp/${peerId.toString('hex')}`, this._storageType), {
+    const feedStore = await FeedStore.create(this.createStorage(peerId), {
       feedOptions: {
         valueEncoding: 'custom-codec'
       },
@@ -36,15 +34,18 @@ export class BasicProvider extends Provider {
 
     const feed = await feedStore.openFeed('/local', { metadata: { topic } });
 
-    const factory = new ModelFactory(feedStore, {
+    const modelFactory = new ModelFactory(feedStore, {
       onAppend (message) {
         return pify(feed.append.bind(feed))(message);
       }
     });
 
     return {
-      feedStore,
-      modelFactory: factory,
+      // TODO(tinchoz49): make public feedStore and modelFactory in data-client.
+      client: {
+        feedStore,
+        modelFactory
+      },
       createStream: replicateAll({ topic, peerId, feedStore, feed })
     };
   }

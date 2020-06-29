@@ -1,51 +1,43 @@
-import { DefaultModel } from '@dxos/model-factory';
+import { EchoModel } from '@dxos/echo-db';
 import { Suite } from '@dxos/benchmark-suite';
-import { STORAGE_CHROME } from '@dxos/random-access-multi-storage';
 
-import { EnvironmentFactory, providers } from './src';
-
-if (typeof window !== 'undefined') {
-  process.nextTick = (...args) => {
-    if (args.length === 1) {
-      return queueMicrotask(args[0]);
-    }
-
-    queueMicrotask(() => args[0](...args.slice(1, args.length)));
-  };
-}
+import { EnvironmentFactory, providers, networkTypes } from './src';
 
 (async () => {
   const factory = new EnvironmentFactory();
-  factory.on('error', err => {
-    console.log(err);
-  });
+  factory.on('error', err => console.log(err));
 
-  factory.setProvider(new providers.BasicProvider({
-    storageType: STORAGE_CHROME
-  }));
+  factory.setProvider(new providers.DataClientProvider());
 
   try {
-    const env = await factory.create();
+    const env = await factory.create({
+      network: {
+        type: networkTypes.NO_LINKS,
+        parameters: [1]
+      }
+    });
 
     const suite = new Suite();
 
     const agent = env.addAgent({
-      id: 'random-data',
       spec: {
-        ModelClass: DefaultModel
+        ModelClass: EchoModel,
+        options: {
+          type: 'wrn_dxos_org_test_echo_object'
+        }
       }
     });
 
-    const model = agent.createModel(env.peers[0]);
+    const model = agent.createModel(env.getRandomPeer());
 
-    [...Array(10000).keys()].map(m => model.appendMessage({ name: 'test' }));
+    [...Array(2).keys()].map(m => model.createItem('wrn_dxos_org_test_echo_object', { prop1: 'prop1value' }));
 
-    suite.test('reading first time', () => {
+    suite.test('reading first time', async () => {
       return agent.waitForModelSync(model);
     });
 
     suite.test('reading again', async () => {
-      const newModel = await agent.resetModel(model);
+      const newModel = agent.createModel(env.peers[0]);
       return agent.waitForModelSync(newModel);
     });
 

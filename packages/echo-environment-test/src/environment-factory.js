@@ -4,7 +4,6 @@
 
 import { EventEmitter } from 'events';
 
-import { randomBytes } from '@dxos/crypto';
 import { ProtocolNetworkGenerator } from '@dxos/protocol-network-generator';
 
 import { Environment } from './environment';
@@ -46,7 +45,11 @@ export class EnvironmentFactory extends EventEmitter {
   async create (opts = {}) {
     assert(this._provider, 'a provider is required');
 
-    const { topic = randomBytes(32), peer = {}, network: networkOptions = { type: networkTypes.NO_LINKS, parameters: [1] } } = opts;
+    const { peer = {}, network: networkOptions = { type: networkTypes.NO_LINKS, parameters: [1] } } = opts;
+
+    await this._provider.before();
+
+    const topic = this._provider.topic;
 
     // create the local network
     const network = await this._generator[networkOptions.type]({
@@ -62,18 +65,19 @@ export class EnvironmentFactory extends EventEmitter {
 
     this._envs.add(env);
 
+    await this._provider.after(network);
+
     return env;
   }
 
   async _createPeer (topic, peerId, peerOptions) {
     try {
-      const { feedStore, modelFactory, createStream } = await this._provider.run(topic, peerId, peerOptions);
+      const { client, createStream } = await this._provider.run(topic, peerId, peerOptions);
 
       const peer = new Peer({
         topic,
         peerId,
-        feedStore,
-        modelFactory,
+        client,
         createStream,
         options: peerOptions
       });

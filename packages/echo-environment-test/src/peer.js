@@ -10,18 +10,17 @@ export class Peer extends EventEmitter {
   constructor (opts = {}) {
     super();
 
-    const { topic, peerId, feedStore, modelFactory, createStream, peerOptions } = opts;
+    const { topic, peerId, client = {}, createStream, peerOptions } = opts;
 
     assert(topic);
     assert(peerId);
-    assert(feedStore);
-    assert(modelFactory);
+    assert(client.feedStore);
+    assert(client.modelFactory);
     assert(createStream);
 
     this._topic = topic;
     this._id = peerId;
-    this._feedStore = feedStore;
-    this._modelFactory = modelFactory;
+    this._client = client;
     this._options = peerOptions;
     this._models = new Set();
     this._processedMessages = 0;
@@ -30,7 +29,7 @@ export class Peer extends EventEmitter {
       this._createStream = createStream;
     }
 
-    this._feedStream = feedStore.createBatchStream(d => {
+    this._feedStream = this.feedStore.createBatchStream(d => {
       if (d.metadata && d.metadata.topic && d.metadata.topic.equals(topic)) {
         return { live: true };
       }
@@ -48,12 +47,16 @@ export class Peer extends EventEmitter {
     return this._id;
   }
 
+  get client () {
+    return this._client;
+  }
+
   get feedStore () {
-    return this._feedStore;
+    return this._client.feedStore;
   }
 
   get modelFactory () {
-    return this._modelFactory;
+    return this._client.modelFactory;
   }
 
   get createStream () {

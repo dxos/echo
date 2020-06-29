@@ -6,18 +6,17 @@ import assert from 'assert';
 import pEvent from 'p-event';
 import { EventEmitter } from 'events';
 
+import { randomBytes } from '@dxos/crypto';
+
 const kAgent = Symbol('agent');
 const kPeer = Symbol('peer');
 const kStats = Symbol('stats');
-
-const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
 export class Agent extends EventEmitter {
   constructor (topic, definition = {}) {
     super();
 
-    const { id, spec = {} } = definition;
-    assert(id, 'id is required');
+    const { id = randomBytes(6).toString('hex'), spec = {} } = definition;
     assert(spec.ModelClass, 'spec.ModelClass is required');
 
     this._topic = topic;
@@ -42,11 +41,11 @@ export class Agent extends EventEmitter {
   }
 
   get sync () {
-    return this._processedMessages === (this._appendedMessages * Math.pow(this._models.size));
+    return this._processedMessages === (this._appendedMessages * Math.pow(this._models.size, 2));
   }
 
   createModel (peer) {
-    const model = peer.modelFactory.createModel(this._spec.ModelClass, { ...this._spec.options, topic: this._topic });
+    const model = peer.modelFactory.createModel(this._spec.ModelClass, { ...this._spec.options, topic: this._topic.toString('hex') });
     model[kAgent] = this;
     model[kPeer] = peer;
     model[kStats] = {
@@ -61,32 +60,38 @@ export class Agent extends EventEmitter {
     });
 
     model.on('update', (_, messages) => {
-      model[kStats].processedMessages += messages.length;
-
-      if (this.sync) {
-        return;
+      if (!this.sync) {
+        this._processedMessages += messages.length;
+        this.emit('update', { topic: this._topic, peerId: peer.id, model, messages });
       }
 
-      // updated messages by agent
-      this._processedMessages += messages.length;
-      this.emit('update', { topic: this._topic, peerId: peer.id, model, messages });
+      model[kStats].processedMessages += messages.length;
     });
 
     peer.addModel(model);
     this._models.add(model);
 
+    if (this._spec.generator) {
+      const unsubscribe = this._spec.generator(model, peer);
+      if (unsubscribe) {
+        model.once('destroy', () => {
+          unsubscribe();
+        });
+      }
+    }
+
     return model;
   }
 
-  async resetModel (model) {
-    const peer = model[kPeer];
+  async waitForSync (timeout = 50 * 1000) {
+    if (this.sync) {
+      return;
+    }
 
-    await model.destroy();
-
-    peer.deleteModel(model);
-    this._models.delete(model);
-
-    return this.createModel(peer);
+    return pEvent(this, 'update', {
+      timeout,
+      filter: () => this.sync
+    });
   }
 
   async waitForModelSync (model, timeout = 50 * 1000) {
@@ -102,14 +107,9 @@ export class Agent extends EventEmitter {
     });
   }
 
-  async resetModelAndWaitForSync (model, timeout) {
-    model = await this.resetModel(model);
-    return this.waitForModelSync(model, timeout);
-  }
-
   getRandomModel () {
     const models = this.models;
-    return models[random(0, models.length)];
+    return models[Math.floor(Math.random() * (models.length - 0)) + 0];
   }
 }
 

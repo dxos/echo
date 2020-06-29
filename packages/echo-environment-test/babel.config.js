@@ -19,6 +19,11 @@ module.exports = {
       }
     ],
     'add-module-exports',
-    '@babel/plugin-proposal-export-default-from'
+    '@babel/plugin-proposal-export-default-from',
+    ['module-resolver', {
+      alias: {
+        '@geut/discovery-swarm-webrtc': '@dxos/discovery-swarm-memory'
+      }
+    }]
   ]
 };
