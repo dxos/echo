@@ -22,7 +22,7 @@ export class BasicProvider extends Provider {
     this._codec = codec;
   }
 
-  async run (topic, peerId) {
+  async createPeer (topic, peerId) {
     const feedStore = await FeedStore.create(this.createStorage(peerId), {
       feedOptions: {
         valueEncoding: 'custom-codec'
@@ -32,7 +32,7 @@ export class BasicProvider extends Provider {
       }
     });
 
-    const feed = await feedStore.openFeed('/local', { metadata: { topic } });
+    const feed = await feedStore.openFeed('/local', { metadata: { topic: topic.toString('hex') } });
 
     const modelFactory = new ModelFactory(feedStore, {
       onAppend (message) {
@@ -41,13 +41,16 @@ export class BasicProvider extends Provider {
     });
 
     return {
-      // TODO(tinchoz49): make public feedStore and modelFactory in data-client.
       client: {
         feedStore,
         modelFactory
       },
       createStream: replicateAll({ topic, peerId, feedStore, feed })
     };
+  }
+
+  invitePeer ({ fromPeer, toPeer }) {
+    return this._network.addConnection(fromPeer.id, toPeer.id);
   }
 }
 

@@ -24,16 +24,18 @@ export class Agent extends EventEmitter {
     this._spec = Object.assign({}, { options: {} }, spec);
 
     this._models = new Set();
-    this._appendedMessages = 0;
-    this._processedMessages = 0;
   }
 
-  get appendedMessages () {
-    return this._appendedMessages;
-  }
+  get stats () {
+    let appended = 0;
+    let processed = 0;
 
-  get processedMessages () {
-    return this._processedMessages;
+    this.models.forEach(model => {
+      appended += model[kStats].appended;
+      processed += model[kStats].processed;
+    });
+
+    return { appended, processed };
   }
 
   get models () {
@@ -41,7 +43,8 @@ export class Agent extends EventEmitter {
   }
 
   get sync () {
-    return this._processedMessages === (this._appendedMessages * Math.pow(this._models.size, 2));
+    const stats = this.stats;
+    return stats.processed === (stats.appended * this._models.size);
   }
 
   createModel (peer) {
@@ -49,23 +52,18 @@ export class Agent extends EventEmitter {
     model[kAgent] = this;
     model[kPeer] = peer;
     model[kStats] = {
-      appendedMessages: 0,
-      processedMessages: 0
+      appended: 0,
+      processed: 0
     };
 
     model.on('preappend', () => {
-      model[kStats].appendedMessages++;
-      this._appendedMessages++;
+      model[kStats].appended++;
       this.emit('preappend');
     });
 
     model.on('update', (_, messages) => {
-      if (!this.sync) {
-        this._processedMessages += messages.length;
-        this.emit('update', { topic: this._topic, peerId: peer.id, model, messages });
-      }
-
-      model[kStats].processedMessages += messages.length;
+      model[kStats].processed += messages.length;
+      this.emit('update', { topic: this._topic, peerId: peer.id, model, messages });
     });
 
     peer.addModel(model);
@@ -95,15 +93,15 @@ export class Agent extends EventEmitter {
   }
 
   async waitForModelSync (model, timeout = 50 * 1000) {
-    const stats = model[kStats];
+    const modelStats = model[kStats];
 
-    if (stats.processedMessages === this._appendedMessages) {
+    if (modelStats.processed === this.stats.appended) {
       return;
     }
 
     return pEvent(model, 'update', {
       timeout,
-      filter: () => stats.processedMessages === this._appendedMessages
+      filter: () => modelStats.processed === this.stats.appended
     });
   }
 

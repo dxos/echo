@@ -10,33 +10,24 @@ export class Peer extends EventEmitter {
   constructor (opts = {}) {
     super();
 
-    const { topic, peerId, client = {}, createStream, peerOptions } = opts;
+    const { topic, peerId, client = {}, createStream, invitePeer } = opts;
 
     assert(topic);
     assert(peerId);
     assert(client.feedStore);
     assert(client.modelFactory);
     assert(createStream);
+    assert(invitePeer);
 
     this._topic = topic;
     this._id = peerId;
     this._client = client;
-    this._options = peerOptions;
+    this._invitePeer = invitePeer;
     this._models = new Set();
-    this._processedMessages = 0;
 
     if (createStream) {
       this._createStream = createStream;
     }
-
-    this._feedStream = this.feedStore.createBatchStream(d => {
-      if (d.metadata && d.metadata.topic && d.metadata.topic.equals(topic)) {
-        return { live: true };
-      }
-    }).on('data', messages => {
-      this._processedMessages += messages.length;
-      this.emit('stream-data', { topic, peerId, messages });
-    });
   }
 
   get topic () {
@@ -63,16 +54,8 @@ export class Peer extends EventEmitter {
     return this._createStream;
   }
 
-  get options () {
-    return this._peerOptions;
-  }
-
   get models () {
     return Array.from(this._models.values());
-  }
-
-  get processedMessages () {
-    return this._processedMessages;
   }
 
   addModel (model) {
@@ -81,6 +64,10 @@ export class Peer extends EventEmitter {
 
   deleteModel (model) {
     this._models.delete(model);
+  }
+
+  invitePeer (peer) {
+    return this._invitePeer({ fromPeer: this, toPeer: peer });
   }
 
   destroy () {

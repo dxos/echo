@@ -16,12 +16,10 @@ export class Environment extends EventEmitter {
     this._network = network;
     this._agents = new Map();
 
-    this._appendedMessages = 0;
-    this._processedModelMessages = 0;
-    this._processedStreamMessages = 0;
-    this.on('stream-data', ({ messages }) => {
-      this._processedStreamMessages += messages.length;
-    });
+    this._stats = {
+      appended: 0,
+      processed: 0
+    };
   }
 
   get network () {
@@ -42,24 +40,12 @@ export class Environment extends EventEmitter {
     return Array.from(this._agents.values());
   }
 
-  get appendedMessages () {
-    return this._appendedMessages;
-  }
-
-  get processedModelMessages () {
-    return this._processedModelMessages;
-  }
-
-  get processedStreamMessages () {
-    return this._processedStreamMessages;
-  }
-
-  get expectedMaxMessages () {
-    return this._appendedMessages * Math.pow(this.models.length);
+  get stats () {
+    return Object.assign({}, this._stats);
   }
 
   get sync () {
-    return this.__processedModelMessages === this.expectedMaxMessages;
+    return this._stats.processed === this._stats.appended * Math.pow(this.models.length, 2);
   }
 
   getAgent (agentId) {
@@ -74,17 +60,21 @@ export class Environment extends EventEmitter {
 
     this._agents.set(agent.id, agent);
     agent.on('preappend', () => {
-      this._appendedMessages++;
+      this._stats.appended++;
     });
     agent.on('update', ({ messages }) => {
-      this._processedMessages += messages.length;
+      this._stats.processed += messages.length;
       this.emit('model-update');
     });
 
     return agent;
   }
 
-  async waitForEnvironmentSync (timeout = 50 * 1000) {
+  async invitePeer ({ fromPeer = this.peers[0], toPeer }) {
+    return fromPeer.invitePeer(toPeer);
+  }
+
+  async waitForSync (timeout = 50 * 1000) {
     if (this.sync) {
       return;
     }
@@ -92,17 +82,6 @@ export class Environment extends EventEmitter {
     return pEvent(this, 'model-update', {
       timeout,
       filter: () => this.sync
-    });
-  }
-
-  async waitForStreamSync (timeout = 50 * 1000) {
-    if (this._processedStreamMessages === this.expectedMaxMessages) {
-      return;
-    }
-
-    return pEvent(this, 'stream-data', {
-      timeout,
-      filter: () => this._processedStreamMessages === this.expectedMaxMessages
     });
   }
 

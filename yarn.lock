@@ -1945,6 +1945,7 @@
     debug "^4.1.1"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ca63640... env
 =======
 "@dxos/echo-db@^1.0.0-beta.20":
@@ -1966,6 +1967,8 @@
     source-map-support "^0.5.12"
 
 >>>>>>> a16e94f... more changes
+=======
+>>>>>>> 3e2c614... more changes
 "@dxos/feed-level-indexer@^1.1.0-alpha.9":
   version "1.1.0-alpha.9"
   resolved "https://registry.yarnpkg.com/@dxos/feed-level-indexer/-/feed-level-indexer-1.1.0-alpha.9.tgz#2cf4cf1225b2d1a620e7427e25e06f6100644eb0"
@@ -2100,27 +2103,6 @@
     lodash.set "^4.3.2"
     lodash.unset "^4.5.2"
 
-"@dxos/model-factory@^1.0.0-beta.20", "@dxos/model-factory@^1.0.0-beta.21":
-  version "1.0.0-beta.21"
-  resolved "https://registry.yarnpkg.com/@dxos/model-factory/-/model-factory-1.0.0-beta.21.tgz#4ed8d3ccf6ea38c7bc9fc8452fbbcef6ae4af0c7"
-  integrity sha512-Legt+fJcPx6/LbNls6SWcPOvYHSlNssQmhNvexyYaatuVDeXKqlnLXwC3/7okKb4FBIRgb650L3DQywLqWtKtg==
-  dependencies:
-    "@dxos/crypto" "^0.0.1"
-    "@dxos/debug" "^1.0.0-beta.20"
-    "@dxos/feed-level-indexer" "^1.1.0-alpha.9"
-    "@dxos/metrics" "^1.0.0-beta.8"
-    charwise "^3.0.1"
-    debug "^4.1.1"
-    end-of-stream "^1.4.4"
-    level-mem "^5.0.1"
-    lodash.debounce "^4.0.8"
-    monotonic-timestamp "^0.0.9"
-    multi-read-stream "^2.0.0"
-    p-limit "^3.0.1"
-    pump "^3.0.0"
-    source-map-support "^0.5.12"
-    through2 "^3.0.1"
-
 "@dxos/network-generator@^1.0.0-beta.1":
   version "1.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/@dxos/network-generator/-/network-generator-1.0.0-beta.1.tgz#3cdc2cb9c5ea448f2c96bb8bffab87075f00f108"
@@ -2167,6 +2149,17 @@
     json-stable-stringify "^1.0.1"
     mississippi "^4.0.0"
 
+"@dxos/protocol-network-generator@^1.1.0-beta.10":
+  version "1.1.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.10.tgz#9780e5410550d45fa69461d133d10f019ec27221"
+  integrity sha512-cLHzOfFmzATOpt2wXX8gOoFkMwpzdlWNuMiKy1LpAk53FRNUsjBcYK/51vgMJKbZWErqje6VTs5Hh426mYJraA==
+  dependencies:
+    "@dxos/network-generator" "^1.0.0-beta.1"
+    debug "^4.1.1"
+    p-event "^4.2.0"
+    pump "^3.0.0"
+    source-map-support "^0.5.12"
+
 "@dxos/protocol-network-generator@^1.1.0-beta.2":
   version "1.1.0-beta.2"
   resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.2.tgz#d8531fed788a54d5b07f86b94872de7eb395ba28"
@@ -2174,17 +2167,6 @@
   dependencies:
     "@dxos/network-generator" "^1.0.0-beta.1"
     debug "^4.1.1"
-    pump "^3.0.0"
-    source-map-support "^0.5.12"
-
-"@dxos/protocol-network-generator@^1.1.0-beta.8":
-  version "1.1.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.8.tgz#1e3872ebe0d744e9d6510bbedd7bea18eafc7a18"
-  integrity sha512-1SCX9Q/340JJNktqUN7e9rthM8Jeim8B9Ah0+wWNbZAc75CYV1g4VJkset3BMKdN584TwkI4QjmQq7EEuQ4LKw==
-  dependencies:
-    "@dxos/network-generator" "^1.0.0-beta.1"
-    debug "^4.1.1"
-    p-event "^4.2.0"
     pump "^3.0.0"
     source-map-support "^0.5.12"
 
@@ -2198,13 +2180,13 @@
     debug "^4.1.1"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-plugin-replicator@^1.1.0-beta.8":
-  version "1.1.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.8.tgz#4eef41314646e5df176affd9fe5f5b1589d4acb8"
-  integrity sha512-zDFxCniM3k3y//NOcReDAVXpBugorjALzbUT+37H06XvP4M/1U9wiOZ+Eq9UG0iyhhggHwmJXrPiiv2+XCaN/A==
+"@dxos/protocol-plugin-replicator@^1.1.0-beta.10":
+  version "1.1.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.1.0-beta.10.tgz#8f37158b2d796e9841cd3d6bfa6ede204bb860f1"
+  integrity sha512-LAHFDtOB5EB+wXmth04dEdpemf3QCrDMd1u96dQJojzuQRT8vJ/Vty0Airrh+ryFzrTVf8Uogw1QD3a9jsSyNQ==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
-    "@dxos/protocol" "^1.1.0-beta.8"
+    "@dxos/protocol" "^1.1.0-beta.10"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
     source-map-support "^0.5.12"
@@ -2227,10 +2209,10 @@
     signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@^1.1.0-beta.8":
-  version "1.1.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.8.tgz#2977118f2e3334c9d8360aba31a6bdaa1be747e5"
-  integrity sha512-60xqgoA7sZoam6bk1YuJRw2bi0rdb3etwPwxD9Vk2N18AF4b1+gWPFcFMOWRsqk4+6QTesgEC69wymamCvHIPg==
+"@dxos/protocol@^1.1.0-beta.10":
+  version "1.1.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.10.tgz#398325e2f5d99315224a2ca7c702beaee4b28139"
+  integrity sha512-DYeSiamQsRD0ZOxKZdSetjvZm2XpxoKEfTB4zeeVAq919YwU+VDbZlIp7oscRjqMQXJsTNUOmLX211BraucYlg==
   dependencies:
     "@dxos/codec-protobuf" "^1.1.0-beta.9"
     assert "^2.0.0"
@@ -5004,17 +4986,6 @@ babel-plugin-jest-hoist@^26.0.0:
 >>>>>>> ca63640... env
     "@types/babel__traverse" "^7.0.6"
 
-babel-plugin-module-resolver@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-module-resolver/-/babel-plugin-module-resolver-4.0.0.tgz#8f3a3d9d48287dc1d3b0d5595113adabd36a847f"
-  integrity sha512-3pdEq3PXALilSJ6dnC4wMWr0AZixHRM4utpdpBR9g5QG7B7JwWyukQv7a9hVxkbGFl+nQbrHDqqQOIBtTXTP/Q==
-  dependencies:
-    find-babel-config "^1.2.0"
-    glob "^7.1.6"
-    pkg-up "^3.1.0"
-    reselect "^4.0.0"
-    resolve "^1.13.1"
-
 babel-preset-current-node-syntax@^0.1.2:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/babel-preset-current-node-syntax/-/babel-preset-current-node-syntax-0.1.3.tgz#b4b547acddbf963cba555ba9f9cbbb70bfd044da"
@@ -7746,6 +7717,7 @@ fill-range@^7.0.1:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 find-cache-dir@^2.1.0:
 =======
 =======
@@ -7758,6 +7730,8 @@ find-babel-config@^1.2.0:
     path-exists "^3.0.0"
 
 >>>>>>> a16e94f... more changes
+=======
+>>>>>>> 3e2c614... more changes
 find-cache-dir@^2.0.0, find-cache-dir@^2.1.0:
 >>>>>>> ca63640... env
   version "2.1.0"
@@ -10535,11 +10509,6 @@ json5@2.x, json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-json5@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
-  integrity sha1-Hq3nrMASA0rYTiOWdn6tn6VJWCE=
-
 json5@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.1.tgz#779fb0018604fa854eacbf6252180d83543e3dbe"
@@ -12853,6 +12822,7 @@ pkg-up@^2.0.0:
     find-up "^2.1.0"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ca63640... env
 =======
 pkg-up@^3.1.0:
@@ -12863,6 +12833,8 @@ pkg-up@^3.1.0:
     find-up "^3.0.0"
 
 >>>>>>> a16e94f... more changes
+=======
+>>>>>>> 3e2c614... more changes
 please-upgrade-node@^3.0.2:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/please-upgrade-node/-/please-upgrade-node-3.2.0.tgz#aeddd3f994c933e4ad98b99d9a556efa0e2fe942"
@@ -13723,11 +13695,6 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
 
-reselect@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.0.0.tgz#f2529830e5d3d0e021408b246a206ef4ea4437f7"
-  integrity sha512-qUgANli03jjAyGlnbYVAV5vvnOmJnODyABz51RdBN7M4WaVu8mecZWgyQNkG8Yqe3KRGRt0l4K4B3XVEULC4CA==
-
 resolve-cwd@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/resolve-cwd/-/resolve-cwd-2.0.0.tgz#00a9f7387556e27038eae232caa372a6a59b665a"
@@ -13950,6 +13917,7 @@ secure-compare@3.0.1:
   resolved "https://registry.yarnpkg.com/secure-compare/-/secure-compare-3.0.1.tgz#f1a0329b308b221fae37b9974f3d578d0ca999e3"
   integrity sha1-8aAymzCLIh+uN7mXTz1XjQypmeM=
 
+<<<<<<< HEAD
 semistandard@^14.2.0:
 <<<<<<< HEAD
   version "14.2.2"
@@ -13960,6 +13928,9 @@ semistandard@^14.2.0:
     eslint-config-semistandard "15.0.0"
     eslint-config-standard "14.1.1"
 =======
+=======
+semistandard@14.2.0, semistandard@^14.2.0:
+>>>>>>> 3e2c614... more changes
   version "14.2.0"
   resolved "https://registry.yarnpkg.com/semistandard/-/semistandard-14.2.0.tgz#d722eb1eef7acb33c0e2f5b2e2e4434039dcfc41"
   integrity sha512-mQ0heTpbW7WWBXKOIqitlfEcAZhgGTwaHr1zzv70PnZZc53J+4u31+vLUEsh2oKVWfVgcjrykT2hz02B1Cfaaw==

@@ -1,43 +1,44 @@
-import { EchoModel } from '@dxos/echo-db';
+import { ObjectModel } from '@dxos/echo-db';
+import { DefaultModel } from '@dxos/model-factory';
 import { Suite } from '@dxos/benchmark-suite';
 
-import { EnvironmentFactory, providers, networkTypes } from './src';
+import { EnvironmentFactory, providers } from './src';
 
 (async () => {
   const factory = new EnvironmentFactory();
-  factory.on('error', err => console.log(err));
-
-  factory.setProvider(new providers.DataClientProvider());
+  factory.on('error', err => console.log('error', err));
 
   try {
-    const env = await factory.create({
-      network: {
-        type: networkTypes.NO_LINKS,
-        parameters: [1]
-      }
-    });
+    const env = await factory.create(new providers.DataClientProvider({ peers: 2 }));
 
     const suite = new Suite();
 
     const agent = env.addAgent({
       spec: {
-        ModelClass: EchoModel,
+        ModelClass: ObjectModel,
         options: {
-          type: 'wrn_dxos_org_test_echo_object'
+          type: 'example.com/Test'
         }
       }
     });
 
-    const model = agent.createModel(env.getRandomPeer());
+    const peer = env.getRandomPeer();
 
-    [...Array(2).keys()].map(m => model.createItem('wrn_dxos_org_test_echo_object', { prop1: 'prop1value' }));
+    const model = agent.createModel(env.peers[0]);
+    await env.invitePeer({ toPeer: env.peers[1] });
+    // await env.peers[0].invitePeer(env.peers[1]);
+    agent.createModel(env.peers[1]);
+
+    [...Array(1000).keys()].map(m => model.createItem('example.com/Test', { prop1: 'prop1value' }));
 
     suite.test('reading first time', async () => {
-      return agent.waitForModelSync(model);
+      console.log(env.stats);
+      await agent.waitForSync();
+      console.log(env.stats);
     });
 
     suite.test('reading again', async () => {
-      const newModel = agent.createModel(env.peers[0]);
+      const newModel = agent.createModel(peer);
       return agent.waitForModelSync(newModel);
     });
 
