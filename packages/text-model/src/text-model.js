@@ -19,7 +19,7 @@ export class TextModel extends Model {
   }
 
   _handleDocUpdated (update, origin) {
-    const remote = origin && origin.docClientId !== this._doc.clientID;
+    const remote = origin && origin.docClientId && origin.docClientId !== this._doc.clientID;
 
     if (!remote) {
       this.appendMessage({
