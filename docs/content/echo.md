@@ -1,4 +1,4 @@
-## Flexible, Compose-able Information Models for Replicated Shared Data in a P2P Network
+## ECHO
 
 ### System Architecture
 
