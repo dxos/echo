@@ -3,17 +3,16 @@
 //
 
 import { EventEmitter } from 'events';
-import eos from 'end-of-stream';
 import pEvent from 'p-event';
 
 import { Agent } from './agent';
 
 export class Environment extends EventEmitter {
-  constructor (topic, network) {
+  constructor (topic, provider) {
     super();
 
     this._topic = topic;
-    this._network = network;
+    this._provider = provider;
     this._agents = new Map();
 
     this._stats = {
@@ -23,15 +22,15 @@ export class Environment extends EventEmitter {
   }
 
   get network () {
-    return this._network;
+    return this._provider.network;
   }
 
   get peers () {
-    return this._network.peers;
+    return this.network.peers;
   }
 
   get models () {
-    return this._network.peers.reduce((prev, curr) => {
+    return this.network.peers.reduce((prev, curr) => {
       return [...prev, ...Array.from(curr.models.values())];
     }, []);
   }
@@ -87,16 +86,17 @@ export class Environment extends EventEmitter {
 
   async destroy () {
     await Promise.all(this.models.map(m => m.destroy()));
-    await Promise.all(this._network.peers.map(p => {
-      if (p.feedStream.destroyed) return;
-      process.nextTick(() => p.feedStream.destroy());
-      return new Promise(resolve => eos(p.feedStream, () => resolve));
+    await Promise.all(this.network.peers.map(p => {
+      if (p.client.destroy) {
+        return p.client.destroy();
+      }
     }));
-    await this._network.destroy();
+    await this._provider.destroy();
+    await this.network.destroy();
   }
 
   getRandomPeer () {
-    const peers = this._network.peers;
+    const peers = this.network.peers;
     return peers[Math.floor(Math.random() * (peers.length - 0)) + 0];
   }
 }

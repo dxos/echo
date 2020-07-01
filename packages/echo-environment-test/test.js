@@ -1,5 +1,4 @@
 import { ObjectModel } from '@dxos/echo-db';
-import { DefaultModel } from '@dxos/model-factory';
 import { Suite } from '@dxos/benchmark-suite';
 
 import { EnvironmentFactory, providers } from './src';
@@ -9,7 +8,7 @@ import { EnvironmentFactory, providers } from './src';
   factory.on('error', err => console.log('error', err));
 
   try {
-    const env = await factory.create(new providers.DataClientProvider({ peers: 2 }));
+    const env = await factory.create(new providers.BasicProvider({ initialPeers: 2 }));
 
     const suite = new Suite();
 
@@ -43,6 +42,8 @@ import { EnvironmentFactory, providers } from './src';
     });
 
     suite.print(await suite.run());
+
+    await env.destroy();
   } catch (err) {
     console.log(err);
   }

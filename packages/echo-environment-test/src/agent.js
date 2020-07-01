@@ -71,11 +71,14 @@ export class Agent extends EventEmitter {
 
     if (this._spec.generator) {
       const unsubscribe = this._spec.generator(model, peer);
-      if (unsubscribe) {
-        model.once('destroy', () => {
+      model.once('destroy', () => {
+        if (unsubscribe) {
           unsubscribe();
-        });
-      }
+        }
+
+        peer.deleteModel(model);
+        this._models.delete(model);
+      });
     }
 
     return model;

@@ -11,11 +11,9 @@ import { Provider, networkTypes } from './provider';
 
 export class DataClientProvider extends Provider {
   constructor (options = {}) {
-    const { peers = 1, ...providerOptions } = options;
+    const { initialPeers = 1, ...providerOptions } = options;
 
-    super({ ...providerOptions, network: { type: networkTypes.NO_LINKS, parameters: [peers] } });
-
-    this._firstPeer = true;
+    super({ ...providerOptions, network: { type: networkTypes.NO_LINKS, parameters: [initialPeers] } });
   }
 
   async beforeNetworkCreated () {
@@ -24,9 +22,6 @@ export class DataClientProvider extends Provider {
     this._topic = this._party.publicKey;
     this._secret = '0000';
     this._clientOwner = client;
-    this._greeterSecretProvider = async () => Buffer.from(this._secret);
-    this._greeterSecretValidator = async (invitation, secret) => secret && secret.equals(invitation.secret);
-    this._inviteeSecretProvider = async () => Buffer.from(this._secret);
   }
 
   async createPeer (_, peerId) {
@@ -43,20 +38,15 @@ export class DataClientProvider extends Provider {
       this.emit('connection', conn);
     });
 
+    this._clientIds.set(peerId.toString('hex'), client.partyManager.identityManager.deviceManager.publicKey);
+
     return {
-      id: client.partyManager.identityManager.deviceManager.publicKey,
       client,
       createStream () {}
     };
   }
 
-  async afterNetworkCreated () {
-    // TODO(tinchoz49): this wont work until we have party-manager and network-manager updated.
-    // track connections
-    // this.on('connection', (conn) => {
-    //   // network.addConnection(network.peers[0].id, network.peers[1].id, conn);
-    // });
-  }
+  async afterNetworkCreated () {}
 
   async invitePeer ({ fromPeer, toPeer }) {
     const invitation = await fromPeer.client.partyManager.inviteToParty(this._party.publicKey, this._greeterSecretProvider, this._greeterSecretValidator);
@@ -70,5 +60,17 @@ export class DataClientProvider extends Provider {
     const client = await createClient(this.createStorage(peerId), keyring, { swarm: { signal: false, ice: false } });
     await client.partyManager.identityManager.initializeForNewIdentity();
     return client;
+  }
+
+  _greeterSecretProvider () {
+    return Buffer.from(this._secret);
+  }
+
+  _greeterSecretValidator (invitation, secret) {
+    return secret && secret.equals(invitation.secret);
+  }
+
+  _inviteeSecretProvider () {
+    return Buffer.from(this._secret);
   }
 }

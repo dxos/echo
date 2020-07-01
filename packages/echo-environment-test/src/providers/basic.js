@@ -11,13 +11,13 @@ import { DefaultReplicator } from '@dxos/protocol-plugin-replicator';
 import { ModelFactory } from '@dxos/model-factory';
 import { FeedStore } from '@dxos/feed-store';
 
-import { Provider } from './provider';
+import { Provider, networkTypes } from './provider';
 
 export class BasicProvider extends Provider {
   constructor (options = {}) {
-    super(options);
+    const { initialPeers = 1, codec = bufferJson, ...providerOptions } = options;
 
-    const { codec = bufferJson } = options;
+    super({ ...providerOptions, network: { type: networkTypes.NO_LINKS, parameters: [initialPeers] } });
 
     this._codec = codec;
   }

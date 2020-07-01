@@ -24,7 +24,7 @@ export class Provider extends EventEmitter {
   constructor (options = {}) {
     super();
 
-    const { storageType = STORAGE_RAM, network = { type: networkTypes.COMPLETE, parameters: [2] } } = options;
+    const { storageType = STORAGE_RAM, network = { type: networkTypes.NO_LINKS, parameters: [1] } } = options;
 
     this._storageType = storageType;
     this._networkOptions = network;
@@ -57,8 +57,8 @@ export class Provider extends EventEmitter {
   /**
    * @async
    */
-  createPeer () {
-    throw new Error('not implemented');
+  createPeer (topic, peerId) {
+    return { id: peerId };
   }
 
   /**
@@ -73,4 +73,9 @@ export class Provider extends EventEmitter {
    * @param {Peer} options.peerTwo
    */
   invitePeer () {}
+
+  /**
+   * @async
+   */
+  destroy () {}
 }

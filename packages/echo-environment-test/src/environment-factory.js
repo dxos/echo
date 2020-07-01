@@ -42,7 +42,7 @@ export class EnvironmentFactory extends EventEmitter {
     await provider.afterNetworkCreated(network);
     provider._network = network;
 
-    const env = new Environment(topic, network);
+    const env = new Environment(topic, provider);
     this.emit('environment-created', env);
 
     this._envs.add(env);
@@ -52,11 +52,11 @@ export class EnvironmentFactory extends EventEmitter {
 
   async _createPeer (topic, peerId, peerOptions) {
     try {
-      const { id = peerId, client, createStream } = await peerOptions.createPeer(topic, peerId);
+      const { client, createStream } = await peerOptions.createPeer(topic, peerId);
 
       const peer = new Peer({
         topic,
-        peerId: id,
+        peerId,
         client,
         createStream,
         invitePeer: peerOptions.invitePeer
