@@ -6,7 +6,7 @@ import { Model } from '@dxos/model-factory';
 import { Doc, applyUpdate } from 'yjs';
 
 export class TextModel extends Model {
-  _doc = new Doc()
+  _doc = new Doc();
 
   constructor (options) {
     super(options);
@@ -14,41 +14,37 @@ export class TextModel extends Model {
     this._doc.on('update', this._handleDocUpdated.bind(this));
   }
 
-  get content () {
-    return this._doc.getText('content');
+  get doc () {
+    return this._doc;
   }
 
   _handleDocUpdated (update, origin) {
-    if (origin === this._doc.clientID) {
-      console.log('same origin');
+    const remote = origin && origin.docClientId !== this._doc.clientID;
 
-      this.appendMessage({ update, origin });
-
-      return;
+    if (!remote) {
+      this.appendMessage({
+        __type_url: 'testing.document.Update',
+        update,
+        origin: { docClientId: this._doc.clientID }
+      });
     }
-
-    applyUpdate(this._doc, update, origin);
   }
 
   _transact (fn) {
     return this._doc.transact(fn, this._doc.clientID);
   }
 
-  insert (index, text) {
-    return this._transact(() => this.content.insert(index, text));
-  }
-
-  delete (index, count) {
-    return this._transact(() => this.content.delete(index, count));
-  }
-
-  async onUpdate (messages) {
+  onUpdate (messages) {
     messages.forEach(message => {
-      applyUpdate(this._doc, message.update, message.origin);
+      const { update, origin } = message;
+
+      if (origin.docClientId !== this._doc.clientID) {
+        return applyUpdate(this._doc, update, origin);
+      }
     });
   }
 
-  async onDestroy () {
+  onDestroy () {
     this._doc.off('update', this._handleDocUpdated.bind(this));
   }
 }
