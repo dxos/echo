@@ -89,9 +89,11 @@ export class ModelFactory {
       messages = messages.filter(message => !!message);
 
       if (!feedInfo) {
+        // TODO(dboreham): Need to undo this.
         messages = messages.map(m => m.data);
       }
 
+      // TODO(dboreham): Are we passing some payload object here or the whole message?
       await model.processMessages(messages);
       metrics.inc(`model.${model.id}.length`, messages.length);
     }, batchPeriod);

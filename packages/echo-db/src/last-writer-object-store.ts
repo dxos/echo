@@ -6,11 +6,13 @@ import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
 
+import { EchoMessage } from './echo-feeds';
+import { Order, LogicalClockStamp } from './consistency';
 import { dxos } from './proto/gen/echo';
 import { MutationUtil, ValueUtil } from './mutation';
 import { parseObjectId } from './util';
 
-interface ObjectBase {
+interface LastWriterObjectBase {
   id: string,
   properties?: object,
 }
@@ -21,7 +23,7 @@ const log = debug('dxos:echo:objectstore');
  * Create a set mutation messages from a single object.
  */
 // TODO(burdon): Rename.
-export const fromObject = ({ id, properties = {} }: ObjectBase): dxos.echo.IObjectMutation => {
+export const fromObject = ({ id, properties = {} }: LastWriterObjectBase): dxos.echo.IObjectMutation => {
   assert(id);
 
   return {
@@ -36,7 +38,7 @@ export const fromObject = ({ id, properties = {} }: ObjectBase): dxos.echo.IObje
 /**
  * Create a set mutation messages from a collection of objects.
  */
-export const fromObjects = (objects: ObjectBase[]): dxos.echo.IObjectMutation[] => {
+export const fromObjects = (objects: LastWriterObjectBase[]): dxos.echo.IObjectMutation[] => {
   return objects.map(fromObject);
 };
 
@@ -45,7 +47,7 @@ export const fromObjects = (objects: ObjectBase[]): dxos.echo.IObjectMutation[] 
  */
 // TODO(burdon): Separate mutable and immutable interface.
 // TODO(burdon): Document consistency constraints (e.g., each Object is independent; mutation references previous).
-export class ObjectStore extends EventEmitter {
+export class LastWriterObjectStore extends EventEmitter {
   // Objects indexed by ID.
   // TODO(burdon): Create secondary index by type.
   _objectById = new Map();
@@ -92,12 +94,17 @@ export class ObjectStore extends EventEmitter {
    * @param mutation
    * @returns {ObjectStore}
    */
-  applyMutation (mutation: dxos.echo.IObjectMutation) {
-    const { objectId, deleted, mutations } = mutation;
+  // TODO(dboreham): Check that we're careful to create and treat the mutation group as atomic so
+  // it can have one clock stamp (or re-write if not).
+  applyMutation (message: EchoMessage) {
+    const { objectId, deleted, mutations } = message.data as dxos.echo.IObjectMutation;
     assert(objectId);
+    assert(message.lcs);
+    const mutationsStamp = LogicalClockStamp.fromObject(message.lcs);
 
     // Remove object.
     // TODO(burdon): Mark as deleted instead of removing from map?
+    // TODO(dboreham): Yes, needs a 2P-set
     if (deleted) {
       this._objectById.delete(objectId);
       return this;
@@ -108,20 +115,36 @@ export class ObjectStore extends EventEmitter {
     if (!object) {
       object = {
         id: objectId,
+        lcs: mutationsStamp,
         properties: {}
       };
 
       this._objectById.set(objectId, object);
     }
 
-    MutationUtil.applyMutations(object.properties, mutations || []);
+    // Compare the logical clock stamps:
+    const objectStamp = LogicalClockStamp.fromObject(object.lcs);
+    const order = LogicalClockStamp.compare(objectStamp, mutationsStamp);
+
+    // TODO(dboreham): We could just use totalCompare() here but in future we'll handle conflict resolution in a more sophisticated way
+    //  for which we will need to identify concurrent mutations.
+    const processMutations = order === Order.AFTER || (order === Order.CONCURRENT && LogicalClockStamp.totalCompare(objectStamp, mutationsStamp));
+
+    if (processMutations) {
+      log('Mutations are causally after object current state, applying.');
+      MutationUtil.applyMutations(object.properties, mutations || []);
+      object.lcs = mutationsStamp;
+    } else {
+      log('Mutations are causally before object current state, skipping application.');
+    }
 
     return this;
   }
 
-  applyMutations (mutations: dxos.echo.IObjectMutation[]) {
-    log(`applyMutations: ${JSON.stringify(mutations)}`);
-    mutations.forEach(mutation => this.applyMutation(mutation));
+  applyMutations (messages: EchoMessage[]) {
+    // TODO(dboreham): Fold this into one function above.
+    log(`applyMutations: ${JSON.stringify(messages)}`);
+    messages.forEach(message => this.applyMutation(message));
 
     return this;
   }
