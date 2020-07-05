@@ -23,13 +23,13 @@ export enum Order {
 }
 
 export const logOrder = (value: Order) => {
-    switch (value) {
-        case Order.BEFORE: return 'BEFORE';
-        case Order.AFTER: return 'AFTER';
-        case Order.EQUAL: return 'EQUAL';
-        case Order.CONCURRENT: return 'CONCURRENT';
-    }
-}
+  switch (value) {
+    case Order.BEFORE: return 'BEFORE';
+    case Order.AFTER: return 'AFTER';
+    case Order.EQUAL: return 'EQUAL';
+    case Order.CONCURRENT: return 'CONCURRENT';
+  }
+};
 
 export class LogicalClockStamp {
     _vector: Map<NodeId, number>
@@ -60,14 +60,14 @@ export class LogicalClockStamp {
         const bSeq = b._getSeqForNode(nodeId);
         // TODO(dboreham): Remove logging when debugged.
         log(`aSeq:${aSeq} bSeq:${bSeq}`);
-        if (aSeq != bSeq) {
-            allEqual = false;
+        if (aSeq !== bSeq) {
+          allEqual = false;
         }
         if (aSeq > bSeq) {
-            allGreaterThanOrEqual = false;
+          allGreaterThanOrEqual = false;
         }
         if (aSeq < bSeq) {
-            allLessThanOrEqual = false;
+          allLessThanOrEqual = false;
         }
       }
       // if order is significant
@@ -94,17 +94,17 @@ export class LogicalClockStamp {
     }
 
     // TODO(dboreham): Encoding scheme is a hack : use typed protocol buffer schema definition.
-    toObject(): object {
-        return Array.from(this._vector.entries()).map(([key, value]) => { return { [key.toString('hex')]: value }; });
+    toObject (): object {
+      return Array.from(this._vector.entries()).map(([key, value]) => { return { [key.toString('hex')]: value }; });
     }
 
-    static fromObject(source: object): LogicalClockStamp {
-        const vector = new Map();
-        const result = new LogicalClockStamp();
-        result._vector = vector;
-        // TODO(dboreham): single-function to do this? Map.fromObject()?
-        Object.entries(source).forEach( ([key, value]) => { vector.set(key,value)} );
-        return result;
+    static fromObject (source: object): LogicalClockStamp {
+      const vector = new Map();
+      const result = new LogicalClockStamp();
+      result._vector = vector;
+      // TODO(dboreham): single-function to do this? Map.fromObject()?
+      Object.entries(source).forEach(([key, value]) => { vector.set(key, value); });
+      return result;
     }
 
     log (): string {
