@@ -6,7 +6,7 @@ import debug from 'debug';
 
 import { randomBytes } from '@dxos/crypto';
 
-import { LogicalClockStamp, Order, logOrder } from './consistency';
+import { LogicalClockStamp, Order, logOrder, BigIntToBuffer, BufferToBigInt } from './consistency';
 
 const log = debug('dxos:echo:test');
 
@@ -164,9 +164,10 @@ test('LogicalClockStamp:equal_two_nodes', () => {
 
 // Total order:
 
-test.skip('LogicalClockStamp:unordered_two_nodes_total', () => {
+test('LogicalClockStamp:unordered_two_nodes_total', () => {
   const nodeId1 = randomBytes();
-  const nodeId2 = nodeId1 + 1; // TODO(dboreham): Needs BigInt
+  // Force nodeId2 to have a higher value then nodeId1
+  const nodeId2 = BigIntToBuffer(BufferToBigInt(nodeId1) + BigInt(1));
 
   const lcsA = new LogicalClockStamp();
   const vectorA:Map<Buffer, number> = new Map();
@@ -182,15 +183,16 @@ test.skip('LogicalClockStamp:unordered_two_nodes_total', () => {
 
   const order = LogicalClockStamp.totalCompare(lcsA, lcsB);
   log(`compare(zero, nonZero) -> ${logOrder(order)}`);
-  expect(order).toBe(Order.BEFORE);
+  expect(order).toBe(Order.AFTER);
   const reverse = LogicalClockStamp.totalCompare(lcsB, lcsA);
   log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
-  expect(reverse).toBe(Order.AFTER);
+  expect(reverse).toBe(Order.BEFORE);
 });
 
-test.skip('LogicalClockStamp:unrelated_two_nodes_total', () => {
+test('LogicalClockStamp:unrelated_two_nodes_total', () => {
   const nodeId1 = randomBytes();
-  const nodeId2 = nodeId1 + 1; // TODO(dboreham): Needs BigInt
+  // Force nodeId2 to have a higher value then nodeId1
+  const nodeId2 = BigIntToBuffer(BufferToBigInt(nodeId1) + BigInt(1));
 
   const lcsA = new LogicalClockStamp();
   const vectorA:Map<Buffer, number> = new Map();
