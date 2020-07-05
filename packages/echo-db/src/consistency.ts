@@ -85,7 +85,7 @@ export class LogicalClockStamp {
     static totalCompare (a: LogicalClockStamp, b: LogicalClockStamp):Order {
       const partialOrder = LogicalClockStamp.compare(a, b);
       if (partialOrder === Order.CONCURRENT) {
-        // Break tie TODO(dboreham): Implement
+        // TODO(dboreham): Implement.
         const tieBreaker = true;
         return tieBreaker ? Order.AFTER : Order.BEFORE;
       } else {

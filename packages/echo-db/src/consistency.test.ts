@@ -10,6 +10,8 @@ import { LogicalClockStamp, Order, logOrder } from './consistency';
 
 const log = debug('dxos:echo:test');
 
+// Partial order:
+
 test('LogicalClockStamp:zero', () => {
   const lcsZero = new LogicalClockStamp();
   const lcsNonZero = new LogicalClockStamp();
@@ -158,4 +160,52 @@ test('LogicalClockStamp:equal_two_nodes', () => {
   const reverse = LogicalClockStamp.compare(lcsB, lcsA);
   log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
   expect(reverse).toBe(Order.EQUAL);
+});
+
+// Total order:
+
+test.skip('LogicalClockStamp:unordered_two_nodes_total', () => {
+  const nodeId1 = randomBytes();
+  const nodeId2 = nodeId1 + 1; // TODO(dboreham): Needs BigInt
+
+  const lcsA = new LogicalClockStamp();
+  const vectorA:Map<Buffer, number> = new Map();
+  vectorA.set(nodeId1, 1);
+  vectorA.set(nodeId2, 2);
+  lcsA._setVector(vectorA);
+
+  const lcsB = new LogicalClockStamp();
+  const vectorB:Map<Buffer, number> = new Map();
+  vectorB.set(nodeId1, 2);
+  vectorB.set(nodeId2, 1);
+  lcsB._setVector(vectorB);
+
+  const order = LogicalClockStamp.totalCompare(lcsA, lcsB);
+  log(`compare(zero, nonZero) -> ${logOrder(order)}`);
+  expect(order).toBe(Order.BEFORE);
+  const reverse = LogicalClockStamp.totalCompare(lcsB, lcsA);
+  log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
+  expect(reverse).toBe(Order.AFTER);
+});
+
+test.skip('LogicalClockStamp:unrelated_two_nodes_total', () => {
+  const nodeId1 = randomBytes();
+  const nodeId2 = nodeId1 + 1; // TODO(dboreham): Needs BigInt
+
+  const lcsA = new LogicalClockStamp();
+  const vectorA:Map<Buffer, number> = new Map();
+  vectorA.set(nodeId1, 1);
+  lcsA._setVector(vectorA);
+
+  const lcsB = new LogicalClockStamp();
+  const vectorB:Map<Buffer, number> = new Map();
+  vectorB.set(nodeId2, 1);
+  lcsB._setVector(vectorB);
+
+  const order = LogicalClockStamp.totalCompare(lcsA, lcsB);
+  log(`compare(zero, nonZero) -> ${logOrder(order)}`);
+  expect(order).toBe(Order.BEFORE);
+  const reverse = LogicalClockStamp.totalCompare(lcsB, lcsA);
+  log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
+  expect(reverse).toBe(Order.AFTER);
 });
