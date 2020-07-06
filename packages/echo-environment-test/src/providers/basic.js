@@ -15,9 +15,9 @@ import { Provider, networkTypes } from './provider';
 
 export class BasicProvider extends Provider {
   constructor (options = {}) {
-    const { initialPeers = 1, codec = bufferJson, ...providerOptions } = options;
+    const { initialPeers = 1, codec = bufferJson, network = { type: networkTypes.NO_LINKS, parameters: [initialPeers] }, ...providerOptions } = options;
 
-    super({ ...providerOptions, network: { type: networkTypes.NO_LINKS, parameters: [initialPeers] } });
+    super({ network, ...providerOptions });
 
     this._codec = codec;
   }
@@ -62,7 +62,7 @@ export const replicateAll = ({ topic, peerId, feedStore, feed }) => {
 
   const replicator = new DefaultReplicator({
     feedStore,
-    onLoad: () => [feed]
+    onLoad: () => feedStore.getOpenFeeds()
   });
 
   return () => new Protocol({

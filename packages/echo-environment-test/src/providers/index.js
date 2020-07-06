@@ -3,9 +3,11 @@
 //
 
 import { BasicProvider } from './basic';
-import { DataClientProvider } from './data-client';
+import { ClientProvider } from './client';
 
 export const providers = {
   BasicProvider,
-  DataClientProvider
+  ClientProvider
 };
+
+export { networkTypes } from './provider';
