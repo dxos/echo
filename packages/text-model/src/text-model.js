@@ -5,7 +5,7 @@
 import { Model } from '@dxos/model-factory';
 import { Doc, applyUpdate } from 'yjs';
 
-export const TYPE_TEXT_MODEL_UPDATE = 'wrn://dxos.network/echo/text-model/update';
+export const TYPE_TEXT_MODEL_UPDATE = 'wrn://dxos.org/echo/text-model/update';
 
 export class TextModel extends Model {
   _doc = new Doc();
