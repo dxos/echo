@@ -69,6 +69,8 @@ export const logOrder = (value: Order) => {
 
 const getLowestNodeId = (nodeIds: NodeId[]): NodeId => {
   const lowest:NodeId = nodeIds[0];
+  // TODO(dboreham): Remove logging.
+  nodeIds.forEach((nodeId) => { log(`id: ${nodeId.toString('hex')}`); });
   nodeIds.forEach((nodeId) => { if (nodeId < lowest) return lowest; });
   return lowest;
 };
@@ -86,6 +88,8 @@ export class LogicalClockStamp {
     }
 
     static compare (a: LogicalClockStamp, b: LogicalClockStamp): Order {
+      log(`Compare a: ${a.log()}`);
+      log(`Compare b: ${b.log()}`);
       const nodeIds: Set<NodeId> = new Set();
       // TODO(dboreham): set.addAllFrom(Iteraable)? or set.union(a,b)?
       for (const key of a._vector.keys()) {
@@ -127,10 +131,22 @@ export class LogicalClockStamp {
     static totalCompare (a: LogicalClockStamp, b: LogicalClockStamp):Order {
       const partialOrder = LogicalClockStamp.compare(a, b);
       if (partialOrder === Order.CONCURRENT) {
-        // TODO(dboreham): Implement.
         const aLowestNodeId = getLowestNodeId(Array.from(a._vector.keys()));
         const bLowestNodeId = getLowestNodeId(Array.from(b._vector.keys()));
-        const tieBreaker = aLowestNodeId > bLowestNodeId;
+        log(`aLowest: ${aLowestNodeId.toString('hex')}, bLowest: ${bLowestNodeId.toString('hex')}`);
+        let tieBreaker = false;
+        if (aLowestNodeId === bLowestNodeId) {
+          // If the two share the same lowest node id use the seq for that node id to break tie.
+          const aSeq = a._vector.get(aLowestNodeId);
+          assert(aSeq);
+          const bSeq = b._vector.get(bLowestNodeId);
+          assert(bSeq);
+          log(`tie: aSeq: ${aSeq}, bSeq:${bSeq} `);
+          tieBreaker = aSeq < bSeq;
+        } else {
+          // Otherwise pick the stamp with the lowest node id.
+          tieBreaker = aLowestNodeId < bLowestNodeId;
+        }
         return tieBreaker ? Order.AFTER : Order.BEFORE;
       } else {
         return partialOrder;

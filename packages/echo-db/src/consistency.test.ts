@@ -40,10 +40,10 @@ test('LogicalClockStamp:ordered_one_node', () => {
   lcsB._setVector(vectorB);
 
   const order = LogicalClockStamp.compare(lcsA, lcsB);
-  log(`compare(zero, nonZero) -> ${logOrder(order)}`);
+  log(`compare(A:1, A:2) -> ${logOrder(order)}`);
   expect(order).toBe(Order.AFTER);
   const reverse = LogicalClockStamp.compare(lcsB, lcsA);
-  log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
+  log(`compare(A:2, A:1) -> ${logOrder(reverse)}`);
   expect(reverse).toBe(Order.BEFORE);
 });
 
@@ -182,10 +182,10 @@ test('LogicalClockStamp:unordered_two_nodes_total', () => {
   lcsB._setVector(vectorB);
 
   const order = LogicalClockStamp.totalCompare(lcsA, lcsB);
-  log(`compare(zero, nonZero) -> ${logOrder(order)}`);
+  log(`totalCompare(A:1 B:2, A:2 B:1) -> ${logOrder(order)}`);
   expect(order).toBe(Order.AFTER);
   const reverse = LogicalClockStamp.totalCompare(lcsB, lcsA);
-  log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
+  log(`totalCompare(A:2 B:1, A:1 B:2) -> ${logOrder(reverse)}`);
   expect(reverse).toBe(Order.BEFORE);
 });
 
@@ -205,9 +205,9 @@ test('LogicalClockStamp:unrelated_two_nodes_total', () => {
   lcsB._setVector(vectorB);
 
   const order = LogicalClockStamp.totalCompare(lcsA, lcsB);
-  log(`compare(zero, nonZero) -> ${logOrder(order)}`);
-  expect(order).toBe(Order.BEFORE);
+  log(`totalCompare(A:1, B:1) -> ${logOrder(order)}`);
+  expect(order).toBe(Order.AFTER);
   const reverse = LogicalClockStamp.totalCompare(lcsB, lcsA);
-  log(`compare(nonZero, zero) -> ${logOrder(reverse)}`);
-  expect(reverse).toBe(Order.AFTER);
+  log(`totalCompare(B:1, A:1) -> ${logOrder(reverse)}`);
+  expect(reverse).toBe(Order.BEFORE);
 });
