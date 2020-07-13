@@ -1,5 +1,5 @@
 //
-// Copyright 2019 Wireline, Inc.
+// Copyright 2020 DXOS.org
 //
 
 import EventEmitter from 'events';
@@ -53,8 +53,8 @@ export class Model extends EventEmitter {
     this.emit('update', this, messages);
   }
 
-  // TODO(burdon): appendMessages.
   async appendMessage (message) {
+    this.emit('preappend', message);
     message = await this.onAppend(message);
     if (this._appendHandler) {
       await this._appendHandler(message);

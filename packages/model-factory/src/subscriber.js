@@ -1,5 +1,5 @@
 //
-// Copyright 2020 Wireline, Inc.
+// Copyright 2020 DXOS.org
 //
 
 import assert from 'assert';
@@ -35,6 +35,7 @@ export class Subscriber {
       },
 
       async get (key, seq) {
+        // TODO(burdon): FeedStore should not know about discovery key.
         const descriptor = feedStore.getDescriptorByDiscoveryKey(discoveryKey(key));
         if (!descriptor) {
           throw new Error('Missing descriptor.');
