@@ -14,7 +14,7 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "npm run clean && npm run build:ts && npm run build:protobuf",
+    "build": "npm run clean && npm run build:protobuf && npm run build:ts",
     "build:ts": "tsc",
     "build:protobuf": "mkdir -p ./src/proto/gen && npm run build:protobuf:json && npm run build:protobuf:js && npm run build:protobuf:ts",
     "build:protobuf:json": "pbjs -t json ./src/proto/echo.proto -o ./src/proto/gen/echo.json",
@@ -23,7 +23,7 @@
     "clean": "del-cli dist",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --verbose src",
-    "lint": "eslint './src/**/*.ts'",
+    "lint": "eslint --ignore-pattern '**/gen/*.ts' './src/**/*.ts'",
     "test": "jest --rootDir ./src --verbose",
     "posttest": "npm run lint",
     "prepublishOnly": "npm run test && npm run build",

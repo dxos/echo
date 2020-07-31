@@ -52,12 +52,12 @@ interface IModel {
 class ObjectModel implements IModel {
   static TYPE = 'wrn://dxos/model/object';
 
-  _appendMessages?: Function;
+  _appendDatas?: Function;
   _store = new ObjectStore();
 
   // TODO(burdon): Stream?
-  initialize (appendMessages: Function) {
-    this._appendMessages = appendMessages;
+  initialize (appendDatas: Function) {
+    this._appendDatas = appendDatas;
     return this;
   }
 
@@ -70,8 +70,8 @@ class ObjectModel implements IModel {
     const mutations = fromObject({ id, properties });
 
     // TODO(burdon): Stream?
-    assert(this._appendMessages);
-    await this._appendMessages([{
+    assert(this._appendDatas);
+    await this._appendDatas([{
       __type_url: type,
       ...mutations
     }]);

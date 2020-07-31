@@ -102,7 +102,7 @@ describe('Model factory', () => {
     // TODO(burdon): Option to swtich off buffering.
     // Alternate posting to either model.
     for (let i = 0; i < messages.length; i++) {
-      await ((i % 2 === 0) ? model1 : model2).appendMessage(messages[i]);
+      await ((i % 2 === 0) ? model1 : model2).appendData(messages[i]);
     }
   });
 
@@ -129,7 +129,7 @@ describe('Model factory', () => {
     });
 
     for (let i = 0; i < messages.length; i++) {
-      await model.appendMessage(messages[i]);
+      await model.appendData(messages[i]);
     }
   });
 
@@ -156,7 +156,7 @@ describe('Model factory', () => {
     });
 
     for (let i = 0; i < messages.length; i++) {
-      await model.appendMessage(messages[i]);
+      await model.appendData(messages[i]);
     }
   });
 
@@ -189,7 +189,7 @@ describe('Model factory', () => {
       }
     }));
     for (let i = 0; i < n; i++) {
-      await model.appendMessage({ __type_url: 'test.Type', value: i });
+      await model.appendData({ __type_url: 'test.Type', value: i });
     }
 
     await waitForMessages;

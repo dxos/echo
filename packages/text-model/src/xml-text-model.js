@@ -21,7 +21,7 @@ export class XmlTextModel extends Model {
   _handleDocUpdated (update, origin) {
     if (origin === this._doc.clientID) {
       // Local
-      this.appendMessage({ update, origin });
+      this.appendData({ update, origin });
     }
   }
 

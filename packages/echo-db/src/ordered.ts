@@ -4,24 +4,24 @@
 
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
-import type { OrderedMessage } from './common/OrderedMessage';
-import { MessageEnvelope } from './common/MessageEnvelope';
+import type { OrderedModelData } from './common/OrderedModelData';
+import { ModelMessage } from './common/ModelMessage';
 
 /**
  * Basic ordered log model. Maintains a list of messages in an order of referencing messages to a previous ones.
  * It requires the previousMessageId of the first message (genesis) to be equal '0'
  * It requires every message to have id, and every message (except genesis) to have previousMessageId referencing an existing message's id
  */
-export class OrderedModel<T extends OrderedMessage> extends Model {
-  _messageQueue: MessageEnvelope<T>[] = [];
+export class OrderedModel<T extends OrderedModelData> extends Model {
+  _messageQueue: ModelMessage[] = [];
 
-  _orderedMessages: MessageEnvelope<T>[] = [];
+  _orderedMessages: ModelMessage[] = [];
 
   get orderedMessages () {
     return this._orderedMessages;
   }
 
-  async processMessages (messages: MessageEnvelope<T>[]) {
+  async processMessages (messages: ModelMessage[]) {
     const messagesWithOrdering = messages
       .filter(
         m => m.data.messageId !== null && m.data.messageId !== undefined &&
@@ -66,16 +66,16 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
    * @param  {object} _message - message candidate
    */
   // eslint-disable-next-line
-  validateCandidate(_intendedPosition: number, _message: MessageEnvelope<T>) {
+  validateCandidate(_intendedPosition: number, _message: ModelMessage) {
     return true;
   }
 
   // eslint-disable-next-line
-  async onUpdate(messages: MessageEnvelope<T>[]) {
+  async onUpdate(messages: ModelMessage[]) {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (messageData: any) {
+  static createGenesis (messageData: any) {
     return {
       messageId: 1,
       previousMessageId: 0,
@@ -83,8 +83,8 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
     };
   }
 
-  appendMessage (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
-    super.appendMessage({
+  appendData (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
+    super.appendData({
       messageId: this._orderedMessages.length + 1, // first message has id of 1
       previousMessageId: this._orderedMessages.length > 0
         ? this._orderedMessages[this._orderedMessages.length - 1].data.messageId
@@ -94,7 +94,7 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
   }
 }
 
-export class DefaultOrderedModel<T extends OrderedMessage> extends OrderedModel<T> {
+export class DefaultOrderedModel<T extends OrderedModelData> extends OrderedModel<T> {
   get messages () {
     return this._orderedMessages;
   }

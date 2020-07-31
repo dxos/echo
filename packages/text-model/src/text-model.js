@@ -24,7 +24,7 @@ export class TextModel extends Model {
     const remote = origin && origin.docClientId && origin.docClientId !== this._doc.clientID;
 
     if (!remote) {
-      this.appendMessage({
+      this.appendData({
         __type_url: TYPE_TEXT_MODEL_UPDATE,
         update,
         origin: { docClientId: this._doc.clientID }

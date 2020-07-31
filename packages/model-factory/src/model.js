@@ -7,6 +7,12 @@ import EventEmitter from 'events';
 import { createId, humanize } from '@dxos/crypto';
 
 /**
+ * @callback AppendHandler
+ * @param {ModelData} data
+ * @return {ModelData}
+ */
+
+/**
  * HOC (withModel) ==> ModelFactory => Model <=> App
  *                 \=> Feed <==========/
  *
@@ -35,11 +41,14 @@ export class Model extends EventEmitter {
     return this._modelFactoryOptions;
   }
 
-  setAppendHandler (cb) {
+  /**
+   * @param {AppendHandler} handler
+   */
+  setAppendHandler (handler) {
     if (this._appendHandler) {
       throw new Error('append handler already defined');
     }
-    this._appendHandler = cb;
+    this._appendHandler = handler;
   }
 
   async destroy () {
@@ -48,18 +57,26 @@ export class Model extends EventEmitter {
     this.emit('destroy', this);
   }
 
+  /**
+   * @param {ModelMessage[]} messages
+   * @returns {Promise<void>}
+   */
   async processMessages (messages) {
     await this.onUpdate(messages);
     this.emit('update', this, messages);
   }
 
-  async appendMessage (message) {
-    this.emit('preappend', message);
-    message = await this.onAppend(message);
+  /**
+   * @param {ModelData} data
+   * @returns {Promise<void>}
+   */
+  async appendData (data) {
+    this.emit('preappend', data);
+    data = await this.onAppend(data);
     if (this._appendHandler) {
-      await this._appendHandler(message);
+      await this._appendHandler(data);
     }
-    this.emit('append', message);
+    this.emit('append', data);
   }
 
   //
@@ -67,16 +84,18 @@ export class Model extends EventEmitter {
   //
 
   /**
-   * @async
+   * @param {ModelData} data
+   * @returns {Promise<ModelData>}
    */
-  onAppend (message) {
-    return message;
+  async onAppend (data) {
+    return data;
   }
 
   /**
-   * @async
+   * @param {ModelMessage[]} messages
+   * @returns {Promise<void>}
    */
-  onUpdate (messages) {
+  async onUpdate (messages) {
     throw new Error(`Not processed: ${messages.length}`);
   }
 

@@ -4,19 +4,19 @@
 
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
-import { OrderedMessage } from './common/OrderedMessage';
-import { MessageEnvelope } from './common/MessageEnvelope';
+import { OrderedModelData } from './common/OrderedModelData';
+import { ModelMessage, ModelData } from './common/ModelMessage';
 
 /**
  * Partially ordered model accepts messages in a sequence of messageId and previousMessageId, allowing non-unique previousMessageIds
  */
-export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
-  _messageQueue: MessageEnvelope<T>[] = [];
+export class PartiallyOrderedModel<T extends OrderedModelData> extends Model {
+  _messageQueue: ModelMessage[] = [];
 
   _seenIds = new Set([0]);
   _maxSeenId = 0;
 
-  async processMessages (messages: MessageEnvelope<T>[]) {
+  async processMessages (messages: ModelMessage[]) {
     const messagesWithOrdering = messages
       .filter(
         m => m.data.messageId !== null && m.data.messageId !== undefined &&
@@ -56,42 +56,42 @@ export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
    * Comparer used to sort messages forking from a single parent
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  compareCandidates (a: MessageEnvelope<T>, b: MessageEnvelope<T>) {
+  compareCandidates (a: ModelMessage, b: ModelMessage) {
     return -1;
   }
 
   /**
-   * @param {object} message
+   * @param {ModelMessage[]} messages
    */
-  async onUpdate (messages: MessageEnvelope<T>[]) {
+  async onUpdate (messages: ModelMessage[]) {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (messageData: any) {
+  static createGenesis (data: ModelData) {
     return {
-      ...messageData,
+      ...data,
       messageId: 1,
       previousMessageId: 0
     };
   }
 
-  appendMessage (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
-    super.appendMessage({
-      ...messageData,
+  appendData (data: Omit<T, 'messageId' | 'previousMessageId'>) {
+    super.appendData({
+      ...data,
       messageId: this._maxSeenId + 1,
       previousMessageId: this._maxSeenId
     });
   }
 }
 
-export class DefaultPartiallyOrderedModel<T extends OrderedMessage> extends PartiallyOrderedModel<T> {
-  _messages: MessageEnvelope<T>[] = [];
+export class DefaultPartiallyOrderedModel<T extends OrderedModelData> extends PartiallyOrderedModel<T> {
+  _messages: ModelMessage[] = [];
 
   get messages () {
     return this._messages;
   }
 
-  async onUpdate (messages: MessageEnvelope<T>[]) {
+  async onUpdate (messages: ModelMessage[]) {
     this._messages = [...this._messages, ...messages];
   }
 }

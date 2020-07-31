@@ -36,7 +36,7 @@ export class ObjectModel extends Model {
     const id = createObjectId(type);
     const mutations = fromObject({ id, properties });
 
-    this.appendMessage({
+    this.appendData({
       __type_url: type,
       viewId,
       ...mutations
@@ -55,7 +55,7 @@ export class ObjectModel extends Model {
       properties
     });
 
-    this.appendMessage({
+    this.appendData({
       __type_url: type,
       ...mutations
     });
@@ -68,7 +68,7 @@ export class ObjectModel extends Model {
     const { type } = parseObjectId(id);
     const mutation = MutationUtil.createMessage(id, { deleted: true });
 
-    this.appendMessage({
+    this.appendData({
       __type_url: type,
       ...mutation
     });

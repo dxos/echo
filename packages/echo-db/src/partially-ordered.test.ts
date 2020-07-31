@@ -130,10 +130,10 @@ describe('Partially Ordered Model', () => {
 
   test('message can be inserted using append message', async () => {
     const model = new ModelUnderTest();
-    await model.appendMessage({ value: 'genesis' });
-    await model.appendMessage({ value: 'a' });
-    await model.appendMessage({ value: 'b' });
-    await model.appendMessage({ value: 'c' });
+    await model.appendData({ value: 'genesis' });
+    await model.appendData({ value: 'a' });
+    await model.appendData({ value: 'b' });
+    await model.appendData({ value: 'c' });
 
     expect(model.messages).toStrictEqual([
       { data: { messageId: 1, previousMessageId: 0, value: 'genesis' } },
