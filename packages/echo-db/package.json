@@ -67,15 +67,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
-      "plugin:jest/recommended",
-      "eslint-config-semistandard"
-    ],
-    "rules": {
-      "babel/semi": 1
-    }
   }
 }

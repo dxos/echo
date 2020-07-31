@@ -5,24 +5,25 @@
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 import { OrderedMessage } from './common/OrderedMessage';
+import { MessageEnvelope } from './common/MessageEnvelope';
 
 /**
  * Partially ordered model accepts messages in a sequence of messageId and previousMessageId, allowing non-unique previousMessageIds
  */
 export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
-  _messageQueue: T[] = [];
+  _messageQueue: MessageEnvelope<T>[] = [];
 
   _seenIds = new Set([0]);
   _maxSeenId = 0;
 
-  async processMessages (messages: T[]) {
+  async processMessages (messages: MessageEnvelope<T>[]) {
     const messagesWithOrdering = messages
       .filter(
-        m => m.messageId !== null && m.messageId !== undefined &&
-        m.previousMessageId !== null && m.previousMessageId !== undefined
+        m => m.data.messageId !== null && m.data.messageId !== undefined &&
+        m.data.previousMessageId !== null && m.data.previousMessageId !== undefined
       );
     this._messageQueue.push(...messagesWithOrdering);
-    this.tryApplyQueue();
+    await this.tryApplyQueue();
     this.emit('update', this);
   }
 
@@ -30,7 +31,7 @@ export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
     const toApply = [];
     while (this._messageQueue.length > 0) {
       const nextMessageCandidates = this._messageQueue
-        .filter(m => this._seenIds.has(m.previousMessageId))
+        .filter(m => this._seenIds.has(m.data.previousMessageId))
         .sort((a, b) => this.compareCandidates(a, b));
 
       if (nextMessageCandidates.length === 0) {
@@ -40,11 +41,11 @@ export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
       toApply.push(...nextMessageCandidates);
 
       // ...and discards the rest
-      this._messageQueue = this._messageQueue.filter(m => !this._seenIds.has(m.previousMessageId));
+      this._messageQueue = this._messageQueue.filter(m => !this._seenIds.has(m.data.previousMessageId));
 
       nextMessageCandidates.forEach(m => {
-        this._seenIds.add(m.messageId);
-        this._maxSeenId = Math.max(this._maxSeenId, m.messageId);
+        this._seenIds.add(m.data.messageId);
+        this._maxSeenId = Math.max(this._maxSeenId, m.data.messageId);
       });
     }
     await this.onUpdate(toApply);
@@ -55,28 +56,28 @@ export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
    * Comparer used to sort messages forking from a single parent
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  compareCandidates (a: T, b: T) {
+  compareCandidates (a: MessageEnvelope<T>, b: MessageEnvelope<T>) {
     return -1;
   }
 
   /**
    * @param {object} message
    */
-  async onUpdate (messages: T[]) {
+  async onUpdate (messages: MessageEnvelope<T>[]) {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (message: any) {
+  static createGenesisMessage (messageData: any) {
     return {
-      ...message,
+      ...messageData,
       messageId: 1,
       previousMessageId: 0
     };
   }
 
-  appendMessage (message: Omit<T, 'messageId' | 'previousMessageId'>) {
+  appendMessage (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
     super.appendMessage({
-      ...message,
+      ...messageData,
       messageId: this._maxSeenId + 1,
       previousMessageId: this._maxSeenId
     });
@@ -84,13 +85,13 @@ export class PartiallyOrderedModel<T extends OrderedMessage> extends Model {
 }
 
 export class DefaultPartiallyOrderedModel<T extends OrderedMessage> extends PartiallyOrderedModel<T> {
-  _messages: T[] = [];
+  _messages: MessageEnvelope<T>[] = [];
 
   get messages () {
     return this._messages;
   }
 
-  async onUpdate (messages: T[]) {
+  async onUpdate (messages: MessageEnvelope<T>[]) {
     this._messages = [...this._messages, ...messages];
   }
 }

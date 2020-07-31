@@ -5,6 +5,7 @@
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 import type { OrderedMessage } from './common/OrderedMessage';
+import { MessageEnvelope } from './common/MessageEnvelope';
 
 /**
  * Basic ordered log model. Maintains a list of messages in an order of referencing messages to a previous ones.
@@ -12,23 +13,23 @@ import type { OrderedMessage } from './common/OrderedMessage';
  * It requires every message to have id, and every message (except genesis) to have previousMessageId referencing an existing message's id
  */
 export class OrderedModel<T extends OrderedMessage> extends Model {
-  _messageQueue: T[] = [];
+  _messageQueue: MessageEnvelope<T>[] = [];
 
-  _orderedMessages: T[] = [];
+  _orderedMessages: MessageEnvelope<T>[] = [];
 
   get orderedMessages () {
     return this._orderedMessages;
   }
 
-  async processMessages (messages: T[]) {
+  async processMessages (messages: MessageEnvelope<T>[]) {
     const messagesWithOrdering = messages
       .filter(
-        m => m.messageId !== null && m.messageId !== undefined &&
-        m.previousMessageId !== null && m.previousMessageId !== undefined
+        m => m.data.messageId !== null && m.data.messageId !== undefined &&
+        m.data.previousMessageId !== null && m.data.previousMessageId !== undefined
       );
 
     this._messageQueue.push(...messagesWithOrdering);
-    this.tryApplyQueue();
+    await this.tryApplyQueue();
     this.emit('update', this);
   }
 
@@ -36,11 +37,11 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
     const toApply = [];
     while (this._messageQueue.length > 0) {
       const currentMessageId = this._orderedMessages.length === 0 ? 0
-        : this._orderedMessages[this._orderedMessages.length - 1].messageId;
+        : this._orderedMessages[this._orderedMessages.length - 1].data.messageId;
 
       const nextMessageCandidates = this._messageQueue
-        .filter(m => m.previousMessageId === currentMessageId)
-        .filter(m => !this._orderedMessages.find(o => o.messageId === m.messageId)) // make sure message id does not already exist
+        .filter(m => m.data.previousMessageId === currentMessageId)
+        .filter(m => !this._orderedMessages.find(o => o.data.messageId === m.data.messageId)) // make sure message id does not already exist
         .filter(m => this.validateCandidate(this._orderedMessages.length, m)); // apply (optional) strategy
 
       if (nextMessageCandidates.length === 0) {
@@ -53,7 +54,7 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
       toApply.push(nextMessage);
 
       // ...and discards the rest
-      this._messageQueue = this._messageQueue.filter(m => m.previousMessageId !== currentMessageId);
+      this._messageQueue = this._messageQueue.filter(m => m.data.previousMessageId !== currentMessageId);
     }
     await this.onUpdate(toApply);
   }
@@ -61,34 +62,34 @@ export class OrderedModel<T extends OrderedMessage> extends Model {
   /**
    * @Virtual
    * When overriding this model, it can be used to apply a custom strategy (e.g. permissions to write messages)
-   * @param  {integer} intendedPosition - 0-indexed position of ordered messages, that the candidate is about to get
-   * @param  {object} message - message candidate
+   * @param  {integer} _intendedPosition - 0-indexed position of ordered messages, that the candidate is about to get
+   * @param  {object} _message - message candidate
    */
   // eslint-disable-next-line
-  validateCandidate(_intendedPosition: number, _message: T) {
+  validateCandidate(_intendedPosition: number, _message: MessageEnvelope<T>) {
     return true;
   }
 
   // eslint-disable-next-line
-  async onUpdate(messages: T[]) {
+  async onUpdate(messages: MessageEnvelope<T>[]) {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (message: any) {
+  static createGenesisMessage (messageData: any) {
     return {
       messageId: 1,
       previousMessageId: 0,
-      ...message
+      ...messageData
     };
   }
 
-  appendMessage (message: Omit<T, 'messageId' | 'previousMessageId'>) {
+  appendMessage (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
     super.appendMessage({
       messageId: this._orderedMessages.length + 1, // first message has id of 1
       previousMessageId: this._orderedMessages.length > 0
-        ? this._orderedMessages[this._orderedMessages.length - 1].messageId
+        ? this._orderedMessages[this._orderedMessages.length - 1].data.messageId
         : 0,
-      ...message
+      ...messageData
     });
   }
 }

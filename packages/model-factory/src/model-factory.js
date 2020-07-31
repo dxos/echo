@@ -8,6 +8,7 @@ import pump from 'pump';
 import Signal from 'signal-promise';
 import debounce from 'lodash.debounce';
 
+import { log } from '@dxos/debug';
 import metrics from '@dxos/metrics';
 
 import { Subscriber } from './subscriber';
@@ -49,8 +50,6 @@ export class ModelFactory {
     assert(ModelClass);
 
     const { type, topic, subscriptionOptions = {}, batchPeriod = 50, ...rest } = options;
-
-    const feedInfo = subscriptionOptions.feedLevelIndexInfo;
 
     // TODO(burdon): Option to cache and reference count models.
     const model = new ModelClass({
@@ -108,14 +107,28 @@ export class ModelFactory {
     const onData = bufferedStreamHandler(stream, async (messages) => {
       if (model.destroyed) return;
 
+      // Reformat into an envelope that looks like:
+      // {
+      //    data: { ... }
+      //    feed: { key, seq }
+      //    ...
+      // }
+      messages = messages.map((message) => {
+        const { data, seq, key } = message;
+        return { data, feed: { seq, key } };
+      });
+
       if (this._onMessage) {
-        messages = await Promise.all(messages.map(message => this._onMessage(message, options)));
-      }
-
-      messages = messages.filter(message => !!message);
-
-      if (!feedInfo) {
-        messages = messages.map(m => m.data);
+        const preprocessed = [];
+        for await (const message of messages) {
+          const result = await this._onMessage(message, options);
+          if (result) {
+            preprocessed.push(result);
+          } else {
+            log('onMessage filtered:', message);
+          }
+        }
+        messages = preprocessed;
       }
 
       await model.processMessages(messages);

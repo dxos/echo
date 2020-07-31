@@ -169,7 +169,7 @@ describe('Model factory', () => {
           await this._currentProcess.promise;
 
           // Record order of message processing.
-          this._messages.push(m.value);
+          this._messages.push(m.data.value);
         }
       }
 
