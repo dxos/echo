@@ -68,11 +68,11 @@ export class PartiallyOrderedModel<T extends OrderedModelData> extends Model {
   }
 
   static createGenesisMessage (data: ModelData) {
-    return {
+    return new ModelMessage({
       ...data,
       messageId: 1,
       previousMessageId: 0
-    };
+    });
   }
 
   appendMessage (message: ModelMessage) {

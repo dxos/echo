@@ -4,8 +4,9 @@
 
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
+
+import { ModelData, ModelMessage } from './common/ModelMessage';
 import type { OrderedModelData } from './common/OrderedModelData';
-import { ModelMessage } from './common/ModelMessage';
 
 /**
  * Basic ordered log model. Maintains a list of messages in an order of referencing messages to a previous ones.
@@ -75,12 +76,12 @@ export class OrderedModel<T extends OrderedModelData> extends Model {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (messageData: any) {
-    return {
+  static createGenesisMessage (data: ModelData) {
+    return new ModelMessage({
+      ...data,
       messageId: 1,
-      previousMessageId: 0,
-      ...messageData
-    };
+      previousMessageId: 0
+    });
   }
 
   appendMessage (message: ModelMessage) {
