@@ -3,7 +3,7 @@ import { createId } from '@dxos/crypto';
 import { Model } from '@dxos/model-factory';
 
 import { raise } from './util';
-import {ModelMessage} from "@dxos/echo-db/dist/src/common/ModelMessage";
+import { ModelMessage } from '@dxos/echo-db/dist/src/common/ModelMessage';
 
 // TODO(marik-d): Reuse existing ObjectModel mutation mechanisms and CRDTs
 export interface ViewMutation {
