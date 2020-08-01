@@ -75,7 +75,7 @@ export class OrderedModel<T extends OrderedModelData> extends Model {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesis (messageData: any) {
+  static createGenesisMessage (messageData: any) {
     return {
       messageId: 1,
       previousMessageId: 0,
@@ -83,14 +83,17 @@ export class OrderedModel<T extends OrderedModelData> extends Model {
     };
   }
 
-  appendData (messageData: Omit<T, 'messageId' | 'previousMessageId'>) {
-    super.appendData({
+  appendMessage (message: ModelMessage) {
+    // Only the data is passed through.
+    const data = {
+      ...message.data,
       messageId: this._orderedMessages.length + 1, // first message has id of 1
       previousMessageId: this._orderedMessages.length > 0
         ? this._orderedMessages[this._orderedMessages.length - 1].data.messageId
-        : 0,
-      ...messageData
-    });
+        : 0
+    };
+
+    super.appendMessage(new ModelMessage(data));
   }
 }
 

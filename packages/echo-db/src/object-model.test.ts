@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { dxos } from './proto/gen/echo';
+import { ModelMessage } from './common/ModelMessage';
 import { ObjectModel } from './object-model';
 
 test('ObjectModel', async () => {
@@ -11,7 +11,7 @@ test('ObjectModel', async () => {
 
   const waitForAppend = new Promise(resolve => {
     let i = 0;
-    model.on('append', async (message: dxos.echo.IObjectMutation) => {
+    model.on('append', async (message: ModelMessage) => {
       await model.onUpdate([message]);
       i++;
       if (i === 2) {

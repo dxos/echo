@@ -15,6 +15,11 @@ import { Subscriber } from './subscriber';
 import { DefaultModel } from './model';
 import { bufferedStreamHandler } from './buffer-stream';
 
+const feedMessageToModelMessage = (message) => {
+  const { data, seq, key } = message;
+  return { data, feed: { seq, key } };
+};
+
 /**
  * Model factory creates instances of Model classes and creates a bound Readable stream configured
  * by the model options, and a Writable stream.
@@ -62,13 +67,16 @@ export class ModelFactory {
       const _queue = queue.slice();
       queue = [];
 
-      this._onAppend(_queue.map(({ message }) => message), options)
-        .then(() => {
-          _queue.forEach(({ signal }) => signal.notify());
-        })
-        .catch(err => {
-          _queue.forEach(({ signal }) => signal.notify(err));
-        });
+      // TODO(telackey): Since there is no await, can we be certain the messages are written in the correct order?
+      for (const { message, signal } of _queue) {
+        this._onAppend(message)
+          .then(() => {
+            signal.notify();
+          })
+          .catch((err) => {
+            signal.notify(err);
+          });
+      }
     });
 
     model.setAppendHandler(message => {
@@ -107,16 +115,8 @@ export class ModelFactory {
     const onData = bufferedStreamHandler(stream, async (messages) => {
       if (model.destroyed) return;
 
-      // Reformat into an envelope that looks like:
-      // {
-      //    data: { ... }
-      //    feed: { key, seq }
-      //    ...
-      // }
-      messages = messages.map((message) => {
-        const { data, seq, key } = message;
-        return { data, feed: { seq, key } };
-      });
+      // Convert the feed messages into ModelMessages.
+      messages = messages.map(feedMessageToModelMessage);
 
       if (this._onMessage) {
         const preprocessed = [];

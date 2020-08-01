@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import { ModelMessage } from '@dxos/echo-db';
 import { Model } from '@dxos/model-factory';
 import { Doc, applyUpdate } from 'yjs';
 
@@ -24,11 +25,11 @@ export class TextModel extends Model {
     const remote = origin && origin.docClientId && origin.docClientId !== this._doc.clientID;
 
     if (!remote) {
-      this.appendData({
+      this.appendMessage(new ModelMessage({
         __type_url: TYPE_TEXT_MODEL_UPDATE,
         update,
         origin: { docClientId: this._doc.clientID }
-      });
+      }));
     }
   }
 

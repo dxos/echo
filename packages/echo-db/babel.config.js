@@ -3,6 +3,7 @@
 //
 
 module.exports = {
+  retainLines: true,
   env: {
     development: {
       sourceMaps: 'inline',

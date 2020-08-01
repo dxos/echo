@@ -23,3 +23,9 @@ export interface ModelMessage {
   credentials?: CredentialsInfo
   [key: string]: any
 }
+
+export class ModelMessage implements ModelMessage {
+  constructor (data: ModelData) {
+    this.data = data;
+  }
+}

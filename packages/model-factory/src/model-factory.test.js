@@ -45,7 +45,7 @@ const createFactory = async () => {
   return {
     factory: new ModelFactory(feedStore, {
       onAppend (message) {
-        return pify(feed.append.bind(feed))(message);
+        return pify(feed.append.bind(feed))(message.data);
       }
     }),
     topic
@@ -78,11 +78,11 @@ describe('Model factory', () => {
 
     // TODO(burdon): Use @dxos/crypto
     const messages = [
-      { __type_url: 'test.Type', id: createId() },
-      { __type_url: 'test.Type', id: createId() },
-      { __type_url: 'test.Type', id: createId() },
-      { __type_url: 'test.Type', id: createId() },
-      { __type_url: 'test.Type', id: createId() }
+      { data: { __type_url: 'test.Type', id: createId() } },
+      { data: { __type_url: 'test.Type', id: createId() } },
+      { data: { __type_url: 'test.Type', id: createId() } },
+      { data: { __type_url: 'test.Type', id: createId() } },
+      { data: { __type_url: 'test.Type', id: createId() } }
     ];
 
     const counter = latch(2, cleanup);
@@ -102,7 +102,7 @@ describe('Model factory', () => {
     // TODO(burdon): Option to swtich off buffering.
     // Alternate posting to either model.
     for (let i = 0; i < messages.length; i++) {
-      await ((i % 2 === 0) ? model1 : model2).appendData(messages[i]);
+      await ((i % 2 === 0) ? model1 : model2).appendMessage(messages[i]);
     }
   });
 
@@ -115,11 +115,11 @@ describe('Model factory', () => {
     expect(model.id).toBeDefined();
 
     const messages = [
-      { __type_url: 'test.Type1', id: createId() },
-      { __type_url: 'test.Type2', id: createId() },
-      { __type_url: 'test.Type1', id: createId() },
-      { __type_url: 'test.Type2', id: createId() },
-      { __type_url: 'test.Type1', id: createId() }
+      { data: { __type_url: 'test.Type1', id: createId() } },
+      { data: { __type_url: 'test.Type2', id: createId() } },
+      { data: { __type_url: 'test.Type1', id: createId() } },
+      { data: { __type_url: 'test.Type2', id: createId() } },
+      { data: { __type_url: 'test.Type1', id: createId() } }
     ];
 
     model.on('update', () => {
@@ -129,7 +129,7 @@ describe('Model factory', () => {
     });
 
     for (let i = 0; i < messages.length; i++) {
-      await model.appendData(messages[i]);
+      await model.appendMessage(messages[i]);
     }
   });
 
@@ -142,11 +142,11 @@ describe('Model factory', () => {
     expect(model.id).toBeDefined();
 
     const messages = [
-      { __type_url: 'test.Type1', id: createId() },
-      { __type_url: 'test.Type2', id: createId() },
-      { __type_url: 'test.Type1', id: createId() },
-      { __type_url: 'test.Type2', id: createId() },
-      { __type_url: 'test.Type1', id: createId() }
+      { data: { __type_url: 'test.Type1', id: createId() } },
+      { data: { __type_url: 'test.Type2', id: createId() } },
+      { data: { __type_url: 'test.Type1', id: createId() } },
+      { data: { __type_url: 'test.Type2', id: createId() } },
+      { data: { __type_url: 'test.Type1', id: createId() } }
     ];
 
     model.on('update', () => {
@@ -156,7 +156,7 @@ describe('Model factory', () => {
     });
 
     for (let i = 0; i < messages.length; i++) {
-      await model.appendData(messages[i]);
+      await model.appendMessage(messages[i]);
     }
   });
 
@@ -189,7 +189,7 @@ describe('Model factory', () => {
       }
     }));
     for (let i = 0; i < n; i++) {
-      await model.appendData({ __type_url: 'test.Type', value: i });
+      await model.appendMessage({ data: { __type_url: 'test.Type', value: i } });
     }
 
     await waitForMessages;

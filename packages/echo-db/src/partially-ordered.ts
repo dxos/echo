@@ -67,7 +67,7 @@ export class PartiallyOrderedModel<T extends OrderedModelData> extends Model {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesis (data: ModelData) {
+  static createGenesisMessage (data: ModelData) {
     return {
       ...data,
       messageId: 1,
@@ -75,12 +75,15 @@ export class PartiallyOrderedModel<T extends OrderedModelData> extends Model {
     };
   }
 
-  appendData (data: Omit<T, 'messageId' | 'previousMessageId'>) {
-    super.appendData({
-      ...data,
+  appendMessage (message: ModelMessage) {
+    // Only the data is passed through.
+    const data = {
+      ...message.data,
       messageId: this._maxSeenId + 1,
       previousMessageId: this._maxSeenId
-    });
+    };
+
+    super.appendMessage(new ModelMessage(data));
   }
 }
 

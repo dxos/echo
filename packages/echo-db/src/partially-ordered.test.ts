@@ -2,12 +2,13 @@
 // Copyright 2020 DXOS.org
 //
 
+import { ModelMessage } from './common/ModelMessage';
 import { DefaultPartiallyOrderedModel } from './partially-ordered';
 
 class ModelUnderTest extends DefaultPartiallyOrderedModel<any> {
   constructor () {
     super();
-    this.on('append', (message: any) => this.processMessages([{ data: message }]));
+    this.on('append', (message: any) => this.processMessages([message]));
   }
 }
 
@@ -130,12 +131,13 @@ describe('Partially Ordered Model', () => {
 
   test('message can be inserted using append message', async () => {
     const model = new ModelUnderTest();
-    await model.appendData({ value: 'genesis' });
-    await model.appendData({ value: 'a' });
-    await model.appendData({ value: 'b' });
-    await model.appendData({ value: 'c' });
+    await model.appendMessage(new ModelMessage({ value: 'genesis' }));
+    await model.appendMessage(new ModelMessage({ value: 'a' }));
+    await model.appendMessage(new ModelMessage({ value: 'b' }));
+    await model.appendMessage(new ModelMessage({ value: 'c' }));
 
-    expect(model.messages).toStrictEqual([
+    // Cannot use StrictEqual because the types will be different even though both conform to ModelMessage
+    expect(model.messages).toEqual([
       { data: { messageId: 1, previousMessageId: 0, value: 'genesis' } },
       { data: { messageId: 2, previousMessageId: 1, value: 'a' } },
       { data: { messageId: 3, previousMessageId: 2, value: 'b' } },

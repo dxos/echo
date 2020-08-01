@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import { ModelMessage } from '@dxos/echo-db';
 import { Model } from '@dxos/model-factory';
 import { Doc, applyUpdate } from 'yjs';
 
@@ -21,7 +22,7 @@ export class XmlTextModel extends Model {
   _handleDocUpdated (update, origin) {
     if (origin === this._doc.clientID) {
       // Local
-      this.appendData({ update, origin });
+      this.appendMessage(new ModelMessage({ update, origin }));
     }
   }
 

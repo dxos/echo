@@ -67,16 +67,17 @@ export class Model extends EventEmitter {
   }
 
   /**
-   * @param {ModelData} data
+   * @param {ModelMessage} message
    * @returns {Promise<void>}
    */
-  async appendData (data) {
-    this.emit('preappend', data);
-    data = await this.onAppend(data);
+  async appendMessage (message) {
+    // TODO(telackey): What is this event for?
+    this.emit('preappend', message);
+    message = await this.onAppend(message);
     if (this._appendHandler) {
-      await this._appendHandler(data);
+      await this._appendHandler(message);
     }
-    this.emit('append', data);
+    this.emit('append', message);
   }
 
   //
@@ -84,11 +85,11 @@ export class Model extends EventEmitter {
   //
 
   /**
-   * @param {ModelData} data
-   * @returns {Promise<ModelData>}
+   * @param {ModelMessage} message
+   * @returns {Promise<ModelMessage>}
    */
-  async onAppend (data) {
-    return data;
+  async onAppend (message) {
+    return message;
   }
 
   /**

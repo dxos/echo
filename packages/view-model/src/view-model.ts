@@ -3,6 +3,7 @@ import { createId } from '@dxos/crypto';
 import { Model } from '@dxos/model-factory';
 
 import { raise } from './util';
+import {ModelMessage} from "@dxos/echo-db/dist/src/common/ModelMessage";
 
 // TODO(marik-d): Reuse existing ObjectModel mutation mechanisms and CRDTs
 export interface ViewMutation {
@@ -73,31 +74,31 @@ export class ViewModel<M extends {} = {}> extends Model {
 
   createView (type: string, displayName: string, metadata: M = {} as any): string {
     const viewId = createId();
-    super.appendData({ __type_url: type, viewId, displayName, metadata });
+    super.appendMessage(new ModelMessage({ __type_url: type, viewId, displayName, metadata }));
     return viewId;
   }
 
   renameView (viewId: string, displayName: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) throw new Error(`Cannot rename deleted view with id: ${viewId}`);
-    super.appendData({ viewId, __type_url: view.type, displayName });
+    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, displayName }));
   }
 
   updateView (viewId: string, metadata: Partial<M>) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) throw new Error(`Cannot update deleted view with id: ${viewId}`);
-    super.appendData({ viewId, __type_url: view.type, metadata });
+    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, metadata }));
   }
 
   deleteView (viewId: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) return;
-    super.appendData({ viewId, __type_url: view.type, deleted: true });
+    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, deleted: true }));
   }
 
   restoreView (viewId: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (!view.deleted) return;
-    super.appendData({ viewId, __type_url: view.type, deleted: false });
+    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, deleted: false }));
   }
 }
