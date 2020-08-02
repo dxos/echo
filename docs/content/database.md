@@ -100,6 +100,23 @@ The system maintains the following stores which handle different aspects of the 
 - Feeds could be "frozen" and new feeds constructed for each "epoch" since the last snapshot.
 
 
+
+
+## Notes
+
+### Protocol Buffers
+
+- Enforces immutability.
+- Provide type safety (esp. via TS generated definitions).
+- Prevents the possibility of __meta "expandos".
+- Prevents the possibility of structs mutating into objects with methods, etc.
+- Allows for persistence (or IPC serialization!) if needed at some point.
+- Requires less code (no additional class/interface definitions).
+- Makes the intrinsic data model of the system clearer (by inspection of .proto files), 
+  esp. since most data type definitions are already defined in proto files.
+
+
+
 ## Background (Archived)
 
 The diagram below represent three feeds (from different peers) that contain all of the messages for a party.
