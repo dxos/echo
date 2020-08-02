@@ -60,7 +60,7 @@ The system maintains the following stores which handle different aspects of the 
    In principle, Models may be loaded on demand from the network.
 
 
-![Data Store](./diagrams/data-store.svg)
+![Data Store](./diagrams/data-processing.png)
 
 
 ### Mechanism
