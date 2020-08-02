@@ -6,6 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 import ram from 'random-access-memory';
 
+import { sleep } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
@@ -21,17 +22,7 @@ const codec = new Codec('dxos.echo.testing.Envelope')
   .addJson(TestingSchema)
   .build();
 
-class TestModel extends Model {
-  // TODO(burdon): Format?
-  static type = 'wrn://dxos.io/model/test';
-
-  async processMessage (message: any) {
-    const { message: { id } } = message;
-    log(id);
-  }
-}
-
-// TODO(burdon): Factor out to dxos/async. (also remove useValue).
+// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 const latch = (n: number) => {
   assert(n > 0);
 
@@ -51,6 +42,17 @@ const latch = (n: number) => {
   ];
 };
 
+class TestModel extends Model {
+  // TODO(burdon): Format?
+  static type = 'wrn://dxos.io/model/test';
+
+  async processMessage (data: any) {
+    const { message } = data;
+    await sleep(50);
+    log(JSON.stringify(message));
+  }
+}
+
 test('streaming', async () => {
   const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
 
@@ -59,6 +61,7 @@ test('streaming', async () => {
 
   const readable = feedStore.createReadStream({ live: true });
 
+  // TODO(burdon): Write to multiple feeds.
   const feed = await feedStore.openFeed('test-1');
 
   const count = 3;
@@ -66,6 +69,7 @@ test('streaming', async () => {
     await feed.append({
       message: {
         __type_url: 'dxos.echo.testing.TestMessage',
+        seq: i,
         id: createId()
       }
     });
