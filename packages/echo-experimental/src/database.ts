@@ -71,3 +71,18 @@ export class ModelFactory {
     }
   }
 }
+
+/**
+ * Data item.
+ */
+export class Item {
+  _model: Model;
+
+  constructor (model: Model) {
+    this._model = model;
+  }
+}
+
+export class ItemDemuxer {
+
+}

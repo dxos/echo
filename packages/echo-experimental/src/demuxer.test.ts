@@ -28,7 +28,7 @@ const codec = new Codec('dxos.echo.testing.Envelope')
 
 interface ITestStream {
   path: string,
-  message: dxos.echo.testing.TestMessage
+  message: dxos.echo.testing.TestItemMutation
 }
 
 /**
@@ -74,7 +74,7 @@ test('streaming message subscriptions', async (done) => {
 
       await feed.append({
         message: {
-          __type_url: 'dxos.echo.testing.TestMessage',
+          __type_url: 'dxos.echo.testing.TestItemMutation',
           seq: blocks,
           id,
           depends: last.get(tag),

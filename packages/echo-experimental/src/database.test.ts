@@ -64,17 +64,20 @@ test('streaming', async () => {
   // TODO(burdon): Write to multiple feeds.
   const feed = await feedStore.openFeed('test-1');
 
+  // TODO(burdon): Create feeds and hydrate to hypercore store (using tempy).
   const count = 3;
   for (let i = 0; i < count; i++) {
     await feed.append({
       message: {
-        __type_url: 'dxos.echo.testing.TestMessage',
+        __type_url: 'dxos.echo.testing.TestItemMutation',
+        itemId: createId(),
         seq: i,
         id: createId()
       }
     });
   }
 
+  // TODO(burdon): Demux stream to create and dispatch to items.
   const model = modelFactory.createModel(TestModel.type, readable);
 
   const [promise, callback] = latch(count);
