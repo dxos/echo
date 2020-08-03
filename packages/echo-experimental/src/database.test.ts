@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import Chance from 'chance';
 import debug from 'debug';
 import ram from 'random-access-memory';
 
@@ -21,6 +22,8 @@ debug.enable('dxos:echo:*');
 const codec = new Codec('dxos.echo.testing.Envelope')
   .addJson(TestingSchema)
   .build();
+
+const chance = new Chance();
 
 // TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 const latch = (n: number) => {
@@ -54,33 +57,61 @@ class TestModel extends Model {
 }
 
 test('streaming', async () => {
-  const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
+  const config = {
+    numFeeds: 5,
+    numMessages: 30
+  };
 
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-  await feedStore.open();
 
-  const readable = feedStore.createReadStream({ live: true });
+  const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
 
-  // TODO(burdon): Write to multiple feeds.
-  const feed = await feedStore.openFeed('test-1');
+  // Generate items.
+  {
+    await feedStore.open();
 
-  // TODO(burdon): Create feeds and hydrate to hypercore store (using tempy).
-  const count = 3;
-  for (let i = 0; i < count; i++) {
-    await feed.append({
-      message: {
-        __type_url: 'dxos.echo.testing.TestItemMutation',
-        itemId: createId(),
-        seq: i,
-        id: createId()
-      }
-    });
+    for (let i = 0; i < config.numFeeds; i++) {
+      await feedStore.openFeed(`feed-${i}`);
+    }
+
+    const descriptors = feedStore.getDescriptors();
+    expect(descriptors).toHaveLength(config.numFeeds);
+
+    const readable = feedStore.createReadStream({ live: true });
+
+    // TODO(burdon): Demux stream to create and dispatch to items.
+    // const itemManager = new ItemManager(modelFactory, feed.createWriteStream());
+    // readable.pipe(createItemDemuxer(itemManager));
+    const model = modelFactory.createModel(TestModel.type, readable);
+
+    for (let i = 0; i < config.numMessages; i++) {
+      // TODO(burdon): Randomly create or mutate items.
+      // TODO(burdon): Perform item mutation via the associated model.
+      const { feed } = chance.pickone(descriptors);
+      await feed.append({
+        message: {
+          __type_url: 'dxos.echo.testing.TestItemMutation',
+          itemId: createId(),
+          seq: i,
+          id: createId()
+        }
+      });
+    }
+
+    const [promise, callback] = latch(config.numMessages);
+    model.on('update', callback);
+    expect(await promise).toBe(config.numMessages);
   }
 
-  // TODO(burdon): Demux stream to create and dispatch to items.
-  const model = modelFactory.createModel(TestModel.type, readable);
+  // Replay items.
+  {
+    await feedStore.open();
+    const readable = feedStore.createReadStream({ live: true });
 
-  const [promise, callback] = latch(count);
-  model.on('update', callback);
-  expect(await promise).toBe(count);
+    const model = modelFactory.createModel(TestModel.type, readable);
+
+    const [promise, callback] = latch(config.numMessages);
+    model.on('update', callback);
+    expect(await promise).toBe(config.numMessages);
+  }
 });

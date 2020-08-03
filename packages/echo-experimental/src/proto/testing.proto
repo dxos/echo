@@ -14,6 +14,7 @@ message Envelope {
 
 message TestItemGenesis {
   string itemId = 1;
+  string model = 2;
 }
 
 message TestItemMutation {
