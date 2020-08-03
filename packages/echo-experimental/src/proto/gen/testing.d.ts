@@ -103,6 +103,9 @@ export namespace dxos {
 
                 /** TestItemGenesis itemId */
                 itemId?: (string|null);
+
+                /** TestItemGenesis model */
+                model?: (string|null);
             }
 
             /** Represents a TestItemGenesis. */
@@ -116,6 +119,9 @@ export namespace dxos {
 
                 /** TestItemGenesis itemId. */
                 public itemId: string;
+
+                /** TestItemGenesis model. */
+                public model: string;
 
                 /**
                  * Creates a new TestItemGenesis instance using the specified properties.

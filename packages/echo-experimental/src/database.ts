@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import through2 from 'through2';
 
 import { createId } from '@dxos/crypto';
@@ -13,19 +13,14 @@ const log = debug('dxos:echo:database');
 
 /**
  * Abstract base class for Models.
- * @abstract
  */
-// @ts-ignore // TODO(burdon): Fix.
-export class Model extends EventEmitter {
-  _id: string;
-  _readable: ReadableStream;
-  _writable?: WritableStream;
-
-  constructor (id: string, readable: ReadableStream, writable?: WritableStream) {
+export abstract class Model extends EventEmitter {
+  constructor (
+    private _id: string,
+    private _readable: NodeJS.ReadableStream,
+    private _writable?: NodeJS.WritableStream
+  ) {
     super();
-    this._id = id;
-    this._readable = readable;
-    this._writable = writable;
   }
 
   /**
@@ -33,11 +28,9 @@ export class Model extends EventEmitter {
    */
   // TODO(burdon): Stop on destroy?
   start () {
-    // @ts-ignore // TODO(burdon): Fix.
     this._readable.pipe(through2.obj(async (message, _, callback) => {
       const { data } = message;
       await this.processMessage(data);
-      // @ts-ignore // TODO(burdon): Fix.
       this.emit('update');
       callback();
     }));
@@ -69,7 +62,7 @@ export class ModelFactory {
   }
 
   // TODO(burdon): ID and version.
-  createModel (type: string, readable: ReadableStream, writable?: WritableStream) {
+  createModel (type: string, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
     const clazz = this._models.get(type);
     if (clazz) {
       // eslint-disable-next-line new-cap
@@ -84,10 +77,7 @@ export class ModelFactory {
  * Data item.
  */
 export class Item {
-  _model: Model;
-
-  constructor (model: Model) {
-    this._model = model;
+  constructor (private _model: Model) {
   }
 
   get model () {
@@ -101,11 +91,11 @@ export class Item {
 export class ItemManager {
   _modelFactory: ModelFactory;
 
-  _writable: WritableStream;
+  _writable: NodeJS.WritableStream;
 
   _items = new Map();
 
-  constructor (modelFactory: ModelFactory, writable: WritableStream) {
+  constructor (modelFactory: ModelFactory, writable: NodeJS.WritableStream) {
     assert(modelFactory);
     assert(writable);
     this._modelFactory = modelFactory;
@@ -117,7 +107,7 @@ export class ItemManager {
    * @param type
    * @param readable
    */
-  async createItem (type: string, readable: ReadableStream) {
+  async createItem (type: string, readable: NodeJS.ReadableStream) {
     const model = this._modelFactory.createModel(type, readable, this._writable);
     const itemId = createId();
     const item = new Item(model);

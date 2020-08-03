@@ -235,6 +235,7 @@ $root.dxos = (function() {
                  * @memberof dxos.echo.testing
                  * @interface ITestItemGenesis
                  * @property {string|null} [itemId] TestItemGenesis itemId
+                 * @property {string|null} [model] TestItemGenesis model
                  */
 
                 /**
@@ -259,6 +260,14 @@ $root.dxos = (function() {
                  * @instance
                  */
                 TestItemGenesis.prototype.itemId = "";
+
+                /**
+                 * TestItemGenesis model.
+                 * @member {string} model
+                 * @memberof dxos.echo.testing.TestItemGenesis
+                 * @instance
+                 */
+                TestItemGenesis.prototype.model = "";
 
                 /**
                  * Creates a new TestItemGenesis instance using the specified properties.
@@ -286,6 +295,8 @@ $root.dxos = (function() {
                         writer = $Writer.create();
                     if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
+                    if (message.model != null && Object.hasOwnProperty.call(message, "model"))
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.model);
                     return writer;
                 };
 
@@ -322,6 +333,9 @@ $root.dxos = (function() {
                         switch (tag >>> 3) {
                         case 1:
                             message.itemId = reader.string();
+                            break;
+                        case 2:
+                            message.model = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -361,6 +375,9 @@ $root.dxos = (function() {
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         if (!$util.isString(message.itemId))
                             return "itemId: string expected";
+                    if (message.model != null && message.hasOwnProperty("model"))
+                        if (!$util.isString(message.model))
+                            return "model: string expected";
                     return null;
                 };
 
@@ -378,6 +395,8 @@ $root.dxos = (function() {
                     var message = new $root.dxos.echo.testing.TestItemGenesis();
                     if (object.itemId != null)
                         message.itemId = String(object.itemId);
+                    if (object.model != null)
+                        message.model = String(object.model);
                     return message;
                 };
 
@@ -394,10 +413,14 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.defaults)
+                    if (options.defaults) {
                         object.itemId = "";
+                        object.model = "";
+                    }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
+                    if (message.model != null && message.hasOwnProperty("model"))
+                        object.model = message.model;
                     return object;
                 };
 
