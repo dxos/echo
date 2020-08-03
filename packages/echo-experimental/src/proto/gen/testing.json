@@ -48,9 +48,17 @@
                       "type": "string",
                       "id": 5
                     },
+                    "key": {
+                      "type": "string",
+                      "id": 6
+                    },
+                    "value": {
+                      "type": "string",
+                      "id": 7
+                    },
                     "payload": {
                       "type": "google.protobuf.Any",
-                      "id": 6
+                      "id": 8
                     }
                   }
                 }

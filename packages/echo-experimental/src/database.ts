@@ -5,42 +5,77 @@
 import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
+import pify from 'pify';
 
 import { createId } from '@dxos/crypto';
-import { Transform, Readable } from 'stream';
-import { Constructor } from 'protobufjs';
+import { trigger } from '@dxos/async';
+
 import { dxos } from './proto/gen/testing';
 
+import { Readable, Transform } from 'stream';
+import { Constructor } from 'protobufjs';
+import { assertType, LazyMap } from './util';
+
 const log = debug('dxos:echo:database');
+
+type ModelType = string;
+
+type ItemID = string;
+
+// TODO(burdon): Shim?
+interface Hypercore {
+  append (message: Message): void;
+}
+
+// TODO(burdon): Replace with protobuf envelope.
+// TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
+interface Message {
+  __type_url: string;
+  itemId: string;
+  [key: string]: any;
+}
+
+export interface ModelMessage {
+  // feedKey: string TODO(marik_d): Add metadata
+  data: Message;
+}
 
 /**
  * Abstract base class for Models.
  */
 export abstract class Model extends EventEmitter {
+  static type: string;
+
   constructor (
-    protected _id: string,
-    protected _readable: NodeJS.ReadableStream,
-    protected _writable?: NodeJS.WritableStream
+    private _type: string,
+    private _itemId: string,
+    private _readable: NodeJS.ReadableStream,
+    private _feed?: Hypercore
   ) {
     super();
-  }
 
-  /**
-   * Start processing the stream.
-   */
-  // TODO(burdon): Stop on destroy?
-  start () {
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
-        const { data } = message;
-        await this.processMessage(data);
+        await this.processMessage(message);
+
         this.emit('update');
         callback();
       }
     }));
+  }
 
-    return this;
+  get itemId () {
+    return this._itemId;
+  }
+
+  /**
+   * Write to the stream.
+   * @param message
+   */
+  async write (message: Message) {
+    assert(this._feed);
+    await pify(this._feed.append.bind(this._feed))({ message });
   }
 
   /**
@@ -48,18 +83,16 @@ export abstract class Model extends EventEmitter {
    * @abstract
    * @param {Object} message
    */
-  async processMessage (message: any) {
-    assert(message);
-  }
+  async abstract processMessage (message: ModelMessage): Promise<void>;
 }
 
 /**
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  private _models = new Map<string, Constructor<Model>>();
+  private _models = new Map<ModelType, Constructor<Model>>();
 
-  registerModel (type: string, clazz: Constructor<Model>) {
+  registerModel (type: ModelType, clazz: Constructor<Model>) {
     assert(type);
     assert(clazz);
     this._models.set(type, clazz);
@@ -67,13 +100,13 @@ export class ModelFactory {
   }
 
   // TODO(burdon): ID and version.
-  createModel (type: string, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
-    const clazz = this._models.get(type);
-    if (clazz) {
+  createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, feed?: Hypercore) {
+    const modelConstructor = this._models.get(type);
+    if (modelConstructor) {
+      log('Creating', type, itemId);
+
       // eslint-disable-next-line new-cap
-      const model = new clazz(type, readable, writable);
-      model.start();
-      return model;
+      return new modelConstructor(type, itemId, readable, feed);
     }
   }
 }
@@ -81,9 +114,15 @@ export class ModelFactory {
 /**
  * Data item.
  */
-// TODO(burdon): Track parent?
 export class Item {
-  constructor (private _model: Model) {
+  // eslint-disable-next-line no-useless-constructor
+  constructor (
+    private _itemId: ItemID,
+    private _model: Model
+  ) {}
+
+  get id () {
+    return this._itemId;
   }
 
   get model () {
@@ -95,29 +134,60 @@ export class Item {
  *
  */
 export class ItemManager {
-  private _items = new Map<string, Item>();
+  private _items = new Map<ItemID, Item>();
+  private _createCallbacks = new Map<ItemID, (item: Item) => void>();
 
+  // TODO(burdoN): Pass in writeable object stream to abstract hypercore.
   constructor (
     private _modelFactory: ModelFactory,
-    private _writable: NodeJS.WritableStream
+    private _feed: Hypercore
   ) {
     assert(this._modelFactory);
-    assert(this._writable);
+    assert(this._feed);
+  }
+
+  /**
+   * Creates an item and writes the genesis message.
+   * @param type model type
+   * @param readable input message stream
+   */
+  async createItem (type: ModelType): Promise<Item> {
+    const itemId = createId();
+
+    // Pending until constructed (after genesis block is read from stream).
+    const [waitForCreation, callback] = trigger();
+    this._createCallbacks.set(itemId, callback);
+
+    // Write Item Genesis block.
+    await pify(this._feed.append.bind(this._feed))({
+      message: {
+        __type_url: 'dxos.echo.testing.TestItemGenesis',
+        model: type,
+        itemId
+      }
+    });
+
+    // Unlocked by construct.
+    return await waitForCreation();
   }
 
   /**
    * Creates a data item and writes the genesis block to the stream.
    * @param type
+   * @param itemId
    * @param readable
    */
-  async createItem (type: string, readable: NodeJS.ReadableStream) {
-    const model = this._modelFactory.createModel(type, readable, this._writable);
+  async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
+    const model = this._modelFactory.createModel(type, itemId, readable, this._feed);
     assert(model);
-    const itemId = createId();
-    const item = new Item(model);
+
+    const item = new Item(itemId, model);
+
+    assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
-    // TODO(burdon): Write genesis block to stream.
+    // Notify pending creates.
+    this._createCallbacks.get(itemId)?.(item);
 
     return item;
   }
@@ -133,40 +203,50 @@ export class ItemManager {
   /**
    * Return all items.
    */
-  // TODO(burdon): Query?
+  // TODO(burdon): Later convert to query.
   getItems () {
     return Array.from(this._items.values());
   }
 }
 
 /**
- *
+ * Reads party stream and routes to associate item stream.
  */
 export const createItemDemuxer = (itemManager: ItemManager) => {
-  const streams = new LazyMap<string, Readable>(() => new Readable({ objectMode: true }));
+  // Map of Item-specific streams.
+  // TODO(burdon): Abstract class.
+  const streams = new LazyMap<string, Readable>(() => new Readable({
+    objectMode: true,
+    read () {}
+  }));
 
   return new Transform({
     objectMode: true,
-    transform: async (message, _, callback) => {
-      // TODO(burdon): Parse message and route to associated item.
+
+    // TODO(burdon): Is codec working? (expect envelope to be decoded.)
+    transform: async ({ data: { message } }, _, callback) => {
+      /* eslint-disable camelcase */
       const { __type_url, itemId } = message;
+      assert(__type_url);
+      assert(itemId);
+
       switch (__type_url) {
         case 'dxos.echo.testing.TestItemGenesis': {
           assertType<dxos.echo.testing.ITestItemGenesis>(message);
-          assert(itemId);
           assert(message.model);
 
+          log(`Constructing Item: ${itemId}`);
           const stream = streams.getOrInit(itemId);
-          itemManager.createItem(itemId, stream);
+          await itemManager.constructItem(message.model, itemId, stream);
           break;
         }
 
         case 'dxos.echo.testing.TestItemMutation': {
           assertType<dxos.echo.testing.ITestItemMutation>(message);
-          assert(message.payload);
+          assert(message);
 
           const stream = streams.getOrInit(itemId);
-          stream.push(message.payload);
+          stream.push({ data: message });
         }
       }
 
@@ -174,26 +254,3 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
     }
   });
 };
-
-/**
- * A simple syntax sugar to write `value as T` as a statement
- * @param value
- */
-function assertType <T> (value: unknown): asserts value is T {}
-
-// TODO(marik_d): Extract somewhere
-class LazyMap<K, V> extends Map<K, V> {
-  constructor (private _initFn: (key: K) => V) {
-    super();
-  }
-
-  getOrInit (key: K): V {
-    if (this.has(key)) {
-      return this.get(key)!;
-    } else {
-      const value = this._initFn(key);
-      this.set(key, value);
-      return value;
-    }
-  }
-}

@@ -8,11 +8,11 @@ import debug from 'debug';
 import ram from 'random-access-memory';
 
 import { sleep } from '@dxos/async';
-import { createId } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 
-import { Model, ModelFactory } from './database';
+import { createItemDemuxer, ItemManager, Model, ModelMessage, ModelFactory } from './database';
+import { latch } from './util';
 
 import TestingSchema from './proto/gen/testing.json';
 
@@ -25,51 +25,60 @@ const codec = new Codec('dxos.echo.testing.Envelope')
 
 const chance = new Chance();
 
-// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
-const latch = (n: number) => {
-  assert(n > 0);
-
-  let callback: Function;
-  const promise = new Promise((resolve) => {
-    callback = (value: number) => resolve(value);
-  });
-
-  let count = 0;
-  return [
-    promise,
-    () => {
-      if (++count === n) {
-        callback(count);
-      }
-    }
-  ] as const;
-};
-
+/**
+ * Test model.
+ */
+// TODO(burdon): Replace with echo ObjectModel.
 class TestModel extends Model {
   // TODO(burdon): Format?
   static type = 'wrn://dxos.io/model/test';
 
-  async processMessage (data: any) {
-    const { message } = data;
+  _values = new Map();
+
+  get keys () {
+    return Array.from(this._values.keys());
+  }
+
+  getValue (key: string) {
+    return this._values.get(key);
+  }
+
+  async processMessage (message: ModelMessage) {
+    const { data: { key, value } } = message;
     await sleep(50);
-    log(JSON.stringify(message));
+    this._values.set(key, value);
+  }
+
+  async setProperty (key: string, value: string) {
+    // TODO(burdon): Create wrapper for ItemMutation that includes the itemId.
+    await this.write({
+      __type_url: 'dxos.echo.testing.TestItemMutation',
+      itemId: this.itemId,
+      key,
+      value
+    });
   }
 }
 
 test('streaming', async () => {
   const config = {
     numFeeds: 5,
-    numMessages: 30
+    numMessages: 5
   };
 
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
 
   const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
 
+  //
   // Generate items.
+  //
   {
+    // TODO(burdon): Replace with stream from Party demuxer.
     await feedStore.open();
+    const readable = feedStore.createReadStream({ live: true });
 
+    // Create cloned feeds (including ours).
     for (let i = 0; i < config.numFeeds; i++) {
       await feedStore.openFeed(`feed-${i}`);
     }
@@ -77,43 +86,42 @@ test('streaming', async () => {
     const descriptors = feedStore.getDescriptors();
     expect(descriptors).toHaveLength(config.numFeeds);
 
-    const readable = feedStore.createReadStream({ live: true });
+    // Pick feed to belong to current node.
+    const { feed } = chance.pickone(descriptors);
+    // TODO(burdon): Replace feed with Writeable stream from PartyManager.
+    const itemManager = new ItemManager(modelFactory, feed);
 
-    // TODO(burdon): Demux stream to create and dispatch to items.
-    // const itemManager = new ItemManager(modelFactory, feed.createWriteStream());
-    // readable.pipe(createItemDemuxer(itemManager));
-    const model = modelFactory.createModel(TestModel.type, readable);
-    assert(model);
+    // NOTE: This will be the Party's readable stream.
+    readable.pipe(createItemDemuxer(itemManager));
 
+    // TODO(burdon): Must not create using own readable stream!
+    const item = await itemManager.createItem(TestModel.type);
+
+    // TODO(burdon): Randomly create or mutate items.
     for (let i = 0; i < config.numMessages; i++) {
-      // TODO(burdon): Randomly create or mutate items.
-      // TODO(burdon): Perform item mutation via the associated model.
-      const { feed } = chance.pickone(descriptors);
-      await feed.append({
-        message: {
-          __type_url: 'dxos.echo.testing.TestItemMutation',
-          itemId: createId(),
-          seq: i,
-          id: createId()
-        }
-      });
+      // @ts-ignore TODO(burdon): Cast.
+      item.model.setProperty('title', `value-${i}`);
     }
 
     const [promise, callback] = latch(config.numMessages);
-    model.on('update', callback);
+    item.model.on('update', callback);
     expect(await promise).toBe(config.numMessages);
+
+    // TODO(burdon): Test item and model.
+    expect(itemManager.getItem(item.id));
   }
 
+  //
   // Replay items.
+  //
   {
     await feedStore.open();
     const readable = feedStore.createReadStream({ live: true });
 
-    const model = modelFactory.createModel(TestModel.type, readable);
-    assert(model);
+    const descriptors = feedStore.getDescriptors();
+    expect(descriptors).toHaveLength(config.numFeeds);
 
-    const [promise, callback] = latch(config.numMessages);
-    model.on('update', callback);
-    expect(await promise).toBe(config.numMessages);
+    const { feed } = chance.pickone(descriptors);
+    const itemManager = new ItemManager(modelFactory, feed);
   }
 });

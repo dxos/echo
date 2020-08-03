@@ -212,6 +212,12 @@ export namespace dxos {
                 /** TestItemMutation tag */
                 tag?: (string|null);
 
+                /** TestItemMutation key */
+                key?: (string|null);
+
+                /** TestItemMutation value */
+                value?: (string|null);
+
                 /** TestItemMutation payload */
                 payload?: (google.protobuf.IAny|null);
             }
@@ -239,6 +245,12 @@ export namespace dxos {
 
                 /** TestItemMutation tag. */
                 public tag: string;
+
+                /** TestItemMutation key. */
+                public key: string;
+
+                /** TestItemMutation value. */
+                public value: string;
 
                 /** TestItemMutation payload. */
                 public payload?: (google.protobuf.IAny|null);
