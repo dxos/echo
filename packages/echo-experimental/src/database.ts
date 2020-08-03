@@ -5,9 +5,9 @@
 import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
-import through2 from 'through2';
 
 import { createId } from '@dxos/crypto';
+import { Transform } from 'stream';
 
 const log = debug('dxos:echo:database');
 
@@ -28,11 +28,14 @@ export abstract class Model extends EventEmitter {
    */
   // TODO(burdon): Stop on destroy?
   start () {
-    this._readable.pipe(through2.obj(async (message, _, callback) => {
-      const { data } = message;
-      await this.processMessage(data);
-      this.emit('update');
-      callback();
+    this._readable.pipe(new Transform({
+      objectMode: true,
+      transform: async (message, _, callback) => {
+        const { data } = message;
+        await this.processMessage(data);
+        this.emit('update');
+        callback();
+      }
     }));
 
     return this;
@@ -138,25 +141,28 @@ export class ItemManager {
  *
  */
 export const createItemDemuxer = (itemManager: ItemManager) => {
-  return through2.obj(async (message, _, callback) => {
-    // TODO(burdon): Parse message and route to associated item.
-    const { __type_url, itemId } = message;
-    switch (__type_url) {
-      case 'dxos.echo.testing.TestItemGenesis': {
-        // TODO(burdon): Create item (don't write genesis!)
-        // TODO(burdon): Create ReadableStream.
-        break;
-      }
+  return new Transform({
+    objectMode: true,
+    transform: async (message, _, callback) => {
+      // TODO(burdon): Parse message and route to associated item.
+      const { __type_url, itemId } = message;
+      switch (__type_url) {
+        case 'dxos.echo.testing.TestItemGenesis': {
+          // TODO(burdon): Create item (don't write genesis!)
+          // TODO(burdon): Create ReadableStream.
+          break;
+        }
 
-      case 'dxos.echo.testing.TestItemMutation': {
-        // TODO(burdon): Enqueue if item doesn't exist (i.e., read mutations before genesis).
-        const item = itemManager.getItem(itemId);
-        if (!item) {
-          log('Queuing');
+        case 'dxos.echo.testing.TestItemMutation': {
+          // TODO(burdon): Enqueue if item doesn't exist (i.e., read mutations before genesis).
+          const item = itemManager.getItem(itemId);
+          if (!item) {
+            log('Queuing');
+          }
         }
       }
-    }
 
-    callback();
+      callback();
+    }
   });
 };
