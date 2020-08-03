@@ -47,6 +47,10 @@
                     "tag": {
                       "type": "string",
                       "id": 5
+                    },
+                    "payload": {
+                      "type": "google.protobuf.Any",
+                      "id": 6
                     }
                   }
                 }

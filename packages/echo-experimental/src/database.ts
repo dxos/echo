@@ -7,8 +7,9 @@ import debug from 'debug';
 import { EventEmitter } from 'events';
 
 import { createId } from '@dxos/crypto';
-import { Transform } from 'stream';
+import { Transform, Readable } from 'stream';
 import { Constructor } from 'protobufjs';
+import { dxos } from './proto/gen/testing';
 
 const log = debug('dxos:echo:database');
 
@@ -96,8 +97,8 @@ export class ItemManager {
   private _items = new Map<string, Item>();
 
   constructor (
-    private _modelFactory: ModelFactory, 
-    private _writable: NodeJS.WritableStream,
+    private _modelFactory: ModelFactory,
+    private _writable: NodeJS.WritableStream
   ) {
     assert(this._modelFactory);
     assert(this._writable);
@@ -140,6 +141,8 @@ export class ItemManager {
  *
  */
 export const createItemDemuxer = (itemManager: ItemManager) => {
+  const streams = new LazyMap<string, Readable>(() => new Readable({ objectMode: true }));
+
   return new Transform({
     objectMode: true,
     transform: async (message, _, callback) => {
@@ -147,17 +150,21 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
       const { __type_url, itemId } = message;
       switch (__type_url) {
         case 'dxos.echo.testing.TestItemGenesis': {
-          // TODO(burdon): Create item (don't write genesis!)
-          // TODO(burdon): Create ReadableStream.
+          assertType<dxos.echo.testing.ITestItemGenesis>(message);
+          assert(itemId);
+          assert(message.model);
+
+          const stream = streams.getOrInit(itemId);
+          itemManager.createItem(itemId, stream);
           break;
         }
 
         case 'dxos.echo.testing.TestItemMutation': {
-          // TODO(burdon): Enqueue if item doesn't exist (i.e., read mutations before genesis).
-          const item = itemManager.getItem(itemId);
-          if (!item) {
-            log('Queuing');
-          }
+          assertType<dxos.echo.testing.ITestItemMutation>(message);
+          assert(message.payload);
+
+          const stream = streams.getOrInit(itemId);
+          stream.push(message.payload);
         }
       }
 
@@ -165,3 +172,26 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
     }
   });
 };
+
+/**
+ * A simple syntax sugar to write `value as T` as a statement
+ * @param value
+ */
+function assertType <T> (value: unknown): asserts value is T {}
+
+// TODO(marik_d): Extract somewhere
+class LazyMap<K, V> extends Map<K, V> {
+  constructor (private _initFn: (key: K) => V) {
+    super();
+  }
+
+  getOrInit (key: K): V {
+    if (this.has(key)) {
+      return this.get(key)!;
+    } else {
+      const value = this._initFn(key);
+      this.set(key, value);
+      return value;
+    }
+  }
+}

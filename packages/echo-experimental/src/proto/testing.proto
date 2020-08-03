@@ -23,4 +23,5 @@ message TestItemMutation {
   string id = 3;
   string depends = 4;       // ID of dependent message.
   string tag = 5;
+  google.protobuf.Any payload = 6;
 }

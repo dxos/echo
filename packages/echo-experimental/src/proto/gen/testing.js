@@ -449,6 +449,7 @@ $root.dxos = (function() {
                  * @property {string|null} [id] TestItemMutation id
                  * @property {string|null} [depends] TestItemMutation depends
                  * @property {string|null} [tag] TestItemMutation tag
+                 * @property {google.protobuf.IAny|null} [payload] TestItemMutation payload
                  */
 
                 /**
@@ -507,6 +508,14 @@ $root.dxos = (function() {
                 TestItemMutation.prototype.tag = "";
 
                 /**
+                 * TestItemMutation payload.
+                 * @member {google.protobuf.IAny|null|undefined} payload
+                 * @memberof dxos.echo.testing.TestItemMutation
+                 * @instance
+                 */
+                TestItemMutation.prototype.payload = null;
+
+                /**
                  * Creates a new TestItemMutation instance using the specified properties.
                  * @function create
                  * @memberof dxos.echo.testing.TestItemMutation
@@ -540,6 +549,8 @@ $root.dxos = (function() {
                         writer.uint32(/* id 4, wireType 2 =*/34).string(message.depends);
                     if (message.tag != null && Object.hasOwnProperty.call(message, "tag"))
                         writer.uint32(/* id 5, wireType 2 =*/42).string(message.tag);
+                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                        $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
                     return writer;
                 };
 
@@ -588,6 +599,9 @@ $root.dxos = (function() {
                             break;
                         case 5:
                             message.tag = reader.string();
+                            break;
+                        case 6:
+                            message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -639,6 +653,11 @@ $root.dxos = (function() {
                     if (message.tag != null && message.hasOwnProperty("tag"))
                         if (!$util.isString(message.tag))
                             return "tag: string expected";
+                    if (message.payload != null && message.hasOwnProperty("payload")) {
+                        var error = $root.google.protobuf.Any.verify(message.payload);
+                        if (error)
+                            return "payload." + error;
+                    }
                     return null;
                 };
 
@@ -664,6 +683,11 @@ $root.dxos = (function() {
                         message.depends = String(object.depends);
                     if (object.tag != null)
                         message.tag = String(object.tag);
+                    if (object.payload != null) {
+                        if (typeof object.payload !== "object")
+                            throw TypeError(".dxos.echo.testing.TestItemMutation.payload: object expected");
+                        message.payload = $root.google.protobuf.Any.fromObject(object.payload);
+                    }
                     return message;
                 };
 
@@ -686,6 +710,7 @@ $root.dxos = (function() {
                         object.id = "";
                         object.depends = "";
                         object.tag = "";
+                        object.payload = null;
                     }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
@@ -697,6 +722,8 @@ $root.dxos = (function() {
                         object.depends = message.depends;
                     if (message.tag != null && message.hasOwnProperty("tag"))
                         object.tag = message.tag;
+                    if (message.payload != null && message.hasOwnProperty("payload"))
+                        object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
                     return object;
                 };
 

@@ -211,6 +211,9 @@ export namespace dxos {
 
                 /** TestItemMutation tag */
                 tag?: (string|null);
+
+                /** TestItemMutation payload */
+                payload?: (google.protobuf.IAny|null);
             }
 
             /** Represents a TestItemMutation. */
@@ -236,6 +239,9 @@ export namespace dxos {
 
                 /** TestItemMutation tag. */
                 public tag: string;
+
+                /** TestItemMutation payload. */
+                public payload?: (google.protobuf.IAny|null);
 
                 /**
                  * Creates a new TestItemMutation instance using the specified properties.
