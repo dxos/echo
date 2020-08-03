@@ -83,6 +83,7 @@ export class ModelFactory {
 /**
  * Data item.
  */
+// TODO(burdon): Track parent?
 export class Item {
   _model: Model;
 
@@ -139,6 +140,7 @@ export class ItemManager {
   /**
    * Return all items.
    */
+  // TODO(burdon): Query?
   getItems () {
     return Array.from(this._items.values());
   }
