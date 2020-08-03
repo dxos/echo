@@ -1,21 +1,8 @@
-import assert from 'assert';
+// import assert from 'assert';
 
 import { EnvironmentFactory, providers, networkTypes } from '@dxos/echo-environment-test';
 
 import { TextModel } from './text-model';
-
-if (typeof window !== 'undefined' && typeof process !== 'undefined') {
-  process.nextTick = function (fn) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-      for (var i = 1; i < arguments.length; i++) {
-        args[i - 1] = arguments[i];
-      }
-    }
-
-    queueMicrotask(() => fn(...args));
-  };
-}
 
 let env;
 let agent;
@@ -26,46 +13,52 @@ const buildEnv = async () => {
   const factory = new EnvironmentFactory();
   factory.on('error', err => console.log('error', err));
 
-  try {
+  // try {
     env = await factory.create(new providers.BasicProvider({
       network: {
-        type: networkTypes.BALANCED_BIN_TREE,
-        parameters: [3] // n levels of the binary tree
+        type: networkTypes.COMPLETE,
+        parameters: [2] // n levels of the binary tree
       }
     }));
 
-    agent = env.addAgent({
-      spec: {
-        ModelClass: TextModel,
-        options: {
-          type: 'example.com/Test'
-        }
-      }
-    });
+  //   agent = env.addAgent({
+  //     spec: {
+  //       ModelClass: TextModel,
+  //       options: {
+  //         type: 'example.com/Test'
+  //       }
+  //     }
+  //   });
 
-    console.log('> nodes:', env.peers.length, '\n');
-    // console.log('> topic:', agent._topic, '\n');
+  //   console.log('> nodes:', env.peers.length, '\n');
+  //   // console.log('> topic:', agent._topic, '\n');
 
-    models = [];
-    env.peers.forEach((peer) => {
-      models.push(agent.createModel(peer));
-    });
+  //   models = [];
+  //   env.peers.forEach((peer) => {
+  //     models.push(agent.createModel(peer));
+  //   });
 
-    rootModel = models[0];
-  } catch (err) {
-    console.log(err);
-  }
+  //   rootModel = models[0];
+  // } catch (err) {
+  //   console.log(err);
+  // }
 };
 
-(async () => {
+test('env', async () => {
   await buildEnv();
 
   const text = 'Testing update';
-  models[3].on('update', messages => console.log('update', messages));
-  rootModel.insert(0, text);
-  await agent.waitForSync();
-  assert(models[3].textContent === text, 'not same content: ' + models[3].content + ' - ' + rootModel.textContent);
-})();
+  // models[1].on('update', messages => console.log('update', messages));
+
+  // rootModel.insert(0, text);
+
+  // await agent.waitForSync();
+
+  // expect(models[1].textContent).toBe(text);
+});
+
+//   rootModel.insert(0, text);
+// })();
 
 // beforeEach(async () => await buildEnv());
 
