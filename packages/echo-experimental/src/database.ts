@@ -8,6 +8,7 @@ import { EventEmitter } from 'events';
 
 import { createId } from '@dxos/crypto';
 import { Transform } from 'stream';
+import { Constructor } from 'protobufjs';
 
 const log = debug('dxos:echo:database');
 
@@ -16,9 +17,9 @@ const log = debug('dxos:echo:database');
  */
 export abstract class Model extends EventEmitter {
   constructor (
-    private _id: string,
-    private _readable: NodeJS.ReadableStream,
-    private _writable?: NodeJS.WritableStream
+    protected _id: string,
+    protected _readable: NodeJS.ReadableStream,
+    protected _writable?: NodeJS.WritableStream
   ) {
     super();
   }
@@ -55,9 +56,9 @@ export abstract class Model extends EventEmitter {
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  _models = new Map();
+  private _models = new Map<string, Constructor<Model>>();
 
-  registerModel (type: string, clazz: Function) {
+  registerModel (type: string, clazz: Constructor<Model>) {
     assert(type);
     assert(clazz);
     this._models.set(type, clazz);
@@ -92,17 +93,14 @@ export class Item {
  *
  */
 export class ItemManager {
-  _modelFactory: ModelFactory;
+  private _items = new Map<string, Item>();
 
-  _writable: NodeJS.WritableStream;
-
-  _items = new Map();
-
-  constructor (modelFactory: ModelFactory, writable: NodeJS.WritableStream) {
-    assert(modelFactory);
-    assert(writable);
-    this._modelFactory = modelFactory;
-    this._writable = writable;
+  constructor (
+    private _modelFactory: ModelFactory, 
+    private _writable: NodeJS.WritableStream,
+  ) {
+    assert(this._modelFactory);
+    assert(this._writable);
   }
 
   /**
@@ -112,6 +110,7 @@ export class ItemManager {
    */
   async createItem (type: string, readable: NodeJS.ReadableStream) {
     const model = this._modelFactory.createModel(type, readable, this._writable);
+    assert(model);
     const itemId = createId();
     const item = new Item(model);
     this._items.set(itemId, item);
