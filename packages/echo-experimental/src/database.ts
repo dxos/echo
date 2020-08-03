@@ -30,6 +30,7 @@ interface Hypercore {
 // TODO(burdon): Replace with protobuf envelope.
 // TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
 interface Message {
+  // eslint-disable-next-line camelcase
   __type_url: string;
   itemId: string;
   [key: string]: any;
@@ -92,19 +93,17 @@ export abstract class Model extends EventEmitter {
 export class ModelFactory {
   private _models = new Map<ModelType, Constructor<Model>>();
 
-  registerModel (type: ModelType, clazz: Constructor<Model>) {
+  registerModel (type: ModelType, modelConstructor: Constructor<Model>) {
     assert(type);
-    assert(clazz);
-    this._models.set(type, clazz);
+    assert(modelConstructor);
+    this._models.set(type, modelConstructor);
     return this;
   }
 
-  // TODO(burdon): ID and version.
+  // TODO(burdon): Require version.
   createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, feed?: Hypercore) {
     const modelConstructor = this._models.get(type);
     if (modelConstructor) {
-      log('Creating', type, itemId);
-
       // eslint-disable-next-line new-cap
       return new modelConstructor(type, itemId, readable, feed);
     }
@@ -131,17 +130,22 @@ export class Item {
 }
 
 /**
- *
+ * Manages creation and index of items.
  */
-export class ItemManager {
+export class ItemManager extends EventEmitter {
+  // Map of active items.
   private _items = new Map<ItemID, Item>();
-  private _createCallbacks = new Map<ItemID, (item: Item) => void>();
+
+  // TODO(burdon): Lint issue: Unexpected whitespace between function name and paren
+  // Map of item promises (waiting for item construction after genesis message has been written).
+  private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
   // TODO(burdoN): Pass in writeable object stream to abstract hypercore.
   constructor (
     private _modelFactory: ModelFactory,
     private _feed: Hypercore
   ) {
+    super();
     assert(this._modelFactory);
     assert(this._feed);
   }
@@ -149,16 +153,16 @@ export class ItemManager {
   /**
    * Creates an item and writes the genesis message.
    * @param type model type
-   * @param readable input message stream
    */
   async createItem (type: ModelType): Promise<Item> {
     const itemId = createId();
 
     // Pending until constructed (after genesis block is read from stream).
     const [waitForCreation, callback] = trigger();
-    this._createCallbacks.set(itemId, callback);
+    this._pendingItems.set(itemId, callback);
 
     // Write Item Genesis block.
+    log('Creating Genesis:', itemId);
     await pify(this._feed.append.bind(this._feed))({
       message: {
         __type_url: 'dxos.echo.testing.TestItemGenesis',
@@ -187,7 +191,11 @@ export class ItemManager {
     this._items.set(itemId, item);
 
     // Notify pending creates.
-    this._createCallbacks.get(itemId)?.(item);
+    // TODO(burdon): Lint issue.
+    // eslint-disable-next-line no-unused-expressions
+    this._pendingItems.get(itemId)?.(item);
+
+    this.emit('create', item);
 
     return item;
   }
@@ -220,6 +228,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
     read () {}
   }));
 
+  // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
   return new Transform({
     objectMode: true,
 
@@ -235,7 +244,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
           assertType<dxos.echo.testing.ITestItemGenesis>(message);
           assert(message.model);
 
-          log(`Constructing Item: ${itemId}`);
+          log(`Item Genesis: ${itemId}`);
           const stream = streams.getOrInit(itemId);
           await itemManager.constructItem(message.model, itemId, stream);
           break;
