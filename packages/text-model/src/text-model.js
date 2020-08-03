@@ -46,7 +46,7 @@ export class TextModel extends Model {
   }
 
   _transact (fn) {
-    return this._doc.transact(fn, this._doc.clientID);
+    return this._doc.transact(fn, { docClientId: this._doc.clientID });
   }
 
   _textContentInner = node => {
@@ -114,11 +114,10 @@ export class TextModel extends Model {
       const { update, origin } = message;
 
       if (origin.docClientId !== this._doc.clientID) {
-        applyUpdate(this._doc, update, origin);
+        const arrayUpdate = Uint8Array.from(Object.values(update));
+        return applyUpdate(this._doc, arrayUpdate, origin);
       }
     });
-
-    this.emit('update', messages);
   }
 
   onDestroy () {

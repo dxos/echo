@@ -1,90 +1,66 @@
-// import assert from 'assert';
-
 import { EnvironmentFactory, providers, networkTypes } from '@dxos/echo-environment-test';
 
-import { TextModel } from './text-model';
+import { TextModel, TYPE_TEXT_MODEL_UPDATE } from './text-model';
 
 let env;
 let agent;
 let models;
 let rootModel;
 
+jest.setTimeout(10000);
+
 const buildEnv = async () => {
   const factory = new EnvironmentFactory();
   factory.on('error', err => console.log('error', err));
 
-  // try {
-    env = await factory.create(new providers.BasicProvider({
-      network: {
-        type: networkTypes.COMPLETE,
-        parameters: [2] // n levels of the binary tree
+  env = await factory.create(new providers.BasicProvider({
+    network: {
+      type: networkTypes.COMPLETE,
+      parameters: [2] // n levels of the binary tree
+    }
+  }));
+
+  agent = env.addAgent({
+    spec: {
+      ModelClass: TextModel,
+      options: {
+        type: TYPE_TEXT_MODEL_UPDATE
       }
-    }));
+    }
+  });
 
-  //   agent = env.addAgent({
-  //     spec: {
-  //       ModelClass: TextModel,
-  //       options: {
-  //         type: 'example.com/Test'
-  //       }
-  //     }
-  //   });
+  models = [];
+  env.peers.forEach((peer) => {
+    models.push(agent.createModel(peer));
+  });
 
-  //   console.log('> nodes:', env.peers.length, '\n');
-  //   // console.log('> topic:', agent._topic, '\n');
-
-  //   models = [];
-  //   env.peers.forEach((peer) => {
-  //     models.push(agent.createModel(peer));
-  //   });
-
-  //   rootModel = models[0];
-  // } catch (err) {
-  //   console.log(err);
-  // }
+  rootModel = models[0];
 };
 
-test('env', async () => {
+beforeEach(async () => {
   await buildEnv();
-
-  const text = 'Testing update';
-  // models[1].on('update', messages => console.log('update', messages));
-
-  // rootModel.insert(0, text);
-
-  // await agent.waitForSync();
-
-  // expect(models[1].textContent).toBe(text);
 });
 
-//   rootModel.insert(0, text);
-// })();
+afterEach(async () => {
+  await env.destroy();
+});
 
-// beforeEach(async () => await buildEnv());
+test('insertion', async () => {
+  const text = '++TEXT++';
+  const otherText = '--OTHER-TEXT';
+  const lastText = '--LAST-TEXT';
 
-// test('start', async () => {
-//   // await agent.waitForSync();
-//   // expect(rootModel.textContent).toBe('');
-//   // expect(env).toBe('alala');
-// });
+  models[1].insert(0, text);
+  await agent.waitForSync();
 
-//     await Promise.all([...Array(1000).keys()].map(m => rootModel.createItem('example.com/Test', { prop1: 'prop1value' })));
+  expect(rootModel.textContent).toBe(text);
 
-//     suite.test('reading first time', async () => {
-//       console.log('> prev state', JSON.stringify(env.state), '\n');
-//       await agent.waitForSync();
-//       console.log('> next state', JSON.stringify(env.state), '\n');
-//     });
+  models[1].insert(models[1].textContent.length, otherText);
+  await agent.waitForSync();
 
-//     suite.test('reading again', async () => {
-//       const newModel = agent.createModel(env.getRandomPeer());
-//       return agent.waitForModelSync(newModel);
-//     });
+  rootModel.insert(rootModel.textContent.length, lastText);
+  await agent.waitForSync();
 
-//     suite.print(await suite.run());
-
-//     await env.destroy();
-//   } catch (err) {
-//     console.log(err);
-//   }
-// })();
+  expect(models[0].textContent).toBe(text + otherText + lastText);
+  expect(rootModel.textContent).toBe(text + otherText + lastText);
+});
