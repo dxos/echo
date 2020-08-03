@@ -42,7 +42,7 @@ const latch = (n: number) => {
         callback(count);
       }
     }
-  ];
+  ] as const;
 };
 
 class TestModel extends Model {
@@ -83,6 +83,7 @@ test('streaming', async () => {
     // const itemManager = new ItemManager(modelFactory, feed.createWriteStream());
     // readable.pipe(createItemDemuxer(itemManager));
     const model = modelFactory.createModel(TestModel.type, readable);
+    assert(model);
 
     for (let i = 0; i < config.numMessages; i++) {
       // TODO(burdon): Randomly create or mutate items.
@@ -109,6 +110,7 @@ test('streaming', async () => {
     const readable = feedStore.createReadStream({ live: true });
 
     const model = modelFactory.createModel(TestModel.type, readable);
+    assert(model);
 
     const [promise, callback] = latch(config.numMessages);
     model.on('update', callback);

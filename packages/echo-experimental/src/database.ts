@@ -4,28 +4,25 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import EventEmitter from 'events';
-import through2 from 'through2';
+import { EventEmitter } from 'events';
 
 import { createId } from '@dxos/crypto';
+import { Transform, Readable } from 'stream';
+import { Constructor } from 'protobufjs';
+import { dxos } from './proto/gen/testing';
 
 const log = debug('dxos:echo:database');
 
 /**
  * Abstract base class for Models.
- * @abstract
  */
-// @ts-ignore // TODO(burdon): Fix.
-export class Model extends EventEmitter {
-  _id: string;
-  _readable: ReadableStream;
-  _writable?: WritableStream;
-
-  constructor (id: string, readable: ReadableStream, writable?: WritableStream) {
+export abstract class Model extends EventEmitter {
+  constructor (
+    protected _id: string,
+    protected _readable: NodeJS.ReadableStream,
+    protected _writable?: NodeJS.WritableStream
+  ) {
     super();
-    this._id = id;
-    this._readable = readable;
-    this._writable = writable;
   }
 
   /**
@@ -33,13 +30,14 @@ export class Model extends EventEmitter {
    */
   // TODO(burdon): Stop on destroy?
   start () {
-    // @ts-ignore // TODO(burdon): Fix.
-    this._readable.pipe(through2.obj(async (message, _, callback) => {
-      const { data } = message;
-      await this.processMessage(data);
-      // @ts-ignore // TODO(burdon): Fix.
-      this.emit('update');
-      callback();
+    this._readable.pipe(new Transform({
+      objectMode: true,
+      transform: async (message, _, callback) => {
+        const { data } = message;
+        await this.processMessage(data);
+        this.emit('update');
+        callback();
+      }
     }));
 
     return this;
@@ -59,9 +57,9 @@ export class Model extends EventEmitter {
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  _models = new Map();
+  private _models = new Map<string, Constructor<Model>>();
 
-  registerModel (type: string, clazz: Function) {
+  registerModel (type: string, clazz: Constructor<Model>) {
     assert(type);
     assert(clazz);
     this._models.set(type, clazz);
@@ -69,7 +67,7 @@ export class ModelFactory {
   }
 
   // TODO(burdon): ID and version.
-  createModel (type: string, readable: ReadableStream, writable?: WritableStream) {
+  createModel (type: string, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
     const clazz = this._models.get(type);
     if (clazz) {
       // eslint-disable-next-line new-cap
@@ -85,10 +83,7 @@ export class ModelFactory {
  */
 // TODO(burdon): Track parent?
 export class Item {
-  _model: Model;
-
-  constructor (model: Model) {
-    this._model = model;
+  constructor (private _model: Model) {
   }
 
   get model () {
@@ -100,17 +95,14 @@ export class Item {
  *
  */
 export class ItemManager {
-  _modelFactory: ModelFactory;
+  private _items = new Map<string, Item>();
 
-  _writable: WritableStream;
-
-  _items = new Map();
-
-  constructor (modelFactory: ModelFactory, writable: WritableStream) {
-    assert(modelFactory);
-    assert(writable);
-    this._modelFactory = modelFactory;
-    this._writable = writable;
+  constructor (
+    private _modelFactory: ModelFactory,
+    private _writable: NodeJS.WritableStream
+  ) {
+    assert(this._modelFactory);
+    assert(this._writable);
   }
 
   /**
@@ -118,8 +110,9 @@ export class ItemManager {
    * @param type
    * @param readable
    */
-  async createItem (type: string, readable: ReadableStream) {
+  async createItem (type: string, readable: NodeJS.ReadableStream) {
     const model = this._modelFactory.createModel(type, readable, this._writable);
+    assert(model);
     const itemId = createId();
     const item = new Item(model);
     this._items.set(itemId, item);
@@ -150,25 +143,57 @@ export class ItemManager {
  *
  */
 export const createItemDemuxer = (itemManager: ItemManager) => {
-  return through2.obj(async (message, _, callback) => {
-    // TODO(burdon): Parse message and route to associated item.
-    const { __type_url, itemId } = message;
-    switch (__type_url) {
-      case 'dxos.echo.testing.TestItemGenesis': {
-        // TODO(burdon): Create item (don't write genesis!)
-        // TODO(burdon): Create ReadableStream.
-        break;
-      }
+  const streams = new LazyMap<string, Readable>(() => new Readable({ objectMode: true }));
 
-      case 'dxos.echo.testing.TestItemMutation': {
-        // TODO(burdon): Enqueue if item doesn't exist (i.e., read mutations before genesis).
-        const item = itemManager.getItem(itemId);
-        if (!item) {
-          log('Queuing');
+  return new Transform({
+    objectMode: true,
+    transform: async (message, _, callback) => {
+      // TODO(burdon): Parse message and route to associated item.
+      const { __type_url, itemId } = message;
+      switch (__type_url) {
+        case 'dxos.echo.testing.TestItemGenesis': {
+          assertType<dxos.echo.testing.ITestItemGenesis>(message);
+          assert(itemId);
+          assert(message.model);
+
+          const stream = streams.getOrInit(itemId);
+          itemManager.createItem(itemId, stream);
+          break;
+        }
+
+        case 'dxos.echo.testing.TestItemMutation': {
+          assertType<dxos.echo.testing.ITestItemMutation>(message);
+          assert(message.payload);
+
+          const stream = streams.getOrInit(itemId);
+          stream.push(message.payload);
         }
       }
-    }
 
-    callback();
+      callback();
+    }
   });
 };
+
+/**
+ * A simple syntax sugar to write `value as T` as a statement
+ * @param value
+ */
+function assertType <T> (value: unknown): asserts value is T {}
+
+// TODO(marik_d): Extract somewhere
+class LazyMap<K, V> extends Map<K, V> {
+  constructor (private _initFn: (key: K) => V) {
+    super();
+  }
+
+  getOrInit (key: K): V {
+    if (this.has(key)) {
+      return this.get(key)!;
+    } else {
+      const value = this._initFn(key);
+      this.set(key, value);
+      return value;
+    }
+  }
+}

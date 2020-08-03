@@ -235,6 +235,7 @@ $root.dxos = (function() {
                  * @memberof dxos.echo.testing
                  * @interface ITestItemGenesis
                  * @property {string|null} [itemId] TestItemGenesis itemId
+                 * @property {string|null} [model] TestItemGenesis model
                  */
 
                 /**
@@ -259,6 +260,14 @@ $root.dxos = (function() {
                  * @instance
                  */
                 TestItemGenesis.prototype.itemId = "";
+
+                /**
+                 * TestItemGenesis model.
+                 * @member {string} model
+                 * @memberof dxos.echo.testing.TestItemGenesis
+                 * @instance
+                 */
+                TestItemGenesis.prototype.model = "";
 
                 /**
                  * Creates a new TestItemGenesis instance using the specified properties.
@@ -286,6 +295,8 @@ $root.dxos = (function() {
                         writer = $Writer.create();
                     if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
+                    if (message.model != null && Object.hasOwnProperty.call(message, "model"))
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.model);
                     return writer;
                 };
 
@@ -322,6 +333,9 @@ $root.dxos = (function() {
                         switch (tag >>> 3) {
                         case 1:
                             message.itemId = reader.string();
+                            break;
+                        case 2:
+                            message.model = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -361,6 +375,9 @@ $root.dxos = (function() {
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         if (!$util.isString(message.itemId))
                             return "itemId: string expected";
+                    if (message.model != null && message.hasOwnProperty("model"))
+                        if (!$util.isString(message.model))
+                            return "model: string expected";
                     return null;
                 };
 
@@ -378,6 +395,8 @@ $root.dxos = (function() {
                     var message = new $root.dxos.echo.testing.TestItemGenesis();
                     if (object.itemId != null)
                         message.itemId = String(object.itemId);
+                    if (object.model != null)
+                        message.model = String(object.model);
                     return message;
                 };
 
@@ -394,10 +413,14 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.defaults)
+                    if (options.defaults) {
                         object.itemId = "";
+                        object.model = "";
+                    }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
+                    if (message.model != null && message.hasOwnProperty("model"))
+                        object.model = message.model;
                     return object;
                 };
 
@@ -426,6 +449,7 @@ $root.dxos = (function() {
                  * @property {string|null} [id] TestItemMutation id
                  * @property {string|null} [depends] TestItemMutation depends
                  * @property {string|null} [tag] TestItemMutation tag
+                 * @property {google.protobuf.IAny|null} [payload] TestItemMutation payload
                  */
 
                 /**
@@ -484,6 +508,14 @@ $root.dxos = (function() {
                 TestItemMutation.prototype.tag = "";
 
                 /**
+                 * TestItemMutation payload.
+                 * @member {google.protobuf.IAny|null|undefined} payload
+                 * @memberof dxos.echo.testing.TestItemMutation
+                 * @instance
+                 */
+                TestItemMutation.prototype.payload = null;
+
+                /**
                  * Creates a new TestItemMutation instance using the specified properties.
                  * @function create
                  * @memberof dxos.echo.testing.TestItemMutation
@@ -517,6 +549,8 @@ $root.dxos = (function() {
                         writer.uint32(/* id 4, wireType 2 =*/34).string(message.depends);
                     if (message.tag != null && Object.hasOwnProperty.call(message, "tag"))
                         writer.uint32(/* id 5, wireType 2 =*/42).string(message.tag);
+                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                        $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
                     return writer;
                 };
 
@@ -565,6 +599,9 @@ $root.dxos = (function() {
                             break;
                         case 5:
                             message.tag = reader.string();
+                            break;
+                        case 6:
+                            message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -616,6 +653,11 @@ $root.dxos = (function() {
                     if (message.tag != null && message.hasOwnProperty("tag"))
                         if (!$util.isString(message.tag))
                             return "tag: string expected";
+                    if (message.payload != null && message.hasOwnProperty("payload")) {
+                        var error = $root.google.protobuf.Any.verify(message.payload);
+                        if (error)
+                            return "payload." + error;
+                    }
                     return null;
                 };
 
@@ -641,6 +683,11 @@ $root.dxos = (function() {
                         message.depends = String(object.depends);
                     if (object.tag != null)
                         message.tag = String(object.tag);
+                    if (object.payload != null) {
+                        if (typeof object.payload !== "object")
+                            throw TypeError(".dxos.echo.testing.TestItemMutation.payload: object expected");
+                        message.payload = $root.google.protobuf.Any.fromObject(object.payload);
+                    }
                     return message;
                 };
 
@@ -663,6 +710,7 @@ $root.dxos = (function() {
                         object.id = "";
                         object.depends = "";
                         object.tag = "";
+                        object.payload = null;
                     }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
@@ -674,6 +722,8 @@ $root.dxos = (function() {
                         object.depends = message.depends;
                     if (message.tag != null && message.hasOwnProperty("tag"))
                         object.tag = message.tag;
+                    if (message.payload != null && message.hasOwnProperty("payload"))
+                        object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
                     return object;
                 };
 

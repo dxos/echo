@@ -19,6 +19,10 @@
                     "itemId": {
                       "type": "string",
                       "id": 1
+                    },
+                    "model": {
+                      "type": "string",
+                      "id": 2
                     }
                   }
                 },
@@ -43,6 +47,10 @@
                     "tag": {
                       "type": "string",
                       "id": 5
+                    },
+                    "payload": {
+                      "type": "google.protobuf.Any",
+                      "id": 6
                     }
                   }
                 }

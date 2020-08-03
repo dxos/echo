@@ -103,6 +103,9 @@ export namespace dxos {
 
                 /** TestItemGenesis itemId */
                 itemId?: (string|null);
+
+                /** TestItemGenesis model */
+                model?: (string|null);
             }
 
             /** Represents a TestItemGenesis. */
@@ -116,6 +119,9 @@ export namespace dxos {
 
                 /** TestItemGenesis itemId. */
                 public itemId: string;
+
+                /** TestItemGenesis model. */
+                public model: string;
 
                 /**
                  * Creates a new TestItemGenesis instance using the specified properties.
@@ -205,6 +211,9 @@ export namespace dxos {
 
                 /** TestItemMutation tag */
                 tag?: (string|null);
+
+                /** TestItemMutation payload */
+                payload?: (google.protobuf.IAny|null);
             }
 
             /** Represents a TestItemMutation. */
@@ -230,6 +239,9 @@ export namespace dxos {
 
                 /** TestItemMutation tag. */
                 public tag: string;
+
+                /** TestItemMutation payload. */
+                public payload?: (google.protobuf.IAny|null);
 
                 /**
                  * Creates a new TestItemMutation instance using the specified properties.
