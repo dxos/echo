@@ -6,14 +6,14 @@ import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
 import pify from 'pify';
+import { Readable, Transform, Writable } from 'stream';
+import { Constructor } from 'protobufjs';
 
 import { createId } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
 
 import { dxos } from './proto/gen/testing';
 
-import { Readable, Transform } from 'stream';
-import { Constructor } from 'protobufjs';
 import { assertType, LazyMap } from './util';
 
 const log = debug('dxos:echo:database');
@@ -23,13 +23,13 @@ type ModelType = string;
 type ItemID = string;
 
 // TODO(burdon): Shim?
-interface Hypercore {
-  append (message: Message): void;
+export interface Hypercore {
+  append (message: Message, callback?: Function): void;
 }
 
 // TODO(burdon): Replace with protobuf envelope.
 // TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
-interface Message {
+export interface Message {
   // eslint-disable-next-line camelcase
   __type_url: string;
   itemId: string;
@@ -37,13 +37,16 @@ interface Message {
 }
 
 export interface ModelMessage {
-<<<<<<< HEAD
   // feedKey: string; TODO(marik_d): Add metadata from feed.
-=======
-  // feedKey: string TODO(marik_d): Add metadata
->>>>>>> master
   data: Message;
 }
+
+export const createFeedStream = (feed: Hypercore) => new Writable({
+  objectMode: true,
+  write (message, _, callback: Function) {
+    feed.append(message, callback);
+  }
+});
 
 /**
  * Abstract base class for Models.
@@ -64,7 +67,7 @@ export abstract class Model extends EventEmitter {
       transform: async (message, _, callback) => {
         await this.processMessage(message);
 
-        this.emit('update');
+        this.emit('update', this);
         callback();
       }
     }));
@@ -144,11 +147,7 @@ export class ItemManager extends EventEmitter {
   // Map of item promises (waiting for item construction after genesis message has been written).
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
-<<<<<<< HEAD
   // TODO(burdon): Pass in writeable object stream to abstract hypercore.
-=======
-  // TODO(burdoN): Pass in writeable object stream to abstract hypercore.
->>>>>>> master
   constructor (
     private _modelFactory: ModelFactory,
     private _feed: Hypercore
@@ -226,12 +225,47 @@ export class ItemManager extends EventEmitter {
 }
 
 /**
+ * Reads party feeds and routes to items demuxer.
+ */
+// TODO(burdon): Replace with something that consumes the FeedStoreIterator.
+export const createPartyMuxer = (itemManager: ItemManager) => {
+  const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
+
+  return new Transform({
+    objectMode: true,
+
+    transform: async ({ data: { message } }, _, callback) => {
+      /* eslint-disable camelcase */
+      const { __type_url } = message;
+
+      switch (__type_url) {
+        case 'dxos.echo.testing.TestAdmit': {
+          assertType<dxos.echo.testing.ITestAdmit>(message);
+          // TODO(burdon): Process feed admission and notify iterator.
+          log('>>>', message);
+          break;
+        }
+
+        default: {
+          // TODO(burdon): Should expect ItemEnvelope.
+          assert(message.itemId);
+          // TODO(burdon): How to write?
+          itemDemuxers.getOrInit(message.itemId).push({ data: message });
+        }
+      }
+
+      callback();
+    }
+  });
+};
+
+/**
  * Reads party stream and routes to associate item stream.
  */
 export const createItemDemuxer = (itemManager: ItemManager) => {
   // Map of Item-specific streams.
-  // TODO(burdon): Abstract class.
-  const streams = new LazyMap<string, Readable>(() => new Readable({
+  // TODO(burdon): Abstract class?
+  const streams = new LazyMap<ItemID, Readable>(() => new Readable({
     objectMode: true,
     read () {}
   }));
@@ -242,6 +276,8 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
     // TODO(burdon): Is codec working? (expect envelope to be decoded.)
     transform: async ({ data: { message } }, _, callback) => {
+      log('//', message);
+
       /* eslint-disable camelcase */
       const { __type_url, itemId } = message;
       assert(__type_url);
@@ -264,7 +300,11 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
           const stream = streams.getOrInit(itemId);
           stream.push({ data: message });
+          break;
         }
+
+        default:
+          throw new Error(`Unexpected type: ${__type_url}`);
       }
 
       callback();
