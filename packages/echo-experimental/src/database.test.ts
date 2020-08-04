@@ -121,7 +121,8 @@ test('streaming', async () => {
     log(item.model.value);
 
     // TODO(burdon): Breaks if close feedstore.
-    // await feedStore.close();
+    // This operation close de current feeds.
+    await feedStore.close();
   }
 
   //
@@ -130,6 +131,10 @@ test('streaming', async () => {
   {
     // const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
     await feedStore.open();
+
+    // Load the entire list of feeds.
+    await feedStore.openFeeds(() => true);
+
     const readable = feedStore.createReadStream({ live: true });
 
     const descriptors = feedStore.getDescriptors();
