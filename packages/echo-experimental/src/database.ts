@@ -37,7 +37,11 @@ interface Message {
 }
 
 export interface ModelMessage {
+<<<<<<< HEAD
   // feedKey: string; TODO(marik_d): Add metadata from feed.
+=======
+  // feedKey: string TODO(marik_d): Add metadata
+>>>>>>> master
   data: Message;
 }
 
@@ -140,7 +144,11 @@ export class ItemManager extends EventEmitter {
   // Map of item promises (waiting for item construction after genesis message has been written).
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
+<<<<<<< HEAD
   // TODO(burdon): Pass in writeable object stream to abstract hypercore.
+=======
+  // TODO(burdoN): Pass in writeable object stream to abstract hypercore.
+>>>>>>> master
   constructor (
     private _modelFactory: ModelFactory,
     private _feed: Hypercore
