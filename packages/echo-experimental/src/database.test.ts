@@ -244,8 +244,8 @@ test('parties', async () => {
 
   const itemManager = new ItemManager(modelFactory, streams[0]);
 
-  const readable = feedStore.createReadStream({ live: true });
-  readable.pipe(createPartyMuxer(itemManager));
+  const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => true)
+  createPartyMuxer(itemManager, iterator);
 
   // TODO(burdon): Wait for everything to be read?
   await waitForExpect(() => {

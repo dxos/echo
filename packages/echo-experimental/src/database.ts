@@ -228,14 +228,11 @@ export class ItemManager extends EventEmitter {
  * Reads party feeds and routes to items demuxer.
  */
 // TODO(burdon): Replace with something that consumes the FeedStoreIterator.
-export const createPartyMuxer = (itemManager: ItemManager) => {
+export const createPartyMuxer = (itemManager: ItemManager, iterator: AsyncIterable<any>) => {
   const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
 
-  // TODO(marik_d): either pipe to item demuxer or replace with Writable
-  return new Transform({
-    objectMode: true,
-
-    transform: async ({ data: { message } }, _, callback) => {
+  setTimeout(async () => {
+    for await (const { data: { message } } of iterator) {
       /* eslint-disable camelcase */
       const { __type_url } = message;
 
@@ -253,10 +250,8 @@ export const createPartyMuxer = (itemManager: ItemManager) => {
           itemDemuxers.getOrInit(message.itemId).write({ data: { message } });
         }
       }
-
-      callback();
     }
-  });
+  }, 0)
 };
 
 /**
