@@ -11,6 +11,7 @@ import { Constructor } from 'protobufjs';
 
 import { createId, keyToString } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
+import { Feed } from 'hypercore';
 
 import { dxos } from './proto/gen/testing';
 
@@ -22,10 +23,6 @@ type ModelType = string;
 
 type ItemID = string;
 
-// TODO(burdon): Shim?
-export interface Hypercore {
-  append (message: Message, callback?: Function): void;
-}
 
 // TODO(burdon): Replace with protobuf envelope.
 // TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
@@ -41,9 +38,9 @@ export interface ModelMessage {
   data: Message;
 }
 
-export const createFeedStream = (feed: Hypercore) => new Writable({
+export const createFeedStream = (feed: Feed) => new Writable({
   objectMode: true,
-  write (message, _, callback: Function) {
+  write (message, _, callback) {
     feed.append(message, callback);
   }
 });
