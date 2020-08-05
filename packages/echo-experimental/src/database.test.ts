@@ -81,7 +81,7 @@ test('item construction', async () => {
   const feed = await feedStore.openFeed('test');
 
   const readable = feedStore.createReadStream({ live: true });
-  const itemManager = new ItemManager(modelFactory, feed);
+  const itemManager = new ItemManager(modelFactory, createFeedStream(feed));
   readable.pipe(createItemDemuxer(itemManager));
 
   const item = await itemManager.createItem(TestModel.type);
@@ -123,7 +123,7 @@ test('streaming', async () => {
     const feed = await feedStore.openFeed('test');
     const readable = feedStore.createReadStream({ live: true });
 
-    const itemManager = new ItemManager(modelFactory, feed);
+    const itemManager = new ItemManager(modelFactory, createFeedStream(feed));
 
     // NOTE: This will be the Party's readable stream.
     readable.pipe(createItemDemuxer(itemManager));
@@ -161,7 +161,7 @@ test('streaming', async () => {
     expect(descriptors).toHaveLength(config.numFeeds);
     const { feed } = chance.pickone(descriptors);
 
-    const itemManager = new ItemManager(modelFactory, feed);
+    const itemManager = new ItemManager(modelFactory, createFeedStream(feed));
 
     // NOTE: This will be the Party's readable stream.
     readable.pipe(createItemDemuxer(itemManager));
@@ -241,7 +241,7 @@ test('parties', async () => {
     }
   });
 
-  const itemManager = new ItemManager(modelFactory, feeds[0]);
+  const itemManager = new ItemManager(modelFactory, streams[0]);
 
   const readable = feedStore.createReadStream({ live: true });
   readable.pipe(createPartyMuxer(itemManager));

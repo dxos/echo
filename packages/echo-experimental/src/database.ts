@@ -58,7 +58,7 @@ export abstract class Model extends EventEmitter {
     private _type: string,
     private _itemId: string,
     private _readable: NodeJS.ReadableStream,
-    private _feed?: Hypercore
+    private _writable?: NodeJS.WritableStream
   ) {
     super();
 
@@ -82,8 +82,8 @@ export abstract class Model extends EventEmitter {
    * @param message
    */
   async write (message: Message) {
-    assert(this._feed);
-    await pify(this._feed.append.bind(this._feed))({ message });
+    assert(this._writable);
+    await pify(this._writable.write.bind(this._writable))({ message });
   }
 
   /**
@@ -108,11 +108,11 @@ export class ModelFactory {
   }
 
   // TODO(burdon): Require version.
-  createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, feed?: Hypercore) {
+  createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
     const modelConstructor = this._models.get(type);
     if (modelConstructor) {
       // eslint-disable-next-line new-cap
-      return new modelConstructor(type, itemId, readable, feed);
+      return new modelConstructor(type, itemId, readable, writable);
     }
   }
 }
@@ -150,11 +150,11 @@ export class ItemManager extends EventEmitter {
   // TODO(burdon): Pass in writeable object stream to abstract hypercore.
   constructor (
     private _modelFactory: ModelFactory,
-    private _feed: Hypercore
+    private _writable: NodeJS.WritableStream
   ) {
     super();
     assert(this._modelFactory);
-    assert(this._feed);
+    assert(this._writable);
   }
 
   /**
@@ -170,7 +170,7 @@ export class ItemManager extends EventEmitter {
 
     // Write Item Genesis block.
     log('Creating Genesis:', itemId);
-    await pify(this._feed.append.bind(this._feed))({
+    await pify(this._writable.write.bind(this._writable))({
       message: {
         __type_url: 'dxos.echo.testing.TestItemGenesis',
         model: type,
@@ -189,7 +189,7 @@ export class ItemManager extends EventEmitter {
    * @param readable
    */
   async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
-    const model = this._modelFactory.createModel(type, itemId, readable, this._feed);
+    const model = this._modelFactory.createModel(type, itemId, readable, this._writable);
     assert(model);
 
     const item = new Item(itemId, model);
