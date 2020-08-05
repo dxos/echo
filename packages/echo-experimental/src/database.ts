@@ -229,7 +229,7 @@ export class ItemManager extends EventEmitter {
  */
 export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, initalFeeds: string[]) => {
   const allowedKeys = new Set<string>(initalFeeds);
-  const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
+  const itemDemuxer = createItemDemuxer(itemManager);
 
   // TODO(marik-d): Add logic to stop the processing
   setTimeout(async () => {
@@ -249,7 +249,7 @@ export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, inita
         default: {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
-          itemDemuxers.getOrInit(message.itemId).write({ data: { message } });
+          itemDemuxer.write({ data: { message } });
         }
       }
     }
