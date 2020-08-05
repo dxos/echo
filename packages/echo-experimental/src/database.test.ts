@@ -203,8 +203,8 @@ test('parties', async () => {
   const descriptors = [
     feedStore.getOpenFeed((descriptor: any) => descriptor.path === 'feed-1'),
     feedStore.getOpenFeed((descriptor: any) => descriptor.path === 'feed-2'),
-    feedStore.getOpenFeed((descriptor: any) => descriptor.path === 'feed-3'),
-  ]
+    feedStore.getOpenFeed((descriptor: any) => descriptor.path === 'feed-3')
+  ];
 
   const streams = [
     createFeedStream(feeds[0]),
@@ -242,14 +242,14 @@ test('parties', async () => {
   });
 
   const itemManager = new ItemManager(modelFactory, streams[0]);
-  
+
   createPartyMuxer(itemManager, feedStore, [keyToString(descriptors[0].key)]);
 
   // TODO(burdon): Wait for everything to be read?
   await waitForExpect(() => {
     const items = itemManager.getItems();
     expect(items).toHaveLength(1);
-    expect((items[0].model as TestModel).getValue('title')).toEqual('Hi')
+    expect((items[0].model as TestModel).getValue('title')).toEqual('Hi');
   });
 
   streams[0].write({
@@ -264,7 +264,7 @@ test('parties', async () => {
   await waitForExpect(() => {
     const items = itemManager.getItems();
     expect(items).toHaveLength(1);
-    expect((items[0].model as TestModel).getValue('title')).toEqual('Hello')
+    expect((items[0].model as TestModel).getValue('title')).toEqual('Hello');
   });
 
   streams[0].write({
@@ -277,6 +277,6 @@ test('parties', async () => {
   await waitForExpect(() => {
     const items = itemManager.getItems();
     expect(items).toHaveLength(1);
-    expect((items[0].model as TestModel).getValue('title')).toEqual('World')
+    expect((items[0].model as TestModel).getValue('title')).toEqual('World');
   });
 });

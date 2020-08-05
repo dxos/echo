@@ -228,11 +228,11 @@ export class ItemManager extends EventEmitter {
  * Reads party feeds and routes to items demuxer.
  */
 export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, initalFeeds: string[]) => {
-  const allowedKeys = new Set<string>(initalFeeds)
+  const allowedKeys = new Set<string>(initalFeeds);
   const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
 
   setTimeout(async () => {
-    const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key)))
+    const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key)));
     for await (const { data: { message } } of iterator) {
       /* eslint-disable camelcase */
       const { __type_url } = message;
@@ -240,7 +240,7 @@ export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, inita
       switch (__type_url) {
         case 'dxos.echo.testing.TestAdmit': {
           assertType<dxos.echo.testing.ITestAdmit>(message);
-          assert(message.feedKey)
+          assert(message.feedKey);
           allowedKeys.add(message.feedKey);
           break;
         }
@@ -252,7 +252,7 @@ export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, inita
         }
       }
     }
-  }, 0)
+  }, 0);
 };
 
 /**
