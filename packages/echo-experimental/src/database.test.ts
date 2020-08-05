@@ -24,6 +24,7 @@ import {
 import { latch } from './util';
 
 import TestingSchema from './proto/gen/testing.json';
+import waitForExpect from 'wait-for-expect';
 
 const log = debug('dxos:echo:testing');
 debug.enable('dxos:echo:*');
@@ -246,10 +247,9 @@ test('parties', async () => {
   const readable = feedStore.createReadStream({ live: true });
   readable.pipe(createPartyMuxer(itemManager));
 
-  // TODO(burdon): createPartyMuxer doesn't forward to createItemDemuxer.
   // TODO(burdon): Wait for everything to be read?
-  // await waitForExpect(() => {
-  //   const items = itemManager.getItems();
-  //   expect(items).toHaveLength(1);
-  // });
+  await waitForExpect(() => {
+    const items = itemManager.getItems();
+    expect(items).toHaveLength(1);
+  });
 });

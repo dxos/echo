@@ -231,6 +231,7 @@ export class ItemManager extends EventEmitter {
 export const createPartyMuxer = (itemManager: ItemManager) => {
   const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
 
+  // TODO(marik_d): either pipe to item demuxer or replace with Writable
   return new Transform({
     objectMode: true,
 
@@ -249,8 +250,7 @@ export const createPartyMuxer = (itemManager: ItemManager) => {
         default: {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
-          // TODO(burdon): How to write?
-          itemDemuxers.getOrInit(message.itemId).push({ data: message });
+          itemDemuxers.getOrInit(message.itemId).write({ data: { message } });
         }
       }
 
@@ -271,6 +271,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   }));
 
   // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
+  // TODO(marik_d): Replace with Writable
   return new Transform({
     objectMode: true,
 
