@@ -231,6 +231,7 @@ export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, inita
   const allowedKeys = new Set<string>(initalFeeds);
   const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
 
+  // TODO(marik-d): Add logic to stop the processing
   setTimeout(async () => {
     const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key)));
     for await (const { data: { message } } of iterator) {
