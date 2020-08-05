@@ -145,6 +145,8 @@ export class ItemManager extends EventEmitter {
 
   // TODO(burdon): Lint issue: Unexpected whitespace between function name and paren
   // Map of item promises (waiting for item construction after genesis message has been written).
+  // TODO(burdon): Lint error.
+  // eslint-disable-next-line
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
   // TODO(burdon): Pass in writeable object stream to abstract hypercore.
@@ -233,11 +235,14 @@ export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, inita
 
   // TODO(marik-d): Add logic to stop the processing
   setTimeout(async () => {
-    const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key)));
+    const iterator = feedStore.createSelectiveStream(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key))
+    );
+
     for await (const { data: { message } } of iterator) {
       /* eslint-disable camelcase */
       const { __type_url } = message;
-
       switch (__type_url) {
         case 'dxos.echo.testing.TestAdmit': {
           assertType<dxos.echo.testing.ITestAdmit>(message);
