@@ -227,9 +227,8 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
-export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, initalFeeds: string[]) => {
+export const createPartyMuxer = (itemDemuxer: Writable, feedStore: any, initalFeeds: string[]) => {
   const allowedKeys = new Set<string>(initalFeeds);
-  const itemDemuxer = createItemDemuxer(itemManager);
 
   // TODO(marik-d): Add logic to stop the processing
   setTimeout(async () => {
