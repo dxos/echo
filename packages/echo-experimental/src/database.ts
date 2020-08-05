@@ -23,7 +23,6 @@ type ModelType = string;
 
 type ItemID = string;
 
-
 // TODO(burdon): Replace with protobuf envelope.
 // TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
 export interface Message {

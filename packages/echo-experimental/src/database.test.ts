@@ -242,7 +242,7 @@ test('parties', async () => {
   });
 
   const itemManager = new ItemManager(modelFactory, streams[0]);
-  const itemDemuxer = createItemDemuxer(itemManager)
+  const itemDemuxer = createItemDemuxer(itemManager);
   createPartyMuxer(itemDemuxer, feedStore, [keyToString(descriptors[0].key)]);
 
   // TODO(burdon): Wait for everything to be read?
