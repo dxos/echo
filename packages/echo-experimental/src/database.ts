@@ -9,7 +9,7 @@ import pify from 'pify';
 import { Readable, Transform, Writable } from 'stream';
 import { Constructor } from 'protobufjs';
 
-import { createId } from '@dxos/crypto';
+import { createId, keyToString } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
 
 import { dxos } from './proto/gen/testing';
@@ -227,11 +227,12 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
-// TODO(burdon): Replace with something that consumes the FeedStoreIterator.
-export const createPartyMuxer = (itemManager: ItemManager, iterator: AsyncIterable<any>) => {
+export const createPartyMuxer = (itemManager: ItemManager, feedStore: any, initalFeeds: string[]) => {
+  const allowedKeys = new Set<string>(initalFeeds)
   const itemDemuxers = new LazyMap<ItemID, Transform>(() => createItemDemuxer(itemManager));
 
   setTimeout(async () => {
+    const iterator = feedStore.createSelectiveStream((feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key)))
     for await (const { data: { message } } of iterator) {
       /* eslint-disable camelcase */
       const { __type_url } = message;
@@ -239,8 +240,8 @@ export const createPartyMuxer = (itemManager: ItemManager, iterator: AsyncIterab
       switch (__type_url) {
         case 'dxos.echo.testing.TestAdmit': {
           assertType<dxos.echo.testing.ITestAdmit>(message);
-          // TODO(burdon): Process feed admission and notify iterator.
-          log('>>>', message);
+          assert(message.feedKey)
+          allowedKeys.add(message.feedKey);
           break;
         }
 
@@ -272,8 +273,6 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
     // TODO(burdon): Is codec working? (expect envelope to be decoded.)
     transform: async ({ data: { message } }, _, callback) => {
-      log('//', message);
-
       /* eslint-disable camelcase */
       const { __type_url, itemId } = message;
       assert(__type_url);
