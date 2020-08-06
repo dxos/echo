@@ -17,6 +17,7 @@ import { dxos } from './proto/gen/testing';
 
 import { assertType, LazyMap } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
+import { FeedStore } from '@dxos/feed-store';
 
 const log = debug('dxos:echo:database');
 
@@ -226,16 +227,27 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
-// TODO(burdon): Convert to class.
-export const createPartyMuxer = (itemDemuxer: Writable, feedStore: any, initalFeeds: string[]) => {
-  // TODO(burdon): Use type for FeedKey.
-  const allowedKeys = new Set<string>(initalFeeds);
+export class PartyMuxer {
+
+  private _allowedKeys: Set<string>;
+  private _itemDemuxer?: Writable;
+
+  constructor(
+    private readonly _feedStore: FeedStore,
+    initialFeeds: string[],
+  ) { 
+    this._allowedKeys = new Set(initialFeeds);
+  }
+
+  setItemDemuxer(itemDemuxer: Writable) {
+    assert(!this._itemDemuxer);
+    this._itemDemuxer = itemDemuxer;
+  }
 
   // TODO(marik-d): Add logic to stop the processing.
-  setTimeout(async () => {
-    // TODO(burdon): Remove dependency on FeedStore custom methods?
-    const iterator = await FeedStoreIterator.create(feedStore,
-      async feedKey => allowedKeys.has(keyToString(feedKey))
+  async run() {
+    const iterator = await FeedStoreIterator.create(this._feedStore,
+      async feedKey => this._allowedKeys.has(keyToString(feedKey))
     );
 
     // NOTE: The iterator my halt if there are gaps in the replicated feeds (according to the timestamps).
@@ -249,19 +261,20 @@ export const createPartyMuxer = (itemDemuxer: Writable, feedStore: any, initalFe
         case 'dxos.echo.testing.TestAdmit': {
           assertType<dxos.echo.testing.ITestAdmit>(message);
           assert(message.feedKey);
-          allowedKeys.add(message.feedKey);
+          this._allowedKeys.add(message.feedKey);
           break;
         }
 
         default: {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
-          itemDemuxer.write({ data: { message } });
+          assert(this._itemDemuxer)
+          this._itemDemuxer.write({ data: { message } });
         }
       }
     }
-  }, 0);
-};
+  }
+}
 
 /**
  * Reads party stream and routes to associate item stream.

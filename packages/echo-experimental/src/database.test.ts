@@ -19,7 +19,7 @@ import {
   Model,
   ModelMessage,
   ModelFactory,
-  createPartyMuxer
+  PartyMuxer
 } from './database';
 import { latch } from './util';
 
@@ -244,7 +244,9 @@ test('parties', async () => {
 
   const itemManager = new ItemManager(modelFactory, streams[0]);
   const itemDemuxer = createItemDemuxer(itemManager);
-  createPartyMuxer(itemDemuxer, feedStore, [keyToString(descriptors[0].key)]);
+  const partyMuxer = new PartyMuxer(feedStore, [keyToString(descriptors[0].key)]);
+  partyMuxer.setItemDemuxer(itemDemuxer);
+  setImmediate(() => partyMuxer.run());
 
   // TODO(burdon): Wait for everything to be read?
   await waitForExpect(() => {
