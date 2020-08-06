@@ -29,10 +29,7 @@ message VectorTimestamp {
 message ItemEnvelope {
   string itemId = 1;
   VectorTimestamp timestamp = 2;
-  oneof payload {
-    ItemGenesis genesis = 3;
-    ItemMutation mutation = 4;
-  }
+  google.protobuf.Any payload = 3;
 }
 
 message ItemGenesis {

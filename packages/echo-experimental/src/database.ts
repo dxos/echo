@@ -42,7 +42,8 @@ export interface ModelMessage {
 export const createFeedStream = (feed: Feed) => new Writable({
   objectMode: true,
   write (message, _, callback) {
-    feed.append(message, callback);
+    console.log('writing to feed', message)
+    feed.append({ message }, callback);
   }
 });
 
@@ -81,7 +82,7 @@ export abstract class Model extends EventEmitter {
    */
   async write (message: Message) {
     assert(this._writable);
-    await pify(this._writable.write.bind(this._writable))({ message });
+    await pify(this._writable.write.bind(this._writable))(message);
   }
 
   /**
@@ -134,6 +135,20 @@ export class Item {
   }
 }
 
+function createEchoMessageWrapper(itemId: ItemID) {
+  return new Transform({
+    objectMode: true,
+    transform(message, encoding, callback) {
+      this.push({
+        __type_url: 'dxos.echo.testing.ItemEnvelope',
+        itemId,
+        payload: message,
+      })
+      callback()
+    }
+  })
+}
+
 /**
  * Manages creation and index of items.
  */
@@ -157,6 +172,12 @@ export class ItemManager extends EventEmitter {
     assert(this._writable);
   }
 
+  private _createWriteStream(itemId: ItemID): NodeJS.WritableStream {
+    const transform = createEchoMessageWrapper(itemId)
+    transform.pipe(this._writable);
+    return transform;
+  }
+
   /**
    * Creates an item and writes the genesis message.
    * @param type model type
@@ -170,16 +191,18 @@ export class ItemManager extends EventEmitter {
 
     // Write Item Genesis block.
     log('Creating Genesis:', itemId);
-    await pify(this._writable.write.bind(this._writable))({
-      message: {
-        __type_url: 'dxos.echo.testing.ItemGenesis',
-        model: type,
-        itemId
-      }
+    const writable = this._createWriteStream(itemId)
+    await pify(writable.write.bind(writable))({
+      __type_url: 'dxos.echo.testing.ItemGenesis',
+      model: type,
+      itemId
     });
 
+    log('waiting for creation')
     // Unlocked by construct.
-    return await waitForCreation();
+    const item = await waitForCreation();
+    log('created')
+    return item
   }
 
   /**
@@ -189,13 +212,16 @@ export class ItemManager extends EventEmitter {
    * @param readable
    */
   async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
-    const model = this._modelFactory.createModel(type, itemId, readable, this._writable);
+    log('construct', { type, itemId })
+    const model = this._modelFactory.createModel(type, itemId, readable, this._createWriteStream(itemId));
     assert(model);
 
     const item = new Item(itemId, model);
 
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
+
+    log('created', this._pendingItems.get(itemId))
 
     // Notify pending creates.
     // TODO(burdon): Lint issue.
@@ -251,6 +277,7 @@ export class PartyMuxer {
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
 
     for await (const { message } of iterator) {
+      console.log('party', message)
       assert(message);
       /* eslint-disable camelcase */
       const { __type_url } = message;
@@ -298,28 +325,34 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
     // TODO(burdon): Is codec working? (expect envelope to be decoded.)
     transform: async ({ data: { message } }, _, callback) => {
-      /* eslint-disable camelcase */
-      const { __type_url, itemId } = message;
-      assert(__type_url);
+      console.log('item demuxer', message)
+      assert(message.__type_url === 'dxos.echo.testing.ItemEnvelope')
+      assertType<dxos.echo.testing.IItemEnvelope>(message)
+
+      const { itemId, payload } = message;
+      assert(payload);
       assert(itemId);
+      /* eslint-disable camelcase */
+      const { __type_url } = payload as any;
+      assert(__type_url);
 
       switch (__type_url) {
         case 'dxos.echo.testing.ItemGenesis': {
-          assertType<dxos.echo.testing.IItemGenesis>(message);
-          assert(message.model);
+          assertType<dxos.echo.testing.IItemGenesis>(payload);
+          assert(payload.model);
 
           log(`Item Genesis: ${itemId}`);
           const stream = streams.getOrInit(itemId);
-          await itemManager.constructItem(message.model, itemId, stream);
+          await itemManager.constructItem(payload.model, itemId, stream);
           break;
         }
 
         case 'dxos.echo.testing.ItemMutation': {
-          assertType<dxos.echo.testing.IItemMutation>(message);
-          assert(message);
+          assertType<dxos.echo.testing.IItemMutation>(payload);
+          assert(payload);
 
           const stream = streams.getOrInit(itemId);
-          stream.push({ data: message });
+          stream.push({ data: payload });
           break;
         }
 

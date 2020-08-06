@@ -46,14 +46,6 @@
                   }
                 },
                 "ItemEnvelope": {
-                  "oneofs": {
-                    "payload": {
-                      "oneof": [
-                        "genesis",
-                        "mutation"
-                      ]
-                    }
-                  },
                   "fields": {
                     "itemId": {
                       "type": "string",
@@ -63,13 +55,9 @@
                       "type": "VectorTimestamp",
                       "id": 2
                     },
-                    "genesis": {
-                      "type": "ItemGenesis",
+                    "payload": {
+                      "type": "google.protobuf.Any",
                       "id": 3
-                    },
-                    "mutation": {
-                      "type": "ItemMutation",
-                      "id": 4
                     }
                   }
                 },

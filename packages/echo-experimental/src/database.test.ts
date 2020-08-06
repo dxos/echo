@@ -67,7 +67,7 @@ class TestModel extends Model {
     // TODO(burdon): Create wrapper for ItemMutation that includes the itemId.
     await this.write({
       __type_url: 'dxos.echo.testing.ItemMutation',
-      itemId: this.itemId,
+      itemId: this.itemId, // TODO(marik-d): This shouldn't be here
       key,
       value
     });
@@ -86,6 +86,7 @@ test('item construction', async () => {
   readable.pipe(createItemDemuxer(itemManager));
 
   const item = await itemManager.createItem(TestModel.type);
+  console.log('set')
   await (item.model as TestModel).setProperty('title', 'Hello');
 
   const items = itemManager.getItems();
@@ -220,25 +221,37 @@ test('parties', async () => {
   // TODO(burdon): Better way to simulate multiple nodes?
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.ItemGenesis',
-      model: TestModel.type,
-      itemId: itemIds[0]
+      __type_url: 'dxos.echo.testing.ItemEnvelope',
+      itemId: itemIds[0],
+      payload: {
+        __type_url: 'dxos.echo.testing.ItemGenesis',
+        model: TestModel.type,
+        itemId: itemIds[0]
+      }
     }
   });
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.ItemMutation',
+      __type_url: 'dxos.echo.testing.ItemEnvelope',
       itemId: itemIds[0],
-      key: 'title',
-      value: 'Hi'
+      payload: {
+        __type_url: 'dxos.echo.testing.ItemMutation',
+        itemId: itemIds[0],
+        key: 'title',
+        value: 'Hi'
+      }
     }
   });
   streams[1].write({
     message: {
-      __type_url: 'dxos.echo.testing.ItemMutation',
+      __type_url: 'dxos.echo.testing.ItemEnvelope',
       itemId: itemIds[0],
-      key: 'title',
-      value: 'World'
+      payload: {
+        __type_url: 'dxos.echo.testing.ItemMutation',
+        itemId: itemIds[0],
+        key: 'title',
+        value: 'World'
+      }
     }
   });
 
@@ -259,10 +272,14 @@ test('parties', async () => {
 
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.ItemMutation',
+      __type_url: 'dxos.echo.testing.ItemEnvelope',
       itemId: itemIds[0],
-      key: 'title',
-      value: 'Hello'
+      payload: {
+        __type_url: 'dxos.echo.testing.ItemMutation',
+        itemId: itemIds[0],
+        key: 'title',
+        value: 'Hello'
+      }
     }
   });
 

@@ -386,11 +386,8 @@ export namespace dxos {
                 /** ItemEnvelope timestamp */
                 timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
 
-                /** ItemEnvelope genesis */
-                genesis?: (dxos.echo.testing.IItemGenesis|null);
-
-                /** ItemEnvelope mutation */
-                mutation?: (dxos.echo.testing.IItemMutation|null);
+                /** ItemEnvelope payload */
+                payload?: (google.protobuf.IAny|null);
             }
 
             /** Represents an ItemEnvelope. */
@@ -408,14 +405,8 @@ export namespace dxos {
                 /** ItemEnvelope timestamp. */
                 public timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
 
-                /** ItemEnvelope genesis. */
-                public genesis?: (dxos.echo.testing.IItemGenesis|null);
-
-                /** ItemEnvelope mutation. */
-                public mutation?: (dxos.echo.testing.IItemMutation|null);
-
                 /** ItemEnvelope payload. */
-                public payload?: ("genesis"|"mutation");
+                public payload?: (google.protobuf.IAny|null);
 
                 /**
                  * Creates a new ItemEnvelope instance using the specified properties.

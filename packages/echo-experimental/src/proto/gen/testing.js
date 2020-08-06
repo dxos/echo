@@ -850,8 +850,7 @@ $root.dxos = (function() {
                  * @interface IItemEnvelope
                  * @property {string|null} [itemId] ItemEnvelope itemId
                  * @property {dxos.echo.testing.IVectorTimestamp|null} [timestamp] ItemEnvelope timestamp
-                 * @property {dxos.echo.testing.IItemGenesis|null} [genesis] ItemEnvelope genesis
-                 * @property {dxos.echo.testing.IItemMutation|null} [mutation] ItemEnvelope mutation
+                 * @property {google.protobuf.IAny|null} [payload] ItemEnvelope payload
                  */
 
                 /**
@@ -886,34 +885,12 @@ $root.dxos = (function() {
                 ItemEnvelope.prototype.timestamp = null;
 
                 /**
-                 * ItemEnvelope genesis.
-                 * @member {dxos.echo.testing.IItemGenesis|null|undefined} genesis
-                 * @memberof dxos.echo.testing.ItemEnvelope
-                 * @instance
-                 */
-                ItemEnvelope.prototype.genesis = null;
-
-                /**
-                 * ItemEnvelope mutation.
-                 * @member {dxos.echo.testing.IItemMutation|null|undefined} mutation
-                 * @memberof dxos.echo.testing.ItemEnvelope
-                 * @instance
-                 */
-                ItemEnvelope.prototype.mutation = null;
-
-                // OneOf field names bound to virtual getters and setters
-                var $oneOfFields;
-
-                /**
                  * ItemEnvelope payload.
-                 * @member {"genesis"|"mutation"|undefined} payload
+                 * @member {google.protobuf.IAny|null|undefined} payload
                  * @memberof dxos.echo.testing.ItemEnvelope
                  * @instance
                  */
-                Object.defineProperty(ItemEnvelope.prototype, "payload", {
-                    get: $util.oneOfGetter($oneOfFields = ["genesis", "mutation"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
+                ItemEnvelope.prototype.payload = null;
 
                 /**
                  * Creates a new ItemEnvelope instance using the specified properties.
@@ -943,10 +920,8 @@ $root.dxos = (function() {
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
                     if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
                         $root.dxos.echo.testing.VectorTimestamp.encode(message.timestamp, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    if (message.genesis != null && Object.hasOwnProperty.call(message, "genesis"))
-                        $root.dxos.echo.testing.ItemGenesis.encode(message.genesis, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    if (message.mutation != null && Object.hasOwnProperty.call(message, "mutation"))
-                        $root.dxos.echo.testing.ItemMutation.encode(message.mutation, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                        $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     return writer;
                 };
 
@@ -988,10 +963,7 @@ $root.dxos = (function() {
                             message.timestamp = $root.dxos.echo.testing.VectorTimestamp.decode(reader, reader.uint32());
                             break;
                         case 3:
-                            message.genesis = $root.dxos.echo.testing.ItemGenesis.decode(reader, reader.uint32());
-                            break;
-                        case 4:
-                            message.mutation = $root.dxos.echo.testing.ItemMutation.decode(reader, reader.uint32());
+                            message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1028,7 +1000,6 @@ $root.dxos = (function() {
                 ItemEnvelope.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    var properties = {};
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         if (!$util.isString(message.itemId))
                             return "itemId: string expected";
@@ -1037,23 +1008,10 @@ $root.dxos = (function() {
                         if (error)
                             return "timestamp." + error;
                     }
-                    if (message.genesis != null && message.hasOwnProperty("genesis")) {
-                        properties.payload = 1;
-                        {
-                            var error = $root.dxos.echo.testing.ItemGenesis.verify(message.genesis);
-                            if (error)
-                                return "genesis." + error;
-                        }
-                    }
-                    if (message.mutation != null && message.hasOwnProperty("mutation")) {
-                        if (properties.payload === 1)
-                            return "payload: multiple values";
-                        properties.payload = 1;
-                        {
-                            var error = $root.dxos.echo.testing.ItemMutation.verify(message.mutation);
-                            if (error)
-                                return "mutation." + error;
-                        }
+                    if (message.payload != null && message.hasOwnProperty("payload")) {
+                        var error = $root.google.protobuf.Any.verify(message.payload);
+                        if (error)
+                            return "payload." + error;
                     }
                     return null;
                 };
@@ -1077,15 +1035,10 @@ $root.dxos = (function() {
                             throw TypeError(".dxos.echo.testing.ItemEnvelope.timestamp: object expected");
                         message.timestamp = $root.dxos.echo.testing.VectorTimestamp.fromObject(object.timestamp);
                     }
-                    if (object.genesis != null) {
-                        if (typeof object.genesis !== "object")
-                            throw TypeError(".dxos.echo.testing.ItemEnvelope.genesis: object expected");
-                        message.genesis = $root.dxos.echo.testing.ItemGenesis.fromObject(object.genesis);
-                    }
-                    if (object.mutation != null) {
-                        if (typeof object.mutation !== "object")
-                            throw TypeError(".dxos.echo.testing.ItemEnvelope.mutation: object expected");
-                        message.mutation = $root.dxos.echo.testing.ItemMutation.fromObject(object.mutation);
+                    if (object.payload != null) {
+                        if (typeof object.payload !== "object")
+                            throw TypeError(".dxos.echo.testing.ItemEnvelope.payload: object expected");
+                        message.payload = $root.google.protobuf.Any.fromObject(object.payload);
                     }
                     return message;
                 };
@@ -1106,21 +1059,14 @@ $root.dxos = (function() {
                     if (options.defaults) {
                         object.itemId = "";
                         object.timestamp = null;
+                        object.payload = null;
                     }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
                     if (message.timestamp != null && message.hasOwnProperty("timestamp"))
                         object.timestamp = $root.dxos.echo.testing.VectorTimestamp.toObject(message.timestamp, options);
-                    if (message.genesis != null && message.hasOwnProperty("genesis")) {
-                        object.genesis = $root.dxos.echo.testing.ItemGenesis.toObject(message.genesis, options);
-                        if (options.oneofs)
-                            object.payload = "genesis";
-                    }
-                    if (message.mutation != null && message.hasOwnProperty("mutation")) {
-                        object.mutation = $root.dxos.echo.testing.ItemMutation.toObject(message.mutation, options);
-                        if (options.oneofs)
-                            object.payload = "mutation";
-                    }
+                    if (message.payload != null && message.hasOwnProperty("payload"))
+                        object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
                     return object;
                 };
 
