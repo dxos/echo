@@ -2,9 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
+import { applyUpdate, Doc, XmlElement, XmlText } from 'yjs';
+
 import { ModelMessage } from '@dxos/echo-db';
 import { Model } from '@dxos/model-factory';
-import { Doc, applyUpdate } from 'yjs';
+
+const nodeIs = typeName => node => node.constructor.name === typeName;
+const nodeIsText = nodeIs('YXmlText');
+const nodeIsXmlFragment = nodeIs('YXmlFragment');
 
 export const TYPE_TEXT_MODEL_UPDATE = 'wrn_dxos_org_echo_text_model_update';
 
@@ -107,7 +112,7 @@ export class TextModel extends Model {
 
   onUpdate (messages) {
     messages.forEach(message => {
-      const { update, origin } = message;
+      const { data: { update, origin } } = message;
 
       if (origin.docClientId !== this._doc.clientID) {
         const arrayUpdate = Uint8Array.from(Object.values(update));

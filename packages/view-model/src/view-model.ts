@@ -1,9 +1,9 @@
 import { createId } from '@dxos/crypto';
+import { ModelMessage } from '@dxos/echo-db';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 
 import { raise } from './util';
-import { ModelMessage } from '@dxos/echo-db/dist/src/common/ModelMessage';
 
 // TODO(marik-d): Reuse existing ObjectModel mutation mechanisms and CRDTs
 export interface ViewMutation {

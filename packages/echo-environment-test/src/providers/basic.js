@@ -36,7 +36,7 @@ export class BasicProvider extends Provider {
 
     const modelFactory = new ModelFactory(feedStore, {
       onAppend (message) {
-        return pify(feed.append.bind(feed))(message);
+        return pify(feed.append.bind(feed))(message.data);
       }
     });
 
