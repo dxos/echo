@@ -14,7 +14,7 @@
                     }
                   }
                 },
-                "TestAdmit": {
+                "Admit": {
                   "fields": {
                     "feedKey": {
                       "type": "string",
@@ -22,7 +22,7 @@
                     }
                   }
                 },
-                "TestVectorTimestamp": {
+                "VectorTimestamp": {
                   "fields": {
                     "timestamp": {
                       "rule": "repeated",
@@ -45,19 +45,35 @@
                     }
                   }
                 },
-                "TestItemEnvelope": {
+                "ItemEnvelope": {
+                  "oneofs": {
+                    "payload": {
+                      "oneof": [
+                        "genesis",
+                        "mutation"
+                      ]
+                    }
+                  },
                   "fields": {
                     "itemId": {
                       "type": "string",
                       "id": 1
                     },
                     "timestamp": {
-                      "type": "TestVectorTimestamp",
+                      "type": "VectorTimestamp",
                       "id": 2
+                    },
+                    "genesis": {
+                      "type": "ItemGenesis",
+                      "id": 3
+                    },
+                    "mutation": {
+                      "type": "ItemMutation",
+                      "id": 4
                     }
                   }
                 },
-                "TestItemGenesis": {
+                "ItemGenesis": {
                   "fields": {
                     "itemId": {
                       "type": "string",
@@ -69,7 +85,7 @@
                     }
                   }
                 },
-                "TestItemMutation": {
+                "ItemMutation": {
                   "fields": {
                     "itemId": {
                       "type": "string",

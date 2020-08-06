@@ -98,187 +98,187 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a TestAdmit. */
-            interface ITestAdmit {
+            /** Properties of an Admit. */
+            interface IAdmit {
 
-                /** TestAdmit feedKey */
+                /** Admit feedKey */
                 feedKey?: (string|null);
             }
 
-            /** Represents a TestAdmit. */
-            class TestAdmit implements ITestAdmit {
+            /** Represents an Admit. */
+            class Admit implements IAdmit {
 
                 /**
-                 * Constructs a new TestAdmit.
+                 * Constructs a new Admit.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.ITestAdmit);
+                constructor(properties?: dxos.echo.testing.IAdmit);
 
-                /** TestAdmit feedKey. */
+                /** Admit feedKey. */
                 public feedKey: string;
 
                 /**
-                 * Creates a new TestAdmit instance using the specified properties.
+                 * Creates a new Admit instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns TestAdmit instance
+                 * @returns Admit instance
                  */
-                public static create(properties?: dxos.echo.testing.ITestAdmit): dxos.echo.testing.TestAdmit;
+                public static create(properties?: dxos.echo.testing.IAdmit): dxos.echo.testing.Admit;
 
                 /**
-                 * Encodes the specified TestAdmit message. Does not implicitly {@link dxos.echo.testing.TestAdmit.verify|verify} messages.
-                 * @param message TestAdmit message or plain object to encode
+                 * Encodes the specified Admit message. Does not implicitly {@link dxos.echo.testing.Admit.verify|verify} messages.
+                 * @param message Admit message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.ITestAdmit, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.IAdmit, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified TestAdmit message, length delimited. Does not implicitly {@link dxos.echo.testing.TestAdmit.verify|verify} messages.
-                 * @param message TestAdmit message or plain object to encode
+                 * Encodes the specified Admit message, length delimited. Does not implicitly {@link dxos.echo.testing.Admit.verify|verify} messages.
+                 * @param message Admit message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.ITestAdmit, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.IAdmit, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a TestAdmit message from the specified reader or buffer.
+                 * Decodes an Admit message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns TestAdmit
+                 * @returns Admit
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestAdmit;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.Admit;
 
                 /**
-                 * Decodes a TestAdmit message from the specified reader or buffer, length delimited.
+                 * Decodes an Admit message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns TestAdmit
+                 * @returns Admit
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestAdmit;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.Admit;
 
                 /**
-                 * Verifies a TestAdmit message.
+                 * Verifies an Admit message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a TestAdmit message from a plain object. Also converts values to their respective internal types.
+                 * Creates an Admit message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns TestAdmit
+                 * @returns Admit
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestAdmit;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.Admit;
 
                 /**
-                 * Creates a plain object from a TestAdmit message. Also converts values to other types if specified.
-                 * @param message TestAdmit
+                 * Creates a plain object from an Admit message. Also converts values to other types if specified.
+                 * @param message Admit
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.TestAdmit, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.Admit, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this TestAdmit to JSON.
+                 * Converts this Admit to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a TestVectorTimestamp. */
-            interface ITestVectorTimestamp {
+            /** Properties of a VectorTimestamp. */
+            interface IVectorTimestamp {
 
-                /** TestVectorTimestamp timestamp */
-                timestamp?: (dxos.echo.testing.TestVectorTimestamp.IFeed[]|null);
+                /** VectorTimestamp timestamp */
+                timestamp?: (dxos.echo.testing.VectorTimestamp.IFeed[]|null);
             }
 
-            /** Represents a TestVectorTimestamp. */
-            class TestVectorTimestamp implements ITestVectorTimestamp {
+            /** Represents a VectorTimestamp. */
+            class VectorTimestamp implements IVectorTimestamp {
 
                 /**
-                 * Constructs a new TestVectorTimestamp.
+                 * Constructs a new VectorTimestamp.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.ITestVectorTimestamp);
+                constructor(properties?: dxos.echo.testing.IVectorTimestamp);
 
-                /** TestVectorTimestamp timestamp. */
-                public timestamp: dxos.echo.testing.TestVectorTimestamp.IFeed[];
+                /** VectorTimestamp timestamp. */
+                public timestamp: dxos.echo.testing.VectorTimestamp.IFeed[];
 
                 /**
-                 * Creates a new TestVectorTimestamp instance using the specified properties.
+                 * Creates a new VectorTimestamp instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns TestVectorTimestamp instance
+                 * @returns VectorTimestamp instance
                  */
-                public static create(properties?: dxos.echo.testing.ITestVectorTimestamp): dxos.echo.testing.TestVectorTimestamp;
+                public static create(properties?: dxos.echo.testing.IVectorTimestamp): dxos.echo.testing.VectorTimestamp;
 
                 /**
-                 * Encodes the specified TestVectorTimestamp message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
-                 * @param message TestVectorTimestamp message or plain object to encode
+                 * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * @param message VectorTimestamp message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.ITestVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified TestVectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
-                 * @param message TestVectorTimestamp message or plain object to encode
+                 * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * @param message VectorTimestamp message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.ITestVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a TestVectorTimestamp message from the specified reader or buffer.
+                 * Decodes a VectorTimestamp message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns TestVectorTimestamp
+                 * @returns VectorTimestamp
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestVectorTimestamp;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp;
 
                 /**
-                 * Decodes a TestVectorTimestamp message from the specified reader or buffer, length delimited.
+                 * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns TestVectorTimestamp
+                 * @returns VectorTimestamp
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestVectorTimestamp;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp;
 
                 /**
-                 * Verifies a TestVectorTimestamp message.
+                 * Verifies a VectorTimestamp message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a TestVectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns TestVectorTimestamp
+                 * @returns VectorTimestamp
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestVectorTimestamp;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp;
 
                 /**
-                 * Creates a plain object from a TestVectorTimestamp message. Also converts values to other types if specified.
-                 * @param message TestVectorTimestamp
+                 * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
+                 * @param message VectorTimestamp
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.TestVectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.VectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this TestVectorTimestamp to JSON.
+                 * Converts this VectorTimestamp to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
             }
 
-            namespace TestVectorTimestamp {
+            namespace VectorTimestamp {
 
                 /** Properties of a Feed. */
                 interface IFeed {
@@ -297,7 +297,7 @@ export namespace dxos {
                      * Constructs a new Feed.
                      * @param [properties] Properties to set
                      */
-                    constructor(properties?: dxos.echo.testing.TestVectorTimestamp.IFeed);
+                    constructor(properties?: dxos.echo.testing.VectorTimestamp.IFeed);
 
                     /** Feed feedKey. */
                     public feedKey: Uint8Array;
@@ -310,23 +310,23 @@ export namespace dxos {
                      * @param [properties] Properties to set
                      * @returns Feed instance
                      */
-                    public static create(properties?: dxos.echo.testing.TestVectorTimestamp.IFeed): dxos.echo.testing.TestVectorTimestamp.Feed;
+                    public static create(properties?: dxos.echo.testing.VectorTimestamp.IFeed): dxos.echo.testing.VectorTimestamp.Feed;
 
                     /**
-                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
                      * @param message Feed message or plain object to encode
                      * @param [writer] Writer to encode to
                      * @returns Writer
                      */
-                    public static encode(message: dxos.echo.testing.TestVectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+                    public static encode(message: dxos.echo.testing.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
 
                     /**
-                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
                      * @param message Feed message or plain object to encode
                      * @param [writer] Writer to encode to
                      * @returns Writer
                      */
-                    public static encodeDelimited(message: dxos.echo.testing.TestVectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+                    public static encodeDelimited(message: dxos.echo.testing.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
 
                     /**
                      * Decodes a Feed message from the specified reader or buffer.
@@ -336,7 +336,7 @@ export namespace dxos {
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestVectorTimestamp.Feed;
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp.Feed;
 
                     /**
                      * Decodes a Feed message from the specified reader or buffer, length delimited.
@@ -345,7 +345,7 @@ export namespace dxos {
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestVectorTimestamp.Feed;
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp.Feed;
 
                     /**
                      * Verifies a Feed message.
@@ -359,7 +359,7 @@ export namespace dxos {
                      * @param object Plain object
                      * @returns Feed
                      */
-                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestVectorTimestamp.Feed;
+                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp.Feed;
 
                     /**
                      * Creates a plain object from a Feed message. Also converts values to other types if specified.
@@ -367,7 +367,7 @@ export namespace dxos {
                      * @param [options] Conversion options
                      * @returns Plain object
                      */
-                    public static toObject(message: dxos.echo.testing.TestVectorTimestamp.Feed, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                    public static toObject(message: dxos.echo.testing.VectorTimestamp.Feed, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                     /**
                      * Converts this Feed to JSON.
@@ -377,325 +377,340 @@ export namespace dxos {
                 }
             }
 
-            /** Properties of a TestItemEnvelope. */
-            interface ITestItemEnvelope {
+            /** Properties of an ItemEnvelope. */
+            interface IItemEnvelope {
 
-                /** TestItemEnvelope itemId */
+                /** ItemEnvelope itemId */
                 itemId?: (string|null);
 
-                /** TestItemEnvelope timestamp */
-                timestamp?: (dxos.echo.testing.ITestVectorTimestamp|null);
+                /** ItemEnvelope timestamp */
+                timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
+
+                /** ItemEnvelope genesis */
+                genesis?: (dxos.echo.testing.IItemGenesis|null);
+
+                /** ItemEnvelope mutation */
+                mutation?: (dxos.echo.testing.IItemMutation|null);
             }
 
-            /** Represents a TestItemEnvelope. */
-            class TestItemEnvelope implements ITestItemEnvelope {
+            /** Represents an ItemEnvelope. */
+            class ItemEnvelope implements IItemEnvelope {
 
                 /**
-                 * Constructs a new TestItemEnvelope.
+                 * Constructs a new ItemEnvelope.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.ITestItemEnvelope);
+                constructor(properties?: dxos.echo.testing.IItemEnvelope);
 
-                /** TestItemEnvelope itemId. */
+                /** ItemEnvelope itemId. */
                 public itemId: string;
 
-                /** TestItemEnvelope timestamp. */
-                public timestamp?: (dxos.echo.testing.ITestVectorTimestamp|null);
+                /** ItemEnvelope timestamp. */
+                public timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
+
+                /** ItemEnvelope genesis. */
+                public genesis?: (dxos.echo.testing.IItemGenesis|null);
+
+                /** ItemEnvelope mutation. */
+                public mutation?: (dxos.echo.testing.IItemMutation|null);
+
+                /** ItemEnvelope payload. */
+                public payload?: ("genesis"|"mutation");
 
                 /**
-                 * Creates a new TestItemEnvelope instance using the specified properties.
+                 * Creates a new ItemEnvelope instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns TestItemEnvelope instance
+                 * @returns ItemEnvelope instance
                  */
-                public static create(properties?: dxos.echo.testing.ITestItemEnvelope): dxos.echo.testing.TestItemEnvelope;
+                public static create(properties?: dxos.echo.testing.IItemEnvelope): dxos.echo.testing.ItemEnvelope;
 
                 /**
-                 * Encodes the specified TestItemEnvelope message. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
-                 * @param message TestItemEnvelope message or plain object to encode
+                 * Encodes the specified ItemEnvelope message. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.verify|verify} messages.
+                 * @param message ItemEnvelope message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.ITestItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.IItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified TestItemEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
-                 * @param message TestItemEnvelope message or plain object to encode
+                 * Encodes the specified ItemEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.verify|verify} messages.
+                 * @param message ItemEnvelope message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.ITestItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.IItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a TestItemEnvelope message from the specified reader or buffer.
+                 * Decodes an ItemEnvelope message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns TestItemEnvelope
+                 * @returns ItemEnvelope
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestItemEnvelope;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.ItemEnvelope;
 
                 /**
-                 * Decodes a TestItemEnvelope message from the specified reader or buffer, length delimited.
+                 * Decodes an ItemEnvelope message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns TestItemEnvelope
+                 * @returns ItemEnvelope
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestItemEnvelope;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.ItemEnvelope;
 
                 /**
-                 * Verifies a TestItemEnvelope message.
+                 * Verifies an ItemEnvelope message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a TestItemEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * Creates an ItemEnvelope message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns TestItemEnvelope
+                 * @returns ItemEnvelope
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestItemEnvelope;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.ItemEnvelope;
 
                 /**
-                 * Creates a plain object from a TestItemEnvelope message. Also converts values to other types if specified.
-                 * @param message TestItemEnvelope
+                 * Creates a plain object from an ItemEnvelope message. Also converts values to other types if specified.
+                 * @param message ItemEnvelope
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.TestItemEnvelope, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.ItemEnvelope, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this TestItemEnvelope to JSON.
+                 * Converts this ItemEnvelope to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a TestItemGenesis. */
-            interface ITestItemGenesis {
+            /** Properties of an ItemGenesis. */
+            interface IItemGenesis {
 
-                /** TestItemGenesis itemId */
+                /** ItemGenesis itemId */
                 itemId?: (string|null);
 
-                /** TestItemGenesis model */
+                /** ItemGenesis model */
                 model?: (string|null);
             }
 
-            /** Represents a TestItemGenesis. */
-            class TestItemGenesis implements ITestItemGenesis {
+            /** Represents an ItemGenesis. */
+            class ItemGenesis implements IItemGenesis {
 
                 /**
-                 * Constructs a new TestItemGenesis.
+                 * Constructs a new ItemGenesis.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.ITestItemGenesis);
+                constructor(properties?: dxos.echo.testing.IItemGenesis);
 
-                /** TestItemGenesis itemId. */
+                /** ItemGenesis itemId. */
                 public itemId: string;
 
-                /** TestItemGenesis model. */
+                /** ItemGenesis model. */
                 public model: string;
 
                 /**
-                 * Creates a new TestItemGenesis instance using the specified properties.
+                 * Creates a new ItemGenesis instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns TestItemGenesis instance
+                 * @returns ItemGenesis instance
                  */
-                public static create(properties?: dxos.echo.testing.ITestItemGenesis): dxos.echo.testing.TestItemGenesis;
+                public static create(properties?: dxos.echo.testing.IItemGenesis): dxos.echo.testing.ItemGenesis;
 
                 /**
-                 * Encodes the specified TestItemGenesis message. Does not implicitly {@link dxos.echo.testing.TestItemGenesis.verify|verify} messages.
-                 * @param message TestItemGenesis message or plain object to encode
+                 * Encodes the specified ItemGenesis message. Does not implicitly {@link dxos.echo.testing.ItemGenesis.verify|verify} messages.
+                 * @param message ItemGenesis message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.ITestItemGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.IItemGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified TestItemGenesis message, length delimited. Does not implicitly {@link dxos.echo.testing.TestItemGenesis.verify|verify} messages.
-                 * @param message TestItemGenesis message or plain object to encode
+                 * Encodes the specified ItemGenesis message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemGenesis.verify|verify} messages.
+                 * @param message ItemGenesis message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.ITestItemGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.IItemGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a TestItemGenesis message from the specified reader or buffer.
+                 * Decodes an ItemGenesis message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns TestItemGenesis
+                 * @returns ItemGenesis
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestItemGenesis;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.ItemGenesis;
 
                 /**
-                 * Decodes a TestItemGenesis message from the specified reader or buffer, length delimited.
+                 * Decodes an ItemGenesis message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns TestItemGenesis
+                 * @returns ItemGenesis
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestItemGenesis;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.ItemGenesis;
 
                 /**
-                 * Verifies a TestItemGenesis message.
+                 * Verifies an ItemGenesis message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a TestItemGenesis message from a plain object. Also converts values to their respective internal types.
+                 * Creates an ItemGenesis message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns TestItemGenesis
+                 * @returns ItemGenesis
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestItemGenesis;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.ItemGenesis;
 
                 /**
-                 * Creates a plain object from a TestItemGenesis message. Also converts values to other types if specified.
-                 * @param message TestItemGenesis
+                 * Creates a plain object from an ItemGenesis message. Also converts values to other types if specified.
+                 * @param message ItemGenesis
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.TestItemGenesis, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.ItemGenesis, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this TestItemGenesis to JSON.
+                 * Converts this ItemGenesis to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a TestItemMutation. */
-            interface ITestItemMutation {
+            /** Properties of an ItemMutation. */
+            interface IItemMutation {
 
-                /** TestItemMutation itemId */
+                /** ItemMutation itemId */
                 itemId?: (string|null);
 
-                /** TestItemMutation seq */
+                /** ItemMutation seq */
                 seq?: (number|null);
 
-                /** TestItemMutation id */
+                /** ItemMutation id */
                 id?: (string|null);
 
-                /** TestItemMutation depends */
+                /** ItemMutation depends */
                 depends?: (string|null);
 
-                /** TestItemMutation tag */
+                /** ItemMutation tag */
                 tag?: (string|null);
 
-                /** TestItemMutation key */
+                /** ItemMutation key */
                 key?: (string|null);
 
-                /** TestItemMutation value */
+                /** ItemMutation value */
                 value?: (string|null);
 
-                /** TestItemMutation payload */
+                /** ItemMutation payload */
                 payload?: (google.protobuf.IAny|null);
             }
 
-            /** Represents a TestItemMutation. */
-            class TestItemMutation implements ITestItemMutation {
+            /** Represents an ItemMutation. */
+            class ItemMutation implements IItemMutation {
 
                 /**
-                 * Constructs a new TestItemMutation.
+                 * Constructs a new ItemMutation.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.ITestItemMutation);
+                constructor(properties?: dxos.echo.testing.IItemMutation);
 
-                /** TestItemMutation itemId. */
+                /** ItemMutation itemId. */
                 public itemId: string;
 
-                /** TestItemMutation seq. */
+                /** ItemMutation seq. */
                 public seq: number;
 
-                /** TestItemMutation id. */
+                /** ItemMutation id. */
                 public id: string;
 
-                /** TestItemMutation depends. */
+                /** ItemMutation depends. */
                 public depends: string;
 
-                /** TestItemMutation tag. */
+                /** ItemMutation tag. */
                 public tag: string;
 
-                /** TestItemMutation key. */
+                /** ItemMutation key. */
                 public key: string;
 
-                /** TestItemMutation value. */
+                /** ItemMutation value. */
                 public value: string;
 
-                /** TestItemMutation payload. */
+                /** ItemMutation payload. */
                 public payload?: (google.protobuf.IAny|null);
 
                 /**
-                 * Creates a new TestItemMutation instance using the specified properties.
+                 * Creates a new ItemMutation instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns TestItemMutation instance
+                 * @returns ItemMutation instance
                  */
-                public static create(properties?: dxos.echo.testing.ITestItemMutation): dxos.echo.testing.TestItemMutation;
+                public static create(properties?: dxos.echo.testing.IItemMutation): dxos.echo.testing.ItemMutation;
 
                 /**
-                 * Encodes the specified TestItemMutation message. Does not implicitly {@link dxos.echo.testing.TestItemMutation.verify|verify} messages.
-                 * @param message TestItemMutation message or plain object to encode
+                 * Encodes the specified ItemMutation message. Does not implicitly {@link dxos.echo.testing.ItemMutation.verify|verify} messages.
+                 * @param message ItemMutation message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.ITestItemMutation, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.IItemMutation, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified TestItemMutation message, length delimited. Does not implicitly {@link dxos.echo.testing.TestItemMutation.verify|verify} messages.
-                 * @param message TestItemMutation message or plain object to encode
+                 * Encodes the specified ItemMutation message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemMutation.verify|verify} messages.
+                 * @param message ItemMutation message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.ITestItemMutation, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.IItemMutation, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a TestItemMutation message from the specified reader or buffer.
+                 * Decodes an ItemMutation message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns TestItemMutation
+                 * @returns ItemMutation
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestItemMutation;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.ItemMutation;
 
                 /**
-                 * Decodes a TestItemMutation message from the specified reader or buffer, length delimited.
+                 * Decodes an ItemMutation message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns TestItemMutation
+                 * @returns ItemMutation
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestItemMutation;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.ItemMutation;
 
                 /**
-                 * Verifies a TestItemMutation message.
+                 * Verifies an ItemMutation message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a TestItemMutation message from a plain object. Also converts values to their respective internal types.
+                 * Creates an ItemMutation message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns TestItemMutation
+                 * @returns ItemMutation
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestItemMutation;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.ItemMutation;
 
                 /**
-                 * Creates a plain object from a TestItemMutation message. Also converts values to other types if specified.
-                 * @param message TestItemMutation
+                 * Creates a plain object from an ItemMutation message. Also converts values to other types if specified.
+                 * @param message ItemMutation
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.TestItemMutation, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.ItemMutation, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this TestItemMutation to JSON.
+                 * Converts this ItemMutation to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };

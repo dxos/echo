@@ -12,12 +12,12 @@ message Envelope {
   google.protobuf.Any message = 1;
 }
 
-message TestAdmit {
+message Admit {
   string feedKey = 1;
 }
 
 // TODO(dboreham): ???
-message TestVectorTimestamp {
+message VectorTimestamp {
   message Feed {
     bytes feedKey = 1;
     int32 seq = 2;
@@ -26,17 +26,21 @@ message TestVectorTimestamp {
   repeated Feed timestamp = 1;
 }
 
-message TestItemEnvelope {
+message ItemEnvelope {
   string itemId = 1;
-  TestVectorTimestamp timestamp = 2;
+  VectorTimestamp timestamp = 2;
+  oneof payload {
+    ItemGenesis genesis = 3;
+    ItemMutation mutation = 4;
+  }
 }
 
-message TestItemGenesis {
+message ItemGenesis {
   string itemId = 1;
   string model = 2;
 }
 
-message TestItemMutation {
+message ItemMutation {
   string itemId = 1;
   int32 seq = 2;
   string id = 3;

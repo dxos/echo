@@ -51,7 +51,7 @@ export class Demuxer {
       const data = { path, message };
 
       // TODO(burdon): Configure type for filter.
-      const { tag } = (message as unknown as dxos.echo.testing.TestItemMutation);
+      const { tag } = (message as unknown as dxos.echo.testing.ItemMutation);
       const values = getOrSet(this._index, tag, Array);
       values.push(data);
 
@@ -102,7 +102,7 @@ export class Demuxer {
     });
 
     // Register subscription.
-    getOrSet(this._subscriptions, tag, Array).push((value: dxos.echo.testing.TestItemMutation) => {
+    getOrSet(this._subscriptions, tag, Array).push((value: dxos.echo.testing.ItemMutation) => {
       if (value !== undefined) {
         queue.push(value);
       }

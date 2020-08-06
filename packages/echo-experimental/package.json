@@ -15,7 +15,7 @@
   "types": "dist/src/index.d.ts",
   "private": true,
   "scripts": {
-    "build": "npm run clean && npm run build:ts && npm run build:protobuf",
+    "build": "npm run clean && npm run build:protobuf && npm run build:ts",
     "build:ts": "tsc",
     "build:protobuf": "mkdir -p ./src/proto/gen && npm run build:protobuf:json && npm run build:protobuf:js && npm run build:protobuf:ts",
     "build:protobuf:json": "pbjs -t json ./src/proto/testing.proto -o ./src/proto/gen/testing.json",

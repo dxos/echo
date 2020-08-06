@@ -66,7 +66,7 @@ class TestModel extends Model {
   async setProperty (key: string, value: string) {
     // TODO(burdon): Create wrapper for ItemMutation that includes the itemId.
     await this.write({
-      __type_url: 'dxos.echo.testing.TestItemMutation',
+      __type_url: 'dxos.echo.testing.ItemMutation',
       itemId: this.itemId,
       key,
       value
@@ -220,14 +220,14 @@ test('parties', async () => {
   // TODO(burdon): Better way to simulate multiple nodes?
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.TestItemGenesis',
+      __type_url: 'dxos.echo.testing.ItemGenesis',
       model: TestModel.type,
       itemId: itemIds[0]
     }
   });
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.TestItemMutation',
+      __type_url: 'dxos.echo.testing.ItemMutation',
       itemId: itemIds[0],
       key: 'title',
       value: 'Hi'
@@ -235,7 +235,7 @@ test('parties', async () => {
   });
   streams[1].write({
     message: {
-      __type_url: 'dxos.echo.testing.TestItemMutation',
+      __type_url: 'dxos.echo.testing.ItemMutation',
       itemId: itemIds[0],
       key: 'title',
       value: 'World'
@@ -259,7 +259,7 @@ test('parties', async () => {
 
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.TestItemMutation',
+      __type_url: 'dxos.echo.testing.ItemMutation',
       itemId: itemIds[0],
       key: 'title',
       value: 'Hello'
@@ -274,7 +274,7 @@ test('parties', async () => {
 
   streams[0].write({
     message: {
-      __type_url: 'dxos.echo.testing.TestAdmit',
+      __type_url: 'dxos.echo.testing.Admit',
       feedKey: keyToString(descriptors[1].key)
     }
   });

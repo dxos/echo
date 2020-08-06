@@ -172,7 +172,7 @@ export class ItemManager extends EventEmitter {
     log('Creating Genesis:', itemId);
     await pify(this._writable.write.bind(this._writable))({
       message: {
-        __type_url: 'dxos.echo.testing.TestItemGenesis',
+        __type_url: 'dxos.echo.testing.ItemGenesis',
         model: type,
         itemId
       }
@@ -255,8 +255,8 @@ export class PartyMuxer {
       /* eslint-disable camelcase */
       const { __type_url } = message;
       switch (__type_url) {
-        case 'dxos.echo.testing.TestAdmit': {
-          assertType<dxos.echo.testing.ITestAdmit>(message);
+        case 'dxos.echo.testing.Admit': {
+          assertType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
           this._allowedKeys.add(message.feedKey);
           break;
@@ -304,8 +304,8 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
       assert(itemId);
 
       switch (__type_url) {
-        case 'dxos.echo.testing.TestItemGenesis': {
-          assertType<dxos.echo.testing.ITestItemGenesis>(message);
+        case 'dxos.echo.testing.ItemGenesis': {
+          assertType<dxos.echo.testing.IItemGenesis>(message);
           assert(message.model);
 
           log(`Item Genesis: ${itemId}`);
@@ -314,8 +314,8 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
           break;
         }
 
-        case 'dxos.echo.testing.TestItemMutation': {
-          assertType<dxos.echo.testing.ITestItemMutation>(message);
+        case 'dxos.echo.testing.ItemMutation': {
+          assertType<dxos.echo.testing.IItemMutation>(message);
           assert(message);
 
           const stream = streams.getOrInit(itemId);
