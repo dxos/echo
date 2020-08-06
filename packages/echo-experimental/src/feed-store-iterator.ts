@@ -4,7 +4,7 @@ import { Feed } from 'hypercore';
 import assert from 'assert';
 import { Trigger } from './util';
 
-export class FeedStoreLens implements AsyncIterable<any> {
+export class FeedStoreIterator implements AsyncIterable<any> {
   static async create (feedStore: FeedStore, feedSelector: (feedKey: Buffer) => Promise<boolean>) {
     if (feedStore.closing || feedStore.closed) {
       throw new Error('FeedStore closed');
@@ -15,15 +15,15 @@ export class FeedStoreLens implements AsyncIterable<any> {
 
     const existingDescriptors = feedStore.getDescriptors().filter(descriptor => descriptor.opened);
 
-    const lens = new FeedStoreLens(feedSelector);
+    const iterator = new FeedStoreIterator(feedSelector);
     for (const descriptor of existingDescriptors) {
-      lens._trackDescriptor(descriptor);
+      iterator._trackDescriptor(descriptor);
     }
     (feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
-      lens._trackDescriptor(descriptor);
+      iterator._trackDescriptor(descriptor);
     });
 
-    return lens;
+    return iterator;
   }
 
   private readonly _candidateFeeds = new Set<FeedDescriptor>();

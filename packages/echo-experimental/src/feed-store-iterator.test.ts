@@ -1,7 +1,7 @@
 import { FeedStore } from '@dxos/feed-store';
 import ram from 'random-access-memory';
 import { createFeedStream } from './database';
-import { FeedStoreLens } from './feed-store-lens';
+import { FeedStoreIterator } from './feed-store-iterator';
 import waitForExpect from 'wait-for-expect';
 
 const setup = async (feedNames: string[]) => {
@@ -14,7 +14,7 @@ const setup = async (feedNames: string[]) => {
   return { feedStore, feeds, descriptors, streams };
 };
 
-describe('FeedStoreLens', () => {
+describe('FeedStoreIterator', () => {
   test('single feed', async () => {
     const { feedStore, streams } = await setup(['feed']);
 
@@ -22,7 +22,7 @@ describe('FeedStoreLens', () => {
     streams[0].write({ data: 2 });
     streams[0].write({ data: 3 });
 
-    const iterator = await FeedStoreLens.create(feedStore, async () => true);
+    const iterator = await FeedStoreIterator.create(feedStore, async () => true);
 
     const messages = [];
     for await (const msg of iterator) {
@@ -44,7 +44,7 @@ describe('FeedStoreLens', () => {
     streams[1].write({ data: 2 });
     streams[0].write({ data: 3 });
 
-    const iterator = await FeedStoreLens.create(feedStore, async feedKey => feedKey.equals(descriptors[0].key));
+    const iterator = await FeedStoreIterator.create(feedStore, async feedKey => feedKey.equals(descriptors[0].key));
 
     const messages = [];
     for await (const msg of iterator) {
@@ -66,7 +66,7 @@ describe('FeedStoreLens', () => {
     streams[0].write({ data: 3 });
 
     const authenticatedFeeds = new Set([descriptors[0].key.toString('hex')]);
-    const iterator = await FeedStoreLens.create(feedStore, async feedKey => authenticatedFeeds.has(feedKey.toString('hex')));
+    const iterator = await FeedStoreIterator.create(feedStore, async feedKey => authenticatedFeeds.has(feedKey.toString('hex')));
 
     const messages: any[] = [];
     setImmediate(async () => {
@@ -114,7 +114,7 @@ describe('FeedStoreLens', () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: 'json' } });
     await feedStore.open();
 
-    const iterator = await FeedStoreLens.create(feedStore, async () => true);
+    const iterator = await FeedStoreIterator.create(feedStore, async () => true);
 
     const feed = await feedStore.openFeed('feed');
     const stream = createFeedStream(feed);

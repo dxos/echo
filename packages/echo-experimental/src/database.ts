@@ -16,7 +16,7 @@ import { Feed } from 'hypercore';
 import { dxos } from './proto/gen/testing';
 
 import { assertType, LazyMap } from './util';
-import { FeedStoreLens } from './feed-store-lens';
+import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
 
@@ -234,7 +234,7 @@ export const createPartyMuxer = (itemDemuxer: Writable, feedStore: any, initalFe
   // TODO(marik-d): Add logic to stop the processing.
   setTimeout(async () => {
     // TODO(burdon): Remove dependency on FeedStore custom methods?
-    const iterator = await FeedStoreLens.create(feedStore,
+    const iterator = await FeedStoreIterator.create(feedStore,
       async feedKey => allowedKeys.has(keyToString(feedKey))
     );
 
