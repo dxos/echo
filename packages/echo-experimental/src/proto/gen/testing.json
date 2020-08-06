@@ -14,6 +14,31 @@
                     }
                   }
                 },
+                "FeedSeq": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "string",
+                      "id": 1
+                    },
+                    "seq": {
+                      "type": "int32",
+                      "id": 2
+                    }
+                  }
+                },
+                "TimeStampedEnvelope": {
+                  "fields": {
+                    "timeStamp": {
+                      "rule": "repeated",
+                      "type": "FeedSeq",
+                      "id": 1
+                    },
+                    "message": {
+                      "type": "google.protobuf.Any",
+                      "id": 2
+                    }
+                  }
+                },
                 "TestAdmit": {
                   "fields": {
                     "feedKey": {

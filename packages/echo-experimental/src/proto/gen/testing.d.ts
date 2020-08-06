@@ -98,6 +98,198 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
+            /** Properties of a FeedSeq. */
+            interface IFeedSeq {
+
+                /** FeedSeq feedKey */
+                feedKey?: (string|null);
+
+                /** FeedSeq seq */
+                seq?: (number|null);
+            }
+
+            /** Represents a FeedSeq. */
+            class FeedSeq implements IFeedSeq {
+
+                /**
+                 * Constructs a new FeedSeq.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.IFeedSeq);
+
+                /** FeedSeq feedKey. */
+                public feedKey: string;
+
+                /** FeedSeq seq. */
+                public seq: number;
+
+                /**
+                 * Creates a new FeedSeq instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns FeedSeq instance
+                 */
+                public static create(properties?: dxos.echo.testing.IFeedSeq): dxos.echo.testing.FeedSeq;
+
+                /**
+                 * Encodes the specified FeedSeq message. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
+                 * @param message FeedSeq message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.IFeedSeq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified FeedSeq message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
+                 * @param message FeedSeq message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.IFeedSeq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a FeedSeq message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns FeedSeq
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.FeedSeq;
+
+                /**
+                 * Decodes a FeedSeq message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns FeedSeq
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.FeedSeq;
+
+                /**
+                 * Verifies a FeedSeq message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a FeedSeq message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns FeedSeq
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.FeedSeq;
+
+                /**
+                 * Creates a plain object from a FeedSeq message. Also converts values to other types if specified.
+                 * @param message FeedSeq
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.FeedSeq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this FeedSeq to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            /** Properties of a TimeStampedEnvelope. */
+            interface ITimeStampedEnvelope {
+
+                /** TimeStampedEnvelope timeStamp */
+                timeStamp?: (dxos.echo.testing.IFeedSeq[]|null);
+
+                /** TimeStampedEnvelope message */
+                message?: (google.protobuf.IAny|null);
+            }
+
+            /** Represents a TimeStampedEnvelope. */
+            class TimeStampedEnvelope implements ITimeStampedEnvelope {
+
+                /**
+                 * Constructs a new TimeStampedEnvelope.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.ITimeStampedEnvelope);
+
+                /** TimeStampedEnvelope timeStamp. */
+                public timeStamp: dxos.echo.testing.IFeedSeq[];
+
+                /** TimeStampedEnvelope message. */
+                public message?: (google.protobuf.IAny|null);
+
+                /**
+                 * Creates a new TimeStampedEnvelope instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns TimeStampedEnvelope instance
+                 */
+                public static create(properties?: dxos.echo.testing.ITimeStampedEnvelope): dxos.echo.testing.TimeStampedEnvelope;
+
+                /**
+                 * Encodes the specified TimeStampedEnvelope message. Does not implicitly {@link dxos.echo.testing.TimeStampedEnvelope.verify|verify} messages.
+                 * @param message TimeStampedEnvelope message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.ITimeStampedEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified TimeStampedEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TimeStampedEnvelope.verify|verify} messages.
+                 * @param message TimeStampedEnvelope message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.ITimeStampedEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a TimeStampedEnvelope message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns TimeStampedEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TimeStampedEnvelope;
+
+                /**
+                 * Decodes a TimeStampedEnvelope message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns TimeStampedEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TimeStampedEnvelope;
+
+                /**
+                 * Verifies a TimeStampedEnvelope message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a TimeStampedEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns TimeStampedEnvelope
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TimeStampedEnvelope;
+
+                /**
+                 * Creates a plain object from a TimeStampedEnvelope message. Also converts values to other types if specified.
+                 * @param message TimeStampedEnvelope
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.TimeStampedEnvelope, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this TimeStampedEnvelope to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
             /** Properties of a TestAdmit. */
             interface ITestAdmit {
 

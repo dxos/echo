@@ -12,6 +12,16 @@ message Envelope {
   google.protobuf.Any message = 1;
 }
 
+message FeedSeq {
+  string feedKey = 1;       // Feed key (should be bytes not string).
+  int32 seq = 2;            // Highest known seq for this feed.
+}
+
+message TimeStampedEnvelope {
+  repeated FeedSeq timeStamp = 1; // logical clock timestamp
+  google.protobuf.Any message = 2;
+}
+
 message TestAdmit {
   string feedKey = 1;
 }

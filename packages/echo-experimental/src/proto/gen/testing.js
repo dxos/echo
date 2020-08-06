@@ -228,6 +228,452 @@ $root.dxos = (function() {
                 return Envelope;
             })();
 
+            testing.FeedSeq = (function() {
+
+                /**
+                 * Properties of a FeedSeq.
+                 * @memberof dxos.echo.testing
+                 * @interface IFeedSeq
+                 * @property {string|null} [feedKey] FeedSeq feedKey
+                 * @property {number|null} [seq] FeedSeq seq
+                 */
+
+                /**
+                 * Constructs a new FeedSeq.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a FeedSeq.
+                 * @implements IFeedSeq
+                 * @constructor
+                 * @param {dxos.echo.testing.IFeedSeq=} [properties] Properties to set
+                 */
+                function FeedSeq(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * FeedSeq feedKey.
+                 * @member {string} feedKey
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @instance
+                 */
+                FeedSeq.prototype.feedKey = "";
+
+                /**
+                 * FeedSeq seq.
+                 * @member {number} seq
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @instance
+                 */
+                FeedSeq.prototype.seq = 0;
+
+                /**
+                 * Creates a new FeedSeq instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {dxos.echo.testing.IFeedSeq=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.FeedSeq} FeedSeq instance
+                 */
+                FeedSeq.create = function create(properties) {
+                    return new FeedSeq(properties);
+                };
+
+                /**
+                 * Encodes the specified FeedSeq message. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {dxos.echo.testing.IFeedSeq} message FeedSeq message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FeedSeq.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
+                    if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+                        writer.uint32(/* id 2, wireType 0 =*/16).int32(message.seq);
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified FeedSeq message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {dxos.echo.testing.IFeedSeq} message FeedSeq message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FeedSeq.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a FeedSeq message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.FeedSeq} FeedSeq
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FeedSeq.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.FeedSeq();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.feedKey = reader.string();
+                            break;
+                        case 2:
+                            message.seq = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a FeedSeq message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.FeedSeq} FeedSeq
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FeedSeq.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a FeedSeq message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                FeedSeq.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        if (!$util.isString(message.feedKey))
+                            return "feedKey: string expected";
+                    if (message.seq != null && message.hasOwnProperty("seq"))
+                        if (!$util.isInteger(message.seq))
+                            return "seq: integer expected";
+                    return null;
+                };
+
+                /**
+                 * Creates a FeedSeq message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.FeedSeq} FeedSeq
+                 */
+                FeedSeq.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.FeedSeq)
+                        return object;
+                    var message = new $root.dxos.echo.testing.FeedSeq();
+                    if (object.feedKey != null)
+                        message.feedKey = String(object.feedKey);
+                    if (object.seq != null)
+                        message.seq = object.seq | 0;
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a FeedSeq message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @static
+                 * @param {dxos.echo.testing.FeedSeq} message FeedSeq
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                FeedSeq.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.feedKey = "";
+                        object.seq = 0;
+                    }
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        object.feedKey = message.feedKey;
+                    if (message.seq != null && message.hasOwnProperty("seq"))
+                        object.seq = message.seq;
+                    return object;
+                };
+
+                /**
+                 * Converts this FeedSeq to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.FeedSeq
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                FeedSeq.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return FeedSeq;
+            })();
+
+            testing.TimeStampedEnvelope = (function() {
+
+                /**
+                 * Properties of a TimeStampedEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @interface ITimeStampedEnvelope
+                 * @property {Array.<dxos.echo.testing.IFeedSeq>|null} [timeStamp] TimeStampedEnvelope timeStamp
+                 * @property {google.protobuf.IAny|null} [message] TimeStampedEnvelope message
+                 */
+
+                /**
+                 * Constructs a new TimeStampedEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a TimeStampedEnvelope.
+                 * @implements ITimeStampedEnvelope
+                 * @constructor
+                 * @param {dxos.echo.testing.ITimeStampedEnvelope=} [properties] Properties to set
+                 */
+                function TimeStampedEnvelope(properties) {
+                    this.timeStamp = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * TimeStampedEnvelope timeStamp.
+                 * @member {Array.<dxos.echo.testing.IFeedSeq>} timeStamp
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @instance
+                 */
+                TimeStampedEnvelope.prototype.timeStamp = $util.emptyArray;
+
+                /**
+                 * TimeStampedEnvelope message.
+                 * @member {google.protobuf.IAny|null|undefined} message
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @instance
+                 */
+                TimeStampedEnvelope.prototype.message = null;
+
+                /**
+                 * Creates a new TimeStampedEnvelope instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITimeStampedEnvelope=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.TimeStampedEnvelope} TimeStampedEnvelope instance
+                 */
+                TimeStampedEnvelope.create = function create(properties) {
+                    return new TimeStampedEnvelope(properties);
+                };
+
+                /**
+                 * Encodes the specified TimeStampedEnvelope message. Does not implicitly {@link dxos.echo.testing.TimeStampedEnvelope.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITimeStampedEnvelope} message TimeStampedEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TimeStampedEnvelope.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.timeStamp != null && message.timeStamp.length)
+                        for (var i = 0; i < message.timeStamp.length; ++i)
+                            $root.dxos.echo.testing.FeedSeq.encode(message.timeStamp[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+                        $root.google.protobuf.Any.encode(message.message, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified TimeStampedEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TimeStampedEnvelope.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITimeStampedEnvelope} message TimeStampedEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TimeStampedEnvelope.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a TimeStampedEnvelope message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.TimeStampedEnvelope} TimeStampedEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TimeStampedEnvelope.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TimeStampedEnvelope();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.timeStamp && message.timeStamp.length))
+                                message.timeStamp = [];
+                            message.timeStamp.push($root.dxos.echo.testing.FeedSeq.decode(reader, reader.uint32()));
+                            break;
+                        case 2:
+                            message.message = $root.google.protobuf.Any.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a TimeStampedEnvelope message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.TimeStampedEnvelope} TimeStampedEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TimeStampedEnvelope.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a TimeStampedEnvelope message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                TimeStampedEnvelope.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.timeStamp != null && message.hasOwnProperty("timeStamp")) {
+                        if (!Array.isArray(message.timeStamp))
+                            return "timeStamp: array expected";
+                        for (var i = 0; i < message.timeStamp.length; ++i) {
+                            var error = $root.dxos.echo.testing.FeedSeq.verify(message.timeStamp[i]);
+                            if (error)
+                                return "timeStamp." + error;
+                        }
+                    }
+                    if (message.message != null && message.hasOwnProperty("message")) {
+                        var error = $root.google.protobuf.Any.verify(message.message);
+                        if (error)
+                            return "message." + error;
+                    }
+                    return null;
+                };
+
+                /**
+                 * Creates a TimeStampedEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.TimeStampedEnvelope} TimeStampedEnvelope
+                 */
+                TimeStampedEnvelope.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.TimeStampedEnvelope)
+                        return object;
+                    var message = new $root.dxos.echo.testing.TimeStampedEnvelope();
+                    if (object.timeStamp) {
+                        if (!Array.isArray(object.timeStamp))
+                            throw TypeError(".dxos.echo.testing.TimeStampedEnvelope.timeStamp: array expected");
+                        message.timeStamp = [];
+                        for (var i = 0; i < object.timeStamp.length; ++i) {
+                            if (typeof object.timeStamp[i] !== "object")
+                                throw TypeError(".dxos.echo.testing.TimeStampedEnvelope.timeStamp: object expected");
+                            message.timeStamp[i] = $root.dxos.echo.testing.FeedSeq.fromObject(object.timeStamp[i]);
+                        }
+                    }
+                    if (object.message != null) {
+                        if (typeof object.message !== "object")
+                            throw TypeError(".dxos.echo.testing.TimeStampedEnvelope.message: object expected");
+                        message.message = $root.google.protobuf.Any.fromObject(object.message);
+                    }
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a TimeStampedEnvelope message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.TimeStampedEnvelope} message TimeStampedEnvelope
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                TimeStampedEnvelope.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.timeStamp = [];
+                    if (options.defaults)
+                        object.message = null;
+                    if (message.timeStamp && message.timeStamp.length) {
+                        object.timeStamp = [];
+                        for (var j = 0; j < message.timeStamp.length; ++j)
+                            object.timeStamp[j] = $root.dxos.echo.testing.FeedSeq.toObject(message.timeStamp[j], options);
+                    }
+                    if (message.message != null && message.hasOwnProperty("message"))
+                        object.message = $root.google.protobuf.Any.toObject(message.message, options);
+                    return object;
+                };
+
+                /**
+                 * Converts this TimeStampedEnvelope to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.TimeStampedEnvelope
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                TimeStampedEnvelope.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return TimeStampedEnvelope;
+            })();
+
             testing.TestAdmit = (function() {
 
                 /**
