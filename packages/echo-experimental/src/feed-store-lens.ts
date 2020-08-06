@@ -3,6 +3,7 @@ import { Readable } from 'stream';
 import { Feed } from 'hypercore';
 import { trigger } from '@dxos/async';
 import assert from 'assert';
+import { Trigger } from './util';
 
 export class FeedStoreLens implements AsyncIterable<any> {
   static async create (feedStore: FeedStore, feedSelector: (feedKey: Buffer) => Promise<boolean>) {
@@ -28,14 +29,13 @@ export class FeedStoreLens implements AsyncIterable<any> {
 
   private readonly _candidateFeeds = new Set<FeedDescriptor>();
   private readonly _openFeeds = new Set<{ descriptor: FeedDescriptor, iterator: AsyncIterator<any>, frozen: boolean, sendQueue: any[] }>();
+  private readonly _trigger = new Trigger();
   private _messageCount = 0; // needed for round-robin ordering
   private _destoryed = false;
 
   constructor (
     private readonly _feedSelector: (feedKey: Buffer) => Promise<boolean>
-  ) {
-    this._resetWakeTrigger();
-  }
+  ) { }
 
   private async _reevaluateFeeds () {
     for (const feed of this._openFeeds) {
@@ -68,28 +68,25 @@ export class FeedStoreLens implements AsyncIterable<any> {
     return undefined;
   }
 
-  _promise!: Promise<void>;
-  _wake!: (() => void);
-  private async _resetWakeTrigger () {
-    const [getPromise, resolve] = trigger();
-    this._promise = getPromise();
-    this._wake = resolve;
+  private _pollFeeds() {
+    for (const feed of this._openFeeds) {
+      if(feed.sendQueue.length === 0) {
+        feed.iterator.next().then(
+          result => {
+            assert(!result.done);
+            feed.sendQueue.push(result.value);
+            this._trigger.wake();
+          },
+          console.error // TODO(marik-d): Proper error handling
+        );
+      }
+    }
   }
 
   private async _waitForData () {
-    for (const feed of this._openFeeds) {
-      feed.iterator.next().then(
-        result => {
-          assert(!result.done);
-          feed.sendQueue.push(result.value);
-          this._wake?.();
-        },
-        console.error // TODO(marik-d): Proper error handling
-      );
-    }
-
-    await this._promise;
-    this._resetWakeTrigger();
+    this._pollFeeds();
+    await this._trigger.wait();
+    this._trigger.reset();
   }
 
   async * _generator () {
@@ -114,12 +111,12 @@ export class FeedStoreLens implements AsyncIterable<any> {
 
   private _trackDescriptor (descriptor: FeedDescriptor) {
     this._candidateFeeds.add(descriptor);
-    this._wake?.();
+    this._trigger.wake();
   }
 
   destory () {
     this._destoryed = true;
-    this._wake?.();
+    this._trigger.wake();
     // TODO(marik-d): Does this need to close the streams, or will they be garbage-collected automatically?
   }
 }

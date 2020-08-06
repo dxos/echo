@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import { trigger } from '@dxos/async'; 
 
 // TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 export const latch = (n: number) => {
@@ -48,5 +49,28 @@ export class LazyMap<K, V> extends Map<K, V> {
       this.set(key, value);
       return value;
     }
+  }
+}
+
+export class Trigger {
+  _promise!: Promise<void>
+  _wake!: () => void
+
+  constructor() {
+    this.reset();
+  }
+
+  wait() {
+    return this._promise;
+  }
+
+  wake() {
+    this._wake();
+  }
+
+  reset() {
+    const [getPromise, wake] = trigger();
+    this._promise = getPromise();
+    this._wake = wake;
   }
 }
