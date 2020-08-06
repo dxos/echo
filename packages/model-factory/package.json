@@ -80,6 +80,9 @@
       "jest",
       "node",
       "browser"
+    ],
+    "ignore": [
+      "**/*.test.js"
     ]
   }
 }

@@ -44,8 +44,8 @@ const createFactory = async () => {
 
   return {
     factory: new ModelFactory(feedStore, {
-      onAppend (message) {
-`        return pify(feed.append.bind(feed))(message);
+      onAppend(message) {
+        `        return pify(feed.append.bind(feed))(message);
 `;
       }
     }),
@@ -163,7 +163,7 @@ describe('Model factory', () => {
 
   test('Check processing order of model messages', async () => {
     class SlowModel extends DefaultModel {
-      async onUpdate (messages) {
+      async onUpdate(messages) {
         for (const m of messages) {
           // Simulate calling async functions to process messages.
           this._currentProcess = sleep(randomInt(0, 100));
@@ -174,7 +174,7 @@ describe('Model factory', () => {
         }
       }
 
-      async onDestroy () {
+      async onDestroy() {
         this._currentProcess && this._currentProcess.cancel();
       }
     }
