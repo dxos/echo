@@ -28,7 +28,7 @@ message TestVectorTimestamp {
 
 message TestItemEnvelope {
   string itemId = 1;
-  TestVectorTimestamp = 2;
+  TestVectorTimestamp timestamp = 2;
 }
 
 message TestItemGenesis {

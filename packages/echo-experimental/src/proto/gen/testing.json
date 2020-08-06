@@ -22,6 +22,41 @@
                     }
                   }
                 },
+                "TestVectorTimestamp": {
+                  "fields": {
+                    "timestamp": {
+                      "rule": "repeated",
+                      "type": "Feed",
+                      "id": 1
+                    }
+                  },
+                  "nested": {
+                    "Feed": {
+                      "fields": {
+                        "feedKey": {
+                          "type": "bytes",
+                          "id": 1
+                        },
+                        "seq": {
+                          "type": "int32",
+                          "id": 2
+                        }
+                      }
+                    }
+                  }
+                },
+                "TestItemEnvelope": {
+                  "fields": {
+                    "itemId": {
+                      "type": "string",
+                      "id": 1
+                    },
+                    "timestamp": {
+                      "type": "TestVectorTimestamp",
+                      "id": 2
+                    }
+                  }
+                },
                 "TestItemGenesis": {
                   "fields": {
                     "itemId": {

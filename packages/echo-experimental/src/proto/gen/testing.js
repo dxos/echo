@@ -415,6 +415,648 @@ $root.dxos = (function() {
                 return TestAdmit;
             })();
 
+            testing.TestVectorTimestamp = (function() {
+
+                /**
+                 * Properties of a TestVectorTimestamp.
+                 * @memberof dxos.echo.testing
+                 * @interface ITestVectorTimestamp
+                 * @property {Array.<dxos.echo.testing.TestVectorTimestamp.IFeed>|null} [timestamp] TestVectorTimestamp timestamp
+                 */
+
+                /**
+                 * Constructs a new TestVectorTimestamp.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a TestVectorTimestamp.
+                 * @implements ITestVectorTimestamp
+                 * @constructor
+                 * @param {dxos.echo.testing.ITestVectorTimestamp=} [properties] Properties to set
+                 */
+                function TestVectorTimestamp(properties) {
+                    this.timestamp = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * TestVectorTimestamp timestamp.
+                 * @member {Array.<dxos.echo.testing.TestVectorTimestamp.IFeed>} timestamp
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @instance
+                 */
+                TestVectorTimestamp.prototype.timestamp = $util.emptyArray;
+
+                /**
+                 * Creates a new TestVectorTimestamp instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {dxos.echo.testing.ITestVectorTimestamp=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.TestVectorTimestamp} TestVectorTimestamp instance
+                 */
+                TestVectorTimestamp.create = function create(properties) {
+                    return new TestVectorTimestamp(properties);
+                };
+
+                /**
+                 * Encodes the specified TestVectorTimestamp message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {dxos.echo.testing.ITestVectorTimestamp} message TestVectorTimestamp message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestVectorTimestamp.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.timestamp != null && message.timestamp.length)
+                        for (var i = 0; i < message.timestamp.length; ++i)
+                            $root.dxos.echo.testing.TestVectorTimestamp.Feed.encode(message.timestamp[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified TestVectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {dxos.echo.testing.ITestVectorTimestamp} message TestVectorTimestamp message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestVectorTimestamp.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a TestVectorTimestamp message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.TestVectorTimestamp} TestVectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestVectorTimestamp.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestVectorTimestamp();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.timestamp && message.timestamp.length))
+                                message.timestamp = [];
+                            message.timestamp.push($root.dxos.echo.testing.TestVectorTimestamp.Feed.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a TestVectorTimestamp message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.TestVectorTimestamp} TestVectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestVectorTimestamp.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a TestVectorTimestamp message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                TestVectorTimestamp.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
+                        if (!Array.isArray(message.timestamp))
+                            return "timestamp: array expected";
+                        for (var i = 0; i < message.timestamp.length; ++i) {
+                            var error = $root.dxos.echo.testing.TestVectorTimestamp.Feed.verify(message.timestamp[i]);
+                            if (error)
+                                return "timestamp." + error;
+                        }
+                    }
+                    return null;
+                };
+
+                /**
+                 * Creates a TestVectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.TestVectorTimestamp} TestVectorTimestamp
+                 */
+                TestVectorTimestamp.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.TestVectorTimestamp)
+                        return object;
+                    var message = new $root.dxos.echo.testing.TestVectorTimestamp();
+                    if (object.timestamp) {
+                        if (!Array.isArray(object.timestamp))
+                            throw TypeError(".dxos.echo.testing.TestVectorTimestamp.timestamp: array expected");
+                        message.timestamp = [];
+                        for (var i = 0; i < object.timestamp.length; ++i) {
+                            if (typeof object.timestamp[i] !== "object")
+                                throw TypeError(".dxos.echo.testing.TestVectorTimestamp.timestamp: object expected");
+                            message.timestamp[i] = $root.dxos.echo.testing.TestVectorTimestamp.Feed.fromObject(object.timestamp[i]);
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a TestVectorTimestamp message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @static
+                 * @param {dxos.echo.testing.TestVectorTimestamp} message TestVectorTimestamp
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                TestVectorTimestamp.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.timestamp = [];
+                    if (message.timestamp && message.timestamp.length) {
+                        object.timestamp = [];
+                        for (var j = 0; j < message.timestamp.length; ++j)
+                            object.timestamp[j] = $root.dxos.echo.testing.TestVectorTimestamp.Feed.toObject(message.timestamp[j], options);
+                    }
+                    return object;
+                };
+
+                /**
+                 * Converts this TestVectorTimestamp to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.TestVectorTimestamp
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                TestVectorTimestamp.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                TestVectorTimestamp.Feed = (function() {
+
+                    /**
+                     * Properties of a Feed.
+                     * @memberof dxos.echo.testing.TestVectorTimestamp
+                     * @interface IFeed
+                     * @property {Uint8Array|null} [feedKey] Feed feedKey
+                     * @property {number|null} [seq] Feed seq
+                     */
+
+                    /**
+                     * Constructs a new Feed.
+                     * @memberof dxos.echo.testing.TestVectorTimestamp
+                     * @classdesc Represents a Feed.
+                     * @implements IFeed
+                     * @constructor
+                     * @param {dxos.echo.testing.TestVectorTimestamp.IFeed=} [properties] Properties to set
+                     */
+                    function Feed(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Feed feedKey.
+                     * @member {Uint8Array} feedKey
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @instance
+                     */
+                    Feed.prototype.feedKey = $util.newBuffer([]);
+
+                    /**
+                     * Feed seq.
+                     * @member {number} seq
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @instance
+                     */
+                    Feed.prototype.seq = 0;
+
+                    /**
+                     * Creates a new Feed instance using the specified properties.
+                     * @function create
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {dxos.echo.testing.TestVectorTimestamp.IFeed=} [properties] Properties to set
+                     * @returns {dxos.echo.testing.TestVectorTimestamp.Feed} Feed instance
+                     */
+                    Feed.create = function create(properties) {
+                        return new Feed(properties);
+                    };
+
+                    /**
+                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * @function encode
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {dxos.echo.testing.TestVectorTimestamp.IFeed} message Feed message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Feed.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
+                        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+                            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.seq);
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {dxos.echo.testing.TestVectorTimestamp.IFeed} message Feed message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Feed.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {dxos.echo.testing.TestVectorTimestamp.Feed} Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Feed.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestVectorTimestamp.Feed();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.feedKey = reader.bytes();
+                                break;
+                            case 2:
+                                message.seq = reader.int32();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {dxos.echo.testing.TestVectorTimestamp.Feed} Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Feed.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a Feed message.
+                     * @function verify
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Feed.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                            if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
+                                return "feedKey: buffer expected";
+                        if (message.seq != null && message.hasOwnProperty("seq"))
+                            if (!$util.isInteger(message.seq))
+                                return "seq: integer expected";
+                        return null;
+                    };
+
+                    /**
+                     * Creates a Feed message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {dxos.echo.testing.TestVectorTimestamp.Feed} Feed
+                     */
+                    Feed.fromObject = function fromObject(object) {
+                        if (object instanceof $root.dxos.echo.testing.TestVectorTimestamp.Feed)
+                            return object;
+                        var message = new $root.dxos.echo.testing.TestVectorTimestamp.Feed();
+                        if (object.feedKey != null)
+                            if (typeof object.feedKey === "string")
+                                $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
+                            else if (object.feedKey.length)
+                                message.feedKey = object.feedKey;
+                        if (object.seq != null)
+                            message.seq = object.seq | 0;
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a Feed message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @static
+                     * @param {dxos.echo.testing.TestVectorTimestamp.Feed} message Feed
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Feed.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            if (options.bytes === String)
+                                object.feedKey = "";
+                            else {
+                                object.feedKey = [];
+                                if (options.bytes !== Array)
+                                    object.feedKey = $util.newBuffer(object.feedKey);
+                            }
+                            object.seq = 0;
+                        }
+                        if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                            object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
+                        if (message.seq != null && message.hasOwnProperty("seq"))
+                            object.seq = message.seq;
+                        return object;
+                    };
+
+                    /**
+                     * Converts this Feed to JSON.
+                     * @function toJSON
+                     * @memberof dxos.echo.testing.TestVectorTimestamp.Feed
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Feed.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return Feed;
+                })();
+
+                return TestVectorTimestamp;
+            })();
+
+            testing.TestItemEnvelope = (function() {
+
+                /**
+                 * Properties of a TestItemEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @interface ITestItemEnvelope
+                 * @property {string|null} [itemId] TestItemEnvelope itemId
+                 * @property {dxos.echo.testing.ITestVectorTimestamp|null} [timestamp] TestItemEnvelope timestamp
+                 */
+
+                /**
+                 * Constructs a new TestItemEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a TestItemEnvelope.
+                 * @implements ITestItemEnvelope
+                 * @constructor
+                 * @param {dxos.echo.testing.ITestItemEnvelope=} [properties] Properties to set
+                 */
+                function TestItemEnvelope(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * TestItemEnvelope itemId.
+                 * @member {string} itemId
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @instance
+                 */
+                TestItemEnvelope.prototype.itemId = "";
+
+                /**
+                 * TestItemEnvelope timestamp.
+                 * @member {dxos.echo.testing.ITestVectorTimestamp|null|undefined} timestamp
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @instance
+                 */
+                TestItemEnvelope.prototype.timestamp = null;
+
+                /**
+                 * Creates a new TestItemEnvelope instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestItemEnvelope=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.TestItemEnvelope} TestItemEnvelope instance
+                 */
+                TestItemEnvelope.create = function create(properties) {
+                    return new TestItemEnvelope(properties);
+                };
+
+                /**
+                 * Encodes the specified TestItemEnvelope message. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestItemEnvelope} message TestItemEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestItemEnvelope.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
+                    if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
+                        $root.dxos.echo.testing.TestVectorTimestamp.encode(message.timestamp, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified TestItemEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestItemEnvelope} message TestItemEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestItemEnvelope.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a TestItemEnvelope message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.TestItemEnvelope} TestItemEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestItemEnvelope.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestItemEnvelope();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.itemId = reader.string();
+                            break;
+                        case 2:
+                            message.timestamp = $root.dxos.echo.testing.TestVectorTimestamp.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a TestItemEnvelope message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.TestItemEnvelope} TestItemEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestItemEnvelope.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a TestItemEnvelope message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                TestItemEnvelope.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.itemId != null && message.hasOwnProperty("itemId"))
+                        if (!$util.isString(message.itemId))
+                            return "itemId: string expected";
+                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
+                        var error = $root.dxos.echo.testing.TestVectorTimestamp.verify(message.timestamp);
+                        if (error)
+                            return "timestamp." + error;
+                    }
+                    return null;
+                };
+
+                /**
+                 * Creates a TestItemEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.TestItemEnvelope} TestItemEnvelope
+                 */
+                TestItemEnvelope.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.TestItemEnvelope)
+                        return object;
+                    var message = new $root.dxos.echo.testing.TestItemEnvelope();
+                    if (object.itemId != null)
+                        message.itemId = String(object.itemId);
+                    if (object.timestamp != null) {
+                        if (typeof object.timestamp !== "object")
+                            throw TypeError(".dxos.echo.testing.TestItemEnvelope.timestamp: object expected");
+                        message.timestamp = $root.dxos.echo.testing.TestVectorTimestamp.fromObject(object.timestamp);
+                    }
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a TestItemEnvelope message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.TestItemEnvelope} message TestItemEnvelope
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                TestItemEnvelope.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.itemId = "";
+                        object.timestamp = null;
+                    }
+                    if (message.itemId != null && message.hasOwnProperty("itemId"))
+                        object.itemId = message.itemId;
+                    if (message.timestamp != null && message.hasOwnProperty("timestamp"))
+                        object.timestamp = $root.dxos.echo.testing.TestVectorTimestamp.toObject(message.timestamp, options);
+                    return object;
+                };
+
+                /**
+                 * Converts this TestItemEnvelope to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.TestItemEnvelope
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                TestItemEnvelope.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return TestItemEnvelope;
+            })();
+
             testing.TestItemGenesis = (function() {
 
                 /**

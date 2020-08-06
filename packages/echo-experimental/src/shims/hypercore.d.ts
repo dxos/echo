@@ -25,6 +25,8 @@ declare module 'hypercore' {
        * @param callback
        */
       get(index: number, options: object, callback: (err: Error | null, data?: any) => void): void;
+
+      createReadStream(options?: object): NodeJS.ReadableStream;
     }
   }
 

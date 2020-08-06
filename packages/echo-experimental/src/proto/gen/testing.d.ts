@@ -188,6 +188,291 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
+            /** Properties of a TestVectorTimestamp. */
+            interface ITestVectorTimestamp {
+
+                /** TestVectorTimestamp timestamp */
+                timestamp?: (dxos.echo.testing.TestVectorTimestamp.IFeed[]|null);
+            }
+
+            /** Represents a TestVectorTimestamp. */
+            class TestVectorTimestamp implements ITestVectorTimestamp {
+
+                /**
+                 * Constructs a new TestVectorTimestamp.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.ITestVectorTimestamp);
+
+                /** TestVectorTimestamp timestamp. */
+                public timestamp: dxos.echo.testing.TestVectorTimestamp.IFeed[];
+
+                /**
+                 * Creates a new TestVectorTimestamp instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns TestVectorTimestamp instance
+                 */
+                public static create(properties?: dxos.echo.testing.ITestVectorTimestamp): dxos.echo.testing.TestVectorTimestamp;
+
+                /**
+                 * Encodes the specified TestVectorTimestamp message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
+                 * @param message TestVectorTimestamp message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.ITestVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified TestVectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.verify|verify} messages.
+                 * @param message TestVectorTimestamp message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.ITestVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a TestVectorTimestamp message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns TestVectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestVectorTimestamp;
+
+                /**
+                 * Decodes a TestVectorTimestamp message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns TestVectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestVectorTimestamp;
+
+                /**
+                 * Verifies a TestVectorTimestamp message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a TestVectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns TestVectorTimestamp
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestVectorTimestamp;
+
+                /**
+                 * Creates a plain object from a TestVectorTimestamp message. Also converts values to other types if specified.
+                 * @param message TestVectorTimestamp
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.TestVectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this TestVectorTimestamp to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            namespace TestVectorTimestamp {
+
+                /** Properties of a Feed. */
+                interface IFeed {
+
+                    /** Feed feedKey */
+                    feedKey?: (Uint8Array|null);
+
+                    /** Feed seq */
+                    seq?: (number|null);
+                }
+
+                /** Represents a Feed. */
+                class Feed implements IFeed {
+
+                    /**
+                     * Constructs a new Feed.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: dxos.echo.testing.TestVectorTimestamp.IFeed);
+
+                    /** Feed feedKey. */
+                    public feedKey: Uint8Array;
+
+                    /** Feed seq. */
+                    public seq: number;
+
+                    /**
+                     * Creates a new Feed instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns Feed instance
+                     */
+                    public static create(properties?: dxos.echo.testing.TestVectorTimestamp.IFeed): dxos.echo.testing.TestVectorTimestamp.Feed;
+
+                    /**
+                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * @param message Feed message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: dxos.echo.testing.TestVectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.TestVectorTimestamp.Feed.verify|verify} messages.
+                     * @param message Feed message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: dxos.echo.testing.TestVectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestVectorTimestamp.Feed;
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestVectorTimestamp.Feed;
+
+                    /**
+                     * Verifies a Feed message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a Feed message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns Feed
+                     */
+                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestVectorTimestamp.Feed;
+
+                    /**
+                     * Creates a plain object from a Feed message. Also converts values to other types if specified.
+                     * @param message Feed
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: dxos.echo.testing.TestVectorTimestamp.Feed, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this Feed to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+            }
+
+            /** Properties of a TestItemEnvelope. */
+            interface ITestItemEnvelope {
+
+                /** TestItemEnvelope itemId */
+                itemId?: (string|null);
+
+                /** TestItemEnvelope timestamp */
+                timestamp?: (dxos.echo.testing.ITestVectorTimestamp|null);
+            }
+
+            /** Represents a TestItemEnvelope. */
+            class TestItemEnvelope implements ITestItemEnvelope {
+
+                /**
+                 * Constructs a new TestItemEnvelope.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.ITestItemEnvelope);
+
+                /** TestItemEnvelope itemId. */
+                public itemId: string;
+
+                /** TestItemEnvelope timestamp. */
+                public timestamp?: (dxos.echo.testing.ITestVectorTimestamp|null);
+
+                /**
+                 * Creates a new TestItemEnvelope instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns TestItemEnvelope instance
+                 */
+                public static create(properties?: dxos.echo.testing.ITestItemEnvelope): dxos.echo.testing.TestItemEnvelope;
+
+                /**
+                 * Encodes the specified TestItemEnvelope message. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
+                 * @param message TestItemEnvelope message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.ITestItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified TestItemEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TestItemEnvelope.verify|verify} messages.
+                 * @param message TestItemEnvelope message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.ITestItemEnvelope, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a TestItemEnvelope message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns TestItemEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestItemEnvelope;
+
+                /**
+                 * Decodes a TestItemEnvelope message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns TestItemEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestItemEnvelope;
+
+                /**
+                 * Verifies a TestItemEnvelope message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a TestItemEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns TestItemEnvelope
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestItemEnvelope;
+
+                /**
+                 * Creates a plain object from a TestItemEnvelope message. Also converts values to other types if specified.
+                 * @param message TestItemEnvelope
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.TestItemEnvelope, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this TestItemEnvelope to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
             /** Properties of a TestItemGenesis. */
             interface ITestItemGenesis {
 
