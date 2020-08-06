@@ -231,12 +231,15 @@ export class PartyMuxer {
 
   private _allowedKeys: Set<string>;
 
+  private _output: Readable;
+
   constructor(
     private readonly _feedStore: FeedStore,
-    private readonly _upstream: Writable,
     initialFeeds: string[],
   ) { 
     this._allowedKeys = new Set(initialFeeds);
+
+    this._output = new Readable({ objectMode: true, read() { } })
   }
 
   // TODO(marik-d): Add logic to stop the processing.
@@ -263,11 +266,19 @@ export class PartyMuxer {
         default: {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
-          this._upstream.write({ data: { message } });
+
+          this._output.push({ data: { message } })
+
+          // TODO(marik-d): Figure out backpressure https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
+          // if(!this._output.push({ data: { message } })) {
+          //   await new Promise(resolve => { this._output.once('drain', resolve )})
+          // }
         }
       }
     }
   }
+
+  get output() { return this._output; }
 }
 
 /**
