@@ -24,13 +24,13 @@ declare module 'hypercore' {
        * @param options
        * @param callback
        */
-      get(index: number, options: object, callback: (err: Error | null, data?: any) => void): void;
+      get(index: number, options: any, callback: (err: Error | null, data?: any) => void): void;
 
-      createReadStream(options?: object): NodeJS.ReadableStream;
+      createReadStream(options?: any): NodeJS.ReadableStream;
     }
   }
 
-  function hypercore(storage: any, key?: any, options?: object): hypercore.Feed;
+  function hypercore(storage: any, key?: any, options?: any): hypercore.Feed;
 
   export = hypercore;
 }

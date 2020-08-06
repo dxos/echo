@@ -9,9 +9,9 @@ import { trigger } from '@dxos/async';
 export const latch = (n: number) => {
   assert(n > 0);
 
-  let callback: Function;
-  const promise = new Promise((resolve) => {
-    callback = (value: number) => resolve(value);
+  let callback: (value: number) => void;
+  const promise = new Promise<number>((resolve) => {
+    callback = value => resolve(value);
   });
 
   let count = 0;

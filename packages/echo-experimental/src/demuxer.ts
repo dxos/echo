@@ -21,7 +21,7 @@ interface IReadableStream {
   on (event: string, callback: object): void;
 }
 
-const getOrSet = (map: Map<string, any>, key: string, constructor: Function) => {
+const getOrSet = <T>(map: Map<string, T>, key: string, constructor: () => T) => {
   let value = map.get(key);
   if (value === undefined) {
     value = constructor();
