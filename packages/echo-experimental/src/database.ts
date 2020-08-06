@@ -230,18 +230,13 @@ export class ItemManager extends EventEmitter {
 export class PartyMuxer {
 
   private _allowedKeys: Set<string>;
-  private _itemDemuxer?: Writable;
 
   constructor(
     private readonly _feedStore: FeedStore,
+    private readonly _upstream: Writable,
     initialFeeds: string[],
   ) { 
     this._allowedKeys = new Set(initialFeeds);
-  }
-
-  setItemDemuxer(itemDemuxer: Writable) {
-    assert(!this._itemDemuxer);
-    this._itemDemuxer = itemDemuxer;
   }
 
   // TODO(marik-d): Add logic to stop the processing.
@@ -268,8 +263,7 @@ export class PartyMuxer {
         default: {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
-          assert(this._itemDemuxer)
-          this._itemDemuxer.write({ data: { message } });
+          this._upstream.write({ data: { message } });
         }
       }
     }
