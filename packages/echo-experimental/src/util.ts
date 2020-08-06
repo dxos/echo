@@ -3,7 +3,7 @@
 //
 
 import assert from 'assert';
-import { trigger } from '@dxos/async'; 
+import { trigger } from '@dxos/async';
 
 // TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 export const latch = (n: number) => {
@@ -56,19 +56,19 @@ export class Trigger {
   _promise!: Promise<void>
   _wake!: () => void
 
-  constructor() {
+  constructor () {
     this.reset();
   }
 
-  wait() {
+  wait () {
     return this._promise;
   }
 
-  wake() {
+  wake () {
     this._wake();
   }
 
-  reset() {
+  reset () {
     const [getPromise, wake] = trigger();
     this._promise = getPromise();
     this._wake = wake;

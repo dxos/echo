@@ -1,7 +1,6 @@
 import { FeedStore, FeedDescriptor } from '@dxos/feed-store';
 import { Readable } from 'stream';
 import { Feed } from 'hypercore';
-import { trigger } from '@dxos/async';
 import assert from 'assert';
 import { Trigger } from './util';
 
@@ -68,9 +67,9 @@ export class FeedStoreLens implements AsyncIterable<any> {
     return undefined;
   }
 
-  private _pollFeeds() {
+  private _pollFeeds () {
     for (const feed of this._openFeeds) {
-      if(feed.sendQueue.length === 0) {
+      if (feed.sendQueue.length === 0) {
         feed.iterator.next().then(
           result => {
             assert(!result.done);

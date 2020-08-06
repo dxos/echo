@@ -189,7 +189,7 @@ test('streaming', async () => {
   }
 });
 
-test.skip('parties', async () => {
+test('parties', async () => {
   const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
 
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });

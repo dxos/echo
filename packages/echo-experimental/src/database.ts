@@ -16,6 +16,7 @@ import { Feed } from 'hypercore';
 import { dxos } from './proto/gen/testing';
 
 import { assertType, LazyMap } from './util';
+import { FeedStoreLens } from './feed-store-lens';
 
 const log = debug('dxos:echo:database');
 
@@ -233,15 +234,15 @@ export const createPartyMuxer = (itemDemuxer: Writable, feedStore: any, initalFe
   // TODO(marik-d): Add logic to stop the processing.
   setTimeout(async () => {
     // TODO(burdon): Remove dependency on FeedStore custom methods?
-    const iterator = feedStore.createSelectiveStream(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (feedDescriptor: any, message: any) => allowedKeys.has(keyToString(feedDescriptor.key))
+    const iterator = await FeedStoreLens.create(feedStore,
+      async feedKey => allowedKeys.has(keyToString(feedKey))
     );
 
     // NOTE: The iterator my halt if there are gaps in the replicated feeds (according to the timestamps).
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
 
-    for await (const { data: { message } } of iterator) {
+    for await (const { message } of iterator) {
+      assert(message);
       /* eslint-disable camelcase */
       const { __type_url } = message;
       switch (__type_url) {
