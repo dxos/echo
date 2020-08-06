@@ -228,22 +228,21 @@ export class ItemManager extends EventEmitter {
  * Reads party feeds and routes to items demuxer.
  */
 export class PartyMuxer {
-
   private _allowedKeys: Set<string>;
 
   private _output: Readable;
 
-  constructor(
+  constructor (
     private readonly _feedStore: FeedStore,
-    initialFeeds: string[],
-  ) { 
+    initialFeeds: string[]
+  ) {
     this._allowedKeys = new Set(initialFeeds);
 
-    this._output = new Readable({ objectMode: true, read() { } })
+    this._output = new Readable({ objectMode: true, read () { } });
   }
 
   // TODO(marik-d): Add logic to stop the processing.
-  async run() {
+  async run () {
     const iterator = await FeedStoreIterator.create(this._feedStore,
       async feedKey => this._allowedKeys.has(keyToString(feedKey))
     );
@@ -267,7 +266,7 @@ export class PartyMuxer {
           // TODO(burdon): Should expect ItemEnvelope.
           assert(message.itemId);
 
-          this._output.push({ data: { message } })
+          this._output.push({ data: { message } });
 
           // TODO(marik-d): Figure out backpressure https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
           // if(!this._output.push({ data: { message } })) {
@@ -278,7 +277,7 @@ export class PartyMuxer {
     }
   }
 
-  get output() { return this._output; }
+  get output () { return this._output; }
 }
 
 /**

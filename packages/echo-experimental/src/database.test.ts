@@ -243,11 +243,11 @@ test('parties', async () => {
   });
 
   const partyMuxer = new PartyMuxer(feedStore, [keyToString(descriptors[0].key)]);
-  
+
   const itemManager = new ItemManager(modelFactory, streams[0]);
   const itemDemuxer = createItemDemuxer(itemManager);
   partyMuxer.output.pipe(itemDemuxer);
-  
+
   setImmediate(() => partyMuxer.run());
 
   // TODO(burdon): Wait for everything to be read?

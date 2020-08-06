@@ -6,7 +6,7 @@ import { Trigger } from './util';
 
 /**
  * We are using an iterator here instead of a stream to ensure we have full control over how and at what time data is read.
- * 
+ *
  * The reason for that is that the reader (PartyProcessor) has an effect via the feedSelector function over how data is generated.
  * NodeJS streams have intenal buffer that the system tends to eagerly fill.
  */
