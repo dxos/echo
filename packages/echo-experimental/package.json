@@ -26,9 +26,10 @@
     "coverage": "jest --coverage --verbose src",
     "lint": "eslint './src/**/*.ts'",
     "test": "jest --rootDir ./src --verbose",
-    "posttest": "npm run lint",
     "prepublishOnly": "npm run test && npm run build",
-    "watch": "babel-watch ./src --out-dir ./dist --source-maps"
+    "watch": "babel-watch ./src --out-dir ./dist --source-maps",
+    "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook --ci",
+    "build-storybook": "build-storybook"
   },
   "browserslist": [
     "> 5%"
@@ -43,12 +44,15 @@
     "@dxos/crypto": "^0.0.1",
     "@dxos/echo-db": "^1.0.0-beta.27",
     "@dxos/feed-store": "^1.2.0-beta.29",
+    "@dxos/feed-replication-network": "^1.0.0-beta.105",
     "@types/debug": "^4.1.1",
+    "@types/deep-equal": "^1.0.1",
     "@types/end-of-stream": "^1.4.0",
     "@types/node": "^14.0.9",
     "@types/stream-buffers": "^3.0.2",
     "@types/through2": "^2.0.36",
     "debug": "^4.1.1",
+    "deep-equal": "^2.0.3",
     "from2": "^2.3.0",
     "hypercore": "^7.7.1",
     "js-data-structs": "^1.1.2",
@@ -56,7 +60,15 @@
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@storybook/addon-actions": "^5.3.19",
+    "@storybook/addon-links": "^5.3.19",
+    "@storybook/addons": "^5.3.19",
+    "@storybook/preset-typescript": "^3.0.0",
+    "@storybook/react": "^5.3.19",
+    "@material-ui/core": "^4.11.0",
     "@types/jest": "^25.2.3",
+    "babel-loader": "^8.1.0",
     "chance": "^1.1.6",
     "del-cli": "^3.0.0",
     "end-of-stream": "^1.4.4",
@@ -70,7 +82,8 @@
     "through2": "^3.0.1",
     "ts-jest": "^26.1.4",
     "typescript": "^3.9.3",
-    "wait-for-expect": "^3.0.2"
+    "wait-for-expect": "^3.0.2",
+    "react-force-graph": "^1.36.5"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
