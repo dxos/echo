@@ -39,6 +39,7 @@ const createFactory = async () => {
   });
 
   const topic = randomBytes(32);
+  const partyMember = randomBytes(32);
 
   const feed = await feedStore.openFeed('/writable', { metadata: { topic } });
 
@@ -46,6 +47,9 @@ const createFactory = async () => {
     factory: new ModelFactory(feedStore, {
       onAppend (message) {
         return pify(feed.append.bind(feed))(message.data);
+      },
+      credentialsInfoProvider (message, feedKey) {
+        return feedKey.equals(feed.key) ? { owner: partyMember } : null;
       }
     }),
     topic

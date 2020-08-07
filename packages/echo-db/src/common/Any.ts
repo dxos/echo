@@ -17,12 +17,20 @@ export class Any implements Any {
   constructor (properties: any) {
     const { __type_url, type_url, ...rest } = properties;
     assert(type_url || __type_url);
+
     this.__type_url = __type_url || type_url;
-    this.type_url = this.__type_url;
 
     for (const key of Object.keys(rest)) {
       this[key] = rest[key];
     }
+  }
+
+  set type_url (type: string) {
+    this.__type_url = type;
+  }
+
+  get type_url () {
+    return this.__type_url;
   }
 
   public static create (properties: any) {

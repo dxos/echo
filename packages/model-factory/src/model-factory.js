@@ -8,23 +8,27 @@ import pump from 'pump';
 import Signal from 'signal-promise';
 import debounce from 'lodash.debounce';
 
-import { log } from '@dxos/debug';
+import { logs } from '@dxos/debug';
 import metrics from '@dxos/metrics';
 
 import { Subscriber } from './subscriber';
 import { DefaultModel } from './model';
 import { bufferedStreamHandler } from './buffer-stream';
-import { createModelMessage } from './shim';
+
+const { error } = logs('dxos:echo:model-factory');
 
 /**
- * Convert the FeedStore-style data into an IModelMessage.
- * @param message
+ * @callback AppendHandler
+ * @param {IModelMessage} data
  * @return {IModelMessage}
  */
-const feedMessageToModelMessage = (message) => {
-  const { data, key } = message;
-  return createModelMessage(data, { key });
-};
+
+/**
+ * @callback CredentialsInfoProvider
+ * @param {Any} messageData
+ * @param {PublicKey} feedKey
+ * @return {ICredentialsInfo}
+ */
 
 /**
  * Model factory creates instances of Model classes and creates a bound Readable stream configured
@@ -34,17 +38,17 @@ export class ModelFactory {
   /**
    * @param {FeedStore} feedStore
    * @param {Object} options
-   * @param {function} options.onAppend
-   * @param {function} options.onMessages
+   * @param {AppendHandler} options.onAppend
+   * @param {CredentialsInfoProvider} options.credentialsInfoProvider
    */
   constructor (feedStore, options = {}) {
     assert(feedStore);
 
-    const { onAppend = () => {}, onMessage } = options;
+    const { onAppend = () => {}, credentialsInfoProvider } = options;
 
     this._subscriber = new Subscriber(feedStore);
     this._onAppend = onAppend;
-    this._onMessage = onMessage;
+    this._credentialsInfoProvider = credentialsInfoProvider;
   }
 
   /**
@@ -118,27 +122,25 @@ export class ModelFactory {
     // Whether it was requested or not, feedLevelIndexInfo is required internally.
     const { stream, unsubscribe } = this._subscriber.createSubscription(topic, filter, subscriptionOptions);
 
-    const onData = bufferedStreamHandler(stream, async (messages) => {
+    const onData = bufferedStreamHandler(stream, async (feedMessages) => {
       if (model.destroyed) return;
 
-      // Convert the feed messages into ModelMessages.
-      messages = messages.map(feedMessageToModelMessage);
-
-      if (this._onMessage) {
-        const preprocessed = [];
-        for await (const message of messages) {
-          const result = await this._onMessage(message, options);
-          if (result) {
-            preprocessed.push(result);
-          } else {
-            log('onMessage filtered:', message);
+      const modelMessages = [];
+      for await (const feedMessage of feedMessages) {
+        const { data, key: feedKey } = feedMessage;
+        let credentials;
+        if (this._credentialsInfoProvider) {
+          credentials = await this._credentialsInfoProvider(data, feedKey);
+          if (!credentials) {
+            error('Unable to locate credentials for', feedMessage);
+            // TODO(telackey): Should we throw an error?
           }
         }
-        messages = preprocessed;
+        modelMessages.push({ data, credentials });
       }
 
-      await model.processMessages(messages);
-      metrics.inc(`model.${model.id}.length`, messages.length);
+      await model.processMessages(modelMessages);
+      metrics.inc(`model.${model.id}.length`, modelMessages.length);
     }, batchPeriod);
 
     const forEachMessage = new Writable({

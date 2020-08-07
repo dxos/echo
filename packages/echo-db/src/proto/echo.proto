@@ -89,24 +89,16 @@ message Envelope {
 }
 
 //
-// Details about the Feed from which this message was read.
-//
-message FeedInfo {
-  bytes key = 1;  // The publicKey of the Feed.
-}
-
-//
-// Details about the Party member that wrote this message.
+// Details about the ownership of this message.
 //
 message CredentialsInfo {
-  bytes owner = 1;  // The publicKey of the Party member.
+  bytes owner = 1;  // The publicKey of the Party member that wrote this message.
 }
 
 //
 // A composite of message payload data with metadata describing the feed and ownership.
 //
 message ModelMessage {
-  FeedInfo feed               = 1;
-  CredentialsInfo credentials = 2;
+  CredentialsInfo credentials = 1;
   google.protobuf.Any data    = 10;
 }

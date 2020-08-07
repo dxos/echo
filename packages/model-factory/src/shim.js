@@ -9,26 +9,11 @@
 import assert from 'assert';
 
 /**
- * @callback AppendHandler
- * @param {IModelMessage} data
- * @return {IModelMessage}
- */
-
-/**
  * Is this a valid Any?
  * @param {Any} value
  */
 const validAny = (value) => {
   return !!(value && value.__type_url);
-};
-
-/**
- * Is this a valid FeedInfo?
- * @param {FeedInfo} value
- * @return {boolean}
- */
-const validFeedInfo = (value) => {
-  return !!(value && Buffer.isBuffer(value.key));
 };
 
 /**
@@ -43,18 +28,14 @@ const validCredentialsInfo = (value) => {
 /**
  * Create an {IModelMessage} for {Any} data.
  * @param {Any} data
- * @param {FeedInfo} [feedInfo]
  * @param {CredentialsInfo} [credentialsInfo]
  * @return {IModelMessage}
  */
 // TODO(telackey):  We should be using the echo-db version of this, but that would create a circular dependency.
-export const createModelMessage = (data, feedInfo, credentialsInfo) => {
+export const createModelMessage = (data, credentialsInfo) => {
   assert(validAny(data));
-  if (feedInfo) {
-    assert(validFeedInfo(feedInfo));
-  }
   if (credentialsInfo) {
     assert(validCredentialsInfo(credentialsInfo));
   }
-  return { data, feed: feedInfo, credentials: credentialsInfo };
+  return { data, credentials: credentialsInfo };
 };
