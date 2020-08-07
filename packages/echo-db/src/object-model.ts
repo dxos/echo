@@ -7,7 +7,6 @@ import debug from 'debug';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 
-import { createModelMessage } from './common';
 import { MutationUtil } from './mutation';
 import { ObjectStore, fromObject } from './object-store';
 import { createObjectId, parseObjectId } from './util';
