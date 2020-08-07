@@ -129,29 +129,6 @@ export class Item {
 }
 
 /**
- * Wraps messages with ItemEnvelope.
- * @param itemId
- * @returns {NodeJS.WritableStream}
- */
-// TODO(burdon): Not a great abstraction.
-const createItemMessageStream = (itemId: ItemID) => {
-  return new Transform({
-    objectMode: true,
-    transform (message, _, callback) {
-      this.push({
-        message: {
-          __type_url: 'dxos.echo.testing.ItemEnvelope',
-          itemId,
-          payload: message
-        }
-      });
-
-      callback();
-    }
-  });
-};
-
-/**
  * Manages creation and index of items.
  */
 export class ItemManager extends EventEmitter {
@@ -173,9 +150,23 @@ export class ItemManager extends EventEmitter {
     assert(this._writable);
   }
 
-  // TODO(burdon): Don't bury pipe inside methods that create streams (side effects).
   private _createWriteStream (itemId: ItemID): NodeJS.WritableStream {
-    const transform = createItemMessageStream(itemId);
+    const transform = new Transform({
+      objectMode: true,
+      write (message, _, callback) {
+        this.push({
+          message: {
+            __type_url: 'dxos.echo.testing.ItemEnvelope',
+            itemId,
+            payload: message
+          }
+        });
+
+        callback();
+      }
+    });
+
+    // TODO(burdon): Don't bury pipe inside methods that create streams (side effects).
     transform.pipe(this._writable);
     return transform;
   }
@@ -192,9 +183,9 @@ export class ItemManager extends EventEmitter {
     this._pendingItems.set(itemId, callback);
 
     // Write Item Genesis block.
+    // TODO(burdon): Write directly to the writable stream?
     log('Creating Genesis:', itemId);
     const writable = this._createWriteStream(itemId);
-    // TODO(burdon): Is it possible to wait on writing to a stream?
     await pify(writable.write.bind(writable))({
       __type_url: 'dxos.echo.testing.ItemGenesis',
       model: type
@@ -206,30 +197,28 @@ export class ItemManager extends EventEmitter {
   }
 
   /**
-   * Creates a data item and writes the genesis block to the stream.
+   * Constructs an item with the appropriate model.
    * @param type
    * @param itemId
    * @param readable
    */
   async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
-    log('construct', { type, itemId });
-    const model = this._modelFactory.createModel(type, itemId, readable, this._createWriteStream(itemId));
-    assert(model);
+    log('Construct', { type, itemId });
 
+    // Create model.
+    // TODO(burdon): Skip if unknown model.
+    const writable = this._createWriteStream(itemId);
+    const model = this._modelFactory.createModel(type, itemId, readable, writable);
+    assert(model, `Invalid model: ${type}`);
+
+    // Create item.
     const item = new Item(itemId, model);
-
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
-    log('Created:', this._pendingItems.get(itemId));
-
     // Notify pending creates.
-    // TODO(burdon): Lint issue.
-    // eslint-disable-next-line no-unused-expressions
     this._pendingItems.get(itemId)?.(item);
-
     this.emit('create', item);
-
     return item;
   }
 
@@ -244,7 +233,7 @@ export class ItemManager extends EventEmitter {
   /**
    * Return all items.
    */
-  // TODO(burdon): Later convert to query.
+  // TODO(burdon): Implement query (by type, parent, etc.)
   getItems () {
     return Array.from(this._items.values());
   }
@@ -257,11 +246,13 @@ export const createPartyMuxer = async (feedStore: FeedStore, initialFeeds: FeedK
   // TODO(burdon): Is this the correct way to create a stream?
   const outputStream = new Readable({ objectMode: true, read () {} });
 
+  // Configure iterator with dynamic set of admitted feeds.
   const allowedFeeds: Set<FeedKey> = new Set(initialFeeds);
   const iterator = await FeedStoreIterator.create(feedStore,
     async feedKey => allowedFeeds.has(keyToString(feedKey))
   );
 
+  // TODO(burdon): Explain control.
   setImmediate(async () => {
     // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
@@ -315,7 +306,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   }));
 
   // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
-  // TODO(marik_d): Replace with Writable.
+  // TODO(marik_d): Replace with Writable?
   return new Transform({
     objectMode: true,
     transform: async ({ data: { message } }, _, callback) => {
