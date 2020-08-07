@@ -3,7 +3,6 @@
 //
 
 import bufferJson from 'buffer-json-encoding';
-import pify from 'pify';
 
 import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { latch } from '@dxos/async';
@@ -40,13 +39,14 @@ const createFactory = async () => {
 
   const topic = randomBytes(32);
 
-  const feed = await feedStore.openFeed('/writable', { metadata: { topic } });
+  // const feed = await feedStore.openFeed('/writable', { metadata: { topic } });
 
   return {
     factory: new ModelFactory(feedStore, {
       onAppend (message) {
-`        return pify(feed.append.bind(feed))(message);
-`;
+        // TODO(marik-d): Why is this commented?
+        // return pify(feed.append.bind(feed))(message);
+
       }
     }),
     topic
