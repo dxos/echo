@@ -50,3 +50,11 @@ message ItemMutation {
   string key = 1;
   string value = 2;
 }
+
+message TestData {
+  int32 data = 1;
+}
+
+message TestFeedRemove {
+  string feedKey = 1;
+}
