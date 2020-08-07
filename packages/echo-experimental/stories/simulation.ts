@@ -180,7 +180,7 @@ export class Simulation {
       const selectedColor = Simulation.randomColor();
       await selectedNode.model.updateItem(this.itemId, { color: selectedColor });
       // TODOO(dboreham): display this text on the screen.
-      log(`Changed node: ${selectedNode} color to: ${selectedNode}`);
+      log(`Changed node: ${keyToString(selectedNode.id)} color to: ${selectedColor}`);
     } else {
       log('Item not found on node, skipping mutation.');
     }
