@@ -98,107 +98,200 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a FeedSeq. */
-            interface IFeedSeq {
+            /** Properties of a Timestamp. */
+            interface ITimestamp {
 
-                /** FeedSeq feedKey */
-                feedKey?: (string|null);
-
-                /** FeedSeq seq */
-                seq?: (number|null);
+                /** Timestamp vector */
+                vector?: (dxos.echo.testing.Timestamp.ISeq[]|null);
             }
 
-            /** Represents a FeedSeq. */
-            class FeedSeq implements IFeedSeq {
+            /** Represents a Timestamp. */
+            class Timestamp implements ITimestamp {
 
                 /**
-                 * Constructs a new FeedSeq.
+                 * Constructs a new Timestamp.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.IFeedSeq);
+                constructor(properties?: dxos.echo.testing.ITimestamp);
 
-                /** FeedSeq feedKey. */
-                public feedKey: string;
-
-                /** FeedSeq seq. */
-                public seq: number;
+                /** Timestamp vector. */
+                public vector: dxos.echo.testing.Timestamp.ISeq[];
 
                 /**
-                 * Creates a new FeedSeq instance using the specified properties.
+                 * Creates a new Timestamp instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns FeedSeq instance
+                 * @returns Timestamp instance
                  */
-                public static create(properties?: dxos.echo.testing.IFeedSeq): dxos.echo.testing.FeedSeq;
+                public static create(properties?: dxos.echo.testing.ITimestamp): dxos.echo.testing.Timestamp;
 
                 /**
-                 * Encodes the specified FeedSeq message. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
-                 * @param message FeedSeq message or plain object to encode
+                 * Encodes the specified Timestamp message. Does not implicitly {@link dxos.echo.testing.Timestamp.verify|verify} messages.
+                 * @param message Timestamp message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.IFeedSeq, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.ITimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified FeedSeq message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedSeq.verify|verify} messages.
-                 * @param message FeedSeq message or plain object to encode
+                 * Encodes the specified Timestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.Timestamp.verify|verify} messages.
+                 * @param message Timestamp message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.IFeedSeq, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.ITimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a FeedSeq message from the specified reader or buffer.
+                 * Decodes a Timestamp message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns FeedSeq
+                 * @returns Timestamp
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.FeedSeq;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.Timestamp;
 
                 /**
-                 * Decodes a FeedSeq message from the specified reader or buffer, length delimited.
+                 * Decodes a Timestamp message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns FeedSeq
+                 * @returns Timestamp
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.FeedSeq;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.Timestamp;
 
                 /**
-                 * Verifies a FeedSeq message.
+                 * Verifies a Timestamp message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a FeedSeq message from a plain object. Also converts values to their respective internal types.
+                 * Creates a Timestamp message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns FeedSeq
+                 * @returns Timestamp
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.FeedSeq;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.Timestamp;
 
                 /**
-                 * Creates a plain object from a FeedSeq message. Also converts values to other types if specified.
-                 * @param message FeedSeq
+                 * Creates a plain object from a Timestamp message. Also converts values to other types if specified.
+                 * @param message Timestamp
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.FeedSeq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.Timestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this FeedSeq to JSON.
+                 * Converts this Timestamp to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
+            }
+
+            namespace Timestamp {
+
+                /** Properties of a Seq. */
+                interface ISeq {
+
+                    /** Seq feedKey */
+                    feedKey?: (Uint8Array|null);
+
+                    /** Seq seq */
+                    seq?: (number|null);
+                }
+
+                /** Represents a Seq. */
+                class Seq implements ISeq {
+
+                    /**
+                     * Constructs a new Seq.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: dxos.echo.testing.Timestamp.ISeq);
+
+                    /** Seq feedKey. */
+                    public feedKey: Uint8Array;
+
+                    /** Seq seq. */
+                    public seq: number;
+
+                    /**
+                     * Creates a new Seq instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns Seq instance
+                     */
+                    public static create(properties?: dxos.echo.testing.Timestamp.ISeq): dxos.echo.testing.Timestamp.Seq;
+
+                    /**
+                     * Encodes the specified Seq message. Does not implicitly {@link dxos.echo.testing.Timestamp.Seq.verify|verify} messages.
+                     * @param message Seq message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: dxos.echo.testing.Timestamp.ISeq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified Seq message, length delimited. Does not implicitly {@link dxos.echo.testing.Timestamp.Seq.verify|verify} messages.
+                     * @param message Seq message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: dxos.echo.testing.Timestamp.ISeq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a Seq message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns Seq
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.Timestamp.Seq;
+
+                    /**
+                     * Decodes a Seq message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns Seq
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.Timestamp.Seq;
+
+                    /**
+                     * Verifies a Seq message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a Seq message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns Seq
+                     */
+                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.Timestamp.Seq;
+
+                    /**
+                     * Creates a plain object from a Seq message. Also converts values to other types if specified.
+                     * @param message Seq
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: dxos.echo.testing.Timestamp.Seq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this Seq to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
             }
 
             /** Properties of a TimeStampedEnvelope. */
             interface ITimeStampedEnvelope {
 
                 /** TimeStampedEnvelope timeStamp */
-                timeStamp?: (dxos.echo.testing.IFeedSeq[]|null);
+                timeStamp?: (dxos.echo.testing.ITimestamp|null);
 
                 /** TimeStampedEnvelope message */
                 message?: (google.protobuf.IAny|null);
@@ -214,7 +307,7 @@ export namespace dxos {
                 constructor(properties?: dxos.echo.testing.ITimeStampedEnvelope);
 
                 /** TimeStampedEnvelope timeStamp. */
-                public timeStamp: dxos.echo.testing.IFeedSeq[];
+                public timeStamp?: (dxos.echo.testing.ITimestamp|null);
 
                 /** TimeStampedEnvelope message. */
                 public message?: (google.protobuf.IAny|null);

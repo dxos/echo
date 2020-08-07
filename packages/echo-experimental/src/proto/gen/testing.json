@@ -14,23 +14,33 @@
                     }
                   }
                 },
-                "FeedSeq": {
+                "Timestamp": {
                   "fields": {
-                    "feedKey": {
-                      "type": "string",
+                    "vector": {
+                      "rule": "repeated",
+                      "type": "Seq",
                       "id": 1
-                    },
-                    "seq": {
-                      "type": "int32",
-                      "id": 2
+                    }
+                  },
+                  "nested": {
+                    "Seq": {
+                      "fields": {
+                        "feedKey": {
+                          "type": "bytes",
+                          "id": 1
+                        },
+                        "seq": {
+                          "type": "int32",
+                          "id": 2
+                        }
+                      }
                     }
                   }
                 },
                 "TimeStampedEnvelope": {
                   "fields": {
                     "timeStamp": {
-                      "rule": "repeated",
-                      "type": "FeedSeq",
+                      "type": "Timestamp",
                       "id": 1
                     },
                     "message": {
