@@ -34,7 +34,7 @@ declare module 'hypercore' {
     }
   }
 
-  function hypercore(storage: any, key?: any, options?: any): Feed;
+  function hypercore(storage: any, key?: any, options?: any): hypercore.Feed;
 
   export = hypercore;
 }

@@ -31,8 +31,8 @@ export class TestModel extends Model {
     return this._values.get(key);
   }
 
-  async processMessage (message: dxos.echo.testing.FeedMessage) {
-    const mutation = message.data?.payload as dxos.echo.testing.IItemMutation;
+  async processMessage (message: dxos.echo.testing.IFeedMessage) {
+    const mutation = message?.data?.message as dxos.echo.testing.IItemMutation;
     assert(mutation);
 
     const { key, value } = mutation;

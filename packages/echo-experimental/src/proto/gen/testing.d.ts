@@ -15,7 +15,7 @@ export namespace dxos {
                 feedKey?: (string|null);
 
                 /** FeedMessage data */
-                data?: (dxos.echo.testing.IItemEnvelope|null);
+                data?: (dxos.echo.testing.IEnvelope|null);
             }
 
             /** Represents a FeedMessage. */
@@ -31,7 +31,7 @@ export namespace dxos {
                 public feedKey: string;
 
                 /** FeedMessage data. */
-                public data?: (dxos.echo.testing.IItemEnvelope|null);
+                public data?: (dxos.echo.testing.IEnvelope|null);
 
                 /**
                  * Creates a new FeedMessage instance using the specified properties.

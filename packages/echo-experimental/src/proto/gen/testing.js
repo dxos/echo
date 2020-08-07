@@ -43,7 +43,7 @@ $root.dxos = (function() {
                  * @memberof dxos.echo.testing
                  * @interface IFeedMessage
                  * @property {string|null} [feedKey] FeedMessage feedKey
-                 * @property {dxos.echo.testing.IItemEnvelope|null} [data] FeedMessage data
+                 * @property {dxos.echo.testing.IEnvelope|null} [data] FeedMessage data
                  */
 
                 /**
@@ -71,7 +71,7 @@ $root.dxos = (function() {
 
                 /**
                  * FeedMessage data.
-                 * @member {dxos.echo.testing.IItemEnvelope|null|undefined} data
+                 * @member {dxos.echo.testing.IEnvelope|null|undefined} data
                  * @memberof dxos.echo.testing.FeedMessage
                  * @instance
                  */
@@ -104,7 +104,7 @@ $root.dxos = (function() {
                     if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
                     if (message.data != null && Object.hasOwnProperty.call(message, "data"))
-                        $root.dxos.echo.testing.ItemEnvelope.encode(message.data, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        $root.dxos.echo.testing.Envelope.encode(message.data, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     return writer;
                 };
 
@@ -143,7 +143,7 @@ $root.dxos = (function() {
                             message.feedKey = reader.string();
                             break;
                         case 2:
-                            message.data = $root.dxos.echo.testing.ItemEnvelope.decode(reader, reader.uint32());
+                            message.data = $root.dxos.echo.testing.Envelope.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -184,7 +184,7 @@ $root.dxos = (function() {
                         if (!$util.isString(message.feedKey))
                             return "feedKey: string expected";
                     if (message.data != null && message.hasOwnProperty("data")) {
-                        var error = $root.dxos.echo.testing.ItemEnvelope.verify(message.data);
+                        var error = $root.dxos.echo.testing.Envelope.verify(message.data);
                         if (error)
                             return "data." + error;
                     }
@@ -208,7 +208,7 @@ $root.dxos = (function() {
                     if (object.data != null) {
                         if (typeof object.data !== "object")
                             throw TypeError(".dxos.echo.testing.FeedMessage.data: object expected");
-                        message.data = $root.dxos.echo.testing.ItemEnvelope.fromObject(object.data);
+                        message.data = $root.dxos.echo.testing.Envelope.fromObject(object.data);
                     }
                     return message;
                 };
@@ -233,7 +233,7 @@ $root.dxos = (function() {
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
                         object.feedKey = message.feedKey;
                     if (message.data != null && message.hasOwnProperty("data"))
-                        object.data = $root.dxos.echo.testing.ItemEnvelope.toObject(message.data, options);
+                        object.data = $root.dxos.echo.testing.Envelope.toObject(message.data, options);
                     return object;
                 };
 
