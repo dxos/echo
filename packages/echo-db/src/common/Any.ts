@@ -16,7 +16,7 @@ export interface Any extends IAny {
 export class Any implements Any {
   constructor (properties: any) {
     const { __type_url, type_url, ...rest } = properties;
-    assert(type_url || __type_url);
+    assert(__type_url || type_url);
 
     this.__type_url = __type_url || type_url;
 
