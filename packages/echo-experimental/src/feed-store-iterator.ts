@@ -1,16 +1,23 @@
-import { FeedStore, FeedDescriptor } from '@dxos/feed-store';
-import { Readable } from 'stream';
-import { Feed } from 'hypercore';
+//
+// Copyright 2020 DXOS.org
+//
+
 import assert from 'assert';
+import { Feed } from 'hypercore';
+import { Readable } from 'stream';
+
+import { FeedStore, FeedDescriptor } from '@dxos/feed-store';
+
 import { Trigger } from './util';
 
 /**
  * We are using an iterator here instead of a stream to ensure we have full control over how and at what time data is read.
- *
  * The reason for that is that the reader (PartyProcessor) has an effect via the feedSelector function over how data is generated.
  * NodeJS streams have intenal buffer that the system tends to eagerly fill.
  */
+// TODO(burdon): Define type: dxos.echo.testing.FeedMessage
 export class FeedStoreIterator implements AsyncIterable<any> {
+  // TODO(burdon): No static methods!
   static async create (feedStore: FeedStore, feedSelector: (feedKey: Buffer) => Promise<boolean>) {
     if (feedStore.closing || feedStore.closed) {
       throw new Error('FeedStore closed');
@@ -25,6 +32,7 @@ export class FeedStoreIterator implements AsyncIterable<any> {
     for (const descriptor of existingDescriptors) {
       iterator._trackDescriptor(descriptor);
     }
+
     (feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
       iterator._trackDescriptor(descriptor);
     });
@@ -36,7 +44,7 @@ export class FeedStoreIterator implements AsyncIterable<any> {
   private readonly _openFeeds = new Set<{ descriptor: FeedDescriptor, iterator: AsyncIterator<any>, frozen: boolean, sendQueue: any[] }>();
   private readonly _trigger = new Trigger();
   private _messageCount = 0; // needed for round-robin ordering
-  private _destoryed = false;
+  private _destroyed = false;
 
   constructor (
     private readonly _feedSelector: (feedKey: Buffer) => Promise<boolean>
@@ -48,15 +56,18 @@ export class FeedStoreIterator implements AsyncIterable<any> {
         feed.frozen = true;
       }
     }
+
     for (const descriptor of Array.from(this._candidateFeeds.values())) { // snapshot cause we will be mutating the collection
       if (await this._feedSelector(descriptor.key)) {
         const stream = new Readable({ objectMode: true }).wrap((descriptor.feed as Feed).createReadStream({ live: true }));
+
         this._openFeeds.add({
           descriptor,
           iterator: stream[Symbol.asyncIterator](),
           frozen: false,
           sendQueue: []
         });
+
         this._candidateFeeds.delete(descriptor);
       }
     }
@@ -70,6 +81,7 @@ export class FeedStoreIterator implements AsyncIterable<any> {
       if (openFeeds[idx].sendQueue.length === 0) { continue; }
       return openFeeds[idx].sendQueue.shift();
     }
+
     return undefined;
   }
 
@@ -95,14 +107,18 @@ export class FeedStoreIterator implements AsyncIterable<any> {
   }
 
   async * _generator () {
-    while (!this._destoryed) {
+    while (!this._destroyed) {
       while (true) {
         await this._reevaluateFeeds();
 
         const message = this._popSendQueue();
         if (!message) { break; }
         this._messageCount++;
-        yield message;
+
+        // TODO(burdon): Add feedKey (FeedMessage).
+        yield {
+          data: message
+        };
       }
 
       await this._waitForData();
@@ -110,6 +126,8 @@ export class FeedStoreIterator implements AsyncIterable<any> {
   }
 
   private _generatorInstance = this._generator();
+
+  // TODO(burdon): Explain???
   [Symbol.asyncIterator] () {
     return this._generatorInstance;
   }
@@ -120,7 +138,7 @@ export class FeedStoreIterator implements AsyncIterable<any> {
   }
 
   destory () {
-    this._destoryed = true;
+    this._destroyed = true;
     this._trigger.wake();
     // TODO(marik-d): Does this need to close the streams, or will they be garbage-collected automatically?
   }

@@ -36,6 +36,221 @@ $root.dxos = (function() {
              */
             var testing = {};
 
+            testing.FeedMessage = (function() {
+
+                /**
+                 * Properties of a FeedMessage.
+                 * @memberof dxos.echo.testing
+                 * @interface IFeedMessage
+                 * @property {string|null} [feedKey] FeedMessage feedKey
+                 * @property {dxos.echo.testing.IItemEnvelope|null} [data] FeedMessage data
+                 */
+
+                /**
+                 * Constructs a new FeedMessage.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a FeedMessage.
+                 * @implements IFeedMessage
+                 * @constructor
+                 * @param {dxos.echo.testing.IFeedMessage=} [properties] Properties to set
+                 */
+                function FeedMessage(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * FeedMessage feedKey.
+                 * @member {string} feedKey
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @instance
+                 */
+                FeedMessage.prototype.feedKey = "";
+
+                /**
+                 * FeedMessage data.
+                 * @member {dxos.echo.testing.IItemEnvelope|null|undefined} data
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @instance
+                 */
+                FeedMessage.prototype.data = null;
+
+                /**
+                 * Creates a new FeedMessage instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {dxos.echo.testing.IFeedMessage=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.FeedMessage} FeedMessage instance
+                 */
+                FeedMessage.create = function create(properties) {
+                    return new FeedMessage(properties);
+                };
+
+                /**
+                 * Encodes the specified FeedMessage message. Does not implicitly {@link dxos.echo.testing.FeedMessage.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {dxos.echo.testing.IFeedMessage} message FeedMessage message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FeedMessage.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
+                    if (message.data != null && Object.hasOwnProperty.call(message, "data"))
+                        $root.dxos.echo.testing.ItemEnvelope.encode(message.data, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified FeedMessage message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedMessage.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {dxos.echo.testing.IFeedMessage} message FeedMessage message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FeedMessage.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a FeedMessage message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.FeedMessage} FeedMessage
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FeedMessage.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.FeedMessage();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.feedKey = reader.string();
+                            break;
+                        case 2:
+                            message.data = $root.dxos.echo.testing.ItemEnvelope.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a FeedMessage message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.FeedMessage} FeedMessage
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FeedMessage.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a FeedMessage message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                FeedMessage.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        if (!$util.isString(message.feedKey))
+                            return "feedKey: string expected";
+                    if (message.data != null && message.hasOwnProperty("data")) {
+                        var error = $root.dxos.echo.testing.ItemEnvelope.verify(message.data);
+                        if (error)
+                            return "data." + error;
+                    }
+                    return null;
+                };
+
+                /**
+                 * Creates a FeedMessage message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.FeedMessage} FeedMessage
+                 */
+                FeedMessage.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.FeedMessage)
+                        return object;
+                    var message = new $root.dxos.echo.testing.FeedMessage();
+                    if (object.feedKey != null)
+                        message.feedKey = String(object.feedKey);
+                    if (object.data != null) {
+                        if (typeof object.data !== "object")
+                            throw TypeError(".dxos.echo.testing.FeedMessage.data: object expected");
+                        message.data = $root.dxos.echo.testing.ItemEnvelope.fromObject(object.data);
+                    }
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a FeedMessage message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @static
+                 * @param {dxos.echo.testing.FeedMessage} message FeedMessage
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                FeedMessage.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.feedKey = "";
+                        object.data = null;
+                    }
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        object.feedKey = message.feedKey;
+                    if (message.data != null && message.hasOwnProperty("data"))
+                        object.data = $root.dxos.echo.testing.ItemEnvelope.toObject(message.data, options);
+                    return object;
+                };
+
+                /**
+                 * Converts this FeedMessage to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.FeedMessage
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                FeedMessage.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return FeedMessage;
+            })();
+
             testing.Envelope = (function() {
 
                 /**
@@ -415,433 +630,6 @@ $root.dxos = (function() {
                 return Admit;
             })();
 
-            testing.VectorTimestamp = (function() {
-
-                /**
-                 * Properties of a VectorTimestamp.
-                 * @memberof dxos.echo.testing
-                 * @interface IVectorTimestamp
-                 * @property {Array.<dxos.echo.testing.VectorTimestamp.IFeed>|null} [timestamp] VectorTimestamp timestamp
-                 */
-
-                /**
-                 * Constructs a new VectorTimestamp.
-                 * @memberof dxos.echo.testing
-                 * @classdesc Represents a VectorTimestamp.
-                 * @implements IVectorTimestamp
-                 * @constructor
-                 * @param {dxos.echo.testing.IVectorTimestamp=} [properties] Properties to set
-                 */
-                function VectorTimestamp(properties) {
-                    this.timestamp = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * VectorTimestamp timestamp.
-                 * @member {Array.<dxos.echo.testing.VectorTimestamp.IFeed>} timestamp
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @instance
-                 */
-                VectorTimestamp.prototype.timestamp = $util.emptyArray;
-
-                /**
-                 * Creates a new VectorTimestamp instance using the specified properties.
-                 * @function create
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp=} [properties] Properties to set
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp instance
-                 */
-                VectorTimestamp.create = function create(properties) {
-                    return new VectorTimestamp(properties);
-                };
-
-                /**
-                 * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
-                 * @function encode
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp} message VectorTimestamp message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                VectorTimestamp.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.timestamp != null && message.timestamp.length)
-                        for (var i = 0; i < message.timestamp.length; ++i)
-                            $root.dxos.echo.testing.VectorTimestamp.Feed.encode(message.timestamp[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp} message VectorTimestamp message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                VectorTimestamp.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                VectorTimestamp.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.VectorTimestamp();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.timestamp && message.timestamp.length))
-                                message.timestamp = [];
-                            message.timestamp.push($root.dxos.echo.testing.VectorTimestamp.Feed.decode(reader, reader.uint32()));
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                VectorTimestamp.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a VectorTimestamp message.
-                 * @function verify
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                VectorTimestamp.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
-                        if (!Array.isArray(message.timestamp))
-                            return "timestamp: array expected";
-                        for (var i = 0; i < message.timestamp.length; ++i) {
-                            var error = $root.dxos.echo.testing.VectorTimestamp.Feed.verify(message.timestamp[i]);
-                            if (error)
-                                return "timestamp." + error;
-                        }
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
-                 */
-                VectorTimestamp.fromObject = function fromObject(object) {
-                    if (object instanceof $root.dxos.echo.testing.VectorTimestamp)
-                        return object;
-                    var message = new $root.dxos.echo.testing.VectorTimestamp();
-                    if (object.timestamp) {
-                        if (!Array.isArray(object.timestamp))
-                            throw TypeError(".dxos.echo.testing.VectorTimestamp.timestamp: array expected");
-                        message.timestamp = [];
-                        for (var i = 0; i < object.timestamp.length; ++i) {
-                            if (typeof object.timestamp[i] !== "object")
-                                throw TypeError(".dxos.echo.testing.VectorTimestamp.timestamp: object expected");
-                            message.timestamp[i] = $root.dxos.echo.testing.VectorTimestamp.Feed.fromObject(object.timestamp[i]);
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @static
-                 * @param {dxos.echo.testing.VectorTimestamp} message VectorTimestamp
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                VectorTimestamp.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.timestamp = [];
-                    if (message.timestamp && message.timestamp.length) {
-                        object.timestamp = [];
-                        for (var j = 0; j < message.timestamp.length; ++j)
-                            object.timestamp[j] = $root.dxos.echo.testing.VectorTimestamp.Feed.toObject(message.timestamp[j], options);
-                    }
-                    return object;
-                };
-
-                /**
-                 * Converts this VectorTimestamp to JSON.
-                 * @function toJSON
-                 * @memberof dxos.echo.testing.VectorTimestamp
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                VectorTimestamp.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                VectorTimestamp.Feed = (function() {
-
-                    /**
-                     * Properties of a Feed.
-                     * @memberof dxos.echo.testing.VectorTimestamp
-                     * @interface IFeed
-                     * @property {Uint8Array|null} [feedKey] Feed feedKey
-                     * @property {number|null} [seq] Feed seq
-                     */
-
-                    /**
-                     * Constructs a new Feed.
-                     * @memberof dxos.echo.testing.VectorTimestamp
-                     * @classdesc Represents a Feed.
-                     * @implements IFeed
-                     * @constructor
-                     * @param {dxos.echo.testing.VectorTimestamp.IFeed=} [properties] Properties to set
-                     */
-                    function Feed(properties) {
-                        if (properties)
-                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                                if (properties[keys[i]] != null)
-                                    this[keys[i]] = properties[keys[i]];
-                    }
-
-                    /**
-                     * Feed feedKey.
-                     * @member {Uint8Array} feedKey
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @instance
-                     */
-                    Feed.prototype.feedKey = $util.newBuffer([]);
-
-                    /**
-                     * Feed seq.
-                     * @member {number} seq
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @instance
-                     */
-                    Feed.prototype.seq = 0;
-
-                    /**
-                     * Creates a new Feed instance using the specified properties.
-                     * @function create
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IFeed=} [properties] Properties to set
-                     * @returns {dxos.echo.testing.VectorTimestamp.Feed} Feed instance
-                     */
-                    Feed.create = function create(properties) {
-                        return new Feed(properties);
-                    };
-
-                    /**
-                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
-                     * @function encode
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IFeed} message Feed message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    Feed.encode = function encode(message, writer) {
-                        if (!writer)
-                            writer = $Writer.create();
-                        if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
-                            writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
-                        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
-                            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.seq);
-                        return writer;
-                    };
-
-                    /**
-                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
-                     * @function encodeDelimited
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IFeed} message Feed message or plain object to encode
-                     * @param {$protobuf.Writer} [writer] Writer to encode to
-                     * @returns {$protobuf.Writer} Writer
-                     */
-                    Feed.encodeDelimited = function encodeDelimited(message, writer) {
-                        return this.encode(message, writer).ldelim();
-                    };
-
-                    /**
-                     * Decodes a Feed message from the specified reader or buffer.
-                     * @function decode
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @param {number} [length] Message length if known beforehand
-                     * @returns {dxos.echo.testing.VectorTimestamp.Feed} Feed
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    Feed.decode = function decode(reader, length) {
-                        if (!(reader instanceof $Reader))
-                            reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.VectorTimestamp.Feed();
-                        while (reader.pos < end) {
-                            var tag = reader.uint32();
-                            switch (tag >>> 3) {
-                            case 1:
-                                message.feedKey = reader.bytes();
-                                break;
-                            case 2:
-                                message.seq = reader.int32();
-                                break;
-                            default:
-                                reader.skipType(tag & 7);
-                                break;
-                            }
-                        }
-                        return message;
-                    };
-
-                    /**
-                     * Decodes a Feed message from the specified reader or buffer, length delimited.
-                     * @function decodeDelimited
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @returns {dxos.echo.testing.VectorTimestamp.Feed} Feed
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    Feed.decodeDelimited = function decodeDelimited(reader) {
-                        if (!(reader instanceof $Reader))
-                            reader = new $Reader(reader);
-                        return this.decode(reader, reader.uint32());
-                    };
-
-                    /**
-                     * Verifies a Feed message.
-                     * @function verify
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {Object.<string,*>} message Plain object to verify
-                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                     */
-                    Feed.verify = function verify(message) {
-                        if (typeof message !== "object" || message === null)
-                            return "object expected";
-                        if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                            if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
-                                return "feedKey: buffer expected";
-                        if (message.seq != null && message.hasOwnProperty("seq"))
-                            if (!$util.isInteger(message.seq))
-                                return "seq: integer expected";
-                        return null;
-                    };
-
-                    /**
-                     * Creates a Feed message from a plain object. Also converts values to their respective internal types.
-                     * @function fromObject
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {Object.<string,*>} object Plain object
-                     * @returns {dxos.echo.testing.VectorTimestamp.Feed} Feed
-                     */
-                    Feed.fromObject = function fromObject(object) {
-                        if (object instanceof $root.dxos.echo.testing.VectorTimestamp.Feed)
-                            return object;
-                        var message = new $root.dxos.echo.testing.VectorTimestamp.Feed();
-                        if (object.feedKey != null)
-                            if (typeof object.feedKey === "string")
-                                $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
-                            else if (object.feedKey.length)
-                                message.feedKey = object.feedKey;
-                        if (object.seq != null)
-                            message.seq = object.seq | 0;
-                        return message;
-                    };
-
-                    /**
-                     * Creates a plain object from a Feed message. Also converts values to other types if specified.
-                     * @function toObject
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.Feed} message Feed
-                     * @param {$protobuf.IConversionOptions} [options] Conversion options
-                     * @returns {Object.<string,*>} Plain object
-                     */
-                    Feed.toObject = function toObject(message, options) {
-                        if (!options)
-                            options = {};
-                        var object = {};
-                        if (options.defaults) {
-                            if (options.bytes === String)
-                                object.feedKey = "";
-                            else {
-                                object.feedKey = [];
-                                if (options.bytes !== Array)
-                                    object.feedKey = $util.newBuffer(object.feedKey);
-                            }
-                            object.seq = 0;
-                        }
-                        if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                            object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
-                        if (message.seq != null && message.hasOwnProperty("seq"))
-                            object.seq = message.seq;
-                        return object;
-                    };
-
-                    /**
-                     * Converts this Feed to JSON.
-                     * @function toJSON
-                     * @memberof dxos.echo.testing.VectorTimestamp.Feed
-                     * @instance
-                     * @returns {Object.<string,*>} JSON object
-                     */
-                    Feed.prototype.toJSON = function toJSON() {
-                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                    };
-
-                    return Feed;
-                })();
-
-                return VectorTimestamp;
-            })();
-
             testing.ItemEnvelope = (function() {
 
                 /**
@@ -849,7 +637,7 @@ $root.dxos = (function() {
                  * @memberof dxos.echo.testing
                  * @interface IItemEnvelope
                  * @property {string|null} [itemId] ItemEnvelope itemId
-                 * @property {dxos.echo.testing.IVectorTimestamp|null} [timestamp] ItemEnvelope timestamp
+                 * @property {dxos.echo.testing.ItemEnvelope.IVectorTimestamp|null} [timestamp] ItemEnvelope timestamp
                  * @property {google.protobuf.IAny|null} [payload] ItemEnvelope payload
                  */
 
@@ -878,7 +666,7 @@ $root.dxos = (function() {
 
                 /**
                  * ItemEnvelope timestamp.
-                 * @member {dxos.echo.testing.IVectorTimestamp|null|undefined} timestamp
+                 * @member {dxos.echo.testing.ItemEnvelope.IVectorTimestamp|null|undefined} timestamp
                  * @memberof dxos.echo.testing.ItemEnvelope
                  * @instance
                  */
@@ -919,7 +707,7 @@ $root.dxos = (function() {
                     if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
                         writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
                     if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
-                        $root.dxos.echo.testing.VectorTimestamp.encode(message.timestamp, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.encode(message.timestamp, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
                         $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     return writer;
@@ -960,7 +748,7 @@ $root.dxos = (function() {
                             message.itemId = reader.string();
                             break;
                         case 2:
-                            message.timestamp = $root.dxos.echo.testing.VectorTimestamp.decode(reader, reader.uint32());
+                            message.timestamp = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.decode(reader, reader.uint32());
                             break;
                         case 3:
                             message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
@@ -1004,7 +792,7 @@ $root.dxos = (function() {
                         if (!$util.isString(message.itemId))
                             return "itemId: string expected";
                     if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
-                        var error = $root.dxos.echo.testing.VectorTimestamp.verify(message.timestamp);
+                        var error = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.verify(message.timestamp);
                         if (error)
                             return "timestamp." + error;
                     }
@@ -1033,7 +821,7 @@ $root.dxos = (function() {
                     if (object.timestamp != null) {
                         if (typeof object.timestamp !== "object")
                             throw TypeError(".dxos.echo.testing.ItemEnvelope.timestamp: object expected");
-                        message.timestamp = $root.dxos.echo.testing.VectorTimestamp.fromObject(object.timestamp);
+                        message.timestamp = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.fromObject(object.timestamp);
                     }
                     if (object.payload != null) {
                         if (typeof object.payload !== "object")
@@ -1064,7 +852,7 @@ $root.dxos = (function() {
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
                     if (message.timestamp != null && message.hasOwnProperty("timestamp"))
-                        object.timestamp = $root.dxos.echo.testing.VectorTimestamp.toObject(message.timestamp, options);
+                        object.timestamp = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.toObject(message.timestamp, options);
                     if (message.payload != null && message.hasOwnProperty("payload"))
                         object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
                     return object;
@@ -1081,6 +869,433 @@ $root.dxos = (function() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
+                ItemEnvelope.VectorTimestamp = (function() {
+
+                    /**
+                     * Properties of a VectorTimestamp.
+                     * @memberof dxos.echo.testing.ItemEnvelope
+                     * @interface IVectorTimestamp
+                     * @property {Array.<dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed>|null} [timestamp] VectorTimestamp timestamp
+                     */
+
+                    /**
+                     * Constructs a new VectorTimestamp.
+                     * @memberof dxos.echo.testing.ItemEnvelope
+                     * @classdesc Represents a VectorTimestamp.
+                     * @implements IVectorTimestamp
+                     * @constructor
+                     * @param {dxos.echo.testing.ItemEnvelope.IVectorTimestamp=} [properties] Properties to set
+                     */
+                    function VectorTimestamp(properties) {
+                        this.timestamp = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * VectorTimestamp timestamp.
+                     * @member {Array.<dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed>} timestamp
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @instance
+                     */
+                    VectorTimestamp.prototype.timestamp = $util.emptyArray;
+
+                    /**
+                     * Creates a new VectorTimestamp instance using the specified properties.
+                     * @function create
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {dxos.echo.testing.ItemEnvelope.IVectorTimestamp=} [properties] Properties to set
+                     * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp} VectorTimestamp instance
+                     */
+                    VectorTimestamp.create = function create(properties) {
+                        return new VectorTimestamp(properties);
+                    };
+
+                    /**
+                     * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.verify|verify} messages.
+                     * @function encode
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {dxos.echo.testing.ItemEnvelope.IVectorTimestamp} message VectorTimestamp message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    VectorTimestamp.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.timestamp != null && message.timestamp.length)
+                            for (var i = 0; i < message.timestamp.length; ++i)
+                                $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.encode(message.timestamp[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {dxos.echo.testing.ItemEnvelope.IVectorTimestamp} message VectorTimestamp message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    VectorTimestamp.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a VectorTimestamp message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp} VectorTimestamp
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    VectorTimestamp.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.timestamp && message.timestamp.length))
+                                    message.timestamp = [];
+                                message.timestamp.push($root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp} VectorTimestamp
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    VectorTimestamp.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a VectorTimestamp message.
+                     * @function verify
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    VectorTimestamp.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
+                            if (!Array.isArray(message.timestamp))
+                                return "timestamp: array expected";
+                            for (var i = 0; i < message.timestamp.length; ++i) {
+                                var error = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.verify(message.timestamp[i]);
+                                if (error)
+                                    return "timestamp." + error;
+                            }
+                        }
+                        return null;
+                    };
+
+                    /**
+                     * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp} VectorTimestamp
+                     */
+                    VectorTimestamp.fromObject = function fromObject(object) {
+                        if (object instanceof $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp)
+                            return object;
+                        var message = new $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp();
+                        if (object.timestamp) {
+                            if (!Array.isArray(object.timestamp))
+                                throw TypeError(".dxos.echo.testing.ItemEnvelope.VectorTimestamp.timestamp: array expected");
+                            message.timestamp = [];
+                            for (var i = 0; i < object.timestamp.length; ++i) {
+                                if (typeof object.timestamp[i] !== "object")
+                                    throw TypeError(".dxos.echo.testing.ItemEnvelope.VectorTimestamp.timestamp: object expected");
+                                message.timestamp[i] = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.fromObject(object.timestamp[i]);
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @static
+                     * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp} message VectorTimestamp
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    VectorTimestamp.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.timestamp = [];
+                        if (message.timestamp && message.timestamp.length) {
+                            object.timestamp = [];
+                            for (var j = 0; j < message.timestamp.length; ++j)
+                                object.timestamp[j] = $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.toObject(message.timestamp[j], options);
+                        }
+                        return object;
+                    };
+
+                    /**
+                     * Converts this VectorTimestamp to JSON.
+                     * @function toJSON
+                     * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    VectorTimestamp.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    VectorTimestamp.Feed = (function() {
+
+                        /**
+                         * Properties of a Feed.
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                         * @interface IFeed
+                         * @property {Uint8Array|null} [feedKey] Feed feedKey
+                         * @property {number|null} [seq] Feed seq
+                         */
+
+                        /**
+                         * Constructs a new Feed.
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp
+                         * @classdesc Represents a Feed.
+                         * @implements IFeed
+                         * @constructor
+                         * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed=} [properties] Properties to set
+                         */
+                        function Feed(properties) {
+                            if (properties)
+                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                    if (properties[keys[i]] != null)
+                                        this[keys[i]] = properties[keys[i]];
+                        }
+
+                        /**
+                         * Feed feedKey.
+                         * @member {Uint8Array} feedKey
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @instance
+                         */
+                        Feed.prototype.feedKey = $util.newBuffer([]);
+
+                        /**
+                         * Feed seq.
+                         * @member {number} seq
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @instance
+                         */
+                        Feed.prototype.seq = 0;
+
+                        /**
+                         * Creates a new Feed instance using the specified properties.
+                         * @function create
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed=} [properties] Properties to set
+                         * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed} Feed instance
+                         */
+                        Feed.create = function create(properties) {
+                            return new Feed(properties);
+                        };
+
+                        /**
+                         * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.verify|verify} messages.
+                         * @function encode
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed} message Feed message or plain object to encode
+                         * @param {$protobuf.Writer} [writer] Writer to encode to
+                         * @returns {$protobuf.Writer} Writer
+                         */
+                        Feed.encode = function encode(message, writer) {
+                            if (!writer)
+                                writer = $Writer.create();
+                            if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
+                                writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
+                            if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+                                writer.uint32(/* id 2, wireType 0 =*/16).int32(message.seq);
+                            return writer;
+                        };
+
+                        /**
+                         * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.verify|verify} messages.
+                         * @function encodeDelimited
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed} message Feed message or plain object to encode
+                         * @param {$protobuf.Writer} [writer] Writer to encode to
+                         * @returns {$protobuf.Writer} Writer
+                         */
+                        Feed.encodeDelimited = function encodeDelimited(message, writer) {
+                            return this.encode(message, writer).ldelim();
+                        };
+
+                        /**
+                         * Decodes a Feed message from the specified reader or buffer.
+                         * @function decode
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                         * @param {number} [length] Message length if known beforehand
+                         * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed} Feed
+                         * @throws {Error} If the payload is not a reader or valid buffer
+                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                         */
+                        Feed.decode = function decode(reader, length) {
+                            if (!(reader instanceof $Reader))
+                                reader = $Reader.create(reader);
+                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed();
+                            while (reader.pos < end) {
+                                var tag = reader.uint32();
+                                switch (tag >>> 3) {
+                                case 1:
+                                    message.feedKey = reader.bytes();
+                                    break;
+                                case 2:
+                                    message.seq = reader.int32();
+                                    break;
+                                default:
+                                    reader.skipType(tag & 7);
+                                    break;
+                                }
+                            }
+                            return message;
+                        };
+
+                        /**
+                         * Decodes a Feed message from the specified reader or buffer, length delimited.
+                         * @function decodeDelimited
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                         * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed} Feed
+                         * @throws {Error} If the payload is not a reader or valid buffer
+                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                         */
+                        Feed.decodeDelimited = function decodeDelimited(reader) {
+                            if (!(reader instanceof $Reader))
+                                reader = new $Reader(reader);
+                            return this.decode(reader, reader.uint32());
+                        };
+
+                        /**
+                         * Verifies a Feed message.
+                         * @function verify
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {Object.<string,*>} message Plain object to verify
+                         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                         */
+                        Feed.verify = function verify(message) {
+                            if (typeof message !== "object" || message === null)
+                                return "object expected";
+                            if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                                if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
+                                    return "feedKey: buffer expected";
+                            if (message.seq != null && message.hasOwnProperty("seq"))
+                                if (!$util.isInteger(message.seq))
+                                    return "seq: integer expected";
+                            return null;
+                        };
+
+                        /**
+                         * Creates a Feed message from a plain object. Also converts values to their respective internal types.
+                         * @function fromObject
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {Object.<string,*>} object Plain object
+                         * @returns {dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed} Feed
+                         */
+                        Feed.fromObject = function fromObject(object) {
+                            if (object instanceof $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed)
+                                return object;
+                            var message = new $root.dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed();
+                            if (object.feedKey != null)
+                                if (typeof object.feedKey === "string")
+                                    $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
+                                else if (object.feedKey.length)
+                                    message.feedKey = object.feedKey;
+                            if (object.seq != null)
+                                message.seq = object.seq | 0;
+                            return message;
+                        };
+
+                        /**
+                         * Creates a plain object from a Feed message. Also converts values to other types if specified.
+                         * @function toObject
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @static
+                         * @param {dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed} message Feed
+                         * @param {$protobuf.IConversionOptions} [options] Conversion options
+                         * @returns {Object.<string,*>} Plain object
+                         */
+                        Feed.toObject = function toObject(message, options) {
+                            if (!options)
+                                options = {};
+                            var object = {};
+                            if (options.defaults) {
+                                if (options.bytes === String)
+                                    object.feedKey = "";
+                                else {
+                                    object.feedKey = [];
+                                    if (options.bytes !== Array)
+                                        object.feedKey = $util.newBuffer(object.feedKey);
+                                }
+                                object.seq = 0;
+                            }
+                            if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                                object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
+                            if (message.seq != null && message.hasOwnProperty("seq"))
+                                object.seq = message.seq;
+                            return object;
+                        };
+
+                        /**
+                         * Converts this Feed to JSON.
+                         * @function toJSON
+                         * @memberof dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed
+                         * @instance
+                         * @returns {Object.<string,*>} JSON object
+                         */
+                        Feed.prototype.toJSON = function toJSON() {
+                            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                        };
+
+                        return Feed;
+                    })();
+
+                    return VectorTimestamp;
+                })();
+
                 return ItemEnvelope;
             })();
 
@@ -1090,7 +1305,6 @@ $root.dxos = (function() {
                  * Properties of an ItemGenesis.
                  * @memberof dxos.echo.testing
                  * @interface IItemGenesis
-                 * @property {string|null} [itemId] ItemGenesis itemId
                  * @property {string|null} [model] ItemGenesis model
                  */
 
@@ -1108,14 +1322,6 @@ $root.dxos = (function() {
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
-
-                /**
-                 * ItemGenesis itemId.
-                 * @member {string} itemId
-                 * @memberof dxos.echo.testing.ItemGenesis
-                 * @instance
-                 */
-                ItemGenesis.prototype.itemId = "";
 
                 /**
                  * ItemGenesis model.
@@ -1149,10 +1355,8 @@ $root.dxos = (function() {
                 ItemGenesis.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
                     if (message.model != null && Object.hasOwnProperty.call(message, "model"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.model);
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.model);
                     return writer;
                 };
 
@@ -1188,9 +1392,6 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.itemId = reader.string();
-                            break;
-                        case 2:
                             message.model = reader.string();
                             break;
                         default:
@@ -1228,9 +1429,6 @@ $root.dxos = (function() {
                 ItemGenesis.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.itemId != null && message.hasOwnProperty("itemId"))
-                        if (!$util.isString(message.itemId))
-                            return "itemId: string expected";
                     if (message.model != null && message.hasOwnProperty("model"))
                         if (!$util.isString(message.model))
                             return "model: string expected";
@@ -1249,8 +1447,6 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.ItemGenesis)
                         return object;
                     var message = new $root.dxos.echo.testing.ItemGenesis();
-                    if (object.itemId != null)
-                        message.itemId = String(object.itemId);
                     if (object.model != null)
                         message.model = String(object.model);
                     return message;
@@ -1269,12 +1465,8 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.defaults) {
-                        object.itemId = "";
+                    if (options.defaults)
                         object.model = "";
-                    }
-                    if (message.itemId != null && message.hasOwnProperty("itemId"))
-                        object.itemId = message.itemId;
                     if (message.model != null && message.hasOwnProperty("model"))
                         object.model = message.model;
                     return object;
@@ -1300,14 +1492,8 @@ $root.dxos = (function() {
                  * Properties of an ItemMutation.
                  * @memberof dxos.echo.testing
                  * @interface IItemMutation
-                 * @property {string|null} [itemId] ItemMutation itemId
-                 * @property {number|null} [seq] ItemMutation seq
-                 * @property {string|null} [id] ItemMutation id
-                 * @property {string|null} [depends] ItemMutation depends
-                 * @property {string|null} [tag] ItemMutation tag
                  * @property {string|null} [key] ItemMutation key
                  * @property {string|null} [value] ItemMutation value
-                 * @property {google.protobuf.IAny|null} [payload] ItemMutation payload
                  */
 
                 /**
@@ -1326,46 +1512,6 @@ $root.dxos = (function() {
                 }
 
                 /**
-                 * ItemMutation itemId.
-                 * @member {string} itemId
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.itemId = "";
-
-                /**
-                 * ItemMutation seq.
-                 * @member {number} seq
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.seq = 0;
-
-                /**
-                 * ItemMutation id.
-                 * @member {string} id
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.id = "";
-
-                /**
-                 * ItemMutation depends.
-                 * @member {string} depends
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.depends = "";
-
-                /**
-                 * ItemMutation tag.
-                 * @member {string} tag
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.tag = "";
-
-                /**
                  * ItemMutation key.
                  * @member {string} key
                  * @memberof dxos.echo.testing.ItemMutation
@@ -1380,14 +1526,6 @@ $root.dxos = (function() {
                  * @instance
                  */
                 ItemMutation.prototype.value = "";
-
-                /**
-                 * ItemMutation payload.
-                 * @member {google.protobuf.IAny|null|undefined} payload
-                 * @memberof dxos.echo.testing.ItemMutation
-                 * @instance
-                 */
-                ItemMutation.prototype.payload = null;
 
                 /**
                  * Creates a new ItemMutation instance using the specified properties.
@@ -1413,22 +1551,10 @@ $root.dxos = (function() {
                 ItemMutation.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.itemId);
-                    if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
-                        writer.uint32(/* id 2, wireType 0 =*/16).int32(message.seq);
-                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.id);
-                    if (message.depends != null && Object.hasOwnProperty.call(message, "depends"))
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.depends);
-                    if (message.tag != null && Object.hasOwnProperty.call(message, "tag"))
-                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.tag);
                     if (message.key != null && Object.hasOwnProperty.call(message, "key"))
-                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.key);
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
                     if (message.value != null && Object.hasOwnProperty.call(message, "value"))
-                        writer.uint32(/* id 7, wireType 2 =*/58).string(message.value);
-                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
-                        $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
                     return writer;
                 };
 
@@ -1464,28 +1590,10 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.itemId = reader.string();
-                            break;
-                        case 2:
-                            message.seq = reader.int32();
-                            break;
-                        case 3:
-                            message.id = reader.string();
-                            break;
-                        case 4:
-                            message.depends = reader.string();
-                            break;
-                        case 5:
-                            message.tag = reader.string();
-                            break;
-                        case 6:
                             message.key = reader.string();
                             break;
-                        case 7:
+                        case 2:
                             message.value = reader.string();
-                            break;
-                        case 8:
-                            message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1522,32 +1630,12 @@ $root.dxos = (function() {
                 ItemMutation.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.itemId != null && message.hasOwnProperty("itemId"))
-                        if (!$util.isString(message.itemId))
-                            return "itemId: string expected";
-                    if (message.seq != null && message.hasOwnProperty("seq"))
-                        if (!$util.isInteger(message.seq))
-                            return "seq: integer expected";
-                    if (message.id != null && message.hasOwnProperty("id"))
-                        if (!$util.isString(message.id))
-                            return "id: string expected";
-                    if (message.depends != null && message.hasOwnProperty("depends"))
-                        if (!$util.isString(message.depends))
-                            return "depends: string expected";
-                    if (message.tag != null && message.hasOwnProperty("tag"))
-                        if (!$util.isString(message.tag))
-                            return "tag: string expected";
                     if (message.key != null && message.hasOwnProperty("key"))
                         if (!$util.isString(message.key))
                             return "key: string expected";
                     if (message.value != null && message.hasOwnProperty("value"))
                         if (!$util.isString(message.value))
                             return "value: string expected";
-                    if (message.payload != null && message.hasOwnProperty("payload")) {
-                        var error = $root.google.protobuf.Any.verify(message.payload);
-                        if (error)
-                            return "payload." + error;
-                    }
                     return null;
                 };
 
@@ -1563,25 +1651,10 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.ItemMutation)
                         return object;
                     var message = new $root.dxos.echo.testing.ItemMutation();
-                    if (object.itemId != null)
-                        message.itemId = String(object.itemId);
-                    if (object.seq != null)
-                        message.seq = object.seq | 0;
-                    if (object.id != null)
-                        message.id = String(object.id);
-                    if (object.depends != null)
-                        message.depends = String(object.depends);
-                    if (object.tag != null)
-                        message.tag = String(object.tag);
                     if (object.key != null)
                         message.key = String(object.key);
                     if (object.value != null)
                         message.value = String(object.value);
-                    if (object.payload != null) {
-                        if (typeof object.payload !== "object")
-                            throw TypeError(".dxos.echo.testing.ItemMutation.payload: object expected");
-                        message.payload = $root.google.protobuf.Any.fromObject(object.payload);
-                    }
                     return message;
                 };
 
@@ -1599,31 +1672,13 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.itemId = "";
-                        object.seq = 0;
-                        object.id = "";
-                        object.depends = "";
-                        object.tag = "";
                         object.key = "";
                         object.value = "";
-                        object.payload = null;
                     }
-                    if (message.itemId != null && message.hasOwnProperty("itemId"))
-                        object.itemId = message.itemId;
-                    if (message.seq != null && message.hasOwnProperty("seq"))
-                        object.seq = message.seq;
-                    if (message.id != null && message.hasOwnProperty("id"))
-                        object.id = message.id;
-                    if (message.depends != null && message.hasOwnProperty("depends"))
-                        object.depends = message.depends;
-                    if (message.tag != null && message.hasOwnProperty("tag"))
-                        object.tag = message.tag;
                     if (message.key != null && message.hasOwnProperty("key"))
                         object.key = message.key;
                     if (message.value != null && message.hasOwnProperty("value"))
                         object.value = message.value;
-                    if (message.payload != null && message.hasOwnProperty("payload"))
-                        object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
                     return object;
                 };
 

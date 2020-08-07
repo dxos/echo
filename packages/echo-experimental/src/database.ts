@@ -5,47 +5,61 @@
 import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
+import { Feed } from 'hypercore';
 import pify from 'pify';
-import { Readable, Transform, Writable } from 'stream';
 import { Constructor } from 'protobufjs';
+import { Readable, Transform, Writable } from 'stream';
 
 import { createId, keyToString } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
-import { Feed } from 'hypercore';
+import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 
 import { assertType, LazyMap } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
-import { FeedStore } from '@dxos/feed-store';
 
 const log = debug('dxos:echo:database');
 
 type ModelType = string;
-
+type FeedKey = string;
 type ItemID = string;
 
-// TODO(burdon): Replace with protobuf envelope.
-// TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
-export interface Message {
-  // eslint-disable-next-line camelcase
-  __type_url: string;
-  itemId: string;
-  [key: string]: any;
-}
-
-export interface ModelMessage {
-  // feedKey: string; TODO(marik_d): Add metadata from feed.
-  data: Message;
-}
-
-export const createFeedStream = (feed: Feed) => new Writable({
+/**
+ * Returns a stream that appends messages directly to a hypercore feed.
+ * @param feed
+ * @returns {NodeJS.WritableStream}
+ */
+export const createWritableFeedStream = (feed: Feed) => new Writable({
   objectMode: true,
   write (message, _, callback) {
-    console.log('writing to feed', message)
-    feed.append({ message }, callback);
+    log('Write:', JSON.stringify(message));
+    feed.append(message, callback);
   }
 });
+
+/**
+ * Wraps messages with ItemEnvelope.
+ * @param itemId
+ * @returns {NodeJS.WritableStream}
+ */
+// TODO(burdon): Not a great abstraction.
+const createItemMessageStream = (itemId: ItemID) => {
+  return new Transform({
+    objectMode: true,
+    transform (message, _, callback) {
+      this.push({
+        message: {
+          __type_url: 'dxos.echo.testing.ItemEnvelope',
+          itemId,
+          payload: message
+        }
+      });
+
+      callback();
+    }
+  });
+};
 
 /**
  * Abstract base class for Models.
@@ -77,11 +91,12 @@ export abstract class Model extends EventEmitter {
   }
 
   /**
-   * Write to the stream.
+   * Wraps the message within an ItemEnvelope then writes to the output stream.
    * @param message
    */
-  async write (message: Message) {
+  async write (message: any) {
     assert(this._writable);
+    log('Model.write:', JSON.stringify(message));
     await pify(this._writable.write.bind(this._writable))(message);
   }
 
@@ -90,7 +105,7 @@ export abstract class Model extends EventEmitter {
    * @abstract
    * @param {Object} message
    */
-  async abstract processMessage (message: ModelMessage): Promise<void>;
+  async abstract processMessage (message: dxos.echo.testing.FeedMessage): Promise<void>;
 }
 
 /**
@@ -135,20 +150,6 @@ export class Item {
   }
 }
 
-function createEchoMessageWrapper(itemId: ItemID) {
-  return new Transform({
-    objectMode: true,
-    transform(message, encoding, callback) {
-      this.push({
-        __type_url: 'dxos.echo.testing.ItemEnvelope',
-        itemId,
-        payload: message,
-      })
-      callback()
-    }
-  })
-}
-
 /**
  * Manages creation and index of items.
  */
@@ -162,7 +163,6 @@ export class ItemManager extends EventEmitter {
   // eslint-disable-next-line
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
-  // TODO(burdon): Pass in writeable object stream to abstract hypercore.
   constructor (
     private _modelFactory: ModelFactory,
     private _writable: NodeJS.WritableStream
@@ -172,8 +172,9 @@ export class ItemManager extends EventEmitter {
     assert(this._writable);
   }
 
-  private _createWriteStream(itemId: ItemID): NodeJS.WritableStream {
-    const transform = createEchoMessageWrapper(itemId)
+  // TODO(burdon): Don't bury pipe inside methods that create streams (side effects).
+  private _createWriteStream (itemId: ItemID): NodeJS.WritableStream {
+    const transform = createItemMessageStream(itemId);
     transform.pipe(this._writable);
     return transform;
   }
@@ -191,18 +192,16 @@ export class ItemManager extends EventEmitter {
 
     // Write Item Genesis block.
     log('Creating Genesis:', itemId);
-    const writable = this._createWriteStream(itemId)
+    const writable = this._createWriteStream(itemId);
+    // TODO(burdon): Is it possible to wait on writing to a stream?
     await pify(writable.write.bind(writable))({
       __type_url: 'dxos.echo.testing.ItemGenesis',
-      model: type,
-      itemId
+      model: type
     });
 
-    log('waiting for creation')
     // Unlocked by construct.
-    const item = await waitForCreation();
-    log('created')
-    return item
+    log('Waiting for item...');
+    return await waitForCreation();
   }
 
   /**
@@ -212,7 +211,7 @@ export class ItemManager extends EventEmitter {
    * @param readable
    */
   async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
-    log('construct', { type, itemId })
+    log('construct', { type, itemId });
     const model = this._modelFactory.createModel(type, itemId, readable, this._createWriteStream(itemId));
     assert(model);
 
@@ -221,7 +220,7 @@ export class ItemManager extends EventEmitter {
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
-    log('created', this._pendingItems.get(itemId))
+    log('created', this._pendingItems.get(itemId));
 
     // Notify pending creates.
     // TODO(burdon): Lint issue.
@@ -253,6 +252,7 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
+// TODO(burdon): Convert to function that returns a stream.
 export class PartyMuxer {
   private _allowedKeys: Set<string>;
 
@@ -264,33 +264,32 @@ export class PartyMuxer {
   ) {
     this._allowedKeys = new Set(initialFeeds);
 
+    // TODO(burdon): Hack.
     this._output = new Readable({ objectMode: true, read () { } });
   }
 
   // TODO(marik-d): Add logic to stop the processing.
   async run () {
+    // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
+    // In this case it would wait until a replication event notifies another feed has been added to the replication set.
     const iterator = await FeedStoreIterator.create(this._feedStore,
       async feedKey => this._allowedKeys.has(keyToString(feedKey))
     );
 
-    // NOTE: The iterator my halt if there are gaps in the replicated feeds (according to the timestamps).
-    // In this case it would wait until a replication event notifies another feed has been added to the replication set.
+    for await (const { data: { message } } of iterator) {
+      log('Muxer', JSON.stringify(message, undefined, 2));
 
-    for await (const { message } of iterator) {
-      console.log('party', message)
-      assert(message);
-      /* eslint-disable camelcase */
-      const { __type_url } = message;
-      switch (__type_url) {
+      switch (message.__type_url) {
         case 'dxos.echo.testing.Admit': {
           assertType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
+
           this._allowedKeys.add(message.feedKey);
           break;
         }
 
         default: {
-          // TODO(burdon): Should expect ItemEnvelope.
+          assertType<dxos.echo.testing.IItemEnvelope>(message);
           assert(message.itemId);
 
           this._output.push({ data: { message } });
@@ -319,19 +318,19 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   }));
 
   // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
-  // TODO(marik_d): Replace with Writable
+  // TODO(marik_d): Replace with Writable.
   return new Transform({
     objectMode: true,
 
-    // TODO(burdon): Is codec working? (expect envelope to be decoded.)
     transform: async ({ data: { message } }, _, callback) => {
-      console.log('item demuxer', message)
-      assert(message.__type_url === 'dxos.echo.testing.ItemEnvelope')
-      assertType<dxos.echo.testing.IItemEnvelope>(message)
+      log('Demuxer:', JSON.stringify(message, undefined, 2));
+      assert(message.__type_url === 'dxos.echo.testing.ItemEnvelope');
+      assertType<dxos.echo.testing.IItemEnvelope>(message);
 
       const { itemId, payload } = message;
       assert(payload);
       assert(itemId);
+
       /* eslint-disable camelcase */
       const { __type_url } = payload as any;
       assert(__type_url);
@@ -352,7 +351,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
           assert(payload);
 
           const stream = streams.getOrInit(itemId);
-          stream.push({ data: payload });
+          stream.push({ data: message });
           break;
         }
 

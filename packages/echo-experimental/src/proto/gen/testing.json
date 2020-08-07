@@ -6,6 +6,18 @@
           "nested": {
             "testing": {
               "nested": {
+                "FeedMessage": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "string",
+                      "id": 1
+                    },
+                    "data": {
+                      "type": "ItemEnvelope",
+                      "id": 2
+                    }
+                  }
+                },
                 "Envelope": {
                   "fields": {
                     "message": {
@@ -19,29 +31,6 @@
                     "feedKey": {
                       "type": "string",
                       "id": 1
-                    }
-                  }
-                },
-                "VectorTimestamp": {
-                  "fields": {
-                    "timestamp": {
-                      "rule": "repeated",
-                      "type": "Feed",
-                      "id": 1
-                    }
-                  },
-                  "nested": {
-                    "Feed": {
-                      "fields": {
-                        "feedKey": {
-                          "type": "bytes",
-                          "id": 1
-                        },
-                        "seq": {
-                          "type": "int32",
-                          "id": 2
-                        }
-                      }
                     }
                   }
                 },
@@ -59,53 +48,50 @@
                       "type": "google.protobuf.Any",
                       "id": 3
                     }
+                  },
+                  "nested": {
+                    "VectorTimestamp": {
+                      "fields": {
+                        "timestamp": {
+                          "rule": "repeated",
+                          "type": "Feed",
+                          "id": 1
+                        }
+                      },
+                      "nested": {
+                        "Feed": {
+                          "fields": {
+                            "feedKey": {
+                              "type": "bytes",
+                              "id": 1
+                            },
+                            "seq": {
+                              "type": "int32",
+                              "id": 2
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 },
                 "ItemGenesis": {
                   "fields": {
-                    "itemId": {
-                      "type": "string",
-                      "id": 1
-                    },
                     "model": {
                       "type": "string",
-                      "id": 2
+                      "id": 1
                     }
                   }
                 },
                 "ItemMutation": {
                   "fields": {
-                    "itemId": {
+                    "key": {
                       "type": "string",
                       "id": 1
                     },
-                    "seq": {
-                      "type": "int32",
-                      "id": 2
-                    },
-                    "id": {
-                      "type": "string",
-                      "id": 3
-                    },
-                    "depends": {
-                      "type": "string",
-                      "id": 4
-                    },
-                    "tag": {
-                      "type": "string",
-                      "id": 5
-                    },
-                    "key": {
-                      "type": "string",
-                      "id": 6
-                    },
                     "value": {
                       "type": "string",
-                      "id": 7
-                    },
-                    "payload": {
-                      "type": "google.protobuf.Any",
-                      "id": 8
+                      "id": 2
                     }
                   }
                 }
