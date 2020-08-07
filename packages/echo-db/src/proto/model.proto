@@ -1,0 +1,32 @@
+//
+// Copyright 2020 DXOS.org
+//
+
+syntax = "proto3";
+
+package dxos.echo.model;
+
+import "google/protobuf/any.proto";
+
+//
+// Details about the Feed from which this message was read.
+//
+message FeedInfo {
+  bytes key = 1;  // The publicKey of the Feed.
+}
+
+//
+// Details about the Party member that wrote this message.
+//
+message CredentialsInfo {
+  bytes owner = 1;  // The publicKey of the Party member.
+}
+
+//
+// A composite of message payload data with metadata describing the feed and ownership.
+//
+message ModelMessage {
+  FeedInfo feed               = 1;
+  CredentialsInfo credentials = 2;
+  google.protobuf.Any data    = 10;
+}

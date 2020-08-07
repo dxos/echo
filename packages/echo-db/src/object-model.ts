@@ -7,11 +7,13 @@ import debug from 'debug';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 
-import { ModelMessage } from './common/ModelMessage';
-
+import { createModelMessage } from './common';
 import { MutationUtil } from './mutation';
 import { ObjectStore, fromObject } from './object-store';
 import { createObjectId, parseObjectId } from './util';
+import { dxos } from './proto';
+
+import IModelMessage = dxos.echo.model.IModelMessage;
 
 const log = debug('dxos:echo:model');
 
@@ -37,11 +39,7 @@ export class ObjectModel extends Model {
     const id = createObjectId(type);
     const mutations = fromObject({ id, properties });
 
-    this.appendMessage(new ModelMessage({
-      __type_url: type,
-      viewId,
-      ...mutations
-    }));
+    this.appendMessage(createModelMessage({ __type_url: type, viewId, ...mutations }));
 
     return id;
   }
@@ -56,10 +54,7 @@ export class ObjectModel extends Model {
       properties
     });
 
-    this.appendMessage(new ModelMessage({
-      __type_url: type,
-      ...mutations
-    }));
+    this.appendMessage(createModelMessage({ __type_url: type, ...mutations }));
   }
 
   // TODO(burdon): Rename deleteObject.
@@ -69,14 +64,11 @@ export class ObjectModel extends Model {
     const { type } = parseObjectId(id);
     const mutation = MutationUtil.createMessage(id, { deleted: true });
 
-    this.appendMessage(new ModelMessage({
-      __type_url: type,
-      ...mutation
-    }));
+    this.appendMessage(createModelMessage({ __type_url: type, ...mutation }));
   }
 
-  onUpdate (messages: ModelMessage[]) {
-    const mutations = messages.map((message) => message.data);
+  onUpdate (messages: IModelMessage[]) {
+    const mutations = messages.map((message) => <dxos.echo.IObjectMutation>message.data);
     this._store.applyMutations(mutations);
   }
 }

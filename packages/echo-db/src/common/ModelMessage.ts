@@ -2,30 +2,12 @@
 // Copyright 2020 DXOS.org
 //
 
-export interface ModelData {
-  [key: string]: any
-}
+import { Any } from './Any';
+import { dxos } from '../proto';
+import ModelMessage = dxos.echo.model.ModelMessage;
 
-export interface FeedInfo {
-  key: Buffer,
-  seq: number
-}
-
-export interface CredentialsInfo {
-  party: Buffer,
-  feed: Buffer,
-  member: Buffer
-}
-
-export interface ModelMessage {
-  data: ModelData,
-  feed?: FeedInfo,
-  credentials?: CredentialsInfo
-  [key: string]: any
-}
-
-export class ModelMessage implements ModelMessage {
-  constructor (data: ModelData) {
-    this.data = data;
-  }
-}
+export const createModelMessage = (data: any) => {
+  return ModelMessage.create({
+    data: Any.create(data)
+  });
+};

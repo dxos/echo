@@ -2,4 +2,4 @@
 // Copyright 2020 DXOS.org
 //
 
-export { dxos } from './gen/echo';
+export { dxos } from './gen/bundle';

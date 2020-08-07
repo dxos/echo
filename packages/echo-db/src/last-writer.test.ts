@@ -7,7 +7,7 @@ import { Graph } from 'js-data-structs';
 
 import { mergeFeeds } from './dependency';
 import { ObjectStore, fromObject } from './object-store';
-import { dxos } from './proto/gen/echo';
+import { dxos } from './proto/gen/bundle';
 import { createObjectId } from './util';
 
 const log = debug('dxos:echo:test');

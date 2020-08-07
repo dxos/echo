@@ -4,7 +4,6 @@
 
 import { applyUpdate, Doc, XmlElement, XmlText } from 'yjs';
 
-import { ModelMessage } from '@dxos/echo-db';
 import { Model } from '@dxos/model-factory';
 
 const nodeIs = typeName => node => node.constructor.name === typeName;
@@ -38,11 +37,13 @@ export class TextModel extends Model {
     const remote = origin && origin.docClientId && origin.docClientId !== this._doc.clientID;
 
     if (!remote) {
-      this.appendMessage(new ModelMessage({
-        __type_url: TYPE_TEXT_MODEL_UPDATE,
-        update,
-        origin: { docClientId: this._doc.clientID }
-      }));
+      this.appendMessage({
+        data: {
+          __type_url: TYPE_TEXT_MODEL_UPDATE,
+          update,
+          origin: { docClientId: this._doc.clientID }
+        }
+      });
     }
   }
 

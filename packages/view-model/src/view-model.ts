@@ -1,9 +1,14 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { createId } from '@dxos/crypto';
-import { ModelMessage } from '@dxos/echo-db';
+import { createModelMessage, dxos } from '@dxos/echo-db';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 
 import { raise } from './util';
+import IModelMessage = dxos.echo.model.IModelMessage;
 
 // TODO(marik-d): Reuse existing ObjectModel mutation mechanisms and CRDTs
 export interface ViewMutation {
@@ -47,8 +52,9 @@ export class ViewModel<M extends {} = {}> extends Model {
     return res;
   }
 
-  onUpdate (messages: ViewMutation[]) {
-    for (const message of messages) {
+  onUpdate (messages: IModelMessage[]) {
+    for (const modelMessage of messages) {
+      const message = <ViewMutation>modelMessage.data;
       const view = this.getById(message.viewId);
       if (view) {
         this._views.set(message.viewId, {
@@ -74,31 +80,31 @@ export class ViewModel<M extends {} = {}> extends Model {
 
   createView (type: string, displayName: string, metadata: M = {} as any): string {
     const viewId = createId();
-    super.appendMessage(new ModelMessage({ __type_url: type, viewId, displayName, metadata }));
+    super.appendMessage(createModelMessage({ viewId, __type_url: type, displayName, metadata }));
     return viewId;
   }
 
   renameView (viewId: string, displayName: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) throw new Error(`Cannot rename deleted view with id: ${viewId}`);
-    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, displayName }));
+    super.appendMessage(createModelMessage({ viewId, __type_url: view.type, displayName }));
   }
 
   updateView (viewId: string, metadata: Partial<M>) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) throw new Error(`Cannot update deleted view with id: ${viewId}`);
-    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, metadata }));
+    super.appendMessage(createModelMessage({ viewId, __type_url: view.type, metadata }));
   }
 
   deleteView (viewId: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (view.deleted) return;
-    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, deleted: true }));
+    super.appendMessage(createModelMessage({ viewId, __type_url: view.type, deleted: true }));
   }
 
   restoreView (viewId: string) {
     const view = this.getById(viewId) ?? raise(new Error(`View not found for id: ${viewId}`));
     if (!view.deleted) return;
-    super.appendMessage(new ModelMessage({ viewId, __type_url: view.type, deleted: false }));
+    super.appendMessage(createModelMessage({ viewId, __type_url: view.type, deleted: false }));
   }
 }

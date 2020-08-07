@@ -1,17 +1,19 @@
+import { createModelMessage } from '@dxos/echo-db';
+
 import { ViewModel } from './view-model';
 
 test('create multiple views', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo'
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '2'
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([
@@ -36,16 +38,16 @@ test('create multiple views', () => {
 test('rename view', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo'
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'bar'
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([
@@ -63,17 +65,17 @@ test('rename view', () => {
 test('update view metdata', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo',
       metadata: { foo: 'bar' }
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       metadata: { foo: 'foo' }
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([
@@ -91,16 +93,16 @@ test('update view metdata', () => {
 test('delete view', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo'
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       deleted: true
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([]);
@@ -118,21 +120,21 @@ test('delete view', () => {
 test('restore view', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo'
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       deleted: true
-    },
-    {
+    }),
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       deleted: false
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([
@@ -150,12 +152,12 @@ test('restore view', () => {
 test('can start a message in deleted state', () => {
   const model = new ViewModel();
   model.onUpdate([
-    {
+    createModelMessage({
       __type_url: 'testing.View',
       viewId: '1',
       displayName: 'foo',
       deleted: true
-    }
+    })
   ]);
 
   expect(model.getAllViews()).toStrictEqual([]);
