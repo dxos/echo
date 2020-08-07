@@ -30,26 +30,26 @@ const setup = async (feedNames: string[]) => {
   return { feedStore, feeds, descriptors, streams };
 };
 
-const testMessage = (data: number) => ({ 
+const testMessage = (data: number) => ({
   message: {
     __type_url: 'dxos.echo.testing.TestData',
-    data,
+    data
   }
-})
+});
 
 const testAdmit = (feedKey: Buffer) => ({
   message: {
     __type_url: 'dxos.echo.testing.Admit',
-    feedKey: feedKey.toString('hex'),
+    feedKey: feedKey.toString('hex')
   }
-})
+});
 
 const testRemove = (feedKey: Buffer) => ({
   message: {
     __type_url: 'dxos.echo.testing.TestFeedRemove',
-    feedKey: feedKey.toString('hex'),
+    feedKey: feedKey.toString('hex')
   }
-})
+});
 
 describe('FeedStoreIterator', () => {
   test('single feed', async () => {
@@ -70,7 +70,7 @@ describe('FeedStoreIterator', () => {
     expect(messages).toEqual([
       { data: testMessage(1) },
       { data: testMessage(2) },
-      { data: testMessage(3) },
+      { data: testMessage(3) }
     ]);
   });
 
@@ -91,7 +91,7 @@ describe('FeedStoreIterator', () => {
 
     expect(messages).toEqual([
       { data: testMessage(1) },
-      { data: testMessage(3) },
+      { data: testMessage(3) }
     ]);
   });
 
@@ -109,7 +109,7 @@ describe('FeedStoreIterator', () => {
     setImmediate(async () => {
       for await (const msg of iterator) {
         messages.push(msg);
-        switch(msg.data.message.__type_url) {
+        switch (msg.data.message.__type_url) {
           case 'dxos.echo.testing.TestData':
             break;
 
@@ -120,7 +120,7 @@ describe('FeedStoreIterator', () => {
             authenticatedFeeds.add(feedKey);
             break;
           }
-            
+
           case 'dxos.echo.testing.TestFeedRemove': {
             assumeType<dxos.echo.testing.ITestFeedRemove>(msg.data.message);
             const { feedKey } = msg.data.message;
@@ -130,7 +130,7 @@ describe('FeedStoreIterator', () => {
           }
 
           default:
-            throw new Error(`Unexpected message type: ${msg.data.message.__type_url}`)
+            throw new Error(`Unexpected message type: ${msg.data.message.__type_url}`);
         }
       }
     });
@@ -157,9 +157,9 @@ describe('FeedStoreIterator', () => {
     await waitForExpect(() => expect(messages).toEqual([
       { data: testMessage(1) },
       { data: testMessage(3) },
-      { data: testAdmit(descriptors[1].key), },
+      { data: testAdmit(descriptors[1].key) },
       { data: testMessage(2) },
-      { data: testRemove(descriptors[0].key), },
+      { data: testRemove(descriptors[0].key) },
       { data: testMessage(5) }
     ]));
   });

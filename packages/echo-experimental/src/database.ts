@@ -78,7 +78,7 @@ export abstract class Model extends EventEmitter {
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
-        log('Model.read', message)
+        log('Model.read', message);
         await this.processMessage(message);
 
         this.emit('update', this);
