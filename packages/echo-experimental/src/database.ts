@@ -16,7 +16,7 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 
-import { assertType, LazyMap } from './util';
+import { assumeType, LazyMap, assertAnyType } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
@@ -78,6 +78,7 @@ export abstract class Model extends EventEmitter {
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
+        log('Model.read', message)
         await this.processMessage(message);
 
         this.emit('update', this);
@@ -281,7 +282,7 @@ export class PartyMuxer {
 
       switch (message.__type_url) {
         case 'dxos.echo.testing.Admit': {
-          assertType<dxos.echo.testing.IAdmit>(message);
+          assumeType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
 
           this._allowedKeys.add(message.feedKey);
@@ -289,7 +290,7 @@ export class PartyMuxer {
         }
 
         default: {
-          assertType<dxos.echo.testing.IItemEnvelope>(message);
+          assumeType<dxos.echo.testing.IItemEnvelope>(message);
           assert(message.itemId);
 
           this._output.push({ data: { message } });
@@ -324,8 +325,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
     transform: async ({ data: { message } }, _, callback) => {
       log('Demuxer:', JSON.stringify(message, undefined, 2));
-      assert(message.__type_url === 'dxos.echo.testing.ItemEnvelope');
-      assertType<dxos.echo.testing.IItemEnvelope>(message);
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
 
       const { itemId, payload } = message;
       assert(payload);
@@ -337,7 +337,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
       switch (__type_url) {
         case 'dxos.echo.testing.ItemGenesis': {
-          assertType<dxos.echo.testing.IItemGenesis>(payload);
+          assumeType<dxos.echo.testing.IItemGenesis>(payload);
           assert(payload.model);
 
           log(`Item Genesis: ${itemId}`);
@@ -347,11 +347,12 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
         }
 
         case 'dxos.echo.testing.ItemMutation': {
-          assertType<dxos.echo.testing.IItemMutation>(payload);
+          assumeType<dxos.echo.testing.IItemMutation>(payload);
           assert(payload);
 
           const stream = streams.getOrInit(itemId);
-          stream.push({ data: message });
+          // Remove ItemEnvelope
+          stream.push({ data: { message: payload } });
           break;
         }
 

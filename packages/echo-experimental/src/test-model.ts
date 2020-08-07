@@ -9,6 +9,7 @@ import { sleep } from '@dxos/async';
 import { Model } from './database';
 
 import { dxos } from './proto/gen/testing';
+import { assertTypeUrl } from './util';
 
 /**
  * Test model.
@@ -32,8 +33,9 @@ export class TestModel extends Model {
   }
 
   async processMessage (message: dxos.echo.testing.IFeedMessage) {
-    const mutation = message?.data?.message as dxos.echo.testing.IItemMutation;
+    const mutation = message.data?.message as dxos.echo.testing.IItemMutation;
     assert(mutation);
+    assertTypeUrl(mutation, 'dxos.echo.testing.ItemMutation');
 
     const { key, value } = mutation;
     await sleep(50);
