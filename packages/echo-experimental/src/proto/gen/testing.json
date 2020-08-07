@@ -94,6 +94,22 @@
                       "id": 2
                     }
                   }
+                },
+                "TestData": {
+                  "fields": {
+                    "data": {
+                      "type": "int32",
+                      "id": 1
+                    }
+                  }
+                },
+                "TestFeedRemove": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "string",
+                      "id": 1
+                    }
+                  }
                 }
               }
             }

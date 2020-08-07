@@ -16,7 +16,7 @@ import { Trigger } from './util';
  * NodeJS streams have intenal buffer that the system tends to eagerly fill.
  */
 // TODO(burdon): Define type: dxos.echo.testing.FeedMessage
-export class FeedStoreIterator implements AsyncIterable<any> {
+export class FeedStoreIterator implements AsyncIterable<{ data: any }> {
   // TODO(burdon): No static methods!
   static async create (feedStore: FeedStore, feedSelector: (feedKey: Buffer) => Promise<boolean>) {
     if (feedStore.closing || feedStore.closed) {
@@ -127,7 +127,10 @@ export class FeedStoreIterator implements AsyncIterable<any> {
 
   private _generatorInstance = this._generator();
 
-  // TODO(burdon): Explain???
+  /**
+   * This gets called by "for await" loop to get the iterator instance that's then polled on each loop iteration.
+   * We return a singleton here to ensure that the `_generator` function only gets called once.
+   */
   [Symbol.asyncIterator] () {
     return this._generatorInstance;
   }

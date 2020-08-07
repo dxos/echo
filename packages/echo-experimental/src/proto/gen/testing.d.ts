@@ -763,6 +763,186 @@ export namespace dxos {
                  */
                 public toJSON(): { [k: string]: any };
             }
+
+            /** Properties of a TestData. */
+            interface ITestData {
+
+                /** TestData data */
+                data?: (number|null);
+            }
+
+            /** Represents a TestData. */
+            class TestData implements ITestData {
+
+                /**
+                 * Constructs a new TestData.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.ITestData);
+
+                /** TestData data. */
+                public data: number;
+
+                /**
+                 * Creates a new TestData instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns TestData instance
+                 */
+                public static create(properties?: dxos.echo.testing.ITestData): dxos.echo.testing.TestData;
+
+                /**
+                 * Encodes the specified TestData message. Does not implicitly {@link dxos.echo.testing.TestData.verify|verify} messages.
+                 * @param message TestData message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.ITestData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified TestData message, length delimited. Does not implicitly {@link dxos.echo.testing.TestData.verify|verify} messages.
+                 * @param message TestData message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.ITestData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a TestData message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns TestData
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestData;
+
+                /**
+                 * Decodes a TestData message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns TestData
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestData;
+
+                /**
+                 * Verifies a TestData message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a TestData message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns TestData
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestData;
+
+                /**
+                 * Creates a plain object from a TestData message. Also converts values to other types if specified.
+                 * @param message TestData
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.TestData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this TestData to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            /** Properties of a TestFeedRemove. */
+            interface ITestFeedRemove {
+
+                /** TestFeedRemove feedKey */
+                feedKey?: (string|null);
+            }
+
+            /** Represents a TestFeedRemove. */
+            class TestFeedRemove implements ITestFeedRemove {
+
+                /**
+                 * Constructs a new TestFeedRemove.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.ITestFeedRemove);
+
+                /** TestFeedRemove feedKey. */
+                public feedKey: string;
+
+                /**
+                 * Creates a new TestFeedRemove instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns TestFeedRemove instance
+                 */
+                public static create(properties?: dxos.echo.testing.ITestFeedRemove): dxos.echo.testing.TestFeedRemove;
+
+                /**
+                 * Encodes the specified TestFeedRemove message. Does not implicitly {@link dxos.echo.testing.TestFeedRemove.verify|verify} messages.
+                 * @param message TestFeedRemove message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.ITestFeedRemove, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified TestFeedRemove message, length delimited. Does not implicitly {@link dxos.echo.testing.TestFeedRemove.verify|verify} messages.
+                 * @param message TestFeedRemove message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.ITestFeedRemove, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a TestFeedRemove message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns TestFeedRemove
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.TestFeedRemove;
+
+                /**
+                 * Decodes a TestFeedRemove message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns TestFeedRemove
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.TestFeedRemove;
+
+                /**
+                 * Verifies a TestFeedRemove message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a TestFeedRemove message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns TestFeedRemove
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.TestFeedRemove;
+
+                /**
+                 * Creates a plain object from a TestFeedRemove message. Also converts values to other types if specified.
+                 * @param message TestFeedRemove
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.TestFeedRemove, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this TestFeedRemove to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
         }
     }
 }
