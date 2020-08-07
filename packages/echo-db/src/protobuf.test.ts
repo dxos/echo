@@ -9,7 +9,7 @@ import ram from 'random-access-memory';
 import { Codec } from '@dxos/codec-protobuf';
 
 import { dxos } from './proto';
-import EchoSchema from './proto/gen/bundle.json';
+import EchoSchema from './proto/gen/echo.json';
 
 import { fromObject } from './object-store';
 

@@ -5,12 +5,7 @@
 import EventEmitter from 'events';
 
 import { createId, humanize } from '@dxos/crypto';
-
-/**
- * @callback AppendHandler
- * @param {ModelData} data
- * @return {ModelData}
- */
+import { createModelMessage } from './shim';
 
 /**
  * HOC (withModel) ==> ModelFactory => Model <=> App
@@ -58,7 +53,7 @@ export class Model extends EventEmitter {
   }
 
   /**
-   * @param {ModelMessage[]} messages
+   * @param {IModelMessage[]} messages
    * @returns {Promise<void>}
    */
   async processMessages (messages) {
@@ -67,10 +62,12 @@ export class Model extends EventEmitter {
   }
 
   /**
-   * @param {ModelMessage} message
+   * @param {Any} data
    * @returns {Promise<void>}
    */
-  async appendMessage (message) {
+  // TODO(telackey): Rename to appendData (or similar).
+  async appendMessage (data) {
+    let message = createModelMessage(data);
     // TODO(telackey): What is this event for?
     this.emit('preappend', message);
     message = await this.onAppend(message);
@@ -85,15 +82,15 @@ export class Model extends EventEmitter {
   //
 
   /**
-   * @param {ModelMessage} message
-   * @returns {Promise<ModelMessage>}
+   * @param {IModelMessage} message
+   * @returns {Promise<IModelMessage>}
    */
   async onAppend (message) {
     return message;
   }
 
   /**
-   * @param {ModelMessage[]} messages
+   * @param {IModelMessage[]} messages
    * @returns {Promise<void>}
    */
   async onUpdate (messages) {

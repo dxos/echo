@@ -4,7 +4,7 @@
 
 import { Any } from './Any';
 import { dxos } from '../proto';
-import ModelMessage = dxos.echo.model.ModelMessage;
+import ModelMessage = dxos.echo.ModelMessage;
 
 export const createModelMessage = (data: any) => {
   return ModelMessage.create({

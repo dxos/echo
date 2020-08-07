@@ -14,10 +14,16 @@ import metrics from '@dxos/metrics';
 import { Subscriber } from './subscriber';
 import { DefaultModel } from './model';
 import { bufferedStreamHandler } from './buffer-stream';
+import { createModelMessage } from './shim';
 
+/**
+ * Convert the FeedStore-style data into an IModelMessage.
+ * @param message
+ * @return {IModelMessage}
+ */
 const feedMessageToModelMessage = (message) => {
-  const { data, seq, key } = message;
-  return { data, feed: { seq, key } };
+  const { data, key } = message;
+  return createModelMessage(data, { key });
 };
 
 /**

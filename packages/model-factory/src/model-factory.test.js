@@ -5,7 +5,6 @@
 import bufferJson from 'buffer-json-encoding';
 import pify from 'pify';
 
-import { createModelMessage } from '@dxos/echo-db';
 import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { latch } from '@dxos/async';
 import { createId, randomBytes } from '@dxos/crypto';
@@ -84,7 +83,7 @@ describe('Model factory', () => {
       { __type_url: 'test.Type', id: createId() },
       { __type_url: 'test.Type', id: createId() },
       { __type_url: 'test.Type', id: createId() }
-    ].map(createModelMessage);
+    ];
 
     const counter = latch(2, cleanup);
 
@@ -121,7 +120,7 @@ describe('Model factory', () => {
       { __type_url: 'test.Type1', id: createId() },
       { __type_url: 'test.Type2', id: createId() },
       { __type_url: 'test.Type1', id: createId() }
-    ].map(createModelMessage);
+    ];
 
     model.on('update', () => {
       if (model.messages.length === messages.length) {
@@ -148,7 +147,7 @@ describe('Model factory', () => {
       { __type_url: 'test.Type1', id: createId() },
       { __type_url: 'test.Type2', id: createId() },
       { __type_url: 'test.Type1', id: createId() }
-    ].map(createModelMessage);
+    ];
 
     model.on('update', () => {
       if (model.messages.length === messages.length) {
@@ -190,7 +189,7 @@ describe('Model factory', () => {
       }
     }));
     for (let i = 0; i < n; i++) {
-      await model.appendMessage(createModelMessage({ __type_url: 'test.Type', value: i }));
+      await model.appendMessage({ __type_url: 'test.Type', value: i });
     }
 
     await waitForMessages;

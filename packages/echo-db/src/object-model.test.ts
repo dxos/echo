@@ -4,7 +4,7 @@
 
 import { ObjectModel } from './object-model';
 import { dxos } from './proto';
-import IModelMessage = dxos.echo.model.IModelMessage;
+import IModelMessage = dxos.echo.IModelMessage;
 
 test('ObjectModel', async () => {
   const TYPE_TEST_ECHO_OBJECT = 'wrn_dxos_org_test_echo_object';

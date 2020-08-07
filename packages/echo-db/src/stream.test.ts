@@ -12,7 +12,7 @@ import { Codec } from '@dxos/codec-protobuf';
 import { ObjectStore } from './object-store';
 import { createObjectId } from './util';
 
-import EchoSchema from './proto/gen/bundle.json';
+import EchoSchema from './proto/gen/echo.json';
 
 // TODO(burdon): merge with protobuf.test
 

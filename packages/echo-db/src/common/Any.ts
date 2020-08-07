@@ -3,7 +3,7 @@
 //
 
 import assert from 'assert';
-import { google } from '../proto/gen/bundle';
+import { google } from '../proto/gen/echo';
 import IAny = google.protobuf.IAny;
 
 /* eslint-disable camelcase */

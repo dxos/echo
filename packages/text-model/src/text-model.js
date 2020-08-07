@@ -38,11 +38,9 @@ export class TextModel extends Model {
 
     if (!remote) {
       this.appendMessage({
-        data: {
-          __type_url: TYPE_TEXT_MODEL_UPDATE,
-          update,
-          origin: { docClientId: this._doc.clientID }
-        }
+        __type_url: TYPE_TEXT_MODEL_UPDATE,
+        update,
+        origin: { docClientId: this._doc.clientID }
       });
     }
   }
