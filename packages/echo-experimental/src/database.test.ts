@@ -12,7 +12,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 import { createId, keyToString } from '@dxos/crypto';
 
-import { createWritableFeedStream, createItemDemuxer, ItemManager, ModelFactory, PartyMuxer } from './database';
+import { createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory } from './database';
 import { TestModel } from './test-model';
 import { latch } from './util';
 
@@ -203,16 +203,11 @@ test('parties', async () => {
     }
   });
 
-  const partyMuxer = new PartyMuxer(feedStore, [keyToString(descriptors[0].key)]);
-
+  const partyMuxer = await createPartyMuxer(feedStore, [keyToString(descriptors[0].key)]);
   const itemManager = new ItemManager(modelFactory, streams[0]);
   const itemDemuxer = createItemDemuxer(itemManager);
 
-  // TODO(burdon): Bad API: Just create a stream.
-  partyMuxer.output.pipe(itemDemuxer);
-
-  // TODO(burdon): ???
-  setImmediate(() => partyMuxer.run());
+  partyMuxer.pipe(itemDemuxer);
 
   // TODO(burdon): Wait for everything to be read?
   await waitForExpect(() => {

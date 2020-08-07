@@ -75,8 +75,8 @@ export class LazyMap<K, V> extends Map<K, V> {
 }
 
 export class Trigger {
-  _promise!: Promise<void>
-  _wake!: () => void
+  _promise!: Promise<void>;
+  _wake!: () => void;
 
   constructor () {
     this.reset();

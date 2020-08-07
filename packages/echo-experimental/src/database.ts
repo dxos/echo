@@ -253,30 +253,18 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
-// TODO(burdon): Convert to function that returns a stream.
-export class PartyMuxer {
-  private _allowedKeys: Set<string>;
+export const createPartyMuxer = async (feedStore: FeedStore, initialFeeds: FeedKey[]) => {
+  // TODO(burdon): Is this the correct way to create a stream?
+  const outputStream = new Readable({ objectMode: true, read () {} });
 
-  private _output: Readable;
+  const allowedFeeds: Set<FeedKey> = new Set(initialFeeds);
+  const iterator = await FeedStoreIterator.create(feedStore,
+    async feedKey => allowedFeeds.has(keyToString(feedKey))
+  );
 
-  constructor (
-    private readonly _feedStore: FeedStore,
-    initialFeeds: string[]
-  ) {
-    this._allowedKeys = new Set(initialFeeds);
-
-    // TODO(burdon): Hack.
-    this._output = new Readable({ objectMode: true, read () { } });
-  }
-
-  // TODO(marik-d): Add logic to stop the processing.
-  async run () {
+  setImmediate(async () => {
     // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
-    const iterator = await FeedStoreIterator.create(this._feedStore,
-      async feedKey => this._allowedKeys.has(keyToString(feedKey))
-    );
-
     for await (const { data: { message } } of iterator) {
       log('Muxer:', JSON.stringify(message, undefined, 2));
 
@@ -288,7 +276,7 @@ export class PartyMuxer {
           assumeType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
 
-          this._allowedKeys.add(message.feedKey);
+          allowedFeeds.add(message.feedKey);
           break;
         }
 
@@ -300,19 +288,20 @@ export class PartyMuxer {
           assert(message.itemId);
 
           // TODO(burdon): Order by timestamp.
-          this._output.push({ data: { message } });
+          outputStream.push({ data: { message } });
 
-          // TODO(marik-d): Figure out backpressure https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
-          // if(!this._output.push({ data: { message } })) {
-          //   await new Promise(resolve => { this._output.once('drain', resolve )})
+          // TODO(marik-d): Figure out backpressure
+          //   https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
+          // if (!this._output.push({ data: { message } })) {
+          //   await new Promise(resolve => { this._output.once('drain', resolve )});
           // }
         }
       }
     }
-  }
+  });
 
-  get output () { return this._output; }
-}
+  return outputStream;
+};
 
 /**
  * Reads party stream and routes to associate item stream.
@@ -339,8 +328,6 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
       /* eslint-disable camelcase */
       const { __type_url } = payload as any;
-      assert(__type_url);
-
       switch (__type_url) {
         case 'dxos.echo.testing.ItemGenesis': {
           assumeType<dxos.echo.testing.IItemGenesis>(payload);
@@ -357,7 +344,6 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
           assert(payload);
 
           const stream = streams.getOrInit(itemId);
-          // Remove ItemEnvelope
           stream.push({ data: { message: payload } });
           break;
         }
