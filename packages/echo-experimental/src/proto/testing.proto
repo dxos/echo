@@ -26,7 +26,6 @@ message Admit {
 
 // Wrapper for all ECHO messages.
 message ItemEnvelope {
-  // TODO(dboreham): ???
   message VectorTimestamp {
     message Feed {
       bytes feedKey = 1;

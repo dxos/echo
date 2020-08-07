@@ -15,9 +15,7 @@ import { Trigger } from './util';
  * The reason for that is that the reader (PartyProcessor) has an effect via the feedSelector function over how data is generated.
  * NodeJS streams have intenal buffer that the system tends to eagerly fill.
  */
-// TODO(burdon): Define type: dxos.echo.testing.FeedMessage
 export class FeedStoreIterator implements AsyncIterable<any> {
-  // TODO(burdon): No static methods!
   static async create (feedStore: FeedStore, feedSelector: (feedKey: Buffer) => Promise<boolean>) {
     if (feedStore.closing || feedStore.closed) {
       throw new Error('FeedStore closed');

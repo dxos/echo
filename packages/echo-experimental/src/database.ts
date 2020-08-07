@@ -39,29 +39,6 @@ export const createWritableFeedStream = (feed: Feed) => new Writable({
 });
 
 /**
- * Wraps messages with ItemEnvelope.
- * @param itemId
- * @returns {NodeJS.WritableStream}
- */
-// TODO(burdon): Not a great abstraction.
-const createItemMessageStream = (itemId: ItemID) => {
-  return new Transform({
-    objectMode: true,
-    transform (message, _, callback) {
-      this.push({
-        message: {
-          __type_url: 'dxos.echo.testing.ItemEnvelope',
-          itemId,
-          payload: message
-        }
-      });
-
-      callback();
-    }
-  });
-};
-
-/**
  * Abstract base class for Models.
  */
 export abstract class Model extends EventEmitter {
@@ -151,6 +128,29 @@ export class Item {
 }
 
 /**
+ * Wraps messages with ItemEnvelope.
+ * @param itemId
+ * @returns {NodeJS.WritableStream}
+ */
+// TODO(burdon): Not a great abstraction.
+const createItemMessageStream = (itemId: ItemID) => {
+  return new Transform({
+    objectMode: true,
+    transform (message, _, callback) {
+      this.push({
+        message: {
+          __type_url: 'dxos.echo.testing.ItemEnvelope',
+          itemId,
+          payload: message
+        }
+      });
+
+      callback();
+    }
+  });
+};
+
+/**
  * Manages creation and index of items.
  */
 export class ItemManager extends EventEmitter {
@@ -220,7 +220,7 @@ export class ItemManager extends EventEmitter {
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
-    log('created', this._pendingItems.get(itemId));
+    log('Created:', this._pendingItems.get(itemId));
 
     // Notify pending creates.
     // TODO(burdon): Lint issue.
@@ -277,9 +277,12 @@ export class PartyMuxer {
     );
 
     for await (const { data: { message } } of iterator) {
-      log('Muxer', JSON.stringify(message, undefined, 2));
+      log('Muxer:', JSON.stringify(message, undefined, 2));
 
       switch (message.__type_url) {
+        //
+        // HALO messages.
+        //
         case 'dxos.echo.testing.Admit': {
           assertType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
@@ -288,10 +291,14 @@ export class PartyMuxer {
           break;
         }
 
+        //
+        // ECHO messages.
+        //
         default: {
           assertType<dxos.echo.testing.IItemEnvelope>(message);
           assert(message.itemId);
 
+          // TODO(burdon): Order by timestamp.
           this._output.push({ data: { message } });
 
           // TODO(marik-d): Figure out backpressure https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
@@ -321,7 +328,6 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   // TODO(marik_d): Replace with Writable.
   return new Transform({
     objectMode: true,
-
     transform: async ({ data: { message } }, _, callback) => {
       log('Demuxer:', JSON.stringify(message, undefined, 2));
       assert(message.__type_url === 'dxos.echo.testing.ItemEnvelope');
