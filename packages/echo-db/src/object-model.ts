@@ -39,7 +39,11 @@ export class ObjectModel extends Model {
     const id = createObjectId(type);
     const mutations = fromObject({ id, properties });
 
-    this.appendMessage({ __type_url: type, viewId, ...mutations });
+    this.appendMessage({
+      __type_url: type,
+      viewId,
+      ...mutations
+    });
 
     return id;
   }
@@ -54,7 +58,10 @@ export class ObjectModel extends Model {
       properties
     });
 
-    this.appendMessage({ __type_url: type, ...mutations });
+    this.appendMessage({
+      __type_url: type,
+      ...mutations
+    });
   }
 
   // TODO(burdon): Rename deleteObject.
@@ -64,7 +71,10 @@ export class ObjectModel extends Model {
     const { type } = parseObjectId(id);
     const mutation = MutationUtil.createMessage(id, { deleted: true });
 
-    this.appendMessage({ __type_url: type, ...mutation });
+    this.appendMessage({
+      __type_url: type,
+      ...mutation
+    });
   }
 
   onUpdate (messages: IModelMessage[]) {
