@@ -62,28 +62,26 @@ describe('database', () => {
 
     const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
 
-    // TODO(burdon): Create feedstore inside each scope (with same directory).
-    const directory = tempy.directory();
-    const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
-
     const count = {
       items: 0,
       mutations: 0
     };
 
+    // Temp store for feeds.
+    const directory = tempy.directory();
+
     //
     // Generate items.
     //
     {
-      // TODO(burdon): Replace feed with Writeable stream from PartyManager.
-      // const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
+      const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
       await feedStore.open();
+
       const feed = await feedStore.openFeed('test');
       const readable = feedStore.createReadStream({ live: true });
+      const counter = sink(feed, 'append', config.numMutations);
 
       const itemManager = new ItemManager(modelFactory, createWritableFeedStream(feed));
-
-      // NOTE: This will be the Party's readable stream.
       readable.pipe(createItemDemuxer(itemManager));
 
       // Randomly create or mutate items.
@@ -95,13 +93,13 @@ describe('database', () => {
         } else {
           const item = chance.pickone(itemManager.getItems());
           log('Mutating Item:', item.id);
-          item.model.setProperty(chance.pickone(['a', 'b', 'c']), `value-${i}`);
+          await item.model.setProperty(chance.pickone(['a', 'b', 'c']), `value-${i}`);
           count.mutations++;
         }
       }
 
-      // TODO(burdon): Breaks if close feedstore.
-      // await feedStore.close();
+      await counter;
+      await feedStore.close();
     }
 
     log('Config:', config);
@@ -111,33 +109,28 @@ describe('database', () => {
     // Replay items.
     //
     {
-      // const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
+      const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
       await feedStore.open();
-      const readable = feedStore.createReadStream({ live: true });
 
       const descriptors = feedStore.getDescriptors();
       expect(descriptors).toHaveLength(config.numFeeds);
-      const { feed } = chance.pickone(descriptors);
+      const descriptor = chance.pickone(descriptors);
+      const feed = await descriptor.open();
 
       const itemManager = new ItemManager(modelFactory, createWritableFeedStream(feed));
 
-      // NOTE: This will be the Party's readable stream.
+      const created = sink(itemManager, 'create', count.items);
+      const updated = sink(itemManager, 'update', count.mutations);
+
+      const readable = feedStore.createReadStream({ live: true });
       readable.pipe(createItemDemuxer(itemManager));
 
-      // Wait for items to be processed.
-      const [promiseItems, callbackItem] = latch(count.items);
-      itemManager.on('create', callbackItem);
-      expect(await promiseItems).toBe(count.items);
-
-      // Wait for all messages to be processed.
-      const [promiseUpdates, callbackUpdate] = latch(count.mutations);
-      const items = itemManager.getItems();
-      for (const item of items) {
-        item.on('update', callbackUpdate);
-      }
-      expect(await promiseUpdates).toBe(count.mutations);
+      // Wait for mutations to be processed.
+      await created;
+      await updated;
 
       // TODO(burdon): Test items have same state.
+      const items = itemManager.getItems();
       for (const item of items) {
         log((item.model as TestModel).value);
       }
