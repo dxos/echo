@@ -374,6 +374,201 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
+            /** Properties of a VectorTimestamp. */
+            interface IVectorTimestamp {
+
+                /** VectorTimestamp timestamp */
+                timestamp?: (dxos.echo.testing.VectorTimestamp.IFeed[]|null);
+            }
+
+            /** Represents a VectorTimestamp. */
+            class VectorTimestamp implements IVectorTimestamp {
+
+                /**
+                 * Constructs a new VectorTimestamp.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: dxos.echo.testing.IVectorTimestamp);
+
+                /** VectorTimestamp timestamp. */
+                public timestamp: dxos.echo.testing.VectorTimestamp.IFeed[];
+
+                /**
+                 * Creates a new VectorTimestamp instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns VectorTimestamp instance
+                 */
+                public static create(properties?: dxos.echo.testing.IVectorTimestamp): dxos.echo.testing.VectorTimestamp;
+
+                /**
+                 * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * @param message VectorTimestamp message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * @param message VectorTimestamp message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a VectorTimestamp message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns VectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp;
+
+                /**
+                 * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns VectorTimestamp
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp;
+
+                /**
+                 * Verifies a VectorTimestamp message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns VectorTimestamp
+                 */
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp;
+
+                /**
+                 * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
+                 * @param message VectorTimestamp
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: dxos.echo.testing.VectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this VectorTimestamp to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+            }
+
+            namespace VectorTimestamp {
+
+                /** Properties of a Feed. */
+                interface IFeed {
+
+                    /** Feed feedKey */
+                    feedKey?: (Uint8Array|null);
+
+                    /** Feed feedIndex */
+                    feedIndex?: (number|null);
+
+                    /** Feed seq */
+                    seq?: (number|null);
+                }
+
+                /** Represents a Feed. */
+                class Feed implements IFeed {
+
+                    /**
+                     * Constructs a new Feed.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: dxos.echo.testing.VectorTimestamp.IFeed);
+
+                    /** Feed feedKey. */
+                    public feedKey: Uint8Array;
+
+                    /** Feed feedIndex. */
+                    public feedIndex: number;
+
+                    /** Feed seq. */
+                    public seq: number;
+
+                    /**
+                     * Creates a new Feed instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns Feed instance
+                     */
+                    public static create(properties?: dxos.echo.testing.VectorTimestamp.IFeed): dxos.echo.testing.VectorTimestamp.Feed;
+
+                    /**
+                     * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
+                     * @param message Feed message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: dxos.echo.testing.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Feed.verify|verify} messages.
+                     * @param message Feed message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: dxos.echo.testing.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp.Feed;
+
+                    /**
+                     * Decodes a Feed message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns Feed
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp.Feed;
+
+                    /**
+                     * Verifies a Feed message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a Feed message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns Feed
+                     */
+                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp.Feed;
+
+                    /**
+                     * Creates a plain object from a Feed message. Also converts values to other types if specified.
+                     * @param message Feed
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: dxos.echo.testing.VectorTimestamp.Feed, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this Feed to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+                }
+            }
+
             /** Properties of an ItemEnvelope. */
             interface IItemEnvelope {
 
@@ -381,7 +576,7 @@ export namespace dxos {
                 itemId?: (string|null);
 
                 /** ItemEnvelope timestamp */
-                timestamp?: (dxos.echo.testing.ItemEnvelope.IVectorTimestamp|null);
+                timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
 
                 /** ItemEnvelope payload */
                 payload?: (google.protobuf.IAny|null);
@@ -400,7 +595,7 @@ export namespace dxos {
                 public itemId: string;
 
                 /** ItemEnvelope timestamp. */
-                public timestamp?: (dxos.echo.testing.ItemEnvelope.IVectorTimestamp|null);
+                public timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
 
                 /** ItemEnvelope payload. */
                 public payload?: (google.protobuf.IAny|null);
@@ -474,198 +669,6 @@ export namespace dxos {
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
-            }
-
-            namespace ItemEnvelope {
-
-                /** Properties of a VectorTimestamp. */
-                interface IVectorTimestamp {
-
-                    /** VectorTimestamp timestamp */
-                    timestamp?: (dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed[]|null);
-                }
-
-                /** Represents a VectorTimestamp. */
-                class VectorTimestamp implements IVectorTimestamp {
-
-                    /**
-                     * Constructs a new VectorTimestamp.
-                     * @param [properties] Properties to set
-                     */
-                    constructor(properties?: dxos.echo.testing.ItemEnvelope.IVectorTimestamp);
-
-                    /** VectorTimestamp timestamp. */
-                    public timestamp: dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed[];
-
-                    /**
-                     * Creates a new VectorTimestamp instance using the specified properties.
-                     * @param [properties] Properties to set
-                     * @returns VectorTimestamp instance
-                     */
-                    public static create(properties?: dxos.echo.testing.ItemEnvelope.IVectorTimestamp): dxos.echo.testing.ItemEnvelope.VectorTimestamp;
-
-                    /**
-                     * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.verify|verify} messages.
-                     * @param message VectorTimestamp message or plain object to encode
-                     * @param [writer] Writer to encode to
-                     * @returns Writer
-                     */
-                    public static encode(message: dxos.echo.testing.ItemEnvelope.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                    /**
-                     * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.verify|verify} messages.
-                     * @param message VectorTimestamp message or plain object to encode
-                     * @param [writer] Writer to encode to
-                     * @returns Writer
-                     */
-                    public static encodeDelimited(message: dxos.echo.testing.ItemEnvelope.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                    /**
-                     * Decodes a VectorTimestamp message from the specified reader or buffer.
-                     * @param reader Reader or buffer to decode from
-                     * @param [length] Message length if known beforehand
-                     * @returns VectorTimestamp
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.ItemEnvelope.VectorTimestamp;
-
-                    /**
-                     * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
-                     * @param reader Reader or buffer to decode from
-                     * @returns VectorTimestamp
-                     * @throws {Error} If the payload is not a reader or valid buffer
-                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                     */
-                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.ItemEnvelope.VectorTimestamp;
-
-                    /**
-                     * Verifies a VectorTimestamp message.
-                     * @param message Plain object to verify
-                     * @returns `null` if valid, otherwise the reason why it is not
-                     */
-                    public static verify(message: { [k: string]: any }): (string|null);
-
-                    /**
-                     * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
-                     * @param object Plain object
-                     * @returns VectorTimestamp
-                     */
-                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.ItemEnvelope.VectorTimestamp;
-
-                    /**
-                     * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
-                     * @param message VectorTimestamp
-                     * @param [options] Conversion options
-                     * @returns Plain object
-                     */
-                    public static toObject(message: dxos.echo.testing.ItemEnvelope.VectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-                    /**
-                     * Converts this VectorTimestamp to JSON.
-                     * @returns JSON object
-                     */
-                    public toJSON(): { [k: string]: any };
-                }
-
-                namespace VectorTimestamp {
-
-                    /** Properties of a Feed. */
-                    interface IFeed {
-
-                        /** Feed feedKey */
-                        feedKey?: (Uint8Array|null);
-
-                        /** Feed seq */
-                        seq?: (number|null);
-                    }
-
-                    /** Represents a Feed. */
-                    class Feed implements IFeed {
-
-                        /**
-                         * Constructs a new Feed.
-                         * @param [properties] Properties to set
-                         */
-                        constructor(properties?: dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed);
-
-                        /** Feed feedKey. */
-                        public feedKey: Uint8Array;
-
-                        /** Feed seq. */
-                        public seq: number;
-
-                        /**
-                         * Creates a new Feed instance using the specified properties.
-                         * @param [properties] Properties to set
-                         * @returns Feed instance
-                         */
-                        public static create(properties?: dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed): dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed;
-
-                        /**
-                         * Encodes the specified Feed message. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.verify|verify} messages.
-                         * @param message Feed message or plain object to encode
-                         * @param [writer] Writer to encode to
-                         * @returns Writer
-                         */
-                        public static encode(message: dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                        /**
-                         * Encodes the specified Feed message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed.verify|verify} messages.
-                         * @param message Feed message or plain object to encode
-                         * @param [writer] Writer to encode to
-                         * @returns Writer
-                         */
-                        public static encodeDelimited(message: dxos.echo.testing.ItemEnvelope.VectorTimestamp.IFeed, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                        /**
-                         * Decodes a Feed message from the specified reader or buffer.
-                         * @param reader Reader or buffer to decode from
-                         * @param [length] Message length if known beforehand
-                         * @returns Feed
-                         * @throws {Error} If the payload is not a reader or valid buffer
-                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                         */
-                        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed;
-
-                        /**
-                         * Decodes a Feed message from the specified reader or buffer, length delimited.
-                         * @param reader Reader or buffer to decode from
-                         * @returns Feed
-                         * @throws {Error} If the payload is not a reader or valid buffer
-                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                         */
-                        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed;
-
-                        /**
-                         * Verifies a Feed message.
-                         * @param message Plain object to verify
-                         * @returns `null` if valid, otherwise the reason why it is not
-                         */
-                        public static verify(message: { [k: string]: any }): (string|null);
-
-                        /**
-                         * Creates a Feed message from a plain object. Also converts values to their respective internal types.
-                         * @param object Plain object
-                         * @returns Feed
-                         */
-                        public static fromObject(object: { [k: string]: any }): dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed;
-
-                        /**
-                         * Creates a plain object from a Feed message. Also converts values to other types if specified.
-                         * @param message Feed
-                         * @param [options] Conversion options
-                         * @returns Plain object
-                         */
-                        public static toObject(message: dxos.echo.testing.ItemEnvelope.VectorTimestamp.Feed, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-                        /**
-                         * Converts this Feed to JSON.
-                         * @returns JSON object
-                         */
-                        public toJSON(): { [k: string]: any };
-                    }
-                }
             }
 
             /** Properties of an ItemGenesis. */

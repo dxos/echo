@@ -42,6 +42,33 @@
                     }
                   }
                 },
+                "VectorTimestamp": {
+                  "fields": {
+                    "timestamp": {
+                      "rule": "repeated",
+                      "type": "Feed",
+                      "id": 1
+                    }
+                  },
+                  "nested": {
+                    "Feed": {
+                      "fields": {
+                        "feedKey": {
+                          "type": "bytes",
+                          "id": 1
+                        },
+                        "feedIndex": {
+                          "type": "int32",
+                          "id": 2
+                        },
+                        "seq": {
+                          "type": "int32",
+                          "id": 3
+                        }
+                      }
+                    }
+                  }
+                },
                 "ItemEnvelope": {
                   "fields": {
                     "itemId": {
@@ -55,31 +82,6 @@
                     "payload": {
                       "type": "google.protobuf.Any",
                       "id": 3
-                    }
-                  },
-                  "nested": {
-                    "VectorTimestamp": {
-                      "fields": {
-                        "timestamp": {
-                          "rule": "repeated",
-                          "type": "Feed",
-                          "id": 1
-                        }
-                      },
-                      "nested": {
-                        "Feed": {
-                          "fields": {
-                            "feedKey": {
-                              "type": "bytes",
-                              "id": 1
-                            },
-                            "seq": {
-                              "type": "int32",
-                              "id": 2
-                            }
-                          }
-                        }
-                      }
                     }
                   }
                 },

@@ -24,6 +24,14 @@ export const createRemove = (feedKey: FeedKey) => ({
   }
 });
 
+// TODO(burdon): Use mutation instead.
+export const createMessage = (data: number) => ({
+  message: {
+    __type_url: 'dxos.echo.testing.TestData',
+    data
+  }
+});
+
 export const createItem = (itemId: ItemID) => ({
   message: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
@@ -44,13 +52,5 @@ export const createMutation = (itemId: ItemID, key: string, value: string) => ({
       key,
       value
     }
-  }
-});
-
-// TODO(burdon): Use mutation instead.
-export const createMessage = (data: number) => ({
-  message: {
-    __type_url: 'dxos.echo.testing.TestData',
-    data
   }
 });

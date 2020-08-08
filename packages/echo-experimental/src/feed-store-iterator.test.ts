@@ -2,9 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import ram from 'random-access-memory';
-import waitForExpect from 'wait-for-expect';
 import assert from 'assert';
+import { EventEmitter } from 'events';
+import ram from 'random-access-memory';
 
 import { keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
@@ -12,7 +12,7 @@ import { Codec } from '@dxos/codec-protobuf';
 
 import { createWritableFeedStream } from './database';
 import { FeedStoreIterator } from './feed-store-iterator';
-import { assumeType, latch } from './util';
+import { assumeType, latch, sink } from './util';
 import { createAdmit, createRemove, createMessage } from './testing';
 
 import TestingSchema from './proto/gen/testing.json';
@@ -36,7 +36,7 @@ const setup = async (paths: string[]) => {
 /* eslint-disable no-lone-blocks */
 describe('FeedStoreIterator', () => {
   test('single feed', async () => {
-    const { feedStore, streams } = await setup(['feed']);
+    const { feedStore, streams } = await setup(['feed-1']);
 
     streams[0].write(createMessage(1));
     streams[0].write(createMessage(2));
@@ -45,8 +45,8 @@ describe('FeedStoreIterator', () => {
     const iterator = await FeedStoreIterator.create(feedStore, async () => true);
 
     const messages = [];
-    for await (const msg of iterator) {
-      messages.push(msg);
+    for await (const message of iterator) {
+      messages.push(message);
       if (messages.length === 3) {
         break;
       }
@@ -69,8 +69,8 @@ describe('FeedStoreIterator', () => {
     const iterator = await FeedStoreIterator.create(feedStore, async feedKey => feedKey === descriptors[0].key);
 
     const messages = [];
-    for await (const msg of iterator) {
-      messages.push(msg);
+    for await (const message of iterator) {
+      messages.push(message);
       if (messages.length === 2) { break; }
     }
 
@@ -81,29 +81,24 @@ describe('FeedStoreIterator', () => {
   });
 
   test('feed added while iterating', async () => {
-    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    await feedStore.open();
+    const { feedStore, streams } = await setup(['feed-1']);
 
     const iterator = await FeedStoreIterator.create(feedStore, async () => true);
-
-    const feed = await feedStore.openFeed('feed');
-    const stream = createWritableFeedStream(feed);
 
     const [count, incCount] = latch(3);
     const messages: any[] = [];
     setImmediate(async () => {
-      for await (const msg of iterator) {
-        messages.push(msg);
+      for await (const message of iterator) {
+        messages.push(message);
         incCount();
       }
     });
 
-    stream.write(createMessage(1));
-    stream.write(createMessage(2));
-    stream.write(createMessage(3));
+    streams[0].write(createMessage(1));
+    streams[0].write(createMessage(2));
+    streams[0].write(createMessage(3));
     await count;
 
-    // TODO(burdon): Use instead of waitForExpect.
     expect(messages).toEqual([
       { data: createMessage(1) },
       { data: createMessage(2) },
@@ -120,26 +115,27 @@ describe('FeedStoreIterator', () => {
     });
 
     const messages: any[] = [];
+    const eventEmitter = new EventEmitter();
     setImmediate(async () => {
-      for await (const msg of iterator) {
-        messages.push(msg);
+      for await (const message of iterator) {
+        messages.push(message);
 
-        switch (msg.data.message.__type_url) {
+        switch (message.data.message.__type_url) {
           // TODO(burdon): Convert to mutation.
           case 'dxos.echo.testing.TestData':
             break;
 
           case 'dxos.echo.testing.Admit': {
-            assumeType<dxos.echo.testing.IAdmit>(msg.data.message);
-            const { feedKey } = msg.data.message;
+            assumeType<dxos.echo.testing.IAdmit>(message.data.message);
+            const { feedKey } = message.data.message;
             assert(feedKey);
             authenticatedFeeds.add(keyToString(feedKey));
             break;
           }
 
           case 'dxos.echo.testing.Remove': {
-            assumeType<dxos.echo.testing.IRemove>(msg.data.message);
-            const { feedKey } = msg.data.message;
+            assumeType<dxos.echo.testing.IRemove>(message.data.message);
+            const { feedKey } = message.data.message;
             assert(feedKey);
             assert(authenticatedFeeds.has(keyToString(feedKey)));
             authenticatedFeeds.delete(keyToString(feedKey));
@@ -147,53 +143,70 @@ describe('FeedStoreIterator', () => {
           }
 
           default:
-            throw new Error(`Unexpected message type: ${msg.data.message.__type_url}`);
+            throw new Error(`Unexpected message type: ${message.data.message.__type_url}`);
         }
+
+        eventEmitter.emit('update', message);
       }
     });
 
-    // TODO(burdon): Adapt latch pattern to wait for n messages to be processed.
-
     // Expect non-admitted messages to be held.
     {
+      const promise = sink(eventEmitter, 'update', 2);
+
       streams[0].write(createMessage(1));
       streams[1].write(createMessage(2)); // Should be held.
       streams[0].write(createMessage(3));
 
-      await waitForExpect(() => expect(messages).toEqual([
+      await promise;
+
+      expect(messages).toEqual([
         { data: createMessage(1) },
         { data: createMessage(3) }
-      ]));
+      ]);
     }
 
     // Release held message by admitting feed.
     {
+      const promise = sink(eventEmitter, 'update', 2);
+
       streams[0].write(createAdmit(descriptors[1].key));
 
-      await waitForExpect(() => expect(messages).toEqual([
+      await promise;
+
+      expect(messages).toEqual([
         { data: createMessage(1) },
         { data: createMessage(3) },
         { data: createAdmit(descriptors[1].key) },
         { data: createMessage(2) } // Now released.
-      ]));
+      ]);
     }
 
     // Remove feed and test subsequent messages are held.
     {
+      const promise1 = sink(eventEmitter, 'update', 1);
+
       streams[1].write(createRemove(descriptors[0].key));
-      await waitForExpect(() => expect(messages.length).toEqual(5));
+
+      await promise1;
+
+      // NOTE: Race condition possible.
+      // If we don't wait here, the next write goes ahead since the remove hasn't been processed.
+      const promise2 = sink(eventEmitter, 'update', 1);
 
       streams[0].write(createMessage(4)); // Should be held.
       streams[1].write(createMessage(5));
 
-      await waitForExpect(() => expect(messages).toEqual([
+      await promise2;
+
+      expect(messages).toEqual([
         { data: createMessage(1) },
         { data: createMessage(3) },
         { data: createAdmit(descriptors[1].key) },
         { data: createMessage(2) },
         { data: createRemove(descriptors[0].key) },
         { data: createMessage(5) }
-      ]));
+      ]);
     }
   });
 });

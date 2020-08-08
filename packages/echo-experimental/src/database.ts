@@ -250,8 +250,13 @@ export class ItemManager extends EventEmitter {
 
 /**
  * Reads party feeds and routes to items demuxer.
+ * @param feedStore
+ * @param [initialFeeds]
+ * @param [initialAnchor] TODO(burdon): Emit event when anchor point reached?
  */
-export const createPartyMuxer = (feedStore: FeedStore, initialFeeds: FeedKey[]) => {
+export const createPartyMuxer = (
+  feedStore: FeedStore, initialFeeds: FeedKey[], initialAnchor?: dxos.echo.testing.IVectorTimestamp
+) => {
   // TODO(burdon): Is this the correct way to create a stream?
   const outputStream = new Readable({ objectMode: true, read () {} });
 

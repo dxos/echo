@@ -28,17 +28,18 @@ message Remove {
   bytes feedKey = 1;
 }
 
-// Wrapper for all ECHO messages.
-message ItemEnvelope {
-  message VectorTimestamp {
-    message Feed {
-      bytes feedKey = 1;
-      int32 seq = 2;
-    }
-
-    repeated Feed timestamp = 1;
+message VectorTimestamp {
+  message Feed {
+    bytes feedKey = 1;
+    int32 feedIndex = 2;
+    int32 seq = 3;
   }
 
+  repeated Feed timestamp = 1;
+}
+
+// Wrapper for all ECHO messages.
+message ItemEnvelope {
   string itemId = 1;
   VectorTimestamp timestamp = 2;
   google.protobuf.Any payload = 3;
