@@ -4,7 +4,7 @@
 
 import Chance from 'chance';
 import debug from 'debug';
-import { EventEmitter } from 'events';
+import { _eventEmitter } from 'events';
 
 import { createId, keyToBuffer, keyToString } from '@dxos/crypto';
 import { createReplicationNetwork } from '@dxos/feed-replication-network';
@@ -27,17 +27,17 @@ export class Simulation {
   initialized = false;
   network;
 
-  private itemId;
-  private type = 'graph.type';
-  private eventEmitter = new EventEmitter();
-  private nodesCache;
-  private continuousMutations = false;
+  private _itemId;
+  private _type = 'graph._type';
+  private _eventEmitter = new _eventEmitter();
+  private _nodesCache;
+  private _continuousMutations = false;
 
   async initialize () {
     this.network = await createReplicationNetwork({ initializeConnected: true, peerCount: 4 }, ModelPeerFactory);
     // Create a single item to be used for our replication testing (model should exist by now).
     const firstModel = this.network.peers[0].model;
-    this.itemId = await firstModel.createItem(this.type, { color: 'black' });
+    this._itemId = await firstModel.createItem(this._type, { color: 'black' });
     this.initialized = true;
     this.network.peers.forEach(p => p.model.on('update', () => this.signalUpdate()));
   }
@@ -45,22 +45,22 @@ export class Simulation {
   startMutating () {
     const onInterval = async () => {
       await this.changeNodeColor();
-      if (this.continuousMutations) {
+      if (this._continuousMutations) {
         setTimeout(onInterval, 2000);
       }
     };
     setTimeout(onInterval, 2000);
-    this.continuousMutations = true;
+    this._continuousMutations = true;
     this.signalUpdate();
   }
 
   stopMutating () {
-    this.continuousMutations = false;
+    this._continuousMutations = false;
     this.signalUpdate();
   }
 
   continuousMutating () {
-    return this.continuousMutations;
+    return this._continuousMutations;
   }
 
   async singleMutation () {
@@ -149,20 +149,20 @@ export class Simulation {
     // TODO(dboreham): Needs to retain previous object since grapher adorns the nodes (only) with its magic.
     // When we generate a new graph to re-render, without that magic it begins the force simulation anew.
     const colorFromPeer = (peer) => {
-      const payloadObject = peer.model.getItem(this.itemId);
+      const payloadObject = peer.model.getItem(this._itemId);
       return payloadObject ? payloadObject.properties.color : 'black';
     };
     const peers = this.network.peers;
-    if (this.nodesCache && this.nodesCache.length === peers.length) {
+    if (this._nodesCache && this._nodesCache.length === peers.length) {
       // TODO(dboreham): Hack -- won't work if the node order changes.
       for (let i = 0; i < peers.length; i++) {
-        this.nodesCache[i].color = colorFromPeer(peers[i]);
+        this._nodesCache[i].color = colorFromPeer(peers[i]);
       }
     } else {
-      this.nodesCache = this.network.peers.map(p => ({ id: keyToString(p.id), color: colorFromPeer(p) }));
+      this._nodesCache = this.network.peers.map(p => ({ id: keyToString(p.id), color: colorFromPeer(p) }));
     }
     const links = this.network.connections.map(c => ({ source: keyToString(c.fromPeer.id), target: keyToString(c.toPeer.id) }));
-    return { nodes: this.nodesCache, links };
+    return { nodes: this._nodesCache, links };
   }
 
   private static randomColor () {
@@ -175,10 +175,10 @@ export class Simulation {
 
   private async changeNodeColor (): Promise<void> {
     const randomModel = this.randomNode().model;
-    if (randomModel.getItem(this.itemId)) {
+    if (randomModel.getItem(this._itemId)) {
       const selectedNode = this.randomNode();
       const selectedColor = Simulation.randomColor();
-      await selectedNode.model.updateItem(this.itemId, { color: selectedColor });
+      await selectedNode.model.updateItem(this._itemId, { color: selectedColor });
       // TODOO(dboreham): display this text on the screen.
       log(`Changed node: ${keyToString(selectedNode.id)} color to: ${selectedColor}`);
     } else {
@@ -187,6 +187,6 @@ export class Simulation {
   }
 
   private signalUpdate () {
-    this.eventEmitter.emit('update');
+    this._eventEmitter.emit('update');
   }
 }
