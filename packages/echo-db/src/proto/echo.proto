@@ -88,6 +88,12 @@ message Envelope {
   google.protobuf.Any message         = 1;
 }
 
+message OrderedModelData {
+  int32 messageId                     = 1;
+  int32 previousMessageId             = 2;
+  google.protobuf.Any message         = 10;
+}
+
 //
 // Details about the ownership of this message.
 //
@@ -99,6 +105,6 @@ message CredentialsInfo {
 // A composite of message payload data with metadata describing the feed and ownership.
 //
 message ModelMessage {
-  CredentialsInfo credentials = 1;
-  google.protobuf.Any data    = 10;
+  CredentialsInfo credentials         = 1;
+  google.protobuf.Any data            = 10;
 }

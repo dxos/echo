@@ -4,10 +4,17 @@
 
 import { Any } from './Any';
 import { dxos } from '../proto';
-import ModelMessage = dxos.echo.ModelMessage;
+import MM = dxos.echo.ModelMessage;
+
+export class ModelMessage extends MM {
+  // Provide a simple toJSON, since the auto-generated version does not handle 'Any' members properly.
+  public toJSON (): { [p: string]: any } {
+    return { ...this };
+  }
+}
 
 export const createModelMessage = (data: any) => {
-  return ModelMessage.create({
+  return new ModelMessage({
     data: Any.create(data)
   });
 };
