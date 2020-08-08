@@ -6,7 +6,6 @@ import Chance from 'chance';
 import debug from 'debug';
 import ram from 'random-access-memory';
 import tempy from 'tempy';
-import waitForExpect from 'wait-for-expect';
 
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
@@ -16,7 +15,7 @@ import {
   createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory
 } from './database';
 import { TestModel } from './test-model';
-import { latch } from './util';
+import { latch, sink } from './util';
 import { createAdmit, createItem, createMutation } from './testing';
 
 import TestingSchema from './proto/gen/testing.json';
@@ -134,7 +133,7 @@ describe('database', () => {
       const [promiseUpdates, callbackUpdate] = latch(count.mutations);
       const items = itemManager.getItems();
       for (const item of items) {
-        item.model.on('update', callbackUpdate);
+        item.on('update', callbackUpdate);
       }
       expect(await promiseUpdates).toBe(count.mutations);
 
@@ -178,42 +177,45 @@ describe('database', () => {
       createId()
     ];
 
-    // Set-up pipeline.
-    const partyMuxer = createPartyMuxer(feedStore, [descriptors[0].key]);
     const itemManager = new ItemManager(modelFactory, streams[0]);
+
+    // Set-up pipeline.
+    // TODO(burdon): Test closing pipeline.
+    const partyMuxer = createPartyMuxer(feedStore, [descriptors[0].key]);
     const itemDemuxer = createItemDemuxer(itemManager);
     partyMuxer.pipe(itemDemuxer);
 
     {
       streams[0].write(createItem(itemIds[0]));
-      streams[0].write(createMutation(itemIds[0], 'title', 'Hi'));
-      streams[1].write(createMutation(itemIds[0], 'title', 'World'));
+      streams[0].write(createMutation(itemIds[0], 'title', 'Value-1'));
+      streams[1].write(createMutation(itemIds[0], 'title', 'Value-2')); // Hold.
 
-      await waitForExpect(() => {
-        const items = itemManager.getItems();
-        expect(items).toHaveLength(1);
-        expect((items[0].model as TestModel).getValue('title')).toEqual('Hi');
-      });
+      await sink(itemManager, 'create', 1);
+      await sink(itemManager, 'update', 1);
+
+      const items = itemManager.getItems();
+      expect(items).toHaveLength(1);
+      expect((items[0].model as TestModel).getValue('title')).toEqual('Value-1');
     }
 
     {
-      streams[0].write(createMutation(itemIds[0], 'title', 'Hello'));
+      streams[0].write(createMutation(itemIds[0], 'title', 'Value-3'));
 
-      await waitForExpect(() => {
-        const items = itemManager.getItems();
-        expect(items).toHaveLength(1);
-        expect((items[0].model as TestModel).getValue('title')).toEqual('Hello');
-      });
+      await sink(itemManager, 'update', 1);
+
+      const items = itemManager.getItems();
+      expect(items).toHaveLength(1);
+      expect((items[0].model as TestModel).getValue('title')).toEqual('Value-3');
     }
 
     {
       streams[0].write(createAdmit(descriptors[1].key));
 
-      await waitForExpect(() => {
-        const items = itemManager.getItems();
-        expect(items).toHaveLength(1);
-        expect((items[0].model as TestModel).getValue('title')).toEqual('World');
-      });
+      await sink(itemManager, 'update', 1);
+
+      const items = itemManager.getItems();
+      expect(items).toHaveLength(1);
+      expect((items[0].model as TestModel).getValue('title')).toEqual('Value-2');
     }
   });
 });

@@ -58,6 +58,7 @@ export abstract class Model extends EventEmitter {
         // log('Model.read', message);
         await this.processMessage(message);
 
+        // TODO(burdon): Emit immutable value (or just ID).
         this.emit('update', this);
         callback();
       }
@@ -112,12 +113,14 @@ export class ModelFactory {
 /**
  * Data item.
  */
-export class Item {
+export class Item extends EventEmitter {
   // eslint-disable-next-line no-useless-constructor
   constructor (
     private _itemId: ItemID,
     private _model: Model
-  ) {}
+  ) {
+    super();
+  }
 
   get id () {
     return this._itemId;
@@ -183,7 +186,7 @@ export class ItemManager extends EventEmitter {
     this._pendingItems.set(itemId, callback);
 
     // Write Item Genesis block.
-    // TODO(burdon): Write directly to the writable stream?
+    // TODO(burdon): Write directly to the writable stream (not wrapper)?
     log('Creating Genesis:', itemId);
     const writable = this._createWriteStream(itemId);
     await pify(writable.write.bind(writable))({
@@ -206,7 +209,7 @@ export class ItemManager extends EventEmitter {
     log('Construct', { type, itemId });
 
     // Create model.
-    // TODO(burdon): Skip if unknown model.
+    // TODO(burdon): Skip genesis message (and subsequent messages) if unknown model.
     const writable = this._createWriteStream(itemId);
     const model = this._modelFactory.createModel(type, itemId, readable, writable);
     assert(model, `Invalid model: ${type}`);
@@ -215,6 +218,12 @@ export class ItemManager extends EventEmitter {
     const item = new Item(itemId, model);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
+
+    // Item udpated.
+    model.on('update', () => {
+      item.emit('update', item);
+      this.emit('update', item);
+    });
 
     // Notify pending creates.
     this._pendingItems.get(itemId)?.(item);
@@ -298,7 +307,7 @@ export const createPartyMuxer = (feedStore: FeedStore, initialFeeds: FeedKey[]) 
 /**
  * Reads party stream and routes to associate item stream.
  */
-export const createItemDemuxer = (itemManager: ItemManager) => {
+export const createItemDemuxer = (itemManager: ItemManager, eventEmitter?: EventEmitter) => {
   // Map of Item-specific streams.
   // TODO(burdon): Abstract class?
   const streams = new LazyMap<ItemID, Readable>(() => new Readable({
@@ -327,7 +336,11 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
 
           log(`Item Genesis: ${itemId}`);
           const stream = streams.getOrInit(itemId);
-          await itemManager.constructItem(payload.model, itemId, stream);
+          const item = await itemManager.constructItem(payload.model, itemId, stream);
+          if (eventEmitter) {
+            eventEmitter.emit('item:create', item);
+            item.on('update', item => eventEmitter.emit('item:update', item));
+          }
           break;
         }
 

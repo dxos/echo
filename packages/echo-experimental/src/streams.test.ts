@@ -6,7 +6,6 @@ import Chance from 'chance';
 import hypercore from 'hypercore';
 import pify from 'pify';
 import ram from 'random-access-memory';
-import waitForExpect from 'wait-for-expect';
 
 import { Codec } from '@dxos/codec-protobuf';
 import { createId } from '@dxos/crypto';
@@ -14,6 +13,8 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 import TestingSchema from './proto/gen/testing.json';
+
+import { sink } from './util';
 
 const chance = new Chance();
 
@@ -101,13 +102,13 @@ test('message streams', async () => {
     ids.add(value);
   });
 
-  await waitForExpect(() => {
-    expect(ids.size).toBe(config.numBlocks);
-    for (const descriptor of descriptors) {
-      const { path, feed } = descriptor;
-      expect(feed.length).toBe(count.get(path));
-    }
+  await sink(stream, 'data', config.numBlocks);
 
-    feedStore.close();
-  });
+  expect(ids.size).toBe(config.numBlocks);
+  for (const descriptor of descriptors) {
+    const { path, feed } = descriptor;
+    expect(feed.length).toBe(count.get(path));
+  }
+
+  feedStore.close();
 });
