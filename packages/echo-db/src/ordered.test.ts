@@ -3,7 +3,19 @@
 //
 
 import { DefaultOrderedModel } from './ordered';
-import { createModelMessage, createOrderedData } from './common';
+import { createModelMessage } from './common';
+import { dxos } from './proto';
+import OrderedModelData = dxos.echo.OrderedModelData;
+
+const createOrderedData = (message: any,
+  messageId: number | null | undefined = 1,
+  previousMessageId: number | null | undefined = 0) => {
+  return OrderedModelData.create({
+    messageId,
+    previousMessageId,
+    message
+  });
+};
 
 const generateMessages = (count: number, data = {}) => {
   const ordered = [];
