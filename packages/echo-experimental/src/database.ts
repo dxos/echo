@@ -21,9 +21,9 @@ import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
 
-type ModelType = string;
-type FeedKey = string;
-type ItemID = string;
+export type FeedKey = Uint8Array;
+export type ModelType = string;
+export type ItemID = string;
 
 /**
  * Returns a stream that appends messages directly to a hypercore feed.
@@ -42,11 +42,11 @@ export const createWritableFeedStream = (feed: Feed) => new Writable({
  * Abstract base class for Models.
  */
 export abstract class Model extends EventEmitter {
-  static type: string;
+  static type: ModelType;
 
   constructor (
-    private _type: string,
-    private _itemId: string,
+    private _type: ModelType,
+    private _itemId: ItemID,
     private _readable: NodeJS.ReadableStream,
     private _writable?: NodeJS.WritableStream
   ) {
@@ -55,7 +55,7 @@ export abstract class Model extends EventEmitter {
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
-        log('Model.read', message);
+        // log('Model.read', message);
         await this.processMessage(message);
 
         this.emit('update', this);
@@ -202,7 +202,7 @@ export class ItemManager extends EventEmitter {
    * @param itemId
    * @param readable
    */
-  async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
+  async constructItem (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream) {
     log('Construct', { type, itemId });
 
     // Create model.
@@ -226,7 +226,7 @@ export class ItemManager extends EventEmitter {
    * Retrieves a data item from the index.
    * @param itemId
    */
-  getItem (itemId: string) {
+  getItem (itemId: ItemID) {
     return this._items.get(itemId);
   }
 
@@ -242,22 +242,23 @@ export class ItemManager extends EventEmitter {
 /**
  * Reads party feeds and routes to items demuxer.
  */
-export const createPartyMuxer = async (feedStore: FeedStore, initialFeeds: FeedKey[]) => {
+export const createPartyMuxer = (feedStore: FeedStore, initialFeeds: FeedKey[]) => {
   // TODO(burdon): Is this the correct way to create a stream?
   const outputStream = new Readable({ objectMode: true, read () {} });
 
   // Configure iterator with dynamic set of admitted feeds.
-  const allowedFeeds: Set<FeedKey> = new Set(initialFeeds);
-  const iterator = await FeedStoreIterator.create(feedStore,
-    async feedKey => allowedFeeds.has(keyToString(feedKey))
-  );
+  const allowedFeeds: Set<string> = new Set(initialFeeds.map(feedKey => keyToString(feedKey)));
 
   // TODO(burdon): Explain control.
   setImmediate(async () => {
+    const iterator = await FeedStoreIterator.create(feedStore,
+      async feedKey => allowedFeeds.has(keyToString(feedKey))
+    );
+
     // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
     for await (const { data: { message } } of iterator) {
-      log('Muxer:', JSON.stringify(message, undefined, 2));
+      log('Muxer:', JSON.stringify(message));
 
       switch (message.__type_url) {
         //
@@ -267,7 +268,7 @@ export const createPartyMuxer = async (feedStore: FeedStore, initialFeeds: FeedK
           assumeType<dxos.echo.testing.IAdmit>(message);
           assert(message.feedKey);
 
-          allowedFeeds.add(message.feedKey);
+          allowedFeeds.add(keyToString(message.feedKey));
           break;
         }
 

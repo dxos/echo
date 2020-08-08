@@ -42,7 +42,7 @@ $root.dxos = (function() {
                  * Properties of a FeedMessage.
                  * @memberof dxos.echo.testing
                  * @interface IFeedMessage
-                 * @property {string|null} [feedKey] FeedMessage feedKey
+                 * @property {Uint8Array|null} [feedKey] FeedMessage feedKey
                  * @property {dxos.echo.testing.IEnvelope|null} [data] FeedMessage data
                  */
 
@@ -63,11 +63,11 @@ $root.dxos = (function() {
 
                 /**
                  * FeedMessage feedKey.
-                 * @member {string} feedKey
+                 * @member {Uint8Array} feedKey
                  * @memberof dxos.echo.testing.FeedMessage
                  * @instance
                  */
-                FeedMessage.prototype.feedKey = "";
+                FeedMessage.prototype.feedKey = $util.newBuffer([]);
 
                 /**
                  * FeedMessage data.
@@ -102,7 +102,7 @@ $root.dxos = (function() {
                     if (!writer)
                         writer = $Writer.create();
                     if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
+                        writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
                     if (message.data != null && Object.hasOwnProperty.call(message, "data"))
                         $root.dxos.echo.testing.Envelope.encode(message.data, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     return writer;
@@ -140,7 +140,7 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.feedKey = reader.string();
+                            message.feedKey = reader.bytes();
                             break;
                         case 2:
                             message.data = $root.dxos.echo.testing.Envelope.decode(reader, reader.uint32());
@@ -181,8 +181,8 @@ $root.dxos = (function() {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        if (!$util.isString(message.feedKey))
-                            return "feedKey: string expected";
+                        if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
+                            return "feedKey: buffer expected";
                     if (message.data != null && message.hasOwnProperty("data")) {
                         var error = $root.dxos.echo.testing.Envelope.verify(message.data);
                         if (error)
@@ -204,7 +204,10 @@ $root.dxos = (function() {
                         return object;
                     var message = new $root.dxos.echo.testing.FeedMessage();
                     if (object.feedKey != null)
-                        message.feedKey = String(object.feedKey);
+                        if (typeof object.feedKey === "string")
+                            $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
+                        else if (object.feedKey.length)
+                            message.feedKey = object.feedKey;
                     if (object.data != null) {
                         if (typeof object.data !== "object")
                             throw TypeError(".dxos.echo.testing.FeedMessage.data: object expected");
@@ -227,11 +230,17 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.feedKey = "";
+                        if (options.bytes === String)
+                            object.feedKey = "";
+                        else {
+                            object.feedKey = [];
+                            if (options.bytes !== Array)
+                                object.feedKey = $util.newBuffer(object.feedKey);
+                        }
                         object.data = null;
                     }
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        object.feedKey = message.feedKey;
+                        object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
                     if (message.data != null && message.hasOwnProperty("data"))
                         object.data = $root.dxos.echo.testing.Envelope.toObject(message.data, options);
                     return object;
@@ -449,7 +458,7 @@ $root.dxos = (function() {
                  * Properties of an Admit.
                  * @memberof dxos.echo.testing
                  * @interface IAdmit
-                 * @property {string|null} [feedKey] Admit feedKey
+                 * @property {Uint8Array|null} [feedKey] Admit feedKey
                  */
 
                 /**
@@ -469,11 +478,11 @@ $root.dxos = (function() {
 
                 /**
                  * Admit feedKey.
-                 * @member {string} feedKey
+                 * @member {Uint8Array} feedKey
                  * @memberof dxos.echo.testing.Admit
                  * @instance
                  */
-                Admit.prototype.feedKey = "";
+                Admit.prototype.feedKey = $util.newBuffer([]);
 
                 /**
                  * Creates a new Admit instance using the specified properties.
@@ -500,7 +509,7 @@ $root.dxos = (function() {
                     if (!writer)
                         writer = $Writer.create();
                     if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
+                        writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
                     return writer;
                 };
 
@@ -536,7 +545,7 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.feedKey = reader.string();
+                            message.feedKey = reader.bytes();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -574,8 +583,8 @@ $root.dxos = (function() {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        if (!$util.isString(message.feedKey))
-                            return "feedKey: string expected";
+                        if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
+                            return "feedKey: buffer expected";
                     return null;
                 };
 
@@ -592,7 +601,10 @@ $root.dxos = (function() {
                         return object;
                     var message = new $root.dxos.echo.testing.Admit();
                     if (object.feedKey != null)
-                        message.feedKey = String(object.feedKey);
+                        if (typeof object.feedKey === "string")
+                            $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
+                        else if (object.feedKey.length)
+                            message.feedKey = object.feedKey;
                     return message;
                 };
 
@@ -610,9 +622,15 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults)
-                        object.feedKey = "";
+                        if (options.bytes === String)
+                            object.feedKey = "";
+                        else {
+                            object.feedKey = [];
+                            if (options.bytes !== Array)
+                                object.feedKey = $util.newBuffer(object.feedKey);
+                        }
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        object.feedKey = message.feedKey;
+                        object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
                     return object;
                 };
 
@@ -628,6 +646,202 @@ $root.dxos = (function() {
                 };
 
                 return Admit;
+            })();
+
+            testing.Remove = (function() {
+
+                /**
+                 * Properties of a Remove.
+                 * @memberof dxos.echo.testing
+                 * @interface IRemove
+                 * @property {Uint8Array|null} [feedKey] Remove feedKey
+                 */
+
+                /**
+                 * Constructs a new Remove.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a Remove.
+                 * @implements IRemove
+                 * @constructor
+                 * @param {dxos.echo.testing.IRemove=} [properties] Properties to set
+                 */
+                function Remove(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * Remove feedKey.
+                 * @member {Uint8Array} feedKey
+                 * @memberof dxos.echo.testing.Remove
+                 * @instance
+                 */
+                Remove.prototype.feedKey = $util.newBuffer([]);
+
+                /**
+                 * Creates a new Remove instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {dxos.echo.testing.IRemove=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.Remove} Remove instance
+                 */
+                Remove.create = function create(properties) {
+                    return new Remove(properties);
+                };
+
+                /**
+                 * Encodes the specified Remove message. Does not implicitly {@link dxos.echo.testing.Remove.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {dxos.echo.testing.IRemove} message Remove message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Remove.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified Remove message, length delimited. Does not implicitly {@link dxos.echo.testing.Remove.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {dxos.echo.testing.IRemove} message Remove message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                Remove.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a Remove message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.Remove} Remove
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Remove.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.Remove();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.feedKey = reader.bytes();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a Remove message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.Remove} Remove
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                Remove.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a Remove message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                Remove.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
+                            return "feedKey: buffer expected";
+                    return null;
+                };
+
+                /**
+                 * Creates a Remove message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.Remove} Remove
+                 */
+                Remove.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.Remove)
+                        return object;
+                    var message = new $root.dxos.echo.testing.Remove();
+                    if (object.feedKey != null)
+                        if (typeof object.feedKey === "string")
+                            $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
+                        else if (object.feedKey.length)
+                            message.feedKey = object.feedKey;
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a Remove message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.Remove
+                 * @static
+                 * @param {dxos.echo.testing.Remove} message Remove
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                Remove.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        if (options.bytes === String)
+                            object.feedKey = "";
+                        else {
+                            object.feedKey = [];
+                            if (options.bytes !== Array)
+                                object.feedKey = $util.newBuffer(object.feedKey);
+                        }
+                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
+                        object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
+                    return object;
+                };
+
+                /**
+                 * Converts this Remove to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.Remove
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                Remove.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return Remove;
             })();
 
             testing.ItemEnvelope = (function() {
@@ -1881,193 +2095,6 @@ $root.dxos = (function() {
                 };
 
                 return TestData;
-            })();
-
-            testing.TestFeedRemove = (function() {
-
-                /**
-                 * Properties of a TestFeedRemove.
-                 * @memberof dxos.echo.testing
-                 * @interface ITestFeedRemove
-                 * @property {string|null} [feedKey] TestFeedRemove feedKey
-                 */
-
-                /**
-                 * Constructs a new TestFeedRemove.
-                 * @memberof dxos.echo.testing
-                 * @classdesc Represents a TestFeedRemove.
-                 * @implements ITestFeedRemove
-                 * @constructor
-                 * @param {dxos.echo.testing.ITestFeedRemove=} [properties] Properties to set
-                 */
-                function TestFeedRemove(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * TestFeedRemove feedKey.
-                 * @member {string} feedKey
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @instance
-                 */
-                TestFeedRemove.prototype.feedKey = "";
-
-                /**
-                 * Creates a new TestFeedRemove instance using the specified properties.
-                 * @function create
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {dxos.echo.testing.ITestFeedRemove=} [properties] Properties to set
-                 * @returns {dxos.echo.testing.TestFeedRemove} TestFeedRemove instance
-                 */
-                TestFeedRemove.create = function create(properties) {
-                    return new TestFeedRemove(properties);
-                };
-
-                /**
-                 * Encodes the specified TestFeedRemove message. Does not implicitly {@link dxos.echo.testing.TestFeedRemove.verify|verify} messages.
-                 * @function encode
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {dxos.echo.testing.ITestFeedRemove} message TestFeedRemove message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                TestFeedRemove.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.feedKey);
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified TestFeedRemove message, length delimited. Does not implicitly {@link dxos.echo.testing.TestFeedRemove.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {dxos.echo.testing.ITestFeedRemove} message TestFeedRemove message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                TestFeedRemove.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a TestFeedRemove message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {dxos.echo.testing.TestFeedRemove} TestFeedRemove
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                TestFeedRemove.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestFeedRemove();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.feedKey = reader.string();
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a TestFeedRemove message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {dxos.echo.testing.TestFeedRemove} TestFeedRemove
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                TestFeedRemove.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a TestFeedRemove message.
-                 * @function verify
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                TestFeedRemove.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        if (!$util.isString(message.feedKey))
-                            return "feedKey: string expected";
-                    return null;
-                };
-
-                /**
-                 * Creates a TestFeedRemove message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {dxos.echo.testing.TestFeedRemove} TestFeedRemove
-                 */
-                TestFeedRemove.fromObject = function fromObject(object) {
-                    if (object instanceof $root.dxos.echo.testing.TestFeedRemove)
-                        return object;
-                    var message = new $root.dxos.echo.testing.TestFeedRemove();
-                    if (object.feedKey != null)
-                        message.feedKey = String(object.feedKey);
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a TestFeedRemove message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @static
-                 * @param {dxos.echo.testing.TestFeedRemove} message TestFeedRemove
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                TestFeedRemove.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults)
-                        object.feedKey = "";
-                    if (message.feedKey != null && message.hasOwnProperty("feedKey"))
-                        object.feedKey = message.feedKey;
-                    return object;
-                };
-
-                /**
-                 * Converts this TestFeedRemove to JSON.
-                 * @function toJSON
-                 * @memberof dxos.echo.testing.TestFeedRemove
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                TestFeedRemove.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return TestFeedRemove;
             })();
 
             return testing;

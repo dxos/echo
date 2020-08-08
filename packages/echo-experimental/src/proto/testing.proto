@@ -10,7 +10,7 @@ import "google/protobuf/any.proto";
 
 // Augmented data from feeds.
 message FeedMessage {
-  string feedKey = 1;
+  bytes feedKey = 1;
   Envelope data = 2;
 }
 
@@ -21,7 +21,11 @@ message Envelope {
 
 // Test HALO message.
 message Admit {
-  string feedKey = 1;
+  bytes feedKey = 1;
+}
+
+message Remove {
+  bytes feedKey = 1;
 }
 
 // Wrapper for all ECHO messages.
@@ -51,10 +55,7 @@ message ItemMutation {
   string value = 2;
 }
 
+// TODO(burdon): Remove?
 message TestData {
   int32 data = 1;
-}
-
-message TestFeedRemove {
-  string feedKey = 1;
 }
