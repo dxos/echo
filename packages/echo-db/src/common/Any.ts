@@ -5,7 +5,14 @@
 import { google } from '../proto/gen/echo';
 import IAny = google.protobuf.IAny;
 
-/* eslint-disable camelcase */
+/* eslint-disable camelcase, @typescript-eslint/no-unused-vars */
+
+// TODO(telackey): Investigate if this is still necessary after we are using auto-generated types everywhere.
+const determineType = (obj: any, namespace = 'dxos.echo') => {
+  const { __type_url, type_url } = obj;
+  // If there is no type_url, at least for one of our auto-generated classes we can guess it from the class name.
+  return __type_url || type_url || `${namespace}.${obj.constructor.name}`;
+};
 
 export interface Any extends IAny {
   __type_url: string,
@@ -14,11 +21,9 @@ export interface Any extends IAny {
 
 export class Any implements Any {
   constructor (properties: any) {
+    this.__type_url = determineType(properties);
+
     const { __type_url, type_url, ...rest } = properties;
-
-    // If there is no type_url, at least for one of our auto-generated classes we can guess it from the class name.
-    this.__type_url = __type_url || type_url || `dxos.echo.${properties.constructor.name}`;
-
     for (const key of Object.keys(rest)) {
       this[key] = rest[key];
     }
