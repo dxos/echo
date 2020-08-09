@@ -32,18 +32,19 @@ export const createMessage = (data: number) => ({
   }
 });
 
-export const createItem = (itemId: ItemID) => ({
+export const createItemGenesis = (itemId: ItemID, type: string) => ({
   message: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
     itemId,
     payload: {
       __type_url: 'dxos.echo.testing.ItemGenesis',
+      type,
       model: TestModel.type
     }
   }
 });
 
-export const createMutation = (itemId: ItemID, key: string, value: string) => ({
+export const createItemMutation = (itemId: ItemID, key: string, value: string) => ({
   message: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
     itemId,

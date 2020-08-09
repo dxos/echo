@@ -674,6 +674,9 @@ export namespace dxos {
             /** Properties of an ItemGenesis. */
             interface IItemGenesis {
 
+                /** ItemGenesis type */
+                type?: (string|null);
+
                 /** ItemGenesis model */
                 model?: (string|null);
             }
@@ -686,6 +689,9 @@ export namespace dxos {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: dxos.echo.testing.IItemGenesis);
+
+                /** ItemGenesis type. */
+                public type: string;
 
                 /** ItemGenesis model. */
                 public model: string;

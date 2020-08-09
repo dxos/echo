@@ -87,9 +87,13 @@
                 },
                 "ItemGenesis": {
                   "fields": {
-                    "model": {
+                    "type": {
                       "type": "string",
                       "id": 1
+                    },
+                    "model": {
+                      "type": "string",
+                      "id": 2
                     }
                   }
                 },

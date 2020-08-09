@@ -22,7 +22,6 @@ import { FeedStoreIterator } from './feed-store-iterator';
 const log = debug('dxos:echo:database');
 
 export type FeedKey = Uint8Array;
-export type ModelType = string;
 export type ItemID = string;
 
 /**
@@ -33,7 +32,6 @@ export type ItemID = string;
 export const createWritableFeedStream = (feed: Feed) => new Writable({
   objectMode: true,
   write (message, _, callback) {
-    log('Write:', JSON.stringify(message));
     feed.append(message, callback);
   }
 });
@@ -42,15 +40,17 @@ export const createWritableFeedStream = (feed: Feed) => new Writable({
  * Abstract base class for Models.
  */
 export abstract class Model extends EventEmitter {
-  static type: ModelType;
+  static type: string;
 
   constructor (
-    private _type: ModelType,
+    private _type: string,
     private _itemId: ItemID,
     private _readable: NodeJS.ReadableStream,
-    private _writable?: NodeJS.WritableStream
+    private _writable?: NodeJS.WritableStream // TODO(burdon): Read-only?
   ) {
     super();
+    assert(this._type);
+    assert(this._itemId);
 
     this._readable.pipe(new Transform({
       objectMode: true,
@@ -69,13 +69,16 @@ export abstract class Model extends EventEmitter {
     return this._itemId;
   }
 
+  get readOnly () {
+    return this._writable !== undefined;
+  }
+
   /**
    * Wraps the message within an ItemEnvelope then writes to the output stream.
    * @param message
    */
   async write (message: any) {
     assert(this._writable);
-    log('Model.write:', JSON.stringify(message));
     await pify(this._writable.write.bind(this._writable))(message);
   }
 
@@ -91,9 +94,9 @@ export abstract class Model extends EventEmitter {
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  private _models = new Map<ModelType, Constructor<Model>>();
+  private _models = new Map<string, Constructor<Model>>();
 
-  registerModel (type: ModelType, modelConstructor: Constructor<Model>) {
+  registerModel (type: string, modelConstructor: Constructor<Model>) {
     assert(type);
     assert(modelConstructor);
     this._models.set(type, modelConstructor);
@@ -101,7 +104,7 @@ export class ModelFactory {
   }
 
   // TODO(burdon): Require version.
-  createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
+  createModel (type: string, itemId: ItemID, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
     const modelConstructor = this._models.get(type);
     if (modelConstructor) {
       // eslint-disable-next-line new-cap
@@ -114,16 +117,23 @@ export class ModelFactory {
  * Data item.
  */
 export class Item extends EventEmitter {
-  // eslint-disable-next-line no-useless-constructor
   constructor (
     private _itemId: ItemID,
+    private _type: string,
     private _model: Model
   ) {
     super();
+    assert(this._itemId);
+    assert(this._type);
+    assert(this._model);
   }
 
   get id () {
     return this._itemId;
+  }
+
+  get type () {
+    return this._type;
   }
 
   get model () {
@@ -140,7 +150,6 @@ export class ItemManager extends EventEmitter {
 
   // TODO(burdon): Lint issue: Unexpected whitespace between function name and paren
   // Map of item promises (waiting for item construction after genesis message has been written).
-  // TODO(burdon): Lint error.
   // eslint-disable-next-line
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
@@ -176,13 +185,17 @@ export class ItemManager extends EventEmitter {
 
   /**
    * Creates an item and writes the genesis message.
-   * @param type model type
+   * @param itemType item type
+   * @param modelType model type
    */
-  async createItem (type: ModelType): Promise<Item> {
-    const itemId = createId();
+  async createItem (itemType: string, modelType: string): Promise<Item> {
+    assert(itemType);
+    assert(modelType);
 
     // Pending until constructed (after genesis block is read from stream).
     const [waitForCreation, callback] = trigger();
+
+    const itemId = createId();
     this._pendingItems.set(itemId, callback);
 
     // Write Item Genesis block.
@@ -191,7 +204,8 @@ export class ItemManager extends EventEmitter {
     const writable = this._createWriteStream(itemId);
     await pify(writable.write.bind(writable))({
       __type_url: 'dxos.echo.testing.ItemGenesis',
-      model: type
+      type: itemType,
+      model: modelType
     });
 
     // Unlocked by construct.
@@ -201,21 +215,25 @@ export class ItemManager extends EventEmitter {
 
   /**
    * Constructs an item with the appropriate model.
-   * @param type
    * @param itemId
+   * @param itemType
+   * @param modelType
    * @param readable
    */
-  async constructItem (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream) {
-    log('Construct', { type, itemId });
+  async constructItem (itemId: ItemID, itemType: string, modelType: string, readable: NodeJS.ReadableStream) {
+    assert(itemId);
+    assert(itemType);
+    assert(modelType);
+    assert(readable);
 
     // Create model.
     // TODO(burdon): Skip genesis message (and subsequent messages) if unknown model.
     const writable = this._createWriteStream(itemId);
-    const model = this._modelFactory.createModel(type, itemId, readable, writable);
-    assert(model, `Invalid model: ${type}`);
+    const model = this._modelFactory.createModel(modelType, itemId, readable, writable);
+    assert(model, `Invalid model: ${modelType}`);
 
     // Create item.
-    const item = new Item(itemId, model);
+    const item = new Item(itemId, modelType, model);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
@@ -240,11 +258,12 @@ export class ItemManager extends EventEmitter {
   }
 
   /**
-   * Return all items.
+   * Return matching items.
+   * @param [filter]
    */
-  // TODO(burdon): Implement query (by type, parent, etc.)
-  getItems () {
-    return Array.from(this._items.values());
+  getItems (filter: any = {}) {
+    const { type } = filter;
+    return Array.from(this._items.values()).filter(item => !type || item.type === type);
   }
 }
 
@@ -296,8 +315,7 @@ export const createPartyMuxer = (
           // TODO(burdon): Order by timestamp.
           outputStream.push({ data: { message } });
 
-          // TODO(marik-d): Figure out backpressure
-          //   https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
+          // TODO(marik-d): Backpressure: https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
           // if (!this._output.push({ data: { message } })) {
           //   await new Promise(resolve => { this._output.once('drain', resolve )});
           // }
@@ -311,49 +329,47 @@ export const createPartyMuxer = (
 
 /**
  * Reads party stream and routes to associate item stream.
+ * @param itemManager
  */
-export const createItemDemuxer = (itemManager: ItemManager, eventEmitter?: EventEmitter) => {
+export const createItemDemuxer = (itemManager: ItemManager) => {
   // Map of Item-specific streams.
-  // TODO(burdon): Abstract class?
-  const streams = new LazyMap<ItemID, Readable>(() => new Readable({
-    objectMode: true,
-    read () {}
-  }));
+  const itemStreams = new LazyMap<ItemID, Readable>(() => new Readable({ objectMode: true, read () {} }));
 
-  // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
-  // TODO(marik_d): Replace with Writable?
-  return new Transform({
+  // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
+  return new Writable({
     objectMode: true,
-    transform: async ({ data: { message } }, _, callback) => {
+    write: async ({ data: { message } }, _, callback) => {
       log('Demuxer:', JSON.stringify(message, undefined, 2));
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
-
       const { itemId, payload } = message;
-      assert(payload);
       assert(itemId);
+      assert(payload);
 
       /* eslint-disable camelcase */
       const { __type_url } = payload as any;
       switch (__type_url) {
+        //
+        // Item genesis.
+        //
         case 'dxos.echo.testing.ItemGenesis': {
           assumeType<dxos.echo.testing.IItemGenesis>(payload);
+          assert(payload.type);
           assert(payload.model);
 
-          log(`Item Genesis: ${itemId}`);
-          const stream = streams.getOrInit(itemId);
-          const item = await itemManager.constructItem(payload.model, itemId, stream);
-          if (eventEmitter) {
-            eventEmitter.emit('item:create', item);
-            item.on('update', item => eventEmitter.emit('item:update', item));
-          }
+          const stream = itemStreams.getOrInit(itemId);
+          const item = await itemManager.constructItem(itemId, payload.type, payload.model, stream);
+          log(`Constructed Item: ${item.id}`);
           break;
         }
 
+        //
+        // Item mutation.
+        //
         case 'dxos.echo.testing.ItemMutation': {
           assumeType<dxos.echo.testing.IItemMutation>(payload);
           assert(payload);
 
-          const stream = streams.getOrInit(itemId);
+          const stream = itemStreams.getOrInit(itemId);
           stream.push({ data: { message: payload } });
           break;
         }

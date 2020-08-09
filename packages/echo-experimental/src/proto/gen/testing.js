@@ -1541,6 +1541,7 @@ $root.dxos = (function() {
                  * Properties of an ItemGenesis.
                  * @memberof dxos.echo.testing
                  * @interface IItemGenesis
+                 * @property {string|null} [type] ItemGenesis type
                  * @property {string|null} [model] ItemGenesis model
                  */
 
@@ -1558,6 +1559,14 @@ $root.dxos = (function() {
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
+
+                /**
+                 * ItemGenesis type.
+                 * @member {string} type
+                 * @memberof dxos.echo.testing.ItemGenesis
+                 * @instance
+                 */
+                ItemGenesis.prototype.type = "";
 
                 /**
                  * ItemGenesis model.
@@ -1591,8 +1600,10 @@ $root.dxos = (function() {
                 ItemGenesis.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (message.type != null && Object.hasOwnProperty.call(message, "type"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.type);
                     if (message.model != null && Object.hasOwnProperty.call(message, "model"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.model);
+                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.model);
                     return writer;
                 };
 
@@ -1628,6 +1639,9 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
+                            message.type = reader.string();
+                            break;
+                        case 2:
                             message.model = reader.string();
                             break;
                         default:
@@ -1665,6 +1679,9 @@ $root.dxos = (function() {
                 ItemGenesis.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (message.type != null && message.hasOwnProperty("type"))
+                        if (!$util.isString(message.type))
+                            return "type: string expected";
                     if (message.model != null && message.hasOwnProperty("model"))
                         if (!$util.isString(message.model))
                             return "model: string expected";
@@ -1683,6 +1700,8 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.ItemGenesis)
                         return object;
                     var message = new $root.dxos.echo.testing.ItemGenesis();
+                    if (object.type != null)
+                        message.type = String(object.type);
                     if (object.model != null)
                         message.model = String(object.model);
                     return message;
@@ -1701,8 +1720,12 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.defaults)
+                    if (options.defaults) {
+                        object.type = "";
                         object.model = "";
+                    }
+                    if (message.type != null && message.hasOwnProperty("type"))
+                        object.type = message.type;
                     if (message.model != null && message.hasOwnProperty("model"))
                         object.model = message.model;
                     return object;

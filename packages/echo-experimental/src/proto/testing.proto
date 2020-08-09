@@ -24,13 +24,15 @@ message Admit {
   bytes feedKey = 1;
 }
 
+// TODO(burdon): Supported?
 message Remove {
   bytes feedKey = 1;
 }
 
+// Vector timestamp used to order messages.
 message VectorTimestamp {
   message Feed {
-    bytes feedKey = 1;
+    bytes feedKey = 1; // TODO(burdon): Remove?
     int32 feedIndex = 2;
     int32 seq = 3;
   }
@@ -45,9 +47,11 @@ message ItemEnvelope {
   google.protobuf.Any payload = 3;
 }
 
-// New item.
+// Item creation.
 message ItemGenesis {
-  string model = 1;
+  string type = 1;
+  string model = 2;
+  string modelVersion = 3;
 }
 
 // Item mutation.
@@ -56,7 +60,7 @@ message ItemMutation {
   string value = 2;
 }
 
-// TODO(burdon): Remove?
+// Testing.
 message TestData {
   int32 data = 1;
 }

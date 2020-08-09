@@ -15,8 +15,8 @@ import {
   createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory
 } from './database';
 import { TestModel } from './test-model';
-import { latch, sink } from './util';
-import { createAdmit, createItem, createMutation } from './testing';
+import { sink } from './util';
+import { createAdmit, createItemGenesis, createItemMutation } from './testing';
 
 import TestingSchema from './proto/gen/testing.json';
 
@@ -43,7 +43,7 @@ describe('database', () => {
     const itemManager = new ItemManager(modelFactory, createWritableFeedStream(feed));
     readable.pipe(createItemDemuxer(itemManager));
 
-    const item = await itemManager.createItem(TestModel.type);
+    const item = await itemManager.createItem('test', TestModel.type);
     await (item.model as TestModel).setProperty('title', 'Hello');
 
     const items = itemManager.getItems();
@@ -87,7 +87,7 @@ describe('database', () => {
       // Randomly create or mutate items.
       for (let i = 0; i < config.numMutations; i++) {
         if (count.items === 0 || (count.items < config.maxItems && Math.random() < 0.5)) {
-          const item = await itemManager.createItem(TestModel.type);
+          const item = await itemManager.createItem('test', TestModel.type);
           log('Created Item:', item.id);
           count.items++;
         } else {
@@ -179,9 +179,9 @@ describe('database', () => {
     partyMuxer.pipe(itemDemuxer);
 
     {
-      streams[0].write(createItem(itemIds[0]));
-      streams[0].write(createMutation(itemIds[0], 'title', 'Value-1'));
-      streams[1].write(createMutation(itemIds[0], 'title', 'Value-2')); // Hold.
+      streams[0].write(createItemGenesis(itemIds[0], 'test'));
+      streams[0].write(createItemMutation(itemIds[0], 'title', 'Value-1'));
+      streams[1].write(createItemMutation(itemIds[0], 'title', 'Value-2')); // Hold.
 
       await sink(itemManager, 'create', 1);
       await sink(itemManager, 'update', 1);
@@ -192,7 +192,7 @@ describe('database', () => {
     }
 
     {
-      streams[0].write(createMutation(itemIds[0], 'title', 'Value-3'));
+      streams[0].write(createItemMutation(itemIds[0], 'title', 'Value-3'));
 
       await sink(itemManager, 'update', 1);
 
