@@ -21,7 +21,7 @@ export class Database extends EventEmitter {
     return party;
   }
 
-  async queryParties () {
+  async queryParties (filter?: any) {
     return new Query<Party>(this, 'party', () => Array.from(this._parties.values()));
   }
 }
@@ -41,15 +41,17 @@ export class Party extends EventEmitter {
 
   async close () {}
 
-  async createItem () {
-    const item = new Item();
+  async createItem (type: string) {
+    const item = new Item(type);
     this._items.set(item.id, item);
     setImmediate(() => this.emit('update:item', this));
     return item;
   }
 
-  async queryItems () {
-    return new Query<Item>(this, 'item', () => Array.from(this._items.values()));
+  async queryItems (filter?: any) {
+    const { type } = filter || {};
+    return new Query<Item>(
+      this, 'item', () => Array.from(this._items.values()).filter(item => !type || type === item.type));
   }
 }
 
@@ -59,8 +61,16 @@ export class Party extends EventEmitter {
 export class Item extends EventEmitter {
   _id: ItemID = createId();
 
+  constructor (private _type: string) {
+    super();
+  }
+
   get id (): ItemID {
     return this._id;
+  }
+
+  get type (): string {
+    return this._type;
   }
 }
 
