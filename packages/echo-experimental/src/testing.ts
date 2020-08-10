@@ -70,6 +70,11 @@ export const createTestMessageWithTimestamp = (timestamp: LogicalClockStamp, fee
 
 export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
 
+/**
+ * Turns a stream into constantly mutating array of all messages emmited by the stream.
+ * Triggers stream consumption.
+ * @param stream 
+ */
 export const collect = (stream: NodeJS.ReadableStream) => {
   const arr: any[] = [];
   stream.on('data', data => { arr.push(data); });
