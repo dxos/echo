@@ -4,6 +4,7 @@
 
 import { FeedKey, ItemID } from './database';
 import { TestModel } from './test-model';
+import { LogicalClockStamp } from './logical-clock-stamp';
 
 //
 // Test generators.
@@ -55,6 +56,17 @@ export const createItemMutation = (itemId: ItemID, key: string, value: string) =
     }
   }
 });
+
+export const createTestMessageWithTimestamp = (timestamp: LogicalClockStamp, feedKey: Buffer, seq: number) => ({
+  data: {
+    message: {
+      __type_url: 'dxos.echo.testing.ItemEnvelope',
+      timestamp: LogicalClockStamp.encode(timestamp),
+    },
+  },
+  key: feedKey,
+  seq,
+})
 
 export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
 

@@ -16,7 +16,7 @@ import {
 } from './database';
 import { TestModel } from './test-model';
 import { sink } from './util';
-import { createAdmit, createItemGenesis, createItemMutation, collect } from './testing';
+import { createAdmit, createItemGenesis, createItemMutation, collect, createTestMessageWithTimestamp } from './testing';
 
 import TestingSchema from './proto/gen/testing.json';
 import { LogicalClockStamp } from './logical-clock-stamp';
@@ -149,13 +149,13 @@ describe('database', () => {
     const writtenMessages = collect(writeStream);
 
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = {}
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed1Key, seq: 1 }); // current timestamp = { F1: 1 }
+    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 1)); // current timestamp = { F1: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 1 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed1Key, seq: 2 }); // current timestamp = { F1: 2 }
+    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 2)); // current timestamp = { F1: 2 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 2 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed2Key, 1]])) } }, key: feed1Key, seq: 3 }); // current timestamp = { F1: 3, F2: 1 }
+    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp([[feed2Key, 1]]), feed1Key, 3)); // current timestamp = { F1: 3, F2: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed2Key, seq: 1 }); // current timestamp = { F1: 3, F2: 1 }
+    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed2Key, 1)); // current timestamp = { F1: 3, F2: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
 
     expect(writtenMessages).toEqual([
