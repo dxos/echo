@@ -56,10 +56,10 @@ export const createItemMutation = (itemId: ItemID, key: string, value: string) =
   }
 });
 
-export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) })
+export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
 
 export const collect = (stream: NodeJS.ReadableStream) => {
-  const arr: any[] = []
-  stream.on('data', data => { arr.push(data) })
-  return arr
-}
+  const arr: any[] = [];
+  stream.on('data', data => { arr.push(data); });
+  return arr;
+};

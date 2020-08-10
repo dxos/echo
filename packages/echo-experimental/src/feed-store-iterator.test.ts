@@ -55,7 +55,7 @@ describe('FeedStoreIterator', () => {
     expect(messages).toEqual([
       feedItem(createMessage(1)),
       feedItem(createMessage(2)),
-      feedItem(createMessage(3)),
+      feedItem(createMessage(3))
     ]);
   });
 
@@ -76,7 +76,7 @@ describe('FeedStoreIterator', () => {
 
     expect(messages).toEqual([
       feedItem(createMessage(1)),
-      feedItem(createMessage(3)),
+      feedItem(createMessage(3))
     ]);
   });
 
@@ -102,7 +102,7 @@ describe('FeedStoreIterator', () => {
     expect(messages).toEqual([
       feedItem(createMessage(1)),
       feedItem(createMessage(2)),
-      feedItem(createMessage(3)),
+      feedItem(createMessage(3))
     ]);
   });
 
@@ -162,7 +162,7 @@ describe('FeedStoreIterator', () => {
 
       expect(messages).toEqual([
         feedItem(createMessage(1)),
-        feedItem(createMessage(3)),
+        feedItem(createMessage(3))
       ]);
     }
 
@@ -205,7 +205,7 @@ describe('FeedStoreIterator', () => {
         feedItem(createAdmit(descriptors[1].key)),
         feedItem(createMessage(2)),
         feedItem(createRemove(descriptors[0].key)),
-        feedItem(createMessage(5)),
+        feedItem(createMessage(5))
       ]);
     }
   });

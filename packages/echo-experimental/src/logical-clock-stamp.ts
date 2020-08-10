@@ -69,10 +69,10 @@ export class LogicalClockStamp {
   constructor (
     data: Map<bigint, number> | [NodeId | bigint, number][] = []
   ) {
-    if(data instanceof Map) {
+    if (data instanceof Map) {
       this._vector = data;
     } else {
-      this._vector = new Map(data.map(([nodeId, seq]) => [typeof nodeId != 'bigint' ? BufferToBigInt(nodeId) : nodeId, seq]));
+      this._vector = new Map(data.map(([nodeId, seq]) => [typeof nodeId !== 'bigint' ? BufferToBigInt(nodeId) : nodeId, seq]));
     }
   }
 
@@ -145,7 +145,7 @@ export class LogicalClockStamp {
     }
   }
 
-  private _entries() {
+  private _entries () {
     return Array.from(this._vector.entries());
   }
 
@@ -158,25 +158,25 @@ export class LogicalClockStamp {
     return new LogicalClockStamp(Object.entries(source).map(([key, seq]) => [Buffer.from(key), seq]));
   }
 
-  encode(): dxos.echo.testing.IVectorTimestamp {
+  encode (): dxos.echo.testing.IVectorTimestamp {
     return {
       timestamp: this._entries().map(([feed, count]) => ({
         feedKey: BigIntToBuffer(feed),
-        seq: count,
-      })),
-    }
+        seq: count
+      }))
+    };
   }
 
-  static decode(enc: dxos.echo.testing.IVectorTimestamp | undefined | null) {
-    if(!enc) { 
+  static decode (enc: dxos.echo.testing.IVectorTimestamp | undefined | null) {
+    if (!enc) {
       return LogicalClockStamp.zero();
     }
-    
+
     assert(enc.timestamp);
     return new LogicalClockStamp(enc.timestamp.map(feed => {
-      assert(feed.feedKey)
-      assert(feed.seq)
-      return [Buffer.from(feed.feedKey), feed.seq]
+      assert(feed.feedKey);
+      assert(feed.seq);
+      return [Buffer.from(feed.feedKey), feed.seq];
     }));
   }
 
@@ -190,24 +190,24 @@ export class LogicalClockStamp {
     return (seq === undefined) ? 0 : seq;
   }
 
-  static max(a: LogicalClockStamp, b: LogicalClockStamp) {
+  static max (a: LogicalClockStamp, b: LogicalClockStamp) {
     const res = new Map<bigint, number>(a._vector);
-    for(const [key, count] of b._vector) {
+    for (const [key, count] of b._vector) {
       res.set(key, Math.max(res.get(key) ?? 0, count));
     }
-    return new LogicalClockStamp(res)
+    return new LogicalClockStamp(res);
   }
 
-  withoutFeed(feedKey: Buffer) {
+  withoutFeed (feedKey: Buffer) {
     const feedKeyInt = BufferToBigInt(feedKey);
-    return new LogicalClockStamp(this._entries().filter(([key, value]) => key != feedKeyInt))
+    return new LogicalClockStamp(this._entries().filter(([key, value]) => key != feedKeyInt));
   }
 
-  withFeed(feedKey: Buffer, seq: number) {
+  withFeed (feedKey: Buffer, seq: number) {
     const feedKeyInt = BufferToBigInt(feedKey);
     const mapClone = new Map(this._vector);
-    mapClone.set(feedKeyInt, Math.max(mapClone.get(feedKeyInt) ?? 0, seq))
-    return new LogicalClockStamp(mapClone)
+    mapClone.set(feedKeyInt, Math.max(mapClone.get(feedKeyInt) ?? 0, seq));
+    return new LogicalClockStamp(mapClone);
   }
 }
 

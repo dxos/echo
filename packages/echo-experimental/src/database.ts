@@ -340,7 +340,7 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   return new Writable({
     objectMode: true,
     write: async (chunk, _, callback) => {
-      const { data: { message } } = chunk
+      const { data: { message } } = chunk;
       log('Demuxer:', JSON.stringify(chunk, undefined, 2));
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
       const { itemId, payload } = message;
@@ -390,26 +390,26 @@ export const createTimestampWriter = (writeFeedKey: Buffer) => {
 
   const inputTransform = new Transform({
     objectMode: true,
-    transform(chunk, encoding, callback) {
-      const { message } = chunk.data
+    transform (chunk, encoding, callback) {
+      const { message } = chunk.data;
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
-      
+
       const timestamp = LogicalClockStamp.decode(message.timestamp).withFeed(chunk.key, chunk.seq);
       currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
-      log(`current timestamp = ${currentTimestamp.log()}`)
+      log(`current timestamp = ${currentTimestamp.log()}`);
       callback(null, chunk);
-    },
+    }
   });
 
   const outputTransform = new Transform({
     objectMode: true,
-    transform(chunk, encoding, callback) {
-      const { message } = chunk
+    transform (chunk, encoding, callback) {
+      const { message } = chunk;
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
       message.timestamp = currentTimestamp.withoutFeed(writeFeedKey).encode();
-      callback(null, chunk)
-    },
+      callback(null, chunk);
+    }
   });
 
   return [inputTransform, outputTransform] as const;
-}
+};
