@@ -274,6 +274,7 @@ export class ItemManager extends EventEmitter {
  * @param [initialAnchor] TODO(burdon): Emit event when anchor point reached?
  */
 export const createPartyMuxer = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   feedStore: FeedStore, initialFeeds: FeedKey[], initialAnchor?: dxos.echo.testing.IVectorTimestamp
 ) => {
   // TODO(burdon): Is this the correct way to create a stream?
