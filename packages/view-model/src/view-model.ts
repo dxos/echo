@@ -80,7 +80,7 @@ export class ViewModel<M extends {} = {}> extends Model {
 
   createView (type: string, displayName: string, metadata: M = {} as any): string {
     const viewId = createId();
-    super.appendMessage({ viewId, __type_url: type, displayName, metadata });
+    super.appendMessage({ __type_url: type, viewId, displayName, metadata });
     return viewId;
   }
 
