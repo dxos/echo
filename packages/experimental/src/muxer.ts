@@ -16,13 +16,11 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 
+import { FeedKey, ItemID } from './defs';
 import { assumeType, LazyMap, assertAnyType } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
-
-export type FeedKey = Uint8Array;
-export type ItemID = string;
 
 /**
  * Returns a stream that appends messages directly to a hypercore feed.
@@ -274,6 +272,7 @@ export class ItemManager extends EventEmitter {
  * @param [initialAnchor] TODO(burdon): Emit event when anchor point reached?
  */
 export const createPartyMuxer = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   feedStore: FeedStore, initialFeeds: FeedKey[], initialAnchor?: dxos.echo.testing.IVectorTimestamp
 ) => {
   // TODO(burdon): Is this the correct way to create a stream?

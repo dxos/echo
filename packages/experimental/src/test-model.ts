@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import { sleep } from '@dxos/async';
 
-import { Model } from './database';
+import { Model } from './muxer';
 
 import { dxos } from './proto/gen/testing';
 import { assertTypeUrl } from './util';

@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { ViewModel } from './view-model';
 
 test('create multiple views', () => {
