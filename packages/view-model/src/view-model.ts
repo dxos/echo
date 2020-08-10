@@ -3,7 +3,7 @@
 //
 
 import { createId } from '@dxos/crypto';
-import { createModelMessage, dxos } from '@dxos/echo-db';
+import { dxos } from '@dxos/echo-db';
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
 
