@@ -7,13 +7,13 @@ import { createModelMessage } from './common';
 import { dxos } from './proto';
 import OrderedModelData = dxos.echo.OrderedModelData;
 
-const createOrderedData = (message: any,
+const createOrderedData = (data: any,
   messageId: number | null | undefined = 1,
   previousMessageId: number | null | undefined = 0) => {
   return OrderedModelData.create({
     messageId,
     previousMessageId,
-    message
+    data
   });
 };
 
@@ -82,7 +82,8 @@ test('forks are resolved by picking the first candidate', async () => {
 
 class ModelWithValidation extends DefaultOrderedModel {
   validateCandidate (_intendedPosition: number, _message: any) {
-    return _intendedPosition === 0 || _message.data.message.value === 'b';
+    const { data } = _message.data;
+    return _intendedPosition === 0 || data.value === 'b';
   }
 }
 

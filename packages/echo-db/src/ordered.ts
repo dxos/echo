@@ -86,7 +86,7 @@ export class OrderedModel extends Model {
     return createModelMessage(OrderedModelData.create({
       messageId: 1,
       previousMessageId: 0,
-      message: data
+      data
     }));
   }
 
@@ -99,7 +99,7 @@ export class OrderedModel extends Model {
     const data = OrderedModelData.create({
       messageId,
       previousMessageId,
-      message: message.data
+      data: message.data
     });
 
     super.appendMessage(data);

@@ -91,7 +91,7 @@ message Envelope {
 message OrderedModelData {
   int32 messageId                     = 1;
   int32 previousMessageId             = 2;
-  google.protobuf.Any message         = 10;
+  google.protobuf.Any data            = 10;
 }
 
 //
