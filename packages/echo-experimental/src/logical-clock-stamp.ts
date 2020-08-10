@@ -6,7 +6,6 @@
 import assert from 'assert';
 import debug from 'debug';
 import { dxos } from './proto/gen/testing';
-import { UV_FS_O_FILEMAP } from 'constants';
 
 const log = debug('dxos.echo.consistency');
 
