@@ -13,7 +13,7 @@ import { createId } from '@dxos/crypto';
 
 import {
   createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory
-} from './database';
+} from './muxer';
 import { TestModel } from './test-model';
 import { sink } from './util';
 import { createAdmit, createItemGenesis, createItemMutation } from './testing';

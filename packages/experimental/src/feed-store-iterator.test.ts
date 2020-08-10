@@ -10,7 +10,7 @@ import { keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 
-import { createWritableFeedStream } from './database';
+import { createWritableFeedStream } from './muxer';
 import { FeedStoreIterator } from './feed-store-iterator';
 import { assumeType, latch, sink } from './util';
 import { createAdmit, createRemove, createMessage } from './testing';

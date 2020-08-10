@@ -7,7 +7,7 @@ import { FeedDescriptor } from '@dxos/feed-store';
 
 import TestingSchema from './proto/gen/testing.json';
 
-import { FeedKey } from './database';
+import { FeedKey } from './defs';
 import { createAdmit } from './testing';
 
 const codec = new Codec('dxos.echo.testing.Envelope')

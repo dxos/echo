@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 
 import { createId, createKeyPair } from '@dxos/crypto';
 
-type ItemID = string;
+import { ItemID } from './defs';
 
 // TODO(burdon): Remove EventEmitter.
 
@@ -60,7 +60,7 @@ export class Party extends EventEmitter {
 /**
  * Item
  */
-export class Item extends EventEmitter {
+class Item extends EventEmitter {
   _id: ItemID = createId();
 
   constructor (private _type: string) {

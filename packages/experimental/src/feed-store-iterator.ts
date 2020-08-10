@@ -8,8 +8,8 @@ import { Readable } from 'stream';
 
 import { FeedStore, FeedDescriptor } from '@dxos/feed-store';
 
+import { FeedKey } from './defs';
 import { Trigger } from './util';
-import { FeedKey } from './database';
 
 /**
  * We are using an iterator here instead of a stream to ensure we have full control over how and at what time

@@ -16,14 +16,11 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 
+import { FeedKey, ItemID } from './defs';
 import { assumeType, LazyMap, assertAnyType } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
-
-// TODO(burdon): Extract definitions.
-export type FeedKey = Uint8Array;
-export type ItemID = string;
 
 /**
  * Returns a stream that appends messages directly to a hypercore feed.
