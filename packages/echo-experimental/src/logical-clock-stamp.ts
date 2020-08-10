@@ -158,9 +158,9 @@ export class LogicalClockStamp {
     return new LogicalClockStamp(Object.entries(source).map(([key, seq]) => [Buffer.from(key), seq]));
   }
 
-  encode (): dxos.echo.testing.IVectorTimestamp {
+  static encode (value: LogicalClockStamp): dxos.echo.testing.IVectorTimestamp {
     return {
-      timestamp: this._entries().map(([feed, count]) => ({
+      timestamp: value._entries().map(([feed, count]) => ({
         feedKey: BigIntToBuffer(feed),
         seq: count
       }))

@@ -406,7 +406,7 @@ export const createTimestampWriter = (writeFeedKey: Buffer) => {
     transform (chunk, encoding, callback) {
       const { message } = chunk;
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
-      message.timestamp = currentTimestamp.withoutFeed(writeFeedKey).encode();
+      message.timestamp = LogicalClockStamp.encode(currentTimestamp.withoutFeed(writeFeedKey));
       callback(null, chunk);
     }
   });

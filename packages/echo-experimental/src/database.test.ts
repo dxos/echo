@@ -149,21 +149,21 @@ describe('database', () => {
     const writtenMessages = collect(writeStream);
 
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = {}
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp().encode() } }, key: feed1Key, seq: 1 }); // current timestamp = { F1: 1 }
+    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed1Key, seq: 1 }); // current timestamp = { F1: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 1 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp().encode() } }, key: feed1Key, seq: 2 }); // current timestamp = { F1: 2 }
+    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed1Key, seq: 2 }); // current timestamp = { F1: 2 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 2 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp([[feed2Key, 1]]).encode() } }, key: feed1Key, seq: 3 }); // current timestamp = { F1: 3, F2: 1 }
+    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed2Key, 1]])) } }, key: feed1Key, seq: 3 }); // current timestamp = { F1: 3, F2: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
-    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp().encode() } }, key: feed2Key, seq: 1 }); // current timestamp = { F1: 3, F2: 1 }
+    readStream.write({ data: { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp()) } }, key: feed2Key, seq: 1 }); // current timestamp = { F1: 3, F2: 1 }
     writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
 
     expect(writtenMessages).toEqual([
-      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.zero().encode() } },
-      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp([[feed1Key, 1]]).encode() } },
-      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp([[feed1Key, 2]]).encode() } },
-      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp([[feed1Key, 3], [feed2Key, 1]]).encode() } },
-      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: new LogicalClockStamp([[feed1Key, 3], [feed2Key, 1]]).encode() } }
+      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(LogicalClockStamp.zero()) } },
+      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed1Key, 1]])) } },
+      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed1Key, 2]])) } },
+      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed1Key, 3], [feed2Key, 1]])) } },
+      { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(new LogicalClockStamp([[feed1Key, 3], [feed2Key, 1]])) } }
     ]);
   });
 
