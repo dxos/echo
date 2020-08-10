@@ -198,13 +198,14 @@ describe('database', () => {
       createId()
     ];
 
-    const itemManager = new ItemManager(modelFactory, streams[0]);
+    const [readTransform, writeTransform] = createTimestampWriter(descriptors[0].key)
+    const itemManager = new ItemManager(modelFactory, writeTransform.pipe(streams[0]));
 
     // Set-up pipeline.
     // TODO(burdon): Test closing pipeline.
     const partyMuxer = createPartyMuxer(feedStore, [descriptors[0].key]);
     const itemDemuxer = createItemDemuxer(itemManager);
-    partyMuxer.pipe(itemDemuxer);
+    partyMuxer.pipe(readTransform).pipe(itemDemuxer);
 
     {
       streams[0].write(createItemGenesis(itemIds[0], 'test'));

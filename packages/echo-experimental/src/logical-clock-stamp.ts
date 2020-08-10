@@ -6,6 +6,7 @@
 import assert from 'assert';
 import debug from 'debug';
 import { dxos } from './proto/gen/testing';
+import { UV_FS_O_FILEMAP } from 'constants';
 
 const log = debug('dxos.echo.consistency');
 
@@ -166,7 +167,11 @@ export class LogicalClockStamp {
     }
   }
 
-  static decode(enc: dxos.echo.testing.IVectorTimestamp) {
+  static decode(enc: dxos.echo.testing.IVectorTimestamp | undefined | null) {
+    if(!enc) { 
+      return LogicalClockStamp.zero();
+    }
+    
     assert(enc.timestamp);
     return new LogicalClockStamp(enc.timestamp.map(feed => {
       assert(feed.feedKey)

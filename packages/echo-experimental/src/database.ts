@@ -291,7 +291,7 @@ export const createPartyMuxer = (
 
     // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
     // In this case it would wait until a replication event notifies another feed has been added to the replication set.
-    for await (const { data: { message } } of iterator) {
+    for await (const { data: { message }, key, seq } of iterator) {
       log('Muxer:', JSON.stringify(message));
 
       switch (message.__type_url) {
@@ -314,7 +314,7 @@ export const createPartyMuxer = (
           assert(message.itemId);
 
           // TODO(burdon): Order by timestamp.
-          outputStream.push({ data: { message } });
+          outputStream.push({ data: { message }, key, seq });
 
           // TODO(marik-d): Backpressure: https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
           // if (!this._output.push({ data: { message } })) {
@@ -393,7 +393,6 @@ export const createTimestampWriter = (writeFeedKey: Buffer) => {
     transform(chunk, encoding, callback) {
       const { message } = chunk.data
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
-      assert(message.timestamp);
       
       const timestamp = LogicalClockStamp.decode(message.timestamp).withFeed(chunk.key, chunk.seq);
       currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
