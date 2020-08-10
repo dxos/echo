@@ -61,12 +61,12 @@ export const createTestMessageWithTimestamp = (timestamp: LogicalClockStamp, fee
   data: {
     message: {
       __type_url: 'dxos.echo.testing.ItemEnvelope',
-      timestamp: LogicalClockStamp.encode(timestamp),
-    },
+      timestamp: LogicalClockStamp.encode(timestamp)
+    }
   },
   key: feedKey,
-  seq,
-})
+  seq
+});
 
 export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
 
