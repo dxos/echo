@@ -18,6 +18,7 @@ import { dxos } from './proto/gen/testing';
 
 import { assumeType, LazyMap, assertAnyType } from './util';
 import { FeedStoreIterator } from './feed-store-iterator';
+import { LogicalClockStamp } from './logical-clock-stamp';
 
 const log = debug('dxos:echo:database');
 
@@ -338,8 +339,9 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
   return new Writable({
     objectMode: true,
-    write: async ({ data: { message } }, _, callback) => {
-      log('Demuxer:', JSON.stringify(message, undefined, 2));
+    write: async (chunk, _, callback) => {
+      const { data: { message } } = chunk
+      log('Demuxer:', JSON.stringify(chunk, undefined, 2));
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
       const { itemId, payload } = message;
       assert(itemId);
@@ -382,3 +384,33 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
     }
   });
 };
+
+export const createTimestampWriter = (writeFeedKey: Buffer) => {
+  let currentTimestamp = new LogicalClockStamp();
+
+  const inputTransform = new Transform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+      const { message } = chunk.data
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
+      assert(message.timestamp);
+      
+      const timestamp = LogicalClockStamp.decode(message.timestamp).withFeed(chunk.key, chunk.seq);
+      currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
+      log(`current timestamp = ${currentTimestamp.log()}`)
+      callback(null, chunk);
+    },
+  });
+
+  const outputTransform = new Transform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+      const { message } = chunk
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
+      message.timestamp = currentTimestamp.withoutFeed(writeFeedKey).encode();
+      callback(null, chunk)
+    },
+  });
+
+  return [inputTransform, outputTransform] as const;
+}
