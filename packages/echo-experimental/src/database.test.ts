@@ -12,7 +12,7 @@ import { Codec } from '@dxos/codec-protobuf';
 import { createId, randomBytes } from '@dxos/crypto';
 
 import {
-  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, createTimestampWriter
+  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, createTimestampTransform
 } from './database';
 import { TestModel } from './test-model';
 import { sink } from './util';
@@ -145,18 +145,18 @@ describe('database', () => {
     const feed1Key = randomBytes();
     const feed2Key = randomBytes();
 
-    const [readStream, writeStream] = createTimestampWriter(ownFeed);
-    const writtenMessages = collect(writeStream);
+    const [inboundTransfrom, outboundTransfrom] = createTimestampTransform(ownFeed);
+    const writtenMessages = collect(outboundTransfrom);
 
-    writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = {}
-    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 1)); // current timestamp = { F1: 1 }
-    writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 1 }
-    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 2)); // current timestamp = { F1: 2 }
-    writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 2 }
-    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp([[feed2Key, 1]]), feed1Key, 3)); // current timestamp = { F1: 3, F2: 1 }
-    writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
-    readStream.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed2Key, 1)); // current timestamp = { F1: 3, F2: 1 }
-    writeStream.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
+    outboundTransfrom.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = {}
+    inboundTransfrom.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 1)); // current timestamp = { F1: 1 }
+    outboundTransfrom.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 1 }
+    inboundTransfrom.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed1Key, 2)); // current timestamp = { F1: 2 }
+    outboundTransfrom.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 2 }
+    inboundTransfrom.write(createTestMessageWithTimestamp(new LogicalClockStamp([[feed2Key, 1]]), feed1Key, 3)); // current timestamp = { F1: 3, F2: 1 }
+    outboundTransfrom.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
+    inboundTransfrom.write(createTestMessageWithTimestamp(new LogicalClockStamp(), feed2Key, 1)); // current timestamp = { F1: 3, F2: 1 }
+    outboundTransfrom.write({ message: { __type_url: 'dxos.echo.testing.ItemEnvelope' } }); // current timestamp = { F1: 3, F2: 1 }
 
     expect(writtenMessages).toEqual([
       { message: { __type_url: 'dxos.echo.testing.ItemEnvelope', timestamp: LogicalClockStamp.encode(LogicalClockStamp.zero()) } },
@@ -198,14 +198,14 @@ describe('database', () => {
       createId()
     ];
 
-    const [readTransform, writeTransform] = createTimestampWriter(descriptors[0].key);
-    const itemManager = new ItemManager(modelFactory, writeTransform.pipe(streams[0]));
+    const [inboundTransfrom, outboundTransform] = createTimestampTransform(descriptors[0].key);
+    const itemManager = new ItemManager(modelFactory, outboundTransform.pipe(streams[0]));
 
     // Set-up pipeline.
     // TODO(burdon): Test closing pipeline.
     const partyMuxer = createPartyMuxer(feedStore, [descriptors[0].key]);
     const itemDemuxer = createItemDemuxer(itemManager);
-    partyMuxer.pipe(readTransform).pipe(itemDemuxer);
+    partyMuxer.pipe(inboundTransfrom).pipe(itemDemuxer);
 
     {
       streams[0].write(createItemGenesis(itemIds[0], 'test'));

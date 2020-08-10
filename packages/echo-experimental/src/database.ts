@@ -385,10 +385,10 @@ export const createItemDemuxer = (itemManager: ItemManager) => {
   });
 };
 
-export const createTimestampWriter = (writeFeedKey: Buffer) => {
+export const createTimestampTransform = (writeFeedKey: Buffer) => {
   let currentTimestamp = new LogicalClockStamp();
 
-  const inputTransform = new Transform({
+  const inboundTransform = new Transform({
     objectMode: true,
     transform (chunk, encoding, callback) {
       const { message } = chunk.data;
@@ -401,7 +401,7 @@ export const createTimestampWriter = (writeFeedKey: Buffer) => {
     }
   });
 
-  const outputTransform = new Transform({
+  const outboundTransform = new Transform({
     objectMode: true,
     transform (chunk, encoding, callback) {
       const { message } = chunk;
@@ -411,5 +411,5 @@ export const createTimestampWriter = (writeFeedKey: Buffer) => {
     }
   });
 
-  return [inputTransform, outputTransform] as const;
+  return [inboundTransform, outboundTransform] as const;
 };
