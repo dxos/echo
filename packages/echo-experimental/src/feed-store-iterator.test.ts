@@ -22,19 +22,20 @@ const codec = new Codec('dxos.echo.testing.Envelope')
   .addJson(TestingSchema)
   .build();
 
-const setup = async (paths: string[]) => {
-  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-  await feedStore.open();
-
-  const feeds = await Promise.all(paths.map(path => feedStore.openFeed(path)));
-  const descriptors = feeds.map(feed => feedStore.getDescriptors().find(descriptor => descriptor.feed === feed)!);
-  const streams = feeds.map(feed => createWritableFeedStream(feed));
-
-  return { feedStore, feeds, descriptors, streams };
-};
-
 /* eslint-disable no-lone-blocks */
 describe('FeedStoreIterator', () => {
+  // Common set-up.
+  const setup = async (paths: string[]) => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    await feedStore.open();
+
+    const feeds = await Promise.all(paths.map(path => feedStore.openFeed(path)));
+    const descriptors = feeds.map(feed => feedStore.getDescriptors().find(descriptor => descriptor.feed === feed)!);
+    const streams = feeds.map(feed => createWritableFeedStream(feed));
+
+    return { feedStore, feeds, descriptors, streams };
+  };
+
   test('single feed', async () => {
     const { feedStore, streams } = await setup(['feed-1']);
 

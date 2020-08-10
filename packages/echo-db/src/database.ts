@@ -50,8 +50,8 @@ export class Party extends EventEmitter {
 
   async queryItems (filter?: any) {
     const { type } = filter || {};
-    return new Query<Item>(
-      this, 'item', () => Array.from(this._items.values()).filter(item => !type || type === item.type));
+    return new Query<Item>(this,
+      'item', () => Array.from(this._items.values()).filter(item => !type || type === item.type));
   }
 }
 
