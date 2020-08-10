@@ -4,12 +4,11 @@
 
 // TODO(burdon): Remove dependency (via adapter). Or move to other package.
 import { Model } from '@dxos/model-factory';
+
+import { Any, createModelMessage } from './common';
 import { dxos } from './proto';
-import { createModelMessage } from './common';
-import { google } from './proto/gen/echo';
 import IModelMessage = dxos.echo.IModelMessage;
 import IOrderedModelData = dxos.echo.IOrderedModelData;
-import IAny = google.protobuf.IAny;
 import OrderedModelData = dxos.echo.OrderedModelData;
 
 const toOrderedData = (message: IModelMessage) => <IOrderedModelData>message.data;
@@ -82,7 +81,7 @@ export class OrderedModel extends Model {
     throw new Error(`Not processed: ${messages.length}`);
   }
 
-  static createGenesisMessage (data: IAny) {
+  static createGenesisMessage (data: Any) {
     return createModelMessage(OrderedModelData.create({
       messageId: 1,
       previousMessageId: 0,
@@ -90,19 +89,19 @@ export class OrderedModel extends Model {
     }));
   }
 
-  appendMessage (message: IModelMessage) {
+  appendMessage (data: Any) {
     const messageId = this._orderedMessages.length + 1; // first message has id of 1
     const previousMessageId = !this._orderedMessages.length
       ? toOrderedData(this._orderedMessages[this._orderedMessages.length - 1]).messageId : 0;
 
     // Only the message's data is passed through.
-    const data = OrderedModelData.create({
+    const orderedModelData = OrderedModelData.create({
       messageId,
       previousMessageId,
-      data: message.data
+      data
     });
 
-    super.appendMessage(data);
+    super.appendMessage(orderedModelData);
   }
 }
 

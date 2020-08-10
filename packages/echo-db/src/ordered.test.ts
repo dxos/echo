@@ -3,24 +3,31 @@
 //
 
 import { DefaultOrderedModel } from './ordered';
-import { createModelMessage } from './common';
+import { Any, createModelMessage } from './common';
 import { dxos } from './proto';
 import OrderedModelData = dxos.echo.OrderedModelData;
 
-const createOrderedData = (data: any,
+const createTestItem = (value: any) => {
+  return Any.create({
+    __type_url: 'test.TestItem',
+    value
+  });
+};
+
+const createOrderedModelData = (value: any,
   messageId: number | null | undefined = 1,
   previousMessageId: number | null | undefined = 0) => {
   return OrderedModelData.create({
     messageId,
     previousMessageId,
-    data
+    data: createTestItem(value)
   });
 };
 
-const generateMessages = (count: number, data = {}) => {
+const generateMessages = (count: number) => {
   const ordered = [];
   for (let i = 0; i < count; i++) {
-    ordered.push(createModelMessage(createOrderedData(data, i + 1, i)));
+    ordered.push(createModelMessage(createOrderedModelData(i, i + 1, i)));
   }
   return ordered;
 };
@@ -71,9 +78,9 @@ test('forks are resolved by picking the first candidate', async () => {
   const model = new DefaultOrderedModel();
 
   const messages = [
-    DefaultOrderedModel.createGenesisMessage({}),
-    createModelMessage(createOrderedData({ value: 'a' }, 2, 1)),
-    createModelMessage(createOrderedData({ value: 'b' }, 2, 1))
+    DefaultOrderedModel.createGenesisMessage(createTestItem('')),
+    createModelMessage(createOrderedModelData('a', 2, 1)),
+    createModelMessage(createOrderedModelData('b', 2, 1))
   ];
 
   await model.processMessages(messages);
@@ -90,9 +97,9 @@ class ModelWithValidation extends DefaultOrderedModel {
 test('models can add custom validation rules', async () => {
   const model = new ModelWithValidation();
   const messages = [
-    DefaultOrderedModel.createGenesisMessage({}),
-    createModelMessage(createOrderedData({ value: 'a' }, 2, 1)),
-    createModelMessage(createOrderedData({ value: 'b' }, 2, 1))
+    DefaultOrderedModel.createGenesisMessage(createTestItem('')),
+    createModelMessage(createOrderedModelData('a', 2, 1)),
+    createModelMessage(createOrderedModelData('b', 2, 1))
   ];
 
   await model.processMessages(messages);
