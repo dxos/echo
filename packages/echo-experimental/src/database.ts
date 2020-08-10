@@ -21,6 +21,7 @@ import { FeedStoreIterator } from './feed-store-iterator';
 
 const log = debug('dxos:echo:database');
 
+// TODO(burdon): Extract definitions.
 export type FeedKey = Uint8Array;
 export type ItemID = string;
 
