@@ -132,9 +132,11 @@ export class ModelFactory {
         if (this._credentialsInfoProvider) {
           credentials = await this._credentialsInfoProvider(data, feedKey);
           if (!credentials) {
-            error('Unable to locate credentials for:', feedMessage);
-            // TODO(telackey): Is this enough, or do we need to destroy the Model as well?
-            throw new Error(`Unable to locate credentials for: ${feedMessage}`);
+            // This is a fatal error; do not allow any more processing to occur.
+            const err = new Error(`Failed to determine owner of: ${JSON.stringify(feedMessage)}`);
+            error('Destroying model because of fatal error:', err);
+            await model.destroy();
+            throw err;
           }
         }
         modelMessages.push({ data, credentials });
