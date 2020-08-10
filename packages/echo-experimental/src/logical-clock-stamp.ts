@@ -199,7 +199,7 @@ export class LogicalClockStamp {
 
   withoutFeed (feedKey: Buffer) {
     const feedKeyInt = BufferToBigInt(feedKey);
-    return new LogicalClockStamp(this._entries().filter(([key, value]) => key != feedKeyInt));
+    return new LogicalClockStamp(this._entries().filter(([key, value]) => key !== feedKeyInt));
   }
 
   withFeed (feedKey: Buffer, seq: number) {

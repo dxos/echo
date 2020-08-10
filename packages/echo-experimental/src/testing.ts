@@ -73,7 +73,7 @@ export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: ex
 /**
  * Turns a stream into constantly mutating array of all messages emmited by the stream.
  * Triggers stream consumption.
- * @param stream 
+ * @param stream
  */
 export const collect = (stream: NodeJS.ReadableStream) => {
   const arr: any[] = [];
