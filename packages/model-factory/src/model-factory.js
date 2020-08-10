@@ -132,6 +132,7 @@ export class ModelFactory {
         if (this._credentialsInfoProvider) {
           credentials = await this._credentialsInfoProvider(data, feedKey);
           if (!credentials) {
+            error('Unable to locate credentials for:', feedMessage);
             // TODO(telackey): Is this enough, or do we need to destroy the Model as well?
             throw new Error(`Unable to locate credentials for: ${feedMessage}`);
           }
