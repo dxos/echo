@@ -33,10 +33,11 @@ export const createMessage = (data: number) => ({
   }
 });
 
-export const createItemGenesis = (itemId: ItemID, type: string) => ({
+export const createItemGenesis = (itemId: ItemID, type: string, timestamp?: LogicalClockStamp) => ({
   message: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
     itemId,
+    timestamp: timestamp ? LogicalClockStamp.encode(timestamp) : undefined,
     payload: {
       __type_url: 'dxos.echo.testing.ItemGenesis',
       type,
@@ -45,10 +46,11 @@ export const createItemGenesis = (itemId: ItemID, type: string) => ({
   }
 });
 
-export const createItemMutation = (itemId: ItemID, key: string, value: string) => ({
+export const createItemMutation = (itemId: ItemID, key: string, value: string, timestamp?: LogicalClockStamp) => ({
   message: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
     itemId,
+    timestamp: timestamp ? LogicalClockStamp.encode(timestamp) : undefined,
     payload: {
       __type_url: 'dxos.echo.testing.ItemMutation',
       key,
