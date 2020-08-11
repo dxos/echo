@@ -11,7 +11,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 
 import { createWritableFeedStream } from './database';
-import { FeedStoreIterator } from './feed-store-iterator';
+import { FeedStoreIterator, FeedMessage } from './feed-store-iterator';
 import { assumeType, latch, sink } from './util';
 import { createAdmit, createRemove, createMessage, feedItem } from './testing';
 
@@ -208,5 +208,54 @@ describe('FeedStoreIterator', () => {
         feedItem(createMessage(5))
       ]);
     }
+  });
+
+  test('can order multiple feeds', async () => {
+    const { feedStore, streams } = await setup(['feed-1', 'feed-2', 'feed-3']);
+
+    let lastCount = -1;
+    const iterator = await FeedStoreIterator.create(feedStore, async () => true, candidates => {
+      const idx = candidates.findIndex(candidate => candidate.data.message.data === lastCount + 1);
+      return idx === -1 ? undefined : idx;
+    });
+
+    const messages: FeedMessage[] = [];
+    const eventEmitter = new EventEmitter();
+    setImmediate(async () => {
+      for await (const message of iterator) {
+        lastCount = message.data.message.data;
+        messages.push(message);
+        eventEmitter.emit('update', message);
+      }
+    });
+    const promise = sink(eventEmitter, 'update', 10);
+
+    streams[0].write(createMessage(1));
+    streams[0].write(createMessage(5));
+    streams[0].write(createMessage(7));
+    streams[0].write(createMessage(9));
+
+    streams[1].write(createMessage(0));
+    streams[1].write(createMessage(6));
+
+    streams[2].write(createMessage(2));
+    streams[2].write(createMessage(3));
+    streams[2].write(createMessage(4));
+    streams[2].write(createMessage(8));
+
+    await promise;
+
+    expect(messages).toEqual([
+      feedItem(createMessage(0)),
+      feedItem(createMessage(1)),
+      feedItem(createMessage(2)),
+      feedItem(createMessage(3)),
+      feedItem(createMessage(4)),
+      feedItem(createMessage(5)),
+      feedItem(createMessage(6)),
+      feedItem(createMessage(7)),
+      feedItem(createMessage(8)),
+      feedItem(createMessage(9))
+    ]);
   });
 });
