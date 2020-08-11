@@ -2,25 +2,24 @@
 // Copyright 2020 DXOS.org
 //
 
-import { EventEmitter } from 'events';
+import { Event } from '@dxos/async';
 
 /**
  * Query results.
  */
 export class ResultSet<T> {
-  _value: T[];
-  _handleUpdate: (value: T[]) => void;
-  _listeners = new EventEmitter();
+  private _value: T[];
+  private _handleUpdate: () => void;
+  private readonly _update = new Event<T[]>();
 
   constructor (
-    private _eventEmitter: EventEmitter,
-    private _type: string,
+    private _event: Event,
     private _getter: () => T[]
   ) {
     this._value = this._getter();
     this._handleUpdate = () => {
       this._value = this._getter();
-      this._listeners.emit('update', this._value);
+      this._update.emit(this._value);
     };
   }
 
@@ -33,15 +32,15 @@ export class ResultSet<T> {
    * @param listener
    */
   subscribe (listener: (result: T[]) => void) {
-    this._listeners.on('update', listener);
-    if (this._listeners.listenerCount('update') === 1) {
-      this._eventEmitter.on(`update:${this._type}`, this._handleUpdate);
+    this._update.on(listener);
+    if (this._update.listenerCount() === 1) {
+      this._event.on(this._handleUpdate);
     }
 
     return () => {
-      this._listeners.off('update', listener);
-      if (this._listeners.listenerCount('update') === 0) {
-        this._eventEmitter.off(`update:${this._type}`, this._handleUpdate);
+      this._update.off(listener);
+      if (this._update.listenerCount() === 0) {
+        this._event.off(this._handleUpdate);
       }
     };
   }
