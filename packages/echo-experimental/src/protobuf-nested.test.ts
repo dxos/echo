@@ -148,6 +148,8 @@ describe('Protocol buffers and typescript types.', () => {
       log(`nestedts payload: ${JSON.stringify(payload)}`);
       // This doesn't work (payload is not seen by encode later):
       envelope.payload = payload as IAny;
+      // Next line produces TS2339 compiler error.
+      // envelope.__type_url = 'dxos.echo.testing.TestEnvelope';
       return envelope;
     };
 
@@ -184,7 +186,7 @@ describe('Protocol buffers and typescript types.', () => {
       payloadAsAny.__type_url = 'dxos.echo.testing.TestPayload';
       const envelope = new TestEnvelope();
       log(`nestedts-hack payload: ${JSON.stringify({ ...payloadAsAny })}`);
-      envelope.payload = payloadAsAny;
+      envelope.payload = payloadAsAny as IAny;
       // Hack:
       const envelopeAsAny = envelope as any;
       envelopeAsAny.__type_url = 'dxos.echo.testing.TestEnvelope';
@@ -208,6 +210,10 @@ describe('Protocol buffers and typescript types.', () => {
   });
 
   test('json', () => {
+    // Test code often performs checks of the form expect(message).toStrictEqual(expected)
+    // This test will fail when it should pass because expect.toStrictEqual() depends on toJSON
+    // which silently drops properties from generated class instances.
+
     const produceEnvelope = (value: number): ITestEnvelope => {
       const payload = new TestPayload();
       payload.testfield = value;
