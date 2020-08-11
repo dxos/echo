@@ -115,7 +115,7 @@ describe('Protocol buffers and typescript types.', () => {
     const message1 = producePayload(123);
     // Output: {"testfield":123,"__type_url":"dxos.echo.testing.TestPayload"}
     // note needs the spread in order to work around broken default toJSON method
-    log(`flatts-hack message1: ${JSON.stringify({...message1})}`);
+    log(`flatts-hack message1: ${JSON.stringify({ ...message1 })}`);
 
     const buffer = codec.encode({ message: message1 });
     log(`flatts-hack buffer: ${keyToString(buffer)}`);
@@ -181,10 +181,12 @@ describe('Protocol buffers and typescript types.', () => {
       const payloadAsAny = payload as any;
       payloadAsAny.__type_url = 'dxos.echo.testing.TestPayload';
       const envelope = new TestEnvelope();
-      log(`nestedts-hack payload: ${JSON.stringify({...payloadAsAny})}`);
+      log(`nestedts-hack payload: ${JSON.stringify({ ...payloadAsAny })}`);
       // This doesn't work (payload is not seen by encode later):
       envelope.payload = payloadAsAny;
-      return envelope;
+      const envelopeAsAny = envelope as any;
+      envelopeAsAny.__type_url = 'dxos.echo.testing.TestEnvelope';
+      return envelopeAsAny;
     };
 
     const message1 = produceEnvelope(123);
