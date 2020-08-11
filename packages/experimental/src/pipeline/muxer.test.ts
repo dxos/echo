@@ -14,11 +14,12 @@ import { sleep } from '@dxos/async';
 
 import { sink } from '../util';
 import {
-  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, Model
+  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, Model, createTimestampTransform
 } from './muxer';
-import { TestModel, createAdmit, createItemGenesis, createItemMutation } from '../testing';
+import { TestModel, createAdmit, createItemGenesis, createItemMutation, createTestMessageWithTimestamp, collect } from '../testing';
 
 import TestingSchema from '../proto/gen/testing.json';
+import { LogicalClockStamp } from '../clock/logical-clock-stamp';
 
 const log = debug('dxos:echo:testing');
 debug.enable('dxos:echo:*');

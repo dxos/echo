@@ -2,9 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
-import { FeedKey, ItemID } from '../defs';
+import { FeedKey } from '../defs';
 import { TestModel } from './test-model';
-import { LogicalClockStamp } from './logical-clock-stamp';
+import { LogicalClockStamp } from '../clock/logical-clock-stamp';
+import { ItemID } from '../items';
 
 //
 // Test generators.

@@ -12,8 +12,8 @@ import { Codec } from '@dxos/codec-protobuf';
 
 import { assumeType, latch, sink } from '../util';
 import { createWritableFeedStream } from './muxer';
-import { FeedStoreIterator } from './feed-store-iterator';
-import { createAdmit, createRemove, createMessage } from '../testing';
+import { FeedStoreIterator, FeedMessage } from './feed-store-iterator';
+import { createAdmit, createRemove, createMessage, createExpectedFeedMessage } from '../testing';
 
 import TestingSchema from '../proto/gen/testing.json';
 import { dxos } from '../proto/gen/testing';

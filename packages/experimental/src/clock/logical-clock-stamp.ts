@@ -5,7 +5,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import assert from 'assert';
 import debug from 'debug';
-import { dxos } from './proto/gen/testing';
+import { dxos } from '../proto/gen/testing';
 
 const log = debug('dxos.echo.consistency');
 

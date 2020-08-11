@@ -20,7 +20,7 @@ import { FeedKey } from '../defs';
 import { ItemID } from '../items';
 import { assumeType, LazyMap, assertAnyType } from '../util';
 import { FeedStoreIterator } from './feed-store-iterator';
-import { LogicalClockStamp, Order } from './logical-clock-stamp';
+import { LogicalClockStamp, Order } from '../clock/logical-clock-stamp';
 
 const log = debug('dxos:echo:database');
 
