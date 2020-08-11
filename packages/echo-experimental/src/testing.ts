@@ -70,7 +70,7 @@ export const createTestMessageWithTimestamp = (timestamp: LogicalClockStamp, fee
   seq
 });
 
-export const feedItem = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
+export const createExpectedFeedMessage = (data: any) => ({ data, key: expect.any(Buffer), seq: expect.any(Number), sync: expect.any(Boolean) });
 
 /**
  * Turns a stream into constantly mutating array of all messages emmited by the stream.

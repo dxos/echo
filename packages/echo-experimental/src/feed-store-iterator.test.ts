@@ -13,7 +13,7 @@ import { Codec } from '@dxos/codec-protobuf';
 import { createWritableFeedStream } from './database';
 import { FeedStoreIterator, FeedMessage } from './feed-store-iterator';
 import { assumeType, latch, sink } from './util';
-import { createAdmit, createRemove, createMessage, feedItem } from './testing';
+import { createAdmit, createRemove, createMessage, createExpectedFeedMessage } from './testing';
 
 import TestingSchema from './proto/gen/testing.json';
 import { dxos } from './proto/gen/testing';
@@ -53,9 +53,9 @@ describe('FeedStoreIterator', () => {
     }
 
     expect(messages).toEqual([
-      feedItem(createMessage(1)),
-      feedItem(createMessage(2)),
-      feedItem(createMessage(3))
+      createExpectedFeedMessage(createMessage(1)),
+      createExpectedFeedMessage(createMessage(2)),
+      createExpectedFeedMessage(createMessage(3))
     ]);
   });
 
@@ -75,8 +75,8 @@ describe('FeedStoreIterator', () => {
     }
 
     expect(messages).toEqual([
-      feedItem(createMessage(1)),
-      feedItem(createMessage(3))
+      createExpectedFeedMessage(createMessage(1)),
+      createExpectedFeedMessage(createMessage(3))
     ]);
   });
 
@@ -100,9 +100,9 @@ describe('FeedStoreIterator', () => {
     await count;
 
     expect(messages).toEqual([
-      feedItem(createMessage(1)),
-      feedItem(createMessage(2)),
-      feedItem(createMessage(3))
+      createExpectedFeedMessage(createMessage(1)),
+      createExpectedFeedMessage(createMessage(2)),
+      createExpectedFeedMessage(createMessage(3))
     ]);
   });
 
@@ -161,8 +161,8 @@ describe('FeedStoreIterator', () => {
       await promise;
 
       expect(messages).toEqual([
-        feedItem(createMessage(1)),
-        feedItem(createMessage(3))
+        createExpectedFeedMessage(createMessage(1)),
+        createExpectedFeedMessage(createMessage(3))
       ]);
     }
 
@@ -175,10 +175,10 @@ describe('FeedStoreIterator', () => {
       await promise;
 
       expect(messages).toEqual([
-        feedItem(createMessage(1)),
-        feedItem(createMessage(3)),
-        feedItem(createAdmit(descriptors[1].key)),
-        feedItem(createMessage(2)) // Now released
+        createExpectedFeedMessage(createMessage(1)),
+        createExpectedFeedMessage(createMessage(3)),
+        createExpectedFeedMessage(createAdmit(descriptors[1].key)),
+        createExpectedFeedMessage(createMessage(2)) // Now released
       ]);
     }
 
@@ -200,12 +200,12 @@ describe('FeedStoreIterator', () => {
       await promise2;
 
       expect(messages).toEqual([
-        feedItem(createMessage(1)),
-        feedItem(createMessage(3)),
-        feedItem(createAdmit(descriptors[1].key)),
-        feedItem(createMessage(2)),
-        feedItem(createRemove(descriptors[0].key)),
-        feedItem(createMessage(5))
+        createExpectedFeedMessage(createMessage(1)),
+        createExpectedFeedMessage(createMessage(3)),
+        createExpectedFeedMessage(createAdmit(descriptors[1].key)),
+        createExpectedFeedMessage(createMessage(2)),
+        createExpectedFeedMessage(createRemove(descriptors[0].key)),
+        createExpectedFeedMessage(createMessage(5))
       ]);
     }
   });
@@ -246,16 +246,16 @@ describe('FeedStoreIterator', () => {
     await promise;
 
     expect(messages).toEqual([
-      feedItem(createMessage(0)),
-      feedItem(createMessage(1)),
-      feedItem(createMessage(2)),
-      feedItem(createMessage(3)),
-      feedItem(createMessage(4)),
-      feedItem(createMessage(5)),
-      feedItem(createMessage(6)),
-      feedItem(createMessage(7)),
-      feedItem(createMessage(8)),
-      feedItem(createMessage(9))
+      createExpectedFeedMessage(createMessage(0)),
+      createExpectedFeedMessage(createMessage(1)),
+      createExpectedFeedMessage(createMessage(2)),
+      createExpectedFeedMessage(createMessage(3)),
+      createExpectedFeedMessage(createMessage(4)),
+      createExpectedFeedMessage(createMessage(5)),
+      createExpectedFeedMessage(createMessage(6)),
+      createExpectedFeedMessage(createMessage(7)),
+      createExpectedFeedMessage(createMessage(8)),
+      createExpectedFeedMessage(createMessage(9))
     ]);
   });
 });
