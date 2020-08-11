@@ -168,22 +168,24 @@ describe('Protocol buffers and typescript types.', () => {
   });
 
   test('nestedts-hack', () => {
-    // Test case above hacked to force __type_url with casting -- .
+    // Test case above hacked to force __type_url with casting -- passes.
 
     const consumeEnvelope = (envelope: ITestEnvelope): number => {
       const payload: ITestPayload = envelope.payload as ITestPayload;
       return payload.testfield!;
     };
 
+    // Hack : return type any.
     const produceEnvelope = (value: number): any => {
       const payload = new TestPayload();
       payload.testfield = value;
+      // Hack:
       const payloadAsAny = payload as any;
       payloadAsAny.__type_url = 'dxos.echo.testing.TestPayload';
       const envelope = new TestEnvelope();
       log(`nestedts-hack payload: ${JSON.stringify({ ...payloadAsAny })}`);
-      // This doesn't work (payload is not seen by encode later):
       envelope.payload = payloadAsAny;
+      // Hack:
       const envelopeAsAny = envelope as any;
       envelopeAsAny.__type_url = 'dxos.echo.testing.TestEnvelope';
       return envelopeAsAny;
