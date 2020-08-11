@@ -893,10 +893,10 @@
   resolved "https://registry.yarnpkg.com/@dxos/async/-/async-1.0.0-beta.2.tgz#063ce87151682953864c193feb4b2281383ac18c"
   integrity sha512-hBP3Nla/QD8W82CDJv/SZDyn2LMXiZkljMpUGgqL9Pbv04DEY78bsCg5SBqDbaL4zudwIs/u41Y45SOjjdQWcQ==
 
-"@dxos/async@^1.0.0-beta.4":
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@dxos/async/-/async-1.0.0-beta.4.tgz#6545d16eb08d3a12c156df1679cf30c7e55918c3"
-  integrity sha512-a/I2foW0RY8/WwwzvfE/ZIB2jVKEl0wj1ufxqNwjIRxp9pvmH86K7vnsdqSKW6o/DQ+Bl3mDMfi4Eub64yrsUg==
+"@dxos/async@^1.0.0-beta.5":
+  version "1.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/@dxos/async/-/async-1.0.0-beta.5.tgz#6098efdbb7ec4f526be9221afd5f1c29cae7ab59"
+  integrity sha512-QMC/wrDIDz8COkAAyJK5GR6txY1PazjpCEk7Wv74ZJGiElvZ8HZdCU1x163cV9+dMw57+1FSZgkjXGL5NOo3Gw==
 
 "@dxos/codec-protobuf@^1.1.0-beta.0":
   version "1.1.0-beta.10"
