@@ -25,6 +25,8 @@ const codec = new Codec('dxos.echo.testing.Envelope')
 
 describe('Protocol buffers and typescript types.', () => {
   test('flatjson', () => {
+    // Test case coded like protobuf.test.ts : passes
+
     const consumePayload = (payload: ITestPayload): number => {
       // TODO(richburdon): How do we want to code this? Magic undefined cast as below, or
       // if undefined throw exception, or codec implements required field?
@@ -41,12 +43,14 @@ describe('Protocol buffers and typescript types.', () => {
     };
 
     const message1 = producePayload(123);
+    // Output: {"__type_url":"dxos.echo.testing.TestPayload","testfield":123}
     log(`message1: ${JSON.stringify(message1)}`);
 
     const buffer = codec.encode({ message: message1 });
     log(`buffer: ${keyToString(buffer)}`);
 
     const message2 = codec.decode(buffer).message;
+    // Output: 0a230a1d64786f732e6563686f2e74657374696e672e546573745061796c6f61641202087b -- message was encoded.
     log(`message2: ${JSON.stringify(message2)}`);
 
     expect(message1).toEqual(message2);
@@ -57,6 +61,8 @@ describe('Protocol buffers and typescript types.', () => {
   });
 
   test('flatts', () => {
+    // Test case coded like models written in ts would be coded : fails
+
     const consumePayload = (payload: ITestPayload): number => {
       return payload.testfield!;
     };
@@ -65,19 +71,56 @@ describe('Protocol buffers and typescript types.', () => {
       const payload = new TestPayload();
       payload.testfield = value;
       // We need this line for the codec to work, but it throws a TS2339 error.
-      // payload.__type_url = 'dxos.echo.testing.Admit';
+      // payload.__type_url = 'dxos.echo.testing.TestPayload';
       return payload;
     };
 
     const message1 = producePayload(123);
+    // Output: message1: {"testfield":123} -- no __type_url property.
     log(`message1: ${JSON.stringify(message1)}`);
 
     const buffer = codec.encode({ message: message1 });
+    // Output: buffer: 0a00 -- nothing encoded because __type_url missing (no exception thrown??).
     log(`buffer: ${keyToString(buffer)}`);
 
     const message2 = codec.decode(buffer).message;
     log(`message2: ${JSON.stringify(message2)}`);
 
+    // Fails because we encoded to zero bytes above.
+    expect(message1).toEqual(message2);
+
+    const value = consumePayload(message2);
+
+    expect(value).toEqual(123);
+  });
+
+  test('flatts-hack', () => {
+    // Test case above hacked to force __type_url with casting -- passes.
+
+    const consumePayload = (payload: ITestPayload): number => {
+      return payload.testfield!;
+    };
+
+    const producePayload = (value: number): any => {
+      const payload = new TestPayload();
+      payload.testfield = value;
+      const payloadAsAny = payload as any;
+      payloadAsAny.__type_url = 'dxos.echo.testing.TestPayload';
+      return payloadAsAny;
+    };
+
+    const message1 = producePayload(123);
+    // Output: message1: {"testfield":123} -- no __type_url property.
+    log(`message1: ${JSON.stringify(message1)}`);
+
+    const buffer = codec.encode({ message: message1 });
+    // Output: buffer: 0a00 -- nothing encoded because __type_url missing (no exception thrown??).
+    log(`buffer: ${keyToString(buffer)}`);
+
+    const message2 = codec.decode(buffer).message;
+    log(`message2: ${JSON.stringify(message2)}`);
+
+    // Fails because we encoded to zero bytes above.
     expect(message1).toEqual(message2);
 
     const value = consumePayload(message2);
@@ -98,7 +141,7 @@ describe('Protocol buffers and typescript types.', () => {
       // payload.__type_url = 'dxos.echo.testing.TestPayload';
       const envelope = new TestEnvelope();
       log(`payload: ${JSON.stringify(payload)}`);
-      // This doesn't work (object properties are lost in the cast):
+      // This doesn't work (payload is not seen by encode later):
       envelope.payload = payload as IAny;
       return envelope;
     };
@@ -127,30 +170,22 @@ describe('Protocol buffers and typescript types.', () => {
       // payload.__type_url = 'dxos.echo.testing.TestPayload';
       const envelope = new TestEnvelope();
       log(`payload: ${JSON.stringify(payload)}`);
-      // This doesn't work (object properties are lost in the cast):
+      // This doesn't work (payload is not seen by encode later):
       envelope.payload = payload as IAny;
       return envelope;
     };
 
     const message1 = produceEnvelope(123);
+    // Output : {"payload":{}} -- the contents of message1.payload appear vanished!
     log(`message1: ${JSON.stringify(message1)}`);
 
-    // This will work, because we'll have copied the members, but not the broken toObject/toJSON implementation.
     const copy = { ...message1 };
+    // Output : {"payload":{"testfield":123}} -- the contents of message1.payload came back!
     log(`copy: ${JSON.stringify(copy)}`);
     expect(copy).toStrictEqual({ payload: new TestPayload({ testfield: 123 }) });
 
-    // This will fail, because message1 will not have the payload in the deep comparison,
-    // though it will do so in memory.  The comparison uses toObject and toJSON, which calls Any.toJSON,
-    // which knows nothing about 'testfield', and so excludes it from output.
+    // This will fail, even though message1.payload === {"testfield":123} because toStrictEqual()
+    // depends on toJSON(), which doesn't work (see above).
     expect(message1).toStrictEqual({ payload: new TestPayload({ testfield: 123 }) });
-
-    // Will pass (not using generated classes' JSON serialization code).
-    const fromCopyJson = JSON.parse(JSON.stringify(copy));
-    expect(fromCopyJson.payload.testfield).toBe(123);
-
-    // Will fail (using generated classes' JSON serialization code).
-    const fromOriginalJson = JSON.parse(JSON.stringify(message1));
-    expect(fromOriginalJson.payload.testfield).toBe(123);
   });
 });
