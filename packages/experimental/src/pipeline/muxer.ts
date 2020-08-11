@@ -14,16 +14,15 @@ import { createId, keyToString } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
 import { FeedStore } from '@dxos/feed-store';
 
-import { dxos } from './proto/gen/testing';
+import { dxos } from '../proto/gen/testing';
 
-import { assumeType, LazyMap, assertAnyType } from './util';
+import { FeedKey } from '../defs';
+import { ItemID } from '../items';
+import { assumeType, LazyMap, assertAnyType } from '../util';
 import { FeedStoreIterator } from './feed-store-iterator';
 import { LogicalClockStamp, Order } from './logical-clock-stamp';
 
 const log = debug('dxos:echo:database');
-
-export type FeedKey = Uint8Array;
-export type ItemID = string;
 
 /**
  * Returns a stream that appends messages directly to a hypercore feed.
@@ -47,7 +46,7 @@ export abstract class Model extends EventEmitter {
     private _type: string,
     private _itemId: ItemID,
     private _readable: NodeJS.ReadableStream,
-    private _writable?: NodeJS.WritableStream // TODO(burdon): Read-only?
+    private _writable?: NodeJS.WritableStream // TODO(burdon): Read-only if undefined?
   ) {
     super();
     assert(this._type);
@@ -56,7 +55,6 @@ export abstract class Model extends EventEmitter {
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
-        // log('Model.read', message);
         await this.processMessage(message);
 
         // TODO(burdon): Emit immutable value (or just ID).
@@ -275,6 +273,7 @@ export class ItemManager extends EventEmitter {
  * @param [initialAnchor] TODO(burdon): Emit event when anchor point reached?
  */
 export const createPartyMuxer = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   feedStore: FeedStore, initialFeeds: FeedKey[], initialAnchor?: dxos.echo.testing.IVectorTimestamp
 ) => {
   // TODO(burdon): Is this the correct way to create a stream?

@@ -8,8 +8,8 @@ import { Readable } from 'stream';
 
 import { FeedStore, FeedDescriptor, createBatchStream } from '@dxos/feed-store';
 
-import { Trigger } from './util';
-import { FeedKey } from './database';
+import { FeedKey } from '../defs';
+import { Trigger } from '../util';
 
 export interface FeedMessage {
   data: any

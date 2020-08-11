@@ -5,10 +5,10 @@
 import { Codec } from '@dxos/codec-protobuf';
 import { FeedDescriptor } from '@dxos/feed-store';
 
-import TestingSchema from './proto/gen/testing.json';
+import TestingSchema from '../proto/gen/testing.json';
 
-import { FeedKey } from './database';
-import { createAdmit } from './testing';
+import { FeedKey } from '../defs';
+import { createAdmit } from './messages';
 
 const codec = new Codec('dxos.echo.testing.Envelope')
   .addJson(TestingSchema)

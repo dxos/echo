@@ -6,10 +6,10 @@ import assert from 'assert';
 
 import { sleep } from '@dxos/async';
 
-import { Model } from './database';
+import { assertTypeUrl } from '../util';
+import { Model } from '../pipeline/muxer';
 
-import { dxos } from './proto/gen/testing';
-import { assertTypeUrl } from './util';
+import { dxos } from '../proto/gen/testing';
 
 /**
  * Test model.

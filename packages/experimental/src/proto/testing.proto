@@ -9,6 +9,7 @@ package dxos.echo.testing;
 import "google/protobuf/any.proto";
 
 // Augmented data from feeds.
+// TODO(burdon): Add fake credentials.
 message FeedMessage {
   bytes feedKey = 1;
   Envelope data = 2;

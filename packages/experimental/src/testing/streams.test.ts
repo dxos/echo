@@ -12,10 +12,10 @@ import { Codec } from '@dxos/codec-protobuf';
 import { createId, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
-import { sink } from './util';
+import { sink } from '../util';
 
-import { dxos } from './proto/gen/testing';
-import TestingSchema from './proto/gen/testing.json';
+import { dxos } from '../proto/gen/testing';
+import TestingSchema from '../proto/gen/testing.json';
 
 const chance = new Chance();
 

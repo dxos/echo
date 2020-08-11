@@ -2,9 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import eos from 'end-of-stream';
 
+import { createStorage, STORAGE_RAM } from '@dxos/random-access-multi-storage';
 import { FeedStore } from '@dxos/feed-store';
 import { createId } from '@dxos/crypto';
 

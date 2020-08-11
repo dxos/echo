@@ -12,15 +12,13 @@ import { Codec } from '@dxos/codec-protobuf';
 import { createId, randomBytes } from '@dxos/crypto';
 import { sleep } from '@dxos/async';
 
+import { sink } from '../util';
 import {
-  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, createTimestampTransform
-} from './database';
-import { TestModel } from './test-model';
-import { sink } from './util';
-import { createAdmit, createItemGenesis, createItemMutation, collect, createTestMessageWithTimestamp } from './testing';
+  createWritableFeedStream, createPartyMuxer, createItemDemuxer, ItemManager, ModelFactory, Model
+} from './muxer';
+import { TestModel, createAdmit, createItemGenesis, createItemMutation } from '../testing';
 
-import TestingSchema from './proto/gen/testing.json';
-import { LogicalClockStamp } from './logical-clock-stamp';
+import TestingSchema from '../proto/gen/testing.json';
 
 const log = debug('dxos:echo:testing');
 debug.enable('dxos:echo:*');
@@ -50,7 +48,7 @@ describe('database', () => {
 
     const items = itemManager.getItems();
     expect(items).toHaveLength(1);
-    (items[0].model as TestModel).on('update', model => {
+    (items[0].model as TestModel).on('update', (model: TestModel) => {
       expect(model.value).toEqual({ title: 'Hello' });
     });
   });

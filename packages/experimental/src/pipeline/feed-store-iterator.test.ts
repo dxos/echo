@@ -10,31 +10,32 @@ import { keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 
-import { createWritableFeedStream } from './database';
-import { FeedStoreIterator, FeedMessage } from './feed-store-iterator';
-import { assumeType, latch, sink } from './util';
-import { createAdmit, createRemove, createMessage, createExpectedFeedMessage } from './testing';
+import { assumeType, latch, sink } from '../util';
+import { createWritableFeedStream } from './muxer';
+import { FeedStoreIterator } from './feed-store-iterator';
+import { createAdmit, createRemove, createMessage } from '../testing';
 
-import TestingSchema from './proto/gen/testing.json';
-import { dxos } from './proto/gen/testing';
+import TestingSchema from '../proto/gen/testing.json';
+import { dxos } from '../proto/gen/testing';
 
 const codec = new Codec('dxos.echo.testing.Envelope')
   .addJson(TestingSchema)
   .build();
 
-const setup = async (paths: string[]) => {
-  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-  await feedStore.open();
-
-  const feeds = await Promise.all(paths.map(path => feedStore.openFeed(path)));
-  const descriptors = feeds.map(feed => feedStore.getDescriptors().find(descriptor => descriptor.feed === feed)!);
-  const streams = feeds.map(feed => createWritableFeedStream(feed));
-
-  return { feedStore, feeds, descriptors, streams };
-};
-
 /* eslint-disable no-lone-blocks */
 describe('FeedStoreIterator', () => {
+  // Common set-up.
+  const setup = async (paths: string[]) => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    await feedStore.open();
+
+    const feeds = await Promise.all(paths.map(path => feedStore.openFeed(path)));
+    const descriptors = feeds.map(feed => feedStore.getDescriptors().find(descriptor => descriptor.feed === feed)!);
+    const streams = feeds.map(feed => createWritableFeedStream(feed));
+
+    return { feedStore, feeds, descriptors, streams };
+  };
+
   test('single feed', async () => {
     const { feedStore, streams } = await setup(['feed-1']);
 
