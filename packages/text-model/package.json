@@ -35,7 +35,6 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@dxos/echo-db": "^1.0.0-beta.27",
     "@dxos/model-factory": "^1.0.0-beta.27",
     "yjs": "^13.2.0"
   },
