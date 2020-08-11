@@ -166,11 +166,7 @@ export class LogicalClockStamp {
     };
   }
 
-  static decode (enc: dxos.echo.testing.IVectorTimestamp | undefined | null) {
-    if (!enc) {
-      return LogicalClockStamp.zero();
-    }
-
+  static decode (enc: dxos.echo.testing.IVectorTimestamp) {
     assert(enc.timestamp);
     return new LogicalClockStamp(enc.timestamp.map(feed => {
       assert(feed.feedKey);

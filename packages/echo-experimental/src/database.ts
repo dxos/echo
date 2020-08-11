@@ -394,7 +394,7 @@ export const createTimestampTransform = (writeFeedKey: Buffer) => {
       const { message } = chunk.data;
       assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
 
-      const timestamp = LogicalClockStamp.decode(message.timestamp).withFeed(chunk.key, chunk.seq);
+      const timestamp = (message.timestamp ? LogicalClockStamp.decode(message.timestamp) : LogicalClockStamp.zero()).withFeed(chunk.key, chunk.seq);
       currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
       log(`current timestamp = ${currentTimestamp.log()}`);
       callback(null, chunk);
