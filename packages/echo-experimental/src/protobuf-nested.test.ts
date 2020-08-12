@@ -118,4 +118,27 @@ describe('Protocol buffers and typescript types.', () => {
 
     expect(value).toEqual(123);
   });
+
+  test('toJSON/StrictEqual', () => {
+    const produceEnvelope = (value: number): ITestEnvelope => {
+      const payload = new TestPayload();
+      payload.testfield = value;
+      // Next line produces TS2339 compiler error.
+      // payload.__type_url = 'dxos.echo.testing.TestPayload';
+      const envelope = new TestEnvelope();
+      log(`payload: ${JSON.stringify(payload)}`);
+      // This doesn't work (object properties are lost in the cast):
+      envelope.payload = payload as IAny;
+      return envelope;
+    };
+
+    const message1 = produceEnvelope(123);
+    log(`message1: ${JSON.stringify(message1)}`);
+
+
+    // This will fail, because message1 will not have the payload in the deep comparison,
+    // though it will do so in memory.  The comparison uses toJSON, which calls Any.toJSON
+    // which knows nothing about 'testfield' and so excludes it from output.
+    expect(message1).toStrictEqual({ payload: { testfield: 123 } });
+  });
 });
