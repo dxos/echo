@@ -6,27 +6,39 @@
           "nested": {
             "testing": {
               "nested": {
-                "FeedMessage": {
+                "FeedEnvelope": {
                   "fields": {
-                    "feedKey": {
-                      "type": "bytes",
-                      "id": 1
-                    },
-                    "data": {
-                      "type": "Envelope",
-                      "id": 2
-                    }
-                  }
-                },
-                "Envelope": {
-                  "fields": {
-                    "message": {
+                    "payload": {
                       "type": "google.protobuf.Any",
                       "id": 1
                     }
                   }
                 },
-                "Admit": {
+                "FeedMessage": {
+                  "fields": {
+                    "payload": {
+                      "type": "google.protobuf.Any",
+                      "id": 1
+                    },
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 2
+                    },
+                    "identityKey": {
+                      "type": "bytes",
+                      "id": 3
+                    }
+                  }
+                },
+                "FeedGenesis": {
+                  "fields": {
+                    "partyGenesis": {
+                      "type": "PartyGenesis",
+                      "id": 1
+                    }
+                  }
+                },
+                "PartyGenesis": {
                   "fields": {
                     "feedKey": {
                       "type": "bytes",
@@ -34,7 +46,15 @@
                     }
                   }
                 },
-                "Remove": {
+                "PartyAdmit": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 1
+                    }
+                  }
+                },
+                "PartyEject": {
                   "fields": {
                     "feedKey": {
                       "type": "bytes",
@@ -70,6 +90,14 @@
                   }
                 },
                 "ItemEnvelope": {
+                  "oneofs": {
+                    "action": {
+                      "oneof": [
+                        "genesis",
+                        "operation"
+                      ]
+                    }
+                  },
                   "fields": {
                     "itemId": {
                       "type": "string",
@@ -79,19 +107,23 @@
                       "type": "VectorTimestamp",
                       "id": 2
                     },
-                    "payload": {
-                      "type": "google.protobuf.Any",
+                    "genesis": {
+                      "type": "ItemGenesis",
                       "id": 3
+                    },
+                    "operation": {
+                      "type": "google.protobuf.Any",
+                      "id": 4
                     }
                   }
                 },
                 "ItemGenesis": {
                   "fields": {
-                    "type": {
+                    "itemType": {
                       "type": "string",
                       "id": 1
                     },
-                    "model": {
+                    "modelType": {
                       "type": "string",
                       "id": 2
                     },
@@ -101,7 +133,7 @@
                     }
                   }
                 },
-                "ItemMutation": {
+                "TestItemMutation": {
                   "fields": {
                     "key": {
                       "type": "string",
@@ -113,9 +145,9 @@
                     }
                   }
                 },
-                "TestData": {
+                "TestMessage": {
                   "fields": {
-                    "data": {
+                    "value": {
                       "type": "int32",
                       "id": 1
                     }

@@ -6,28 +6,29 @@ import Chance from 'chance';
 import hypercore from 'hypercore';
 import pify from 'pify';
 import ram from 'random-access-memory';
+import { Writable } from 'stream';
 import tempy from 'tempy';
 
 import { Codec } from '@dxos/codec-protobuf';
 import { createId, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
-import { sink } from '../util';
+import { latch, sink } from '../util';
+import { createWritableFeedStream, HypercoreBlock } from './feed';
+import { createTestMessage } from '../testing';
 
 import { dxos } from '../proto/gen/testing';
 import TestingSchema from '../proto/gen/testing.json';
 
 const chance = new Chance();
 
-const codec = new Codec('dxos.echo.testing.Envelope')
+const codec = new Codec('dxos.echo.testing.FeedEnvelope')
   .addJson(TestingSchema)
   .build();
 
-interface IBlock {
-  data: dxos.echo.testing.Envelope
-}
-
+//
 // Streams: https://devhints.io/nodejs-stream
+//
 
 describe('Stream tests', () => {
   /**
@@ -35,13 +36,13 @@ describe('Stream tests', () => {
    */
   test('proto encoding', () => {
     const buffer = codec.encode({
-      message: {
-        __type_url: 'dxos.echo.testing.ItemMutation',
+      payload: {
+        __type_url: 'dxos.echo.testing.TestItemMutation',
         value: 'message-1'
       }
     });
 
-    const { message: { value } } = codec.decode(buffer);
+    const { payload: { value } } = codec.decode(buffer);
     expect(value).toBe('message-1');
   });
 
@@ -52,13 +53,13 @@ describe('Stream tests', () => {
     const feed = hypercore(ram, { valueEncoding: codec });
 
     await pify(feed.append.bind(feed))({
-      message: {
-        __type_url: 'dxos.echo.testing.ItemMutation',
+      payload: {
+        __type_url: 'dxos.echo.testing.TestItemMutation',
         value: 'message-1'
       }
     });
 
-    const { message: { value } } = await pify(feed.get.bind(feed))(0);
+    const { payload: { value } } = await pify(feed.get.bind(feed))(0);
     expect(value).toBe('message-1');
   });
 
@@ -88,8 +89,8 @@ describe('Stream tests', () => {
       const { path, feed } = chance.pickone(descriptors);
       count.set(path, (count.get(path) ?? 0) + 1);
       await feed.append({
-        message: {
-          __type_url: 'dxos.echo.testing.ItemMutation',
+        payload: {
+          __type_url: 'dxos.echo.testing.TestItemMutation',
           value: createId()
         }
       });
@@ -98,9 +99,9 @@ describe('Stream tests', () => {
     // Test stream.
     const ids = new Set();
     const stream = feedStore.createReadStream({ live: true });
-    stream.on('data', (block: IBlock) => {
-      const { data: { message } } = block;
-      const { value } = (message as unknown as dxos.echo.testing.ItemMutation);
+    stream.on('data', (block: HypercoreBlock<dxos.echo.testing.IFeedEnvelope>) => {
+      const { data: { payload } } = block;
+      const { value } = (payload as unknown as dxos.echo.testing.ITestItemMutation);
       ids.add(value);
     });
 
@@ -125,12 +126,12 @@ describe('Stream tests', () => {
       const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
       await feedStore.open();
 
-      const feed = await feedStore.openFeed('test');
+      const feed = await feedStore.openFeed('test-feed');
       feedKey = feed.key;
 
       await pify(feed.append.bind(feed))({
-        message: {
-          __type_url: 'dxos.echo.testing.ItemMutation',
+        payload: {
+          __type_url: 'dxos.echo.testing.TestItemMutation',
           value: createId()
         }
       });
@@ -142,7 +143,7 @@ describe('Stream tests', () => {
       const feedStore = new FeedStore(directory, { feedOptions: { valueEncoding: codec } });
       await feedStore.open();
 
-      const feed = await feedStore.openFeed('test');
+      const feed = await feedStore.openFeed('test-feed');
       expect(keyToString(feedKey)).toBe(keyToString(feed.key));
 
       const readable = feedStore.createReadStream({ live: true });
@@ -150,5 +151,32 @@ describe('Stream tests', () => {
 
       await feedStore.close();
     }
+  });
+
+  test('feed streams', async () => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    await feedStore.initialize();
+
+    const feed = await feedStore.openFeed('test-feed');
+    const inputStream = feedStore.createReadStream({ live: true, feedStoreInfo: true });
+
+    const count = 5;
+    const [counter, updateCounter] = latch(5);
+    inputStream.pipe(new Writable({
+      objectMode: true,
+      write (message, _, callback) {
+        const { data: { payload: { value } } } = message;
+        expect(value).toBeTruthy();
+        updateCounter();
+        callback();
+      }
+    }));
+
+    const outputStream = createWritableFeedStream(feed);
+    for (let i = 0; i < count; i++) {
+      outputStream.write(createTestMessage(i + 1));
+    }
+
+    await counter;
   });
 });

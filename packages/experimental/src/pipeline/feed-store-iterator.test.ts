@@ -10,15 +10,15 @@ import { keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { Codec } from '@dxos/codec-protobuf';
 
+import { createPartyAdmit, createPartyEject, createExpectedFeedMessage, createTestMessage } from '../testing';
 import { assumeType, latch, sink } from '../util';
-import { createWritableFeedStream } from './muxer';
-import { FeedStoreIterator, FeedMessage } from './feed-store-iterator';
-import { createAdmit, createRemove, createMessage, createExpectedFeedMessage } from '../testing';
+import { FeedMessage, createWritableFeedStream } from './feed';
+import { FeedStoreIterator } from './feed-store-iterator';
 
 import TestingSchema from '../proto/gen/testing.json';
 import { dxos } from '../proto/gen/testing';
 
-const codec = new Codec('dxos.echo.testing.Envelope')
+const codec = new Codec('dxos.echo.testing.FeedEnvelope')
   .addJson(TestingSchema)
   .build();
 
@@ -39,9 +39,9 @@ describe('FeedStoreIterator', () => {
   test('single feed', async () => {
     const { feedStore, streams } = await setup(['feed-1']);
 
-    streams[0].write(createMessage(1));
-    streams[0].write(createMessage(2));
-    streams[0].write(createMessage(3));
+    streams[0].write(createTestMessage(1));
+    streams[0].write(createTestMessage(2));
+    streams[0].write(createTestMessage(3));
 
     const iterator = await FeedStoreIterator.create(feedStore, async () => true);
 
@@ -54,30 +54,32 @@ describe('FeedStoreIterator', () => {
     }
 
     expect(messages).toEqual([
-      createExpectedFeedMessage(createMessage(1)),
-      createExpectedFeedMessage(createMessage(2)),
-      createExpectedFeedMessage(createMessage(3))
+      createExpectedFeedMessage(createTestMessage(1)),
+      createExpectedFeedMessage(createTestMessage(2)),
+      createExpectedFeedMessage(createTestMessage(3))
     ]);
   });
 
   test('one allowed feed & one locked', async () => {
     const { feedStore, streams, descriptors } = await setup(['feed-1', 'feed-2']);
 
-    streams[0].write(createMessage(1));
-    streams[1].write(createMessage(2));
-    streams[0].write(createMessage(3));
+    streams[0].write(createTestMessage(1));
+    streams[1].write(createTestMessage(2));
+    streams[0].write(createTestMessage(3));
 
     const iterator = await FeedStoreIterator.create(feedStore, async feedKey => feedKey === descriptors[0].key);
 
     const messages = [];
     for await (const message of iterator) {
       messages.push(message);
-      if (messages.length === 2) { break; }
+      if (messages.length === 2) {
+        break;
+      }
     }
 
     expect(messages).toEqual([
-      createExpectedFeedMessage(createMessage(1)),
-      createExpectedFeedMessage(createMessage(3))
+      createExpectedFeedMessage(createTestMessage(1)),
+      createExpectedFeedMessage(createTestMessage(3))
     ]);
   });
 
@@ -95,15 +97,15 @@ describe('FeedStoreIterator', () => {
       }
     });
 
-    streams[0].write(createMessage(1));
-    streams[0].write(createMessage(2));
-    streams[0].write(createMessage(3));
+    streams[0].write(createTestMessage(1));
+    streams[0].write(createTestMessage(2));
+    streams[0].write(createTestMessage(3));
     await count;
 
     expect(messages).toEqual([
-      createExpectedFeedMessage(createMessage(1)),
-      createExpectedFeedMessage(createMessage(2)),
-      createExpectedFeedMessage(createMessage(3))
+      createExpectedFeedMessage(createTestMessage(1)),
+      createExpectedFeedMessage(createTestMessage(2)),
+      createExpectedFeedMessage(createTestMessage(3))
     ]);
   });
 
@@ -126,16 +128,16 @@ describe('FeedStoreIterator', () => {
           case 'dxos.echo.testing.TestData':
             break;
 
-          case 'dxos.echo.testing.Admit': {
-            assumeType<dxos.echo.testing.IAdmit>(message.data.message);
+          case 'dxos.echo.testing.PartyAdmit': {
+            assumeType<dxos.echo.testing.IPartyAdmit>(message.data.message);
             const { feedKey } = message.data.message;
             assert(feedKey);
             authenticatedFeeds.add(keyToString(feedKey));
             break;
           }
 
-          case 'dxos.echo.testing.Remove': {
-            assumeType<dxos.echo.testing.IRemove>(message.data.message);
+          case 'dxos.echo.testing.PartyEject': {
+            assumeType<dxos.echo.testing.IPartyEject>(message.data.message);
             const { feedKey } = message.data.message;
             assert(feedKey);
             assert(authenticatedFeeds.has(keyToString(feedKey)));
@@ -155,15 +157,15 @@ describe('FeedStoreIterator', () => {
     {
       const promise = sink(eventEmitter, 'update', 2);
 
-      streams[0].write(createMessage(1));
-      streams[1].write(createMessage(2)); // Should be held.
-      streams[0].write(createMessage(3));
+      streams[0].write(createTestMessage(1));
+      streams[1].write(createTestMessage(2)); // Should be held.
+      streams[0].write(createTestMessage(3));
 
       await promise;
 
       expect(messages).toEqual([
-        createExpectedFeedMessage(createMessage(1)),
-        createExpectedFeedMessage(createMessage(3))
+        createExpectedFeedMessage(createTestMessage(1)),
+        createExpectedFeedMessage(createTestMessage(3))
       ]);
     }
 
@@ -171,15 +173,15 @@ describe('FeedStoreIterator', () => {
     {
       const promise = sink(eventEmitter, 'update', 2);
 
-      streams[0].write(createAdmit(descriptors[1].key));
+      streams[0].write(createPartyAdmit(descriptors[1].key));
 
       await promise;
 
       expect(messages).toEqual([
-        createExpectedFeedMessage(createMessage(1)),
-        createExpectedFeedMessage(createMessage(3)),
-        createExpectedFeedMessage(createAdmit(descriptors[1].key)),
-        createExpectedFeedMessage(createMessage(2)) // Now released
+        createExpectedFeedMessage(createTestMessage(1)),
+        createExpectedFeedMessage(createTestMessage(3)),
+        createExpectedFeedMessage(createPartyAdmit(descriptors[1].key)),
+        createExpectedFeedMessage(createTestMessage(2)) // Now released
       ]);
     }
 
@@ -187,7 +189,7 @@ describe('FeedStoreIterator', () => {
     {
       const promise1 = sink(eventEmitter, 'update', 1);
 
-      streams[1].write(createRemove(descriptors[0].key));
+      streams[1].write(createPartyEject(descriptors[0].key));
 
       await promise1;
 
@@ -195,18 +197,18 @@ describe('FeedStoreIterator', () => {
       // If we don't wait here, the next write goes ahead since the remove hasn't been processed.
       const promise2 = sink(eventEmitter, 'update', 1);
 
-      streams[0].write(createMessage(4)); // Should be held.
-      streams[1].write(createMessage(5));
+      streams[0].write(createTestMessage(4)); // Should be held.
+      streams[1].write(createTestMessage(5));
 
       await promise2;
 
       expect(messages).toEqual([
-        createExpectedFeedMessage(createMessage(1)),
-        createExpectedFeedMessage(createMessage(3)),
-        createExpectedFeedMessage(createAdmit(descriptors[1].key)),
-        createExpectedFeedMessage(createMessage(2)),
-        createExpectedFeedMessage(createRemove(descriptors[0].key)),
-        createExpectedFeedMessage(createMessage(5))
+        createExpectedFeedMessage(createTestMessage(1)),
+        createExpectedFeedMessage(createTestMessage(3)),
+        createExpectedFeedMessage(createPartyAdmit(descriptors[1].key)),
+        createExpectedFeedMessage(createTestMessage(2)),
+        createExpectedFeedMessage(createPartyEject(descriptors[0].key)),
+        createExpectedFeedMessage(createTestMessage(5))
       ]);
     }
   });
@@ -231,32 +233,32 @@ describe('FeedStoreIterator', () => {
     });
     const promise = sink(eventEmitter, 'update', 10);
 
-    streams[0].write(createMessage(1));
-    streams[0].write(createMessage(5));
-    streams[0].write(createMessage(7));
-    streams[0].write(createMessage(9));
+    streams[0].write(createTestMessage(1));
+    streams[0].write(createTestMessage(5));
+    streams[0].write(createTestMessage(7));
+    streams[0].write(createTestMessage(9));
 
-    streams[1].write(createMessage(0));
-    streams[1].write(createMessage(6));
+    streams[1].write(createTestMessage(0));
+    streams[1].write(createTestMessage(6));
 
-    streams[2].write(createMessage(2));
-    streams[2].write(createMessage(3));
-    streams[2].write(createMessage(4));
-    streams[2].write(createMessage(8));
+    streams[2].write(createTestMessage(2));
+    streams[2].write(createTestMessage(3));
+    streams[2].write(createTestMessage(4));
+    streams[2].write(createTestMessage(8));
 
     await promise;
 
     expect(messages).toEqual([
-      createExpectedFeedMessage(createMessage(0)),
-      createExpectedFeedMessage(createMessage(1)),
-      createExpectedFeedMessage(createMessage(2)),
-      createExpectedFeedMessage(createMessage(3)),
-      createExpectedFeedMessage(createMessage(4)),
-      createExpectedFeedMessage(createMessage(5)),
-      createExpectedFeedMessage(createMessage(6)),
-      createExpectedFeedMessage(createMessage(7)),
-      createExpectedFeedMessage(createMessage(8)),
-      createExpectedFeedMessage(createMessage(9))
+      createExpectedFeedMessage(createTestMessage(0)),
+      createExpectedFeedMessage(createTestMessage(1)),
+      createExpectedFeedMessage(createTestMessage(2)),
+      createExpectedFeedMessage(createTestMessage(3)),
+      createExpectedFeedMessage(createTestMessage(4)),
+      createExpectedFeedMessage(createTestMessage(5)),
+      createExpectedFeedMessage(createTestMessage(6)),
+      createExpectedFeedMessage(createTestMessage(7)),
+      createExpectedFeedMessage(createTestMessage(8)),
+      createExpectedFeedMessage(createTestMessage(9))
     ]);
   });
 });

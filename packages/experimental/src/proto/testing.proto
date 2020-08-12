@@ -8,32 +8,67 @@ package dxos.echo.testing;
 
 import "google/protobuf/any.proto";
 
-// Augmented data from feeds.
-// TODO(burdon): Add fake credentials.
+//
+// Typescript Note:
+// Use the interface name in code (e.g., IFeedEvenlope) and the concrete class name in the __type_url reference.
+//
+
+//
+// Feeds
+//
+
+// Outer codec message type decoded by Codec.
+// NOTE: Hypercore returns a field called `data`, which corresponds to this envelope (not the contained message).
+// TODO(burdon): Reserve `payload` for outer most message (rename in HALO, ECHO, etc.)
+message FeedEnvelope {
+  google.protobuf.Any payload = 1;
+}
+
+// Wrapped feed message
 message FeedMessage {
-  bytes feedKey = 1;
-  Envelope data = 2;
+  // Feed payload object (above).
+  google.protobuf.Any payload = 1;
+
+  // Non-persistent metadata.
+  bytes feedKey = 2;
+  bytes identityKey = 3;
 }
 
-// Root message type.
-message Envelope {
-  google.protobuf.Any message = 1;
+// Must be first block in each feed.
+message FeedGenesis {
+  // Optional for genesis feed.
+  PartyGenesis partyGenesis = 1;
 }
 
-// Test HALO message.
-message Admit {
+//
+// Parties
+//
+
+// Indicates creation of a party.
+message PartyGenesis {
   bytes feedKey = 1;
 }
 
-// TODO(burdon): Supported?
-message Remove {
+// Admit to party.
+message PartyAdmit {
   bytes feedKey = 1;
 }
+
+// Reject from party.
+message PartyEject {
+  bytes feedKey = 1;
+}
+
+//
+// Items
+//
 
 // Vector timestamp used to order messages.
 message VectorTimestamp {
   message Feed {
-    bytes feedKey = 1; // TODO(burdon): Remove?
+    // TODO(burdon): Remove (see below)?
+    bytes feedKey = 1;
+    // TODO(burdon): Determine if admit DAG can be ordered. Requires party messages to be ordered (by lexical feed key).
     int32 feedIndex = 2;
     int32 seq = 3;
   }
@@ -41,27 +76,34 @@ message VectorTimestamp {
   repeated Feed timestamp = 1;
 }
 
-// Wrapper for all ECHO messages.
+// Wrapper (payload) for all ECHO item messages.
 message ItemEnvelope {
   string itemId = 1;
   VectorTimestamp timestamp = 2;
-  google.protobuf.Any payload = 3;
+
+  oneof action {
+    ItemGenesis genesis = 3;
+    google.protobuf.Any operation = 4;
+  }
 }
 
 // Item creation.
 message ItemGenesis {
-  string type = 1;
-  string model = 2;
+  string itemType = 1;
+  string modelType = 2;
   string modelVersion = 3;
 }
 
+//
+// Testing
+//
+
 // Item mutation.
-message ItemMutation {
+message TestItemMutation {
   string key = 1;
   string value = 2;
 }
 
-// Testing.
-message TestData {
-  int32 data = 1;
+message TestMessage {
+  int32 value = 1;
 }

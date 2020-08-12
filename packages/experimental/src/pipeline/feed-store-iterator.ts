@@ -3,19 +3,13 @@
 //
 
 import assert from 'assert';
-import { Feed } from 'hypercore';
 import { Readable } from 'stream';
 
 import { FeedStore, FeedDescriptor, createBatchStream } from '@dxos/feed-store';
 
-import { FeedKey } from '../defs';
+import { FeedKey } from '../types';
 import { Trigger } from '../util';
-
-export interface FeedMessage {
-  data: any
-  key: Buffer
-  seq: number
-}
+import { FeedMessage } from './feed';
 
 /**
  * We are using an iterator here instead of a stream to ensure we have full control over how and at what time
@@ -53,6 +47,7 @@ export class FeedStoreIterator implements AsyncIterable<FeedMessage> {
   }
 
   private readonly _candidateFeeds = new Set<FeedDescriptor>();
+
   /** Feed key as hex => feed state */
   private readonly _openFeeds = new Map<string, {
     descriptor: FeedDescriptor,
@@ -170,9 +165,9 @@ export class FeedStoreIterator implements AsyncIterable<FeedMessage> {
     this._trigger.wake();
   }
 
+  // TODO(marik-d): Does this need to close the streams, or will they be garbage-collected automatically?
   destory () {
     this._destroyed = true;
     this._trigger.wake();
-    // TODO(marik-d): Does this need to close the streams, or will they be garbage-collected automatically?
   }
 }

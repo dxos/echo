@@ -7,13 +7,13 @@ import { EventEmitter } from 'events';
 
 import { trigger } from '@dxos/async';
 
-// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 /**
  * Waits for the specified number of events from the given emitter.
  * @param emitter
  * @param event
  * @param count
  */
+// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
 export const sink = (emitter: EventEmitter, event: string, count = 1) => {
   let resolver: Function;
 
@@ -51,7 +51,7 @@ export const latch = (n: number) => {
 };
 
 /**
- * A simple syntax sugar to write `value as T` as a statement
+ * A simple syntax sugar to write `value as T` as a statement.
  *
  * NOTE: This does not provide any type safety.
  * It's just for convinience so that autocomplete works for value.
@@ -63,7 +63,8 @@ export const latch = (n: number) => {
 export function assumeType<T> (value: unknown): asserts value is T {}
 
 export function assertTypeUrl (value: any, typeUrl: string) {
-  assert(value.__type_url === typeUrl, `Expected message with type URL \`${typeUrl}\` instead got \`${value.__type_url}\``);
+  assert(value.__type_url === typeUrl,
+    `Expected message with type URL \`${typeUrl}\` instead got \`${value.__type_url}\``);
 }
 
 /**

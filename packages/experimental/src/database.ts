@@ -2,16 +2,17 @@
 // Copyright 2020 DXOS.org
 //
 
+import { Event } from '@dxos/async';
+
 import { ResultSet } from './result';
 import { Party } from './parties';
-import { Event } from '@dxos/async';
 
 /**
  * Root object for the ECHO databse.
  */
 export class Database {
-  private readonly _update = new Event()
-  _parties = new Map<Buffer, Party>();
+  private readonly _update = new Event();
+  private _parties = new Map<Buffer, Party>();
 
   async createParty (): Promise<Party> {
     const party = new Party();

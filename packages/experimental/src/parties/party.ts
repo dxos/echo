@@ -2,14 +2,15 @@
 // Copyright 2020 DXOS.org
 //
 
-import { createKeyPair } from '@dxos/crypto';
-
-import { ResultSet } from './result';
-import { Item, ItemID } from './items';
 import { Event } from '@dxos/async';
+import { createId, createKeyPair } from '@dxos/crypto';
+
+import { Item } from '../items';
+import { ResultSet } from '../result';
+import { ItemID } from '../types';
 
 /**
- * Party
+ * Party.
  */
 export class Party {
   private readonly _update = new Event();
@@ -20,12 +21,13 @@ export class Party {
     return this._key;
   }
 
+  // TODO(burdon): ???
   async open () {}
-
   async close () {}
 
   async createItem (type: string): Promise<Item> {
-    const item = new Item(type);
+    const itemId = createId();
+    const item = new Item(itemId, type, null);
     this._items.set(item.id, item);
     this._update.emit();
     return item;
@@ -33,6 +35,7 @@ export class Party {
 
   async queryItems (filter?: any): Promise<ResultSet<Item>> {
     const { type } = filter || {};
-    return new ResultSet<Item>(this._update, () => Array.from(this._items.values()).filter(item => !type || type === item.type));
+    return new ResultSet<Item>(this._update, () => Array.from(this._items.values())
+      .filter(item => !type || type === item.type));
   }
 }

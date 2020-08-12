@@ -2,5 +2,6 @@
 // Copyright 2020 DXOS.org
 //
 
+export * from './feed';
 export * from './feed-store-iterator';
-export * from './muxer';
+export * from '../clock/muxer';

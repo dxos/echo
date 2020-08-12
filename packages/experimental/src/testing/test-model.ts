@@ -7,7 +7,7 @@ import assert from 'assert';
 import { sleep } from '@dxos/async';
 
 import { assertTypeUrl } from '../util';
-import { Model } from '../pipeline/muxer';
+import { Model } from '../models';
 
 import { dxos } from '../proto/gen/testing';
 
@@ -32,19 +32,19 @@ export class TestModel extends Model {
     return this._values.get(key);
   }
 
-  async processMessage (message: dxos.echo.testing.IFeedMessage) {
-    const mutation = message.data?.message as dxos.echo.testing.IItemMutation;
+  async processMessage (envelope: dxos.echo.testing.IItemOperationEnvelope) {
+    const mutation = envelope.operation as dxos.echo.testing.ITestItemMutation;
     assert(mutation);
-    assertTypeUrl(mutation, 'dxos.echo.testing.ItemMutation');
-
+    assertTypeUrl(mutation, 'dxos.echo.testing.TestItemMutation');
     const { key, value } = mutation;
+
     await sleep(50);
     this._values.set(key, value);
   }
 
   async setProperty (key: string, value: string) {
     await this.write({
-      __type_url: 'dxos.echo.testing.ItemMutation',
+      __type_url: 'dxos.echo.testing.TestItemMutation',
       key,
       value
     });

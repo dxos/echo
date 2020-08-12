@@ -62,6 +62,7 @@ const getLowestNodeId = (nodeIds: bigint[]): bigint => {
   return nodeIds.reduce((min, curr) => curr < min ? curr : min, nodeIds[0]);
 };
 
+// TODO(burdon): Rename.
 export class LogicalClockStamp {
   private _vector: Map<bigint, number>;
 
