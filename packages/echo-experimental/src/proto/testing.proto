@@ -64,3 +64,13 @@ message ItemMutation {
 message TestData {
   int32 data = 1;
 }
+
+// TODO(dboreham) Messages for ts proto testing. Remove when no longer needed.
+message TestEnvelope {
+  int32 id = 1;
+  google.protobuf.Any payload = 2;
+}
+
+message TestPayload {
+  int32 field = 1;
+}

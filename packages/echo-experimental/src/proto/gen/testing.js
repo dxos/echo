@@ -2164,6 +2164,408 @@ $root.dxos = (function() {
                 return TestData;
             })();
 
+            testing.TestEnvelope = (function() {
+
+                /**
+                 * Properties of a TestEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @interface ITestEnvelope
+                 * @property {number|null} [id] TestEnvelope id
+                 * @property {google.protobuf.IAny|null} [payload] TestEnvelope payload
+                 */
+
+                /**
+                 * Constructs a new TestEnvelope.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a TestEnvelope.
+                 * @implements ITestEnvelope
+                 * @constructor
+                 * @param {dxos.echo.testing.ITestEnvelope=} [properties] Properties to set
+                 */
+                function TestEnvelope(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * TestEnvelope id.
+                 * @member {number} id
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @instance
+                 */
+                TestEnvelope.prototype.id = 0;
+
+                /**
+                 * TestEnvelope payload.
+                 * @member {google.protobuf.IAny|null|undefined} payload
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @instance
+                 */
+                TestEnvelope.prototype.payload = null;
+
+                /**
+                 * Creates a new TestEnvelope instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestEnvelope=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.TestEnvelope} TestEnvelope instance
+                 */
+                TestEnvelope.create = function create(properties) {
+                    return new TestEnvelope(properties);
+                };
+
+                /**
+                 * Encodes the specified TestEnvelope message. Does not implicitly {@link dxos.echo.testing.TestEnvelope.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestEnvelope} message TestEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestEnvelope.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.id);
+                    if (message.payload != null && Object.hasOwnProperty.call(message, "payload"))
+                        $root.google.protobuf.Any.encode(message.payload, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified TestEnvelope message, length delimited. Does not implicitly {@link dxos.echo.testing.TestEnvelope.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.ITestEnvelope} message TestEnvelope message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestEnvelope.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a TestEnvelope message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.TestEnvelope} TestEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestEnvelope.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestEnvelope();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.id = reader.int32();
+                            break;
+                        case 2:
+                            message.payload = $root.google.protobuf.Any.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a TestEnvelope message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.TestEnvelope} TestEnvelope
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestEnvelope.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a TestEnvelope message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                TestEnvelope.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.id != null && message.hasOwnProperty("id"))
+                        if (!$util.isInteger(message.id))
+                            return "id: integer expected";
+                    if (message.payload != null && message.hasOwnProperty("payload")) {
+                        var error = $root.google.protobuf.Any.verify(message.payload);
+                        if (error)
+                            return "payload." + error;
+                    }
+                    return null;
+                };
+
+                /**
+                 * Creates a TestEnvelope message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.TestEnvelope} TestEnvelope
+                 */
+                TestEnvelope.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.TestEnvelope)
+                        return object;
+                    var message = new $root.dxos.echo.testing.TestEnvelope();
+                    if (object.id != null)
+                        message.id = object.id | 0;
+                    if (object.payload != null) {
+                        if (typeof object.payload !== "object")
+                            throw TypeError(".dxos.echo.testing.TestEnvelope.payload: object expected");
+                        message.payload = $root.google.protobuf.Any.fromObject(object.payload);
+                    }
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a TestEnvelope message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @static
+                 * @param {dxos.echo.testing.TestEnvelope} message TestEnvelope
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                TestEnvelope.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.id = 0;
+                        object.payload = null;
+                    }
+                    if (message.id != null && message.hasOwnProperty("id"))
+                        object.id = message.id;
+                    if (message.payload != null && message.hasOwnProperty("payload"))
+                        object.payload = $root.google.protobuf.Any.toObject(message.payload, options);
+                    return object;
+                };
+
+                /**
+                 * Converts this TestEnvelope to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.TestEnvelope
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                TestEnvelope.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return TestEnvelope;
+            })();
+
+            testing.TestPayload = (function() {
+
+                /**
+                 * Properties of a TestPayload.
+                 * @memberof dxos.echo.testing
+                 * @interface ITestPayload
+                 * @property {number|null} [field] TestPayload field
+                 */
+
+                /**
+                 * Constructs a new TestPayload.
+                 * @memberof dxos.echo.testing
+                 * @classdesc Represents a TestPayload.
+                 * @implements ITestPayload
+                 * @constructor
+                 * @param {dxos.echo.testing.ITestPayload=} [properties] Properties to set
+                 */
+                function TestPayload(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+
+                /**
+                 * TestPayload field.
+                 * @member {number} field
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @instance
+                 */
+                TestPayload.prototype.field = 0;
+
+                /**
+                 * Creates a new TestPayload instance using the specified properties.
+                 * @function create
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {dxos.echo.testing.ITestPayload=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.TestPayload} TestPayload instance
+                 */
+                TestPayload.create = function create(properties) {
+                    return new TestPayload(properties);
+                };
+
+                /**
+                 * Encodes the specified TestPayload message. Does not implicitly {@link dxos.echo.testing.TestPayload.verify|verify} messages.
+                 * @function encode
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {dxos.echo.testing.ITestPayload} message TestPayload message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestPayload.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.field != null && Object.hasOwnProperty.call(message, "field"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.field);
+                    return writer;
+                };
+
+                /**
+                 * Encodes the specified TestPayload message, length delimited. Does not implicitly {@link dxos.echo.testing.TestPayload.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {dxos.echo.testing.ITestPayload} message TestPayload message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                TestPayload.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+
+                /**
+                 * Decodes a TestPayload message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {dxos.echo.testing.TestPayload} TestPayload
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestPayload.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.TestPayload();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.field = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+
+                /**
+                 * Decodes a TestPayload message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {dxos.echo.testing.TestPayload} TestPayload
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                TestPayload.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+
+                /**
+                 * Verifies a TestPayload message.
+                 * @function verify
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                TestPayload.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.field != null && message.hasOwnProperty("field"))
+                        if (!$util.isInteger(message.field))
+                            return "field: integer expected";
+                    return null;
+                };
+
+                /**
+                 * Creates a TestPayload message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {dxos.echo.testing.TestPayload} TestPayload
+                 */
+                TestPayload.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.TestPayload)
+                        return object;
+                    var message = new $root.dxos.echo.testing.TestPayload();
+                    if (object.field != null)
+                        message.field = object.field | 0;
+                    return message;
+                };
+
+                /**
+                 * Creates a plain object from a TestPayload message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @static
+                 * @param {dxos.echo.testing.TestPayload} message TestPayload
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                TestPayload.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        object.field = 0;
+                    if (message.field != null && message.hasOwnProperty("field"))
+                        object.field = message.field;
+                    return object;
+                };
+
+                /**
+                 * Converts this TestPayload to JSON.
+                 * @function toJSON
+                 * @memberof dxos.echo.testing.TestPayload
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                TestPayload.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+
+                return TestPayload;
+            })();
+
             return testing;
         })();
 

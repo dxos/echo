@@ -120,6 +120,26 @@
                       "id": 1
                     }
                   }
+                },
+                "TestEnvelope": {
+                  "fields": {
+                    "id": {
+                      "type": "int32",
+                      "id": 1
+                    },
+                    "payload": {
+                      "type": "google.protobuf.Any",
+                      "id": 2
+                    }
+                  }
+                },
+                "TestPayload": {
+                  "fields": {
+                    "field": {
+                      "type": "int32",
+                      "id": 1
+                    }
+                  }
                 }
               }
             }
