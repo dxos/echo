@@ -9,10 +9,9 @@ import { Codec } from '@dxos/codec-protobuf';
 
 import TestingSchema from './proto/gen/testing.json';
 
-import { google } from "./proto/gen/testing";
-import IAny = google.protobuf.IAny;
+import { google, dxos } from './proto/gen/testing';
 
-import { dxos } from "./proto/gen/testing";
+import IAny = google.protobuf.IAny;
 import ITestEnvelope = dxos.echo.testing.ITestEnvelope;
 import ITestPayload = dxos.echo.testing.ITestPayload;
 import TestPayload = dxos.echo.testing.TestPayload;
@@ -26,7 +25,6 @@ const codec = new Codec('dxos.echo.testing.Envelope')
 
 describe('Protocol buffers and typescript types.', () => {
   test('flatjson', () => {
-
     const consumePayload = (payload: ITestPayload): number => {
       // TODO(richburdon): How do we want to code this? Magic undefined cast as below, or
       // if undefined throw exception, or codec implements required field?
@@ -40,7 +38,7 @@ describe('Protocol buffers and typescript types.', () => {
         testfield: value
       };
       return payload;
-    }
+    };
 
     const message1 = producePayload(123);
     log(`message1: ${JSON.stringify(message1)}`);
@@ -59,7 +57,6 @@ describe('Protocol buffers and typescript types.', () => {
   });
 
   test('flatts', () => {
-
     const consumePayload = (payload: ITestPayload): number => {
       return payload.testfield!;
     };
@@ -70,7 +67,7 @@ describe('Protocol buffers and typescript types.', () => {
       // We need this line for the codec to work, but it throws a TS2339 error.
       // payload.__type_url = 'dxos.echo.testing.Admit';
       return payload;
-    }
+    };
 
     const message1 = producePayload(123);
     log(`message1: ${JSON.stringify(message1)}`);
@@ -89,7 +86,6 @@ describe('Protocol buffers and typescript types.', () => {
   });
 
   test('nestedts', () => {
-
     const consumeEnvelope = (envelope: ITestEnvelope): number => {
       const payload: ITestPayload = envelope.payload as ITestPayload;
       return payload.testfield!;
@@ -105,7 +101,7 @@ describe('Protocol buffers and typescript types.', () => {
       // This doesn't work (object properties are lost in the cast):
       envelope.payload = payload as IAny;
       return envelope;
-    }
+    };
 
     const message1 = produceEnvelope(123);
     log(`message1: ${JSON.stringify(message1)}`);
