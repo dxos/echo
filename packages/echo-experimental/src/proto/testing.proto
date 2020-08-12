@@ -72,5 +72,5 @@ message TestEnvelope {
 }
 
 message TestPayload {
-  int32 field = 1;
+  int32 testfield = 1;
 }

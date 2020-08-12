@@ -2385,7 +2385,7 @@ $root.dxos = (function() {
                  * Properties of a TestPayload.
                  * @memberof dxos.echo.testing
                  * @interface ITestPayload
-                 * @property {number|null} [field] TestPayload field
+                 * @property {number|null} [testfield] TestPayload testfield
                  */
 
                 /**
@@ -2404,12 +2404,12 @@ $root.dxos = (function() {
                 }
 
                 /**
-                 * TestPayload field.
-                 * @member {number} field
+                 * TestPayload testfield.
+                 * @member {number} testfield
                  * @memberof dxos.echo.testing.TestPayload
                  * @instance
                  */
-                TestPayload.prototype.field = 0;
+                TestPayload.prototype.testfield = 0;
 
                 /**
                  * Creates a new TestPayload instance using the specified properties.
@@ -2435,8 +2435,8 @@ $root.dxos = (function() {
                 TestPayload.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.field != null && Object.hasOwnProperty.call(message, "field"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.field);
+                    if (message.testfield != null && Object.hasOwnProperty.call(message, "testfield"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.testfield);
                     return writer;
                 };
 
@@ -2472,7 +2472,7 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.field = reader.int32();
+                            message.testfield = reader.int32();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2509,9 +2509,9 @@ $root.dxos = (function() {
                 TestPayload.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.field != null && message.hasOwnProperty("field"))
-                        if (!$util.isInteger(message.field))
-                            return "field: integer expected";
+                    if (message.testfield != null && message.hasOwnProperty("testfield"))
+                        if (!$util.isInteger(message.testfield))
+                            return "testfield: integer expected";
                     return null;
                 };
 
@@ -2527,8 +2527,8 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.TestPayload)
                         return object;
                     var message = new $root.dxos.echo.testing.TestPayload();
-                    if (object.field != null)
-                        message.field = object.field | 0;
+                    if (object.testfield != null)
+                        message.testfield = object.testfield | 0;
                     return message;
                 };
 
@@ -2546,9 +2546,9 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults)
-                        object.field = 0;
-                    if (message.field != null && message.hasOwnProperty("field"))
-                        object.field = message.field;
+                        object.testfield = 0;
+                    if (message.testfield != null && message.hasOwnProperty("testfield"))
+                        object.testfield = message.testfield;
                     return object;
                 };
 

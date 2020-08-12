@@ -135,7 +135,7 @@
                 },
                 "TestPayload": {
                   "fields": {
-                    "field": {
+                    "testfield": {
                       "type": "int32",
                       "id": 1
                     }

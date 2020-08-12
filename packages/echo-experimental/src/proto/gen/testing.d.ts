@@ -1058,8 +1058,8 @@ export namespace dxos {
             /** Properties of a TestPayload. */
             interface ITestPayload {
 
-                /** TestPayload field */
-                field?: (number|null);
+                /** TestPayload testfield */
+                testfield?: (number|null);
             }
 
             /** Represents a TestPayload. */
@@ -1071,8 +1071,8 @@ export namespace dxos {
                  */
                 constructor(properties?: dxos.echo.testing.ITestPayload);
 
-                /** TestPayload field. */
-                public field: number;
+                /** TestPayload testfield. */
+                public testfield: number;
 
                 /**
                  * Creates a new TestPayload instance using the specified properties.
