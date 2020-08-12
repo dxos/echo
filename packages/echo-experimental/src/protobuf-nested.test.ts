@@ -138,11 +138,19 @@ describe('Protocol buffers and typescript types.', () => {
     // This will work, because we'll have copied the members, but not the broken toObject/toJSON implementation.
     const copy = { ...message1 };
     log(`copy: ${JSON.stringify(copy)}`);
-    expect(JSON.parse(JSON.stringify(copy))).toStrictEqual({ payload: { testfield: 123 } });
+    expect(copy).toStrictEqual({ payload: new TestPayload({ testfield: 123 }) });
 
     // This will fail, because message1 will not have the payload in the deep comparison,
     // though it will do so in memory.  The comparison uses toObject and toJSON, which calls Any.toJSON,
     // which knows nothing about 'testfield', and so excludes it from output.
-    expect(JSON.parse(JSON.stringify(message1))).toStrictEqual({ payload: { testfield: 123 } });
+    expect(message1).toStrictEqual({ payload: new TestPayload({ testfield: 123 }) });
+
+    // Will pass (not using generated classes' JSON serialization code).
+    const fromCopyJson = JSON.parse(JSON.stringify(copy));
+    expect(fromCopyJson.payload.testfield).toBe(123);
+
+    // Will fail (using generated classes' JSON serialization code).
+    const fromOriginalJson = JSON.parse(JSON.stringify(message1));
+    expect(fromOriginalJson.payload.testfield).toBe(123);
   });
 });
