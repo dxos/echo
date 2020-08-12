@@ -5,41 +5,37 @@
 import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
+import { Feed } from 'hypercore';
 import pify from 'pify';
+import { Constructor } from 'protobufjs';
+import { Readable, Transform, Writable } from 'stream';
 
-import { createId } from '@dxos/crypto';
+import { createId, keyToString } from '@dxos/crypto';
 import { trigger } from '@dxos/async';
+import { FeedStore } from '@dxos/feed-store';
 
 import { dxos } from './proto/gen/testing';
 
-import { Readable, Transform } from 'stream';
-import { Constructor } from 'protobufjs';
-import { assertType, LazyMap } from './util';
+import { assumeType, LazyMap, assertAnyType } from './util';
+import { FeedStoreIterator } from './feed-store-iterator';
+import { LogicalClockStamp, Order } from './logical-clock-stamp';
 
 const log = debug('dxos:echo:database');
 
-type ModelType = string;
+export type FeedKey = Uint8Array;
+export type ItemID = string;
 
-type ItemID = string;
-
-// TODO(burdon): Shim?
-interface Hypercore {
-  append (message: Message): void;
-}
-
-// TODO(burdon): Replace with protobuf envelope.
-// TOOD(burdon): Basic tutorial: https://www.typescriptlang.org/docs/handbook/interfaces.html
-interface Message {
-  // eslint-disable-next-line camelcase
-  __type_url: string;
-  itemId: string;
-  [key: string]: any;
-}
-
-export interface ModelMessage {
-  // feedKey: string TODO(marik_d): Add metadata
-  data: Message;
-}
+/**
+ * Returns a stream that appends messages directly to a hypercore feed.
+ * @param feed
+ * @returns {NodeJS.WritableStream}
+ */
+export const createWritableFeedStream = (feed: Feed) => new Writable({
+  objectMode: true,
+  write (message, _, callback) {
+    feed.append(message, callback);
+  }
+});
 
 /**
  * Abstract base class for Models.
@@ -49,18 +45,22 @@ export abstract class Model extends EventEmitter {
 
   constructor (
     private _type: string,
-    private _itemId: string,
+    private _itemId: ItemID,
     private _readable: NodeJS.ReadableStream,
-    private _feed?: Hypercore
+    private _writable?: NodeJS.WritableStream // TODO(burdon): Read-only?
   ) {
     super();
+    assert(this._type);
+    assert(this._itemId);
 
     this._readable.pipe(new Transform({
       objectMode: true,
       transform: async (message, _, callback) => {
+        // log('Model.read', message);
         await this.processMessage(message);
 
-        this.emit('update');
+        // TODO(burdon): Emit immutable value (or just ID).
+        this.emit('update', this);
         callback();
       }
     }));
@@ -70,13 +70,17 @@ export abstract class Model extends EventEmitter {
     return this._itemId;
   }
 
+  get readOnly () {
+    return this._writable !== undefined;
+  }
+
   /**
-   * Write to the stream.
+   * Wraps the message within an ItemEnvelope then writes to the output stream.
    * @param message
    */
-  async write (message: Message) {
-    assert(this._feed);
-    await pify(this._feed.append.bind(this._feed))({ message });
+  async write (message: any) {
+    assert(this._writable);
+    await pify(this._writable.write.bind(this._writable))(message);
   }
 
   /**
@@ -84,16 +88,16 @@ export abstract class Model extends EventEmitter {
    * @abstract
    * @param {Object} message
    */
-  async abstract processMessage (message: ModelMessage): Promise<void>;
+  async abstract processMessage (message: dxos.echo.testing.FeedMessage): Promise<void>;
 }
 
 /**
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  private _models = new Map<ModelType, Constructor<Model>>();
+  private _models = new Map<string, Constructor<Model>>();
 
-  registerModel (type: ModelType, modelConstructor: Constructor<Model>) {
+  registerModel (type: string, modelConstructor: Constructor<Model>) {
     assert(type);
     assert(modelConstructor);
     this._models.set(type, modelConstructor);
@@ -101,11 +105,11 @@ export class ModelFactory {
   }
 
   // TODO(burdon): Require version.
-  createModel (type: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, feed?: Hypercore) {
+  createModel (type: string, itemId: ItemID, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
     const modelConstructor = this._models.get(type);
     if (modelConstructor) {
       // eslint-disable-next-line new-cap
-      return new modelConstructor(type, itemId, readable, feed);
+      return new modelConstructor(type, itemId, readable, writable);
     }
   }
 }
@@ -113,15 +117,24 @@ export class ModelFactory {
 /**
  * Data item.
  */
-export class Item {
-  // eslint-disable-next-line no-useless-constructor
+export class Item extends EventEmitter {
   constructor (
     private _itemId: ItemID,
+    private _type: string,
     private _model: Model
-  ) {}
+  ) {
+    super();
+    assert(this._itemId);
+    assert(this._type);
+    assert(this._model);
+  }
 
   get id () {
     return this._itemId;
+  }
+
+  get type () {
+    return this._type;
   }
 
   get model () {
@@ -138,65 +151,102 @@ export class ItemManager extends EventEmitter {
 
   // TODO(burdon): Lint issue: Unexpected whitespace between function name and paren
   // Map of item promises (waiting for item construction after genesis message has been written).
+  // eslint-disable-next-line
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
-  // TODO(burdoN): Pass in writeable object stream to abstract hypercore.
   constructor (
     private _modelFactory: ModelFactory,
-    private _feed: Hypercore
+    private _writable: NodeJS.WritableStream
   ) {
     super();
     assert(this._modelFactory);
-    assert(this._feed);
+    assert(this._writable);
+  }
+
+  private _createWriteStream (itemId: ItemID): NodeJS.WritableStream {
+    const transform = new Transform({
+      objectMode: true,
+      write (message, _, callback) {
+        this.push({
+          message: {
+            __type_url: 'dxos.echo.testing.ItemEnvelope',
+            itemId,
+            payload: message
+          }
+        });
+
+        callback();
+      }
+    });
+
+    // TODO(burdon): Don't bury pipe inside methods that create streams (side effects).
+    transform.pipe(this._writable);
+    return transform;
   }
 
   /**
    * Creates an item and writes the genesis message.
-   * @param type model type
+   * @param itemType item type
+   * @param modelType model type
    */
-  async createItem (type: ModelType): Promise<Item> {
-    const itemId = createId();
+  async createItem (itemType: string, modelType: string): Promise<Item> {
+    assert(itemType);
+    assert(modelType);
 
     // Pending until constructed (after genesis block is read from stream).
     const [waitForCreation, callback] = trigger();
+
+    const itemId = createId();
     this._pendingItems.set(itemId, callback);
 
     // Write Item Genesis block.
+    // TODO(burdon): Write directly to the writable stream (not wrapper)?
     log('Creating Genesis:', itemId);
-    await pify(this._feed.append.bind(this._feed))({
-      message: {
-        __type_url: 'dxos.echo.testing.TestItemGenesis',
-        model: type,
-        itemId
-      }
+    const writable = this._createWriteStream(itemId);
+    await pify(writable.write.bind(writable))({
+      __type_url: 'dxos.echo.testing.ItemGenesis',
+      type: itemType,
+      model: modelType
     });
 
     // Unlocked by construct.
+    log('Waiting for item...');
     return await waitForCreation();
   }
 
   /**
-   * Creates a data item and writes the genesis block to the stream.
-   * @param type
+   * Constructs an item with the appropriate model.
    * @param itemId
+   * @param itemType
+   * @param modelType
    * @param readable
    */
-  async constructItem (type: string, itemId: string, readable: NodeJS.ReadableStream) {
-    const model = this._modelFactory.createModel(type, itemId, readable, this._feed);
-    assert(model);
+  async constructItem (itemId: ItemID, itemType: string, modelType: string, readable: NodeJS.ReadableStream) {
+    assert(itemId);
+    assert(itemType);
+    assert(modelType);
+    assert(readable);
 
-    const item = new Item(itemId, model);
+    // Create model.
+    // TODO(burdon): Skip genesis message (and subsequent messages) if unknown model.
+    const writable = this._createWriteStream(itemId);
+    const model = this._modelFactory.createModel(modelType, itemId, readable, writable);
+    assert(model, `Invalid model: ${modelType}`);
 
+    // Create item.
+    const item = new Item(itemId, modelType, model);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
 
+    // Item udpated.
+    model.on('update', () => {
+      item.emit('update', item);
+      this.emit('update', item);
+    });
+
     // Notify pending creates.
-    // TODO(burdon): Lint issue.
-    // eslint-disable-next-line no-unused-expressions
     this._pendingItems.get(itemId)?.(item);
-
     this.emit('create', item);
-
     return item;
   }
 
@@ -204,62 +254,191 @@ export class ItemManager extends EventEmitter {
    * Retrieves a data item from the index.
    * @param itemId
    */
-  getItem (itemId: string) {
+  getItem (itemId: ItemID) {
     return this._items.get(itemId);
   }
 
   /**
-   * Return all items.
+   * Return matching items.
+   * @param [filter]
    */
-  // TODO(burdon): Later convert to query.
-  getItems () {
-    return Array.from(this._items.values());
+  getItems (filter: any = {}) {
+    const { type } = filter;
+    return Array.from(this._items.values()).filter(item => !type || item.type === type);
   }
 }
 
 /**
- * Reads party stream and routes to associate item stream.
+ * Reads party feeds and routes to items demuxer.
+ * @param feedStore
+ * @param [initialFeeds]
+ * @param [initialAnchor] TODO(burdon): Emit event when anchor point reached?
  */
-export const createItemDemuxer = (itemManager: ItemManager) => {
-  // Map of Item-specific streams.
-  // TODO(burdon): Abstract class.
-  const streams = new LazyMap<string, Readable>(() => new Readable({
-    objectMode: true,
-    read () {}
-  }));
+export const createPartyMuxer = (
+  feedStore: FeedStore, initialFeeds: FeedKey[], initialAnchor?: dxos.echo.testing.IVectorTimestamp
+) => {
+  // TODO(burdon): Is this the correct way to create a stream?
+  const outputStream = new Readable({ objectMode: true, read () {} });
 
-  // TODO(burdon): Could this implement some "back-pressure" (hints) to the PartyProcessor?
-  return new Transform({
-    objectMode: true,
+  // Configure iterator with dynamic set of admitted feeds.
+  const allowedFeeds: Set<string> = new Set(initialFeeds.map(feedKey => keyToString(feedKey)));
 
-    // TODO(burdon): Is codec working? (expect envelope to be decoded.)
-    transform: async ({ data: { message } }, _, callback) => {
-      /* eslint-disable camelcase */
-      const { __type_url, itemId } = message;
-      assert(__type_url);
-      assert(itemId);
+  let currentTimestamp = new LogicalClockStamp();
 
-      switch (__type_url) {
-        case 'dxos.echo.testing.TestItemGenesis': {
-          assertType<dxos.echo.testing.ITestItemGenesis>(message);
-          assert(message.model);
+  // TODO(burdon): Explain control.
+  setImmediate(async () => {
+    const iterator = await FeedStoreIterator.create(feedStore,
+      async feedKey => allowedFeeds.has(keyToString(feedKey)),
+      candidates => {
+        for (let i = 0; i < candidates.length; i++) {
+          const { data: { message } } = candidates[i];
+          if (message.__type_url === 'dxos.echo.testing.ItemEnvelope') {
+            assumeType<dxos.echo.testing.IItemEnvelope>(message);
+            const timestamp = message.timestamp ? LogicalClockStamp.decode(message.timestamp) : LogicalClockStamp.zero();
+            const order = LogicalClockStamp.compare(timestamp, currentTimestamp);
 
-          log(`Item Genesis: ${itemId}`);
-          const stream = streams.getOrInit(itemId);
-          await itemManager.constructItem(message.model, itemId, stream);
+            // if message's timestamp is <= the current observed timestamp we can pass the message through
+            // TODO(marik-d): Do we have to order messages agains each other?
+            if (order === Order.EQUAL || order === Order.BEFORE) {
+              return i;
+            }
+          } else {
+            return i; // pass through all non-ECHO messages
+          }
+        }
+        return undefined;
+      }
+    );
+
+    // NOTE: The iterator may halt if there are gaps in the replicated feeds (according to the timestamps).
+    // In this case it would wait until a replication event notifies another feed has been added to the replication set.
+    for await (const { data: { message }, key, seq } of iterator) {
+      log('Muxer:', JSON.stringify(message));
+
+      switch (message.__type_url) {
+        //
+        // HALO messages.
+        //
+        case 'dxos.echo.testing.Admit': {
+          assumeType<dxos.echo.testing.IAdmit>(message);
+          assert(message.feedKey);
+
+          allowedFeeds.add(keyToString(message.feedKey));
           break;
         }
 
-        case 'dxos.echo.testing.TestItemMutation': {
-          assertType<dxos.echo.testing.ITestItemMutation>(message);
-          assert(message);
+        //
+        // ECHO messages.
+        //
+        case 'dxos.echo.testing.ItemEnvelope': {
+          assumeType<dxos.echo.testing.IItemEnvelope>(message);
+          assert(message.itemId);
 
-          const stream = streams.getOrInit(itemId);
-          stream.push({ data: message });
+          const timestamp = LogicalClockStamp.zero().withFeed(key, seq);
+          currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
+
+          // TODO(burdon): Order by timestamp.
+          outputStream.push({ data: { message }, key, seq });
+
+          // TODO(marik-d): Backpressure: https://nodejs.org/api/stream.html#stream_readable_push_chunk_encoding
+          // if (!this._output.push({ data: { message } })) {
+          //   await new Promise(resolve => { this._output.once('drain', resolve )});
+          // }
+          break;
         }
+
+        default:
+          console.warn(`Skipping unknown message type ${message.__type_url}`);
+          break;
+      }
+    }
+  });
+
+  return outputStream;
+};
+
+/**
+ * Reads party stream and routes to associate item stream.
+ * @param itemManager
+ */
+export const createItemDemuxer = (itemManager: ItemManager) => {
+  // Map of Item-specific streams.
+  const itemStreams = new LazyMap<ItemID, Readable>(() => new Readable({ objectMode: true, read () {} }));
+
+  // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
+  return new Writable({
+    objectMode: true,
+    write: async (chunk, _, callback) => {
+      const { data: { message } } = chunk;
+      log('Demuxer:', JSON.stringify(chunk, undefined, 2));
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
+      const { itemId, payload } = message;
+      assert(itemId);
+      assert(payload);
+
+      /* eslint-disable camelcase */
+      const { __type_url } = payload as any;
+      switch (__type_url) {
+        //
+        // Item genesis.
+        //
+        case 'dxos.echo.testing.ItemGenesis': {
+          assumeType<dxos.echo.testing.IItemGenesis>(payload);
+          assert(payload.type);
+          assert(payload.model);
+
+          const stream = itemStreams.getOrInit(itemId);
+          const item = await itemManager.constructItem(itemId, payload.type, payload.model, stream);
+          log(`Constructed Item: ${item.id}`);
+          break;
+        }
+
+        //
+        // Item mutation.
+        //
+        case 'dxos.echo.testing.ItemMutation': {
+          assumeType<dxos.echo.testing.IItemMutation>(payload);
+          assert(payload);
+
+          const stream = itemStreams.getOrInit(itemId);
+          stream.push({ data: { message: payload } });
+          break;
+        }
+
+        default:
+          throw new Error(`Unexpected type: ${__type_url}`);
       }
 
       callback();
     }
   });
+};
+
+export const createTimestampTransform = (writeFeedKey: Buffer) => {
+  let currentTimestamp = new LogicalClockStamp();
+
+  const inboundTransform = new Transform({
+    objectMode: true,
+    transform (chunk, encoding, callback) {
+      const { message } = chunk.data;
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
+
+      const timestamp = (message.timestamp ? LogicalClockStamp.decode(message.timestamp) : LogicalClockStamp.zero()).withFeed(chunk.key, chunk.seq);
+      currentTimestamp = LogicalClockStamp.max(currentTimestamp, timestamp);
+      log(`current timestamp = ${currentTimestamp.log()}`);
+      callback(null, chunk);
+    }
+  });
+
+  const outboundTransform = new Transform({
+    objectMode: true,
+    transform (chunk, encoding, callback) {
+      const { message } = chunk;
+      assertAnyType<dxos.echo.testing.IItemEnvelope>(message, 'dxos.echo.testing.ItemEnvelope');
+      message.timestamp = LogicalClockStamp.encode(currentTimestamp.withoutFeed(writeFeedKey));
+      callback(null, chunk);
+    }
+  });
+
+  return [inboundTransform, outboundTransform] as const;
 };

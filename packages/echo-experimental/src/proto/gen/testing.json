@@ -6,6 +6,18 @@
           "nested": {
             "testing": {
               "nested": {
+                "FeedMessage": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 1
+                    },
+                    "data": {
+                      "type": "Envelope",
+                      "id": 2
+                    }
+                  }
+                },
                 "Envelope": {
                   "fields": {
                     "message": {
@@ -14,51 +26,98 @@
                     }
                   }
                 },
-                "TestItemGenesis": {
+                "Admit": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 1
+                    }
+                  }
+                },
+                "Remove": {
+                  "fields": {
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 1
+                    }
+                  }
+                },
+                "VectorTimestamp": {
+                  "fields": {
+                    "timestamp": {
+                      "rule": "repeated",
+                      "type": "Feed",
+                      "id": 1
+                    }
+                  },
+                  "nested": {
+                    "Feed": {
+                      "fields": {
+                        "feedKey": {
+                          "type": "bytes",
+                          "id": 1
+                        },
+                        "feedIndex": {
+                          "type": "int32",
+                          "id": 2
+                        },
+                        "seq": {
+                          "type": "int32",
+                          "id": 3
+                        }
+                      }
+                    }
+                  }
+                },
+                "ItemEnvelope": {
                   "fields": {
                     "itemId": {
+                      "type": "string",
+                      "id": 1
+                    },
+                    "timestamp": {
+                      "type": "VectorTimestamp",
+                      "id": 2
+                    },
+                    "payload": {
+                      "type": "google.protobuf.Any",
+                      "id": 3
+                    }
+                  }
+                },
+                "ItemGenesis": {
+                  "fields": {
+                    "type": {
                       "type": "string",
                       "id": 1
                     },
                     "model": {
                       "type": "string",
                       "id": 2
+                    },
+                    "modelVersion": {
+                      "type": "string",
+                      "id": 3
                     }
                   }
                 },
-                "TestItemMutation": {
+                "ItemMutation": {
                   "fields": {
-                    "itemId": {
+                    "key": {
                       "type": "string",
                       "id": 1
                     },
-                    "seq": {
-                      "type": "int32",
-                      "id": 2
-                    },
-                    "id": {
-                      "type": "string",
-                      "id": 3
-                    },
-                    "depends": {
-                      "type": "string",
-                      "id": 4
-                    },
-                    "tag": {
-                      "type": "string",
-                      "id": 5
-                    },
-                    "key": {
-                      "type": "string",
-                      "id": 6
-                    },
                     "value": {
                       "type": "string",
-                      "id": 7
-                    },
-                    "payload": {
-                      "type": "google.protobuf.Any",
-                      "id": 8
+                      "id": 2
+                    }
+                  }
+                },
+                "TestData": {
+                  "fields": {
+                    "data": {
+                      "type": "int32",
+                      "id": 1
                     }
                   }
                 }
