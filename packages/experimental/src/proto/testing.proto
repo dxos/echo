@@ -31,23 +31,6 @@ message FeedGenesis {
   PartyGenesis partyGenesis = 1;
 }
 
-// Non-persistent metadata.
-message FeedMeta {
-  int32 seq = 1;
-  bytes feedKey = 2;
-  bytes identityKey = 3;
-}
-
-// Wrapped feed message.
-message FeedStream {
-
-  // Non-persistent metadata.
-  FeedMeta meta = 1;
-
-  // Feed payload object (above).
-  FeedMessage data = 2;
-}
-
 //
 // HALO
 //

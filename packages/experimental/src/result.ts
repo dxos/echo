@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+// TODO(burdon): Rename EventHandler.
 import { Event } from '@dxos/async';
 
 /**
@@ -10,16 +11,16 @@ import { Event } from '@dxos/async';
 export class ResultSet<T> {
   private _value: T[];
   private _handleUpdate: () => void;
-  private readonly _update = new Event<T[]>();
+  private readonly _onUpdate = new Event<T[]>();
 
   constructor (
-    private _event: Event,
+    private _onParentUpdate: Event,
     private _getter: () => T[]
   ) {
     this._value = this._getter();
     this._handleUpdate = () => {
       this._value = this._getter();
-      this._update.emit(this._value);
+      this._onUpdate.emit(this._value);
     };
   }
 
@@ -32,15 +33,15 @@ export class ResultSet<T> {
    * @param listener
    */
   subscribe (listener: (result: T[]) => void) {
-    this._update.on(listener);
-    if (this._update.listenerCount() === 1) {
-      this._event.on(this._handleUpdate);
+    this._onUpdate.on(listener);
+    if (this._onUpdate.listenerCount() === 1) {
+      this._onParentUpdate.on(this._handleUpdate);
     }
 
     return () => {
-      this._update.off(listener);
-      if (this._update.listenerCount() === 0) {
-        this._event.off(this._handleUpdate);
+      this._onUpdate.off(listener);
+      if (this._onUpdate.listenerCount() === 0) {
+        this._onParentUpdate.off(this._handleUpdate);
       }
     };
   }

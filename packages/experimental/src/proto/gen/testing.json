@@ -107,7 +107,8 @@
                     "action": {
                       "oneof": [
                         "genesis",
-                        "mutation"
+                        "itemMutation",
+                        "dataMutation"
                       ]
                     }
                   },
@@ -124,23 +125,13 @@
                       "type": "ItemGenesis",
                       "id": 10
                     },
-                    "mutation": {
+                    "itemMutation": {
                       "type": "ItemMutation",
                       "id": 11
-                    }
-                  },
-                  "nested": {
-                    "ItemMutation": {
-                      "fields": {
-                        "data": {
-                          "type": "google.protobuf.Any",
-                          "id": 1
-                        },
-                        "system": {
-                          "type": "bool",
-                          "id": 2
-                        }
-                      }
+                    },
+                    "dataMutation": {
+                      "type": "google.protobuf.Any",
+                      "id": 12
                     }
                   }
                 },
@@ -157,6 +148,18 @@
                     "modelVersion": {
                       "type": "string",
                       "id": 3
+                    }
+                  }
+                },
+                "ItemMutation": {
+                  "fields": {
+                    "key": {
+                      "type": "string",
+                      "id": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "id": 2
                     }
                   }
                 },
@@ -184,18 +187,6 @@
                           "id": 3
                         }
                       }
-                    }
-                  }
-                },
-                "TestItemMutation": {
-                  "fields": {
-                    "key": {
-                      "type": "string",
-                      "id": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "id": 2
                     }
                   }
                 },

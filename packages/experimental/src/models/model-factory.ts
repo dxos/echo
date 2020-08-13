@@ -4,10 +4,9 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import { Constructor } from 'protobufjs';
 
-import { ItemID, ModelType } from '../types';
-import { Model } from './model';
+import { ItemID } from '../types';
+import { ModelType, ModelConstructor } from './model';
 
 const log = debug('dxos:echo:model');
 
@@ -15,7 +14,7 @@ const log = debug('dxos:echo:model');
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  private _models = new Map<string, Constructor<Model<any>>>();
+  private _models = new Map<ModelType, ModelConstructor<any>>();
 
   // TODO(burdon): Require version.
 
@@ -24,18 +23,20 @@ export class ModelFactory {
     return this._models.has(modelType);
   }
 
-  registerModel (modelType: ModelType, modelConstructor: Constructor<Model<any>>): ModelFactory {
+  registerModel (modelType: ModelType, modelConstructor: ModelConstructor<any>): ModelFactory {
     assert(modelType);
     assert(modelConstructor);
     this._models.set(modelType, modelConstructor);
     return this;
   }
 
-  createModel (modelType: ModelType, itemId: ItemID, readable: NodeJS.ReadableStream, writable?: NodeJS.WritableStream) {
-    const modelConstructor = this._models.get(modelType);
-    if (modelConstructor) {
-      // eslint-disable-next-line new-cap
-      return new modelConstructor(itemId, readable, writable);
+  createModel<T> (modelType: ModelType, itemId: ItemID, writable?: NodeJS.WritableStream): T {
+    const modelConstructor = this._models.get(modelType) as ModelConstructor<T>;
+    if (!modelConstructor) {
+      throw new Error(`Invalid model: ${modelType}`);
     }
+
+    // eslint-disable-next-line new-cap
+    return new modelConstructor(itemId, writable);
   }
 }

@@ -4,36 +4,29 @@
 
 import { sleep } from '@dxos/async';
 
-import { Model } from '../models';
+import { Model, ModelType } from '../models';
 
 import { dxos } from '../proto/gen/testing';
 
 /**
  * Test model.
  */
-export class TestModel extends Model<dxos.echo.testing.ITestItemMutation> {
-  // TODO(burdon): Format?
-  static type = 'wrn://dxos.io/model/test';
+export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
+  // TODO(burdon): WRN Format?
+  static type: ModelType = 'wrn://dxos.io/model/test';
 
-  _values = new Map();
+  private _values = new Map();
 
   get keys () {
     return Array.from(this._values.keys());
   }
 
-  get value () {
+  get properties () {
     return Object.fromEntries(this._values);
   }
 
-  getValue (key: string) {
+  getProperty (key: string) {
     return this._values.get(key);
-  }
-
-  async processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: dxos.echo.testing.ITestItemMutation) {
-    const { key, value } = mutation;
-
-    await sleep(50);
-    this._values.set(key, value);
   }
 
   async setProperty (key: string, value: string) {
@@ -41,5 +34,13 @@ export class TestModel extends Model<dxos.echo.testing.ITestItemMutation> {
       key,
       value
     });
+  }
+
+  async processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: dxos.echo.testing.IItemMutation) {
+    const { key, value } = mutation;
+
+    await sleep(50);
+    this._values.set(key, value);
+    super.update();
   }
 }
