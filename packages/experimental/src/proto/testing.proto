@@ -98,11 +98,3 @@ message VectorTimestamp {
 
   repeated Part timestamp = 1;
 }
-
-//
-// Testing
-//
-
-message TestMessage {
-  int32 value = 1;
-}

@@ -5,8 +5,8 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { ItemID } from '../types';
-import { ModelType, ModelConstructor } from './model';
+import { ItemID } from '../items';
+import { ModelType, ModelConstructor, Model } from './model';
 
 const log = debug('dxos:echo:model');
 
@@ -30,10 +30,12 @@ export class ModelFactory {
     return this;
   }
 
-  createModel<T> (modelType: ModelType, itemId: ItemID, writable?: NodeJS.WritableStream): T {
+  createModel<T extends Model<any>> (modelType: ModelType, itemId: ItemID, writable?: NodeJS.WritableStream): T {
+    assert(itemId);
+
     const modelConstructor = this._models.get(modelType) as ModelConstructor<T>;
     if (!modelConstructor) {
-      throw new Error(`Invalid model: ${modelType}`);
+      throw new Error(`Invalid model type: ${modelType}`);
     }
 
     // eslint-disable-next-line new-cap

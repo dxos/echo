@@ -3,13 +3,29 @@
 //
 
 // import { LogicalClockStamp } from '../../archive/clock/logical-clock-stamp';
-import { FeedKey, ItemID, ItemType } from '../types';
+import { FeedKey } from '../feeds';
+import { ItemID, ItemType } from '../items';
 import { TestModel } from './test-model';
 
 //
-// Test generators.
+// HALO generators.
 //
 
+//
+// ECHO generators.
+//
+
+export const createItemMutation = (itemId: ItemID, key: string, value: string) => ({
+  echo: {
+    itemId,
+    itemMutation: {
+      key,
+      value
+    }
+  }
+});
+
+/*
 export const createPartyAdmit = (feedKey: FeedKey) => ({
   payload: {
     __type_url: 'dxos.echo.testing.PartyAdmit',
@@ -24,7 +40,6 @@ export const createPartyEject = (feedKey: FeedKey) => ({
   }
 });
 
-/*
 export const createItemGenesis = (itemId: ItemID, itemType: ItemType, timestamp?: LogicalClockStamp) => ({
   payload: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
@@ -49,7 +64,6 @@ export const createTestItemMutation = (itemId: ItemID, key: string, value: strin
     }
   }
 });
-*/
 
 //
 // Basic testing
@@ -62,7 +76,6 @@ export const createTestMessage = (value: number) => ({
   }
 });
 
-/*
 export const createTestMessageWithTimestamp = (feedKey: Buffer, timestamp: LogicalClockStamp, value: number) => ({
   payload: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
@@ -75,10 +88,3 @@ export const createTestMessageWithTimestamp = (feedKey: Buffer, timestamp: Logic
   feedKey
 });
 */
-
-export const createExpectedFeedMessage = (data: any) => ({
-  key: expect.any(Buffer),
-  seq: expect.any(Number),
-  sync: expect.any(Boolean),
-  data
-});

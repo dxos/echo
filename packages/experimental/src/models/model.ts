@@ -9,7 +9,8 @@ import pify from 'pify';
 // TODO(burdon): Rename EventHandler.
 import { Event } from '@dxos/async';
 
-import { ItemID, IFeedMeta } from '../types';
+import { ItemID } from '../items';
+import { IFeedMeta } from '../feeds';
 import { createWritable } from '../util';
 
 import { dxos } from '../proto/gen/testing';
@@ -58,6 +59,7 @@ export abstract class Model<T> {
     return this._writable !== undefined;
   }
 
+  // TODO(burdon): Rename.
   get processor (): NodeJS.WritableStream {
     return this._processor;
   }

@@ -33,7 +33,8 @@ describe('model factory', () => {
         objects.push(message);
         const out: ModelMessage<dxos.echo.testing.IItemMutation> = {
           meta: {
-            feedKey
+            feedKey,
+            seq: 1
           },
           mutation: message
         };
