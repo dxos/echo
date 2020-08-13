@@ -2,11 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import assert from 'assert';
-
 import { sleep } from '@dxos/async';
 
-import { assertTypeUrl } from '../util';
 import { Model } from '../models';
 
 import { dxos } from '../proto/gen/testing';
@@ -14,7 +11,7 @@ import { dxos } from '../proto/gen/testing';
 /**
  * Test model.
  */
-export class TestModel extends Model {
+export class TestModel extends Model<dxos.echo.testing.ITestItemMutation> {
   // TODO(burdon): Format?
   static type = 'wrn://dxos.io/model/test';
 
@@ -32,10 +29,7 @@ export class TestModel extends Model {
     return this._values.get(key);
   }
 
-  async processMessage (envelope: dxos.echo.testing.IItemOperationEnvelope) {
-    const mutation = envelope.operation as dxos.echo.testing.ITestItemMutation;
-    assert(mutation);
-    assertTypeUrl(mutation, 'dxos.echo.testing.TestItemMutation');
+  async processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: dxos.echo.testing.ITestItemMutation) {
     const { key, value } = mutation;
 
     await sleep(50);
@@ -44,7 +38,6 @@ export class TestModel extends Model {
 
   async setProperty (key: string, value: string) {
     await this.write({
-      __type_url: 'dxos.echo.testing.TestItemMutation',
       key,
       value
     });

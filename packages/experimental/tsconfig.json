@@ -16,6 +16,9 @@
     "module": "commonjs",
     "outDir": "dist"
   },
+  "exclude": [
+    "archive/**"
+  ],
   "include": [
     "src",
     "src/**/*.js",

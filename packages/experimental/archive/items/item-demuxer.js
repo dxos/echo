@@ -2,19 +2,6 @@
 //
 // Copyright 2020 DXOS.org
 //
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,69 +39,68 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TestModel = void 0;
-var async_1 = require("@dxos/async");
-var models_1 = require("../models");
+exports.createItemDemuxer = void 0;
+var assert_1 = require("assert");
+var debug_1 = require("debug");
+var stream_1 = require("stream");
+var util_1 = require("@dxos/experimental/dist/util");
+var log = debug_1.default('dxos:echo:item');
 /**
- * Test model.
+ * Creates a stream that consumes item messages.
+ * @param itemManager
  */
-var TestModel = /** @class */ (function (_super) {
-    __extends(TestModel, _super);
-    function TestModel() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this._values = new Map();
-        return _this;
-    }
-    Object.defineProperty(TestModel.prototype, "keys", {
-        get: function () {
-            return Array.from(this._values.keys());
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(TestModel.prototype, "value", {
-        get: function () {
-            return Object.fromEntries(this._values);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    TestModel.prototype.getValue = function (key) {
-        return this._values.get(key);
-    };
-    TestModel.prototype.processMessage = function (meta, mutation) {
-        return __awaiter(this, void 0, void 0, function () {
-            var key, value;
+exports.createItemDemuxer = function (itemManager) {
+    // TODO(burdon): Get stream from item's model directly.
+    // TODO(burdon): Should be impossible to get message before stream is created.
+    // Map of Item-specific streams.
+    var itemStreamMap = new util_1.LazyMap(function () { return new stream_1.Readable({
+        objectMode: true,
+        read: function () { }
+    }); });
+    var process = function (meta, message) { return __awaiter(void 0, void 0, void 0, function () {
+        var itemId, genesis, mutation, itemStream, itemType, modelType, item;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    itemId = message.itemId, genesis = message.genesis, mutation = message.mutation;
+                    assert_1.default(itemId);
+                    itemStream = itemStreamMap.getOrInit(itemId);
+                    if (!genesis) return [3 /*break*/, 2];
+                    itemType = genesis.itemType, modelType = genesis.modelType;
+                    assert_1.default(itemType && modelType);
+                    return [4 /*yield*/, itemManager.constructItem(itemId, itemType, modelType, itemStream)];
+                case 1:
+                    item = _a.sent();
+                    assert_1.default(item.id === itemId);
+                    return [2 /*return*/];
+                case 2:
+                    if (!mutation) return [3 /*break*/, 4];
+                    return [4 /*yield*/, itemStream.push({ meta: meta, mutation: mutation })];
+                case 3:
+                    _a.sent();
+                    return [2 /*return*/];
+                case 4: throw new Error("Unexpected message: " + JSON.stringify(message));
+            }
+        });
+    }); };
+    // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
+    return new stream_1.Writable({
+        objectMode: true,
+        write: function (message, _, callback) { return __awaiter(void 0, void 0, void 0, function () {
+            var meta, echo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        key = mutation.key, value = mutation.value;
-                        return [4 /*yield*/, async_1.sleep(50)];
+                        log('Demuxer.write:', JSON.stringify(message));
+                        assert_1.default(message.data && message.data.echo);
+                        meta = message.meta, echo = message.data.echo;
+                        return [4 /*yield*/, process(meta, echo)];
                     case 1:
                         _a.sent();
-                        this._values.set(key, value);
+                        callback();
                         return [2 /*return*/];
                 }
             });
-        });
-    };
-    TestModel.prototype.setProperty = function (key, value) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.write({
-                            key: key,
-                            value: value
-                        })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    // TODO(burdon): Format?
-    TestModel.type = 'wrn://dxos.io/model/test';
-    return TestModel;
-}(models_1.Model));
-exports.TestModel = TestModel;
+        }); }
+    });
+};

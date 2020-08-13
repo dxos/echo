@@ -14,15 +14,19 @@ var ModelFactory = /** @class */ (function () {
     function ModelFactory() {
         this._models = new Map();
     }
-    ModelFactory.prototype.registerModel = function (type, modelConstructor) {
-        assert_1.default(type);
+    // TODO(burdon): Require version.
+    ModelFactory.prototype.hasModel = function (modelType) {
+        assert_1.default(modelType);
+        return this._models.has(modelType);
+    };
+    ModelFactory.prototype.registerModel = function (modelType, modelConstructor) {
+        assert_1.default(modelType);
         assert_1.default(modelConstructor);
-        this._models.set(type, modelConstructor);
+        this._models.set(modelType, modelConstructor);
         return this;
     };
-    // TODO(burdon): Require version.
-    ModelFactory.prototype.createModel = function (type, itemId, readable, writable) {
-        var modelConstructor = this._models.get(type);
+    ModelFactory.prototype.createModel = function (modelType, itemId, readable, writable) {
+        var modelConstructor = this._models.get(modelType);
         if (modelConstructor) {
             // eslint-disable-next-line new-cap
             return new modelConstructor(itemId, readable, writable);

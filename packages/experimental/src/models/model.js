@@ -64,21 +64,26 @@ var log = debug_1.default('dxos:echo:model');
  */
 var Model = /** @class */ (function (_super) {
     __extends(Model, _super);
-    function Model(_itemId, _readable, _writable // TODO(burdon): Read-only if undefined?
-    ) {
+    function Model(_itemId, _readable, _writable) {
         var _this = _super.call(this) || this;
         _this._itemId = _itemId;
         _this._readable = _readable;
         _this._writable = _writable;
         assert_1.default(_this._itemId);
-        _this._readable.pipe(new stream_1.Transform({
+        _this._readable.pipe(new stream_1.Writable({
             objectMode: true,
-            transform: function (message, _, callback) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, this.processMessage(message)];
+            write: function (message, _, callback) { return __awaiter(_this, void 0, void 0, function () {
+                var meta, data;
+                var _a;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            meta = message.meta, data = message.data;
+                            assert_1.default(meta && ((_a = data === null || data === void 0 ? void 0 : data.echo) === null || _a === void 0 ? void 0 : _a.mutation));
+                            return [4 /*yield*/, this.processMessage(meta, data.echo.mutation)];
                         case 1:
-                            _a.sent();
+                            _b.sent();
+                            // TODO(burdon): Remove emitter.
                             // TODO(burdon): Emit immutable value (or just ID).
                             this.emit('update', this);
                             callback();
@@ -105,15 +110,15 @@ var Model = /** @class */ (function (_super) {
     });
     /**
      * Wraps the message within an ItemEnvelope then writes to the output stream.
-     * @param message
+     * @param mutation
      */
-    Model.prototype.write = function (message) {
+    Model.prototype.write = function (mutation) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         assert_1.default(this._writable);
-                        return [4 /*yield*/, pify_1.default(this._writable.write.bind(this._writable))(message)];
+                        return [4 /*yield*/, pify_1.default(this._writable.write.bind(this._writable))(mutation)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

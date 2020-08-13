@@ -17,32 +17,48 @@ import "google/protobuf/any.proto";
 // Feeds
 //
 
-// Outer codec message type decoded by Codec.
+// Outer message type decoded by Codec.
 // NOTE: Hypercore returns a field called `data`, which corresponds to this envelope (not the contained message).
-// TODO(burdon): Reserve `payload` for outer most message (rename in HALO, ECHO, etc.)
-message FeedEnvelope {
-  google.protobuf.Any payload = 1;
+message FeedMessage {
+  FeedGenesis genesis = 1;
+  HaloEnvelope halo = 2;
+  EchoEnvelope echo = 3;
 }
 
-// Wrapped feed message
-message FeedMessage {
-  // Feed payload object (above).
-  google.protobuf.Any payload = 1;
+// Must be the first (zeroth) block in each feed.
+message FeedGenesis {
+  // Defined by genesis feed.
+  PartyGenesis partyGenesis = 1;
+}
 
-  // Non-persistent metadata.
+// Non-persistent metadata.
+message FeedMeta {
+  int32 seq = 1;
   bytes feedKey = 2;
   bytes identityKey = 3;
 }
 
-// Must be first block in each feed.
-message FeedGenesis {
-  // Optional for genesis feed.
-  PartyGenesis partyGenesis = 1;
+// Wrapped feed message.
+message FeedStream {
+
+  // Non-persistent metadata.
+  FeedMeta meta = 1;
+
+  // Feed payload object (above).
+  FeedMessage data = 2;
 }
 
 //
-// Parties
+// HALO
 //
+
+// Wrapper for all HALO messages.
+message HaloEnvelope {
+  oneof action {
+    PartyAdmit admit = 1;
+    PartyEject eject = 2;
+  }
+}
 
 // Indicates creation of a party.
 message PartyGenesis {
@@ -60,30 +76,18 @@ message PartyEject {
 }
 
 //
-// Items
+// ECHO
 //
 
-// Vector timestamp used to order messages.
-message VectorTimestamp {
-  message Feed {
-    // TODO(burdon): Remove (see below)?
-    bytes feedKey = 1;
-    // TODO(burdon): Determine if admit DAG can be ordered. Requires party messages to be ordered (by lexical feed key).
-    int32 feedIndex = 2;
-    int32 seq = 3;
-  }
-
-  repeated Feed timestamp = 1;
-}
-
-// Wrapper (payload) for all ECHO item messages.
-message ItemEnvelope {
-  string itemId = 1;
-  VectorTimestamp timestamp = 2;
+// Wrapper for all ECHO messages.
+message EchoEnvelope {
+  VectorTimestamp timestamp = 1;
+  string itemId = 2;
 
   oneof action {
-    ItemGenesis genesis = 3;
-    google.protobuf.Any operation = 4;
+    ItemGenesis genesis = 10;
+    ItemMutation itemMutation = 11;
+    google.protobuf.Any dataMutation = 12;
   }
 }
 
@@ -94,15 +98,27 @@ message ItemGenesis {
   string modelVersion = 3;
 }
 
-//
-// Testing
-//
-
-// Item mutation.
-message TestItemMutation {
+message ItemMutation {
   string key = 1;
   string value = 2;
 }
+
+// Vector timestamp used to order messages.
+message VectorTimestamp {
+  message Part {
+    // TODO(burdon): Remove (see below)?
+    bytes feedKey = 1;
+    // TODO(burdon): Determine if admit DAG can be ordered. Requires party messages to be ordered (by lexical feed key).
+    int32 feedIndex = 2;
+    int32 seq = 3;
+  }
+
+  repeated Part timestamp = 1;
+}
+
+//
+// Testing
+//
 
 message TestMessage {
   int32 value = 1;

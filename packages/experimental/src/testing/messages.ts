@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { LogicalClockStamp } from '../clock/logical-clock-stamp';
+// import { LogicalClockStamp } from '../../archive/clock/logical-clock-stamp';
 import { FeedKey, ItemID, ItemType } from '../types';
 import { TestModel } from './test-model';
 
@@ -24,6 +24,7 @@ export const createPartyEject = (feedKey: FeedKey) => ({
   }
 });
 
+/*
 export const createItemGenesis = (itemId: ItemID, itemType: ItemType, timestamp?: LogicalClockStamp) => ({
   payload: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
@@ -48,6 +49,7 @@ export const createTestItemMutation = (itemId: ItemID, key: string, value: strin
     }
   }
 });
+*/
 
 //
 // Basic testing
@@ -60,6 +62,7 @@ export const createTestMessage = (value: number) => ({
   }
 });
 
+/*
 export const createTestMessageWithTimestamp = (feedKey: Buffer, timestamp: LogicalClockStamp, value: number) => ({
   payload: {
     __type_url: 'dxos.echo.testing.ItemEnvelope',
@@ -71,6 +74,7 @@ export const createTestMessageWithTimestamp = (feedKey: Buffer, timestamp: Logic
   },
   feedKey
 });
+*/
 
 export const createExpectedFeedMessage = (data: any) => ({
   key: expect.any(Buffer),

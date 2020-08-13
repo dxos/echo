@@ -4,7 +4,7 @@
 //
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createExpectedFeedMessage = exports.createTestMessageWithTimestamp = exports.createTestMessage = exports.createTestItemMutation = exports.createItemGenesis = exports.createPartyEject = exports.createPartyAdmit = void 0;
-var logical_clock_stamp_1 = require("../clock/logical-clock-stamp");
+var logical_clock_stamp_1 = require("../../archive/clock/logical-clock-stamp");
 var test_model_1 = require("./test-model");
 //
 // Test generators.

@@ -6,18 +6,34 @@
           "nested": {
             "testing": {
               "nested": {
-                "FeedEnvelope": {
+                "FeedMessage": {
                   "fields": {
-                    "payload": {
-                      "type": "google.protobuf.Any",
+                    "genesis": {
+                      "type": "FeedGenesis",
+                      "id": 1
+                    },
+                    "halo": {
+                      "type": "HaloEnvelope",
+                      "id": 2
+                    },
+                    "echo": {
+                      "type": "EchoEnvelope",
+                      "id": 3
+                    }
+                  }
+                },
+                "FeedGenesis": {
+                  "fields": {
+                    "partyGenesis": {
+                      "type": "PartyGenesis",
                       "id": 1
                     }
                   }
                 },
-                "FeedMessage": {
+                "FeedMeta": {
                   "fields": {
-                    "payload": {
-                      "type": "google.protobuf.Any",
+                    "seq": {
+                      "type": "int32",
                       "id": 1
                     },
                     "feedKey": {
@@ -30,11 +46,35 @@
                     }
                   }
                 },
-                "FeedGenesis": {
+                "FeedStream": {
                   "fields": {
-                    "partyGenesis": {
-                      "type": "PartyGenesis",
+                    "meta": {
+                      "type": "FeedMeta",
                       "id": 1
+                    },
+                    "data": {
+                      "type": "FeedMessage",
+                      "id": 2
+                    }
+                  }
+                },
+                "HaloEnvelope": {
+                  "oneofs": {
+                    "action": {
+                      "oneof": [
+                        "admit",
+                        "eject"
+                      ]
+                    }
+                  },
+                  "fields": {
+                    "admit": {
+                      "type": "PartyAdmit",
+                      "id": 1
+                    },
+                    "eject": {
+                      "type": "PartyEject",
+                      "id": 2
                     }
                   }
                 },
@@ -62,58 +102,45 @@
                     }
                   }
                 },
-                "VectorTimestamp": {
-                  "fields": {
-                    "timestamp": {
-                      "rule": "repeated",
-                      "type": "Feed",
-                      "id": 1
-                    }
-                  },
-                  "nested": {
-                    "Feed": {
-                      "fields": {
-                        "feedKey": {
-                          "type": "bytes",
-                          "id": 1
-                        },
-                        "feedIndex": {
-                          "type": "int32",
-                          "id": 2
-                        },
-                        "seq": {
-                          "type": "int32",
-                          "id": 3
-                        }
-                      }
-                    }
-                  }
-                },
-                "ItemEnvelope": {
+                "EchoEnvelope": {
                   "oneofs": {
                     "action": {
                       "oneof": [
                         "genesis",
-                        "operation"
+                        "mutation"
                       ]
                     }
                   },
                   "fields": {
-                    "itemId": {
-                      "type": "string",
-                      "id": 1
-                    },
                     "timestamp": {
                       "type": "VectorTimestamp",
+                      "id": 1
+                    },
+                    "itemId": {
+                      "type": "string",
                       "id": 2
                     },
                     "genesis": {
                       "type": "ItemGenesis",
-                      "id": 3
+                      "id": 10
                     },
-                    "operation": {
-                      "type": "google.protobuf.Any",
-                      "id": 4
+                    "mutation": {
+                      "type": "ItemMutation",
+                      "id": 11
+                    }
+                  },
+                  "nested": {
+                    "ItemMutation": {
+                      "fields": {
+                        "data": {
+                          "type": "google.protobuf.Any",
+                          "id": 1
+                        },
+                        "system": {
+                          "type": "bool",
+                          "id": 2
+                        }
+                      }
                     }
                   }
                 },
@@ -130,6 +157,33 @@
                     "modelVersion": {
                       "type": "string",
                       "id": 3
+                    }
+                  }
+                },
+                "VectorTimestamp": {
+                  "fields": {
+                    "timestamp": {
+                      "rule": "repeated",
+                      "type": "Part",
+                      "id": 1
+                    }
+                  },
+                  "nested": {
+                    "Part": {
+                      "fields": {
+                        "feedKey": {
+                          "type": "bytes",
+                          "id": 1
+                        },
+                        "feedIndex": {
+                          "type": "int32",
+                          "id": 2
+                        },
+                        "seq": {
+                          "type": "int32",
+                          "id": 3
+                        }
+                      }
                     }
                   }
                 },

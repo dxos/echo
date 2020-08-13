@@ -6,7 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 import { EventEmitter } from 'events';
 import pify from 'pify';
-import { Transform } from 'stream';
+import { Writable } from 'stream';
 
 import { ItemID, ModelType } from '../types';
 
@@ -17,22 +17,25 @@ const log = debug('dxos:echo:model');
 /**
  * Abstract base class for Models.
  */
-export abstract class Model extends EventEmitter {
+export abstract class Model<T> extends EventEmitter {
   static type: ModelType;
 
   constructor (
     private _itemId: ItemID,
     private _readable: NodeJS.ReadableStream,
-    private _writable?: NodeJS.WritableStream // TODO(burdon): Read-only if undefined?
+    private _writable?: NodeJS.WritableStream
   ) {
     super();
     assert(this._itemId);
 
-    this._readable.pipe(new Transform({
+    this._readable.pipe(new Writable({
       objectMode: true,
-      transform: async (message: dxos.echo.testing.IItemOperationEnvelope, _, callback) => {
-        await this.processMessage(message);
+      write: async (message: dxos.echo.testing.IFeedStream, _, callback) => {
+        const { meta, data } = message;
+        assert(meta && data?.echo?.mutation);
+        await this.processMessage(meta, data.echo.mutation as T);
 
+        // TODO(burdon): Remove emitter.
         // TODO(burdon): Emit immutable value (or just ID).
         this.emit('update', this);
         callback();
@@ -50,17 +53,18 @@ export abstract class Model extends EventEmitter {
 
   /**
    * Wraps the message within an ItemEnvelope then writes to the output stream.
-   * @param message
+   * @param mutation
    */
-  async write (message: any): Promise<void> {
+  protected async write (mutation: T): Promise<void> {
     assert(this._writable);
-    await pify(this._writable.write.bind(this._writable))(message);
+    await pify(this._writable.write.bind(this._writable))(mutation);
   }
 
   /**
    * Process the message.
    * @abstract
-   * @param {Object} message
+   * @param {Object} meta
+   * @param {Object} mutation
    */
-  async abstract processMessage (message: dxos.echo.testing.IItemOperationEnvelope): Promise<void>;
+  async abstract processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: T): Promise<void>;
 }

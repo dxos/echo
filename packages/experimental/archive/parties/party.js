@@ -2,19 +2,6 @@
 //
 // Copyright 2020 DXOS.org
 //
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,69 +39,61 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TestModel = void 0;
+exports.Party = void 0;
 var async_1 = require("@dxos/async");
-var models_1 = require("../models");
+var crypto_1 = require("@dxos/crypto");
+var items_1 = require("../items");
+var result_1 = require("../../src/result");
 /**
- * Test model.
+ * Party.
  */
-var TestModel = /** @class */ (function (_super) {
-    __extends(TestModel, _super);
-    function TestModel() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this._values = new Map();
-        return _this;
+var Party = /** @class */ (function () {
+    function Party() {
+        this._update = new async_1.Event();
+        this._key = crypto_1.createKeyPair().publicKey;
+        this._items = new Map();
     }
-    Object.defineProperty(TestModel.prototype, "keys", {
+    Object.defineProperty(Party.prototype, "key", {
         get: function () {
-            return Array.from(this._values.keys());
+            return this._key;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(TestModel.prototype, "value", {
-        get: function () {
-            return Object.fromEntries(this._values);
-        },
-        enumerable: false,
-        configurable: true
-    });
-    TestModel.prototype.getValue = function (key) {
-        return this._values.get(key);
+    // TODO(burdon): ???
+    Party.prototype.open = function () {
+        return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_a) {
+            return [2 /*return*/];
+        }); });
     };
-    TestModel.prototype.processMessage = function (meta, mutation) {
+    Party.prototype.close = function () {
+        return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_a) {
+            return [2 /*return*/];
+        }); });
+    };
+    Party.prototype.createItem = function (type) {
         return __awaiter(this, void 0, void 0, function () {
-            var key, value;
+            var itemId, item;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        key = mutation.key, value = mutation.value;
-                        return [4 /*yield*/, async_1.sleep(50)];
-                    case 1:
-                        _a.sent();
-                        this._values.set(key, value);
-                        return [2 /*return*/];
-                }
+                itemId = crypto_1.createId();
+                item = new items_1.Item(itemId, type, null);
+                this._items.set(item.id, item);
+                this._update.emit();
+                return [2 /*return*/, item];
             });
         });
     };
-    TestModel.prototype.setProperty = function (key, value) {
+    Party.prototype.queryItems = function (filter) {
         return __awaiter(this, void 0, void 0, function () {
+            var type;
+            var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.write({
-                            key: key,
-                            value: value
-                        })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
+                type = (filter || {}).type;
+                return [2 /*return*/, new result_1.ResultSet(this._update, function () { return Array.from(_this._items.values())
+                        .filter(function (item) { return !type || type === item.type; }); })];
             });
         });
     };
-    // TODO(burdon): Format?
-    TestModel.type = 'wrn://dxos.io/model/test';
-    return TestModel;
-}(models_1.Model));
-exports.TestModel = TestModel;
+    return Party;
+}());
+exports.Party = Party;
