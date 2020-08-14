@@ -13,13 +13,10 @@ import { Party } from './parties';
 import { TestModel } from './testing';
 import { ModelFactory } from './models';
 import { codec } from './proto';
+import { latch } from './util';
 
 const log = debug('dxos:echo:testing');
 debug.enable('dxos:echo:*');
-
-// TODO(burdon): Reactive components (Database, Party, Item, Model)
-// TODO(burdon): Ensure streams are closed when objects are destroyed (on purpose or on error).
-// TODO(burdon): Ensure event handlers are removed.
 
 describe('api tests', () => {
   test('create party and items.', async () => {
@@ -32,8 +29,9 @@ describe('api tests', () => {
     log('Parties:', parties.value.map(party => humanize(party.key)));
     expect(parties.value).toHaveLength(0);
 
+    const [update, onUpdate] = latch();
     const unsubscribe = parties.subscribe(async (parties: Party[]) => {
-      log('Parties:', parties.map(party => humanize(party.key)));
+      log('Updated:', parties.map(party => humanize(party.key)));
       expect(parties).toHaveLength(1);
       parties.map(async party => {
         const items = await party.queryItems();
@@ -45,7 +43,7 @@ describe('api tests', () => {
         expect(result.value).toHaveLength(2);
       });
 
-      unsubscribe();
+      onUpdate();
     });
 
     const party = await db.createParty();
@@ -54,5 +52,9 @@ describe('api tests', () => {
     await party.createItem('document', TestModel.type);
     await party.createItem('document', TestModel.type);
     await party.createItem('canvas', TestModel.type);
+
+    // TODO(burdon): Wait.
+    await update;
+    unsubscribe();
   });
 });

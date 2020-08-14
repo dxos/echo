@@ -31,7 +31,7 @@ export const sink = (emitter: EventEmitter, event: string, count = 1) => {
 };
 
 // TODO(burdon): Factor out to @dxos/async. (also remove useValue).
-export const latch = (n: number) => {
+export const latch = (n = 1) => {
   assert(n > 0);
 
   let callback: (value: number) => void;
