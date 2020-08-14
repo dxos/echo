@@ -38,6 +38,7 @@ describe('model factory', () => {
           },
           mutation: message
         };
+
         return out;
       }
     );

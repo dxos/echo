@@ -10,6 +10,9 @@ import { ResultSet } from './result';
 import { Party } from './parties';
 import { ModelFactory } from './models';
 
+// TODO(burdon): Ensure streams are closed when objects are destroyed (on purpose or on error).
+// TODO(burdon): Ensure event handlers are removed.
+
 /**
  * Root object for the ECHO databse.
  */

@@ -30,34 +30,6 @@
                     }
                   }
                 },
-                "FeedMeta": {
-                  "fields": {
-                    "seq": {
-                      "type": "int32",
-                      "id": 1
-                    },
-                    "feedKey": {
-                      "type": "bytes",
-                      "id": 2
-                    },
-                    "identityKey": {
-                      "type": "bytes",
-                      "id": 3
-                    }
-                  }
-                },
-                "FeedStream": {
-                  "fields": {
-                    "meta": {
-                      "type": "FeedMeta",
-                      "id": 1
-                    },
-                    "data": {
-                      "type": "FeedMessage",
-                      "id": 2
-                    }
-                  }
-                },
                 "HaloEnvelope": {
                   "oneofs": {
                     "action": {
@@ -187,14 +159,6 @@
                           "id": 3
                         }
                       }
-                    }
-                  }
-                },
-                "TestMessage": {
-                  "fields": {
-                    "value": {
-                      "type": "int32",
-                      "id": 1
                     }
                   }
                 }

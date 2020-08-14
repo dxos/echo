@@ -19,6 +19,10 @@ import { ItemID, ItemType } from './types';
 
 const log = debug('dxos:echo:item');
 
+export interface ItemFilter {
+  type: ItemType
+}
+
 /**
  * Manages creation and index of items.
  */
@@ -77,7 +81,7 @@ export class ItemManager extends EventEmitter {
    * @param itemId
    * @param itemType
    * @param modelType
-   * @param readable
+   * @param readable Inbound mutation stream.
    */
   async constructItem (itemId: ItemID, itemType: ItemType, modelType: ModelType, readable: NodeJS.ReadableStream) {
     assert(itemId);
@@ -86,10 +90,11 @@ export class ItemManager extends EventEmitter {
     assert(readable);
 
     // TODO(burdon): Skip genesis message (and subsequent messages) if unknown model. Build map of ignored items.
-    if (this._modelFactory.hasModel(modelType)) {
+    if (!this._modelFactory.hasModel(modelType)) {
       throw new Error(`Unknown model: ${modelType}`);
     }
 
+    // TODO(burdon): Use createTransform.
     // Create transform to augment outbound model mutations.
     const transform = new Transform({
       objectMode: true,
@@ -115,7 +120,7 @@ export class ItemManager extends EventEmitter {
     const item = new Item(itemId, itemType, model);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
-    log('Constructed Item:', JSON.stringify(item));
+    log('Constructed Item:', String(item));
 
     // Item udpated.
     // TODO(burdon): Get event.
@@ -131,10 +136,10 @@ export class ItemManager extends EventEmitter {
   }
 
   /**
-   * Retrieves a data item from the index.
+   * Retrieves a item from the index.
    * @param itemId
    */
-  getItem (itemId: ItemID) {
+  getItem (itemId: ItemID): Item | undefined {
     return this._items.get(itemId);
   }
 
@@ -142,8 +147,9 @@ export class ItemManager extends EventEmitter {
    * Return matching items.
    * @param [filter]
    */
-  getItems (filter: any = {}) {
+  getItems (filter: ItemFilter): Item[] {
     const { type } = filter;
-    return Array.from(this._items.values()).filter(item => !type || item.type === type);
+    return Array.from(this._items.values())
+      .filter(item => !type || item.type === type);
   }
 }

@@ -4,9 +4,10 @@
 
 import { sleep } from '@dxos/async';
 
-import { Model, ModelType } from '../models';
-
 import { dxos } from '../proto/gen/testing';
+
+import { IFeedMeta } from '../feeds';
+import { Model, ModelType } from '../models';
 
 /**
  * Test model.
@@ -36,7 +37,7 @@ export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
     });
   }
 
-  async processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: dxos.echo.testing.IItemMutation) {
+  async processMessage (meta: IFeedMeta, mutation: dxos.echo.testing.IItemMutation) {
     const { key, value } = mutation;
 
     await sleep(50);

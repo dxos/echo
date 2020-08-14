@@ -2,13 +2,24 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Writable, Transform } from 'stream';
+import assert from 'assert';
+import { Readable, Writable, Transform } from 'stream';
+
+/**
+ * Create a readable stream.
+ */
+export function createReadable<T> (): Readable {
+  return new Readable({
+    objectMode: true,
+    read () {}
+  });
+}
 
 /**
  * Creates a writable object stream.
  * @param callback
  */
-export function createWritable<T> (callback: (message: T) => Promise<void>) {
+export function createWritable<T> (callback: (message: T) => Promise<void>): NodeJS.WritableStream {
   return new Writable({
     objectMode: true,
     write: async (message: T, _, next) => {
@@ -32,6 +43,7 @@ export function createTransform<R, W> (callback: (message: R) => Promise<W>) {
     transform: async (message: R, _, next) => {
       try {
         const out: W = await callback(message);
+        assert(out);
         next(null, out);
       } catch (err) {
         next(err);
@@ -41,7 +53,7 @@ export function createTransform<R, W> (callback: (message: R) => Promise<W>) {
 }
 
 /**
- * Wriable stream that collects objects.
+ * Wriable stream that collects objects (e.g., for testing).
  */
 export class WritableArray<T> extends Writable {
   _objects: T[] = [];

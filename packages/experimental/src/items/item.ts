@@ -22,15 +22,19 @@ export class Item {
     assert(this._model);
   }
 
-  get id () {
+  toString () {
+    return JSON.stringify({ itemId: this._itemId, itemType: this._itemType });
+  }
+
+  get id (): ItemID {
     return this._itemId;
   }
 
-  get type () {
+  get type (): ItemType {
     return this._itemType;
   }
 
-  get model () {
+  get model (): Model<any> {
     return this._model;
   }
 }

@@ -95,5 +95,5 @@ export abstract class Model<T> {
    * @param {Object} meta
    * @param {Object} mutation
    */
-  async abstract processMessage (meta: dxos.echo.testing.IFeedMeta, mutation: T): Promise<void>;
+  async abstract processMessage (meta: IFeedMeta, mutation: T): Promise<void>;
 }
