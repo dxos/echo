@@ -4,6 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import { Transform } from 'stream';
 
 import { Event } from '@dxos/async';
 import { createKeyPair } from '@dxos/crypto';
@@ -15,6 +16,11 @@ import { ResultSet } from './result';
 
 const log = debug('dxos:echo:database');
 
+interface Options {
+  readLogger?: Transform;
+  writeLogger?: Transform;
+}
+
 /**
  * Root object for the ECHO databse.
  */
@@ -23,11 +29,14 @@ export class Database {
   private readonly _parties = new Map<Buffer, Party>();
   private readonly _feedStore: FeedStore;
   private readonly _modelFactory: ModelFactory;
+  private readonly _options: Options;
 
-  constructor ({ feedStore, modelFactory }: { feedStore: FeedStore, modelFactory: ModelFactory }) {
+  constructor (feedStore: FeedStore, modelFactory: ModelFactory, options?: Options) {
+    assert(feedStore);
     assert(modelFactory);
     this._feedStore = feedStore;
     this._modelFactory = modelFactory;
+    this._options = options || {};
   }
 
   async initialize () {
@@ -41,7 +50,7 @@ export class Database {
     await this.initialize();
 
     const { publicKey: key } = createKeyPair();
-    const partyStreams = new PartyStreams(this._feedStore, key);
+    const partyStreams = new PartyStreams(this._feedStore, key, this._options);
     const party = await new Party(partyStreams, this._modelFactory).open();
     this._parties.set(party.key, party);
 

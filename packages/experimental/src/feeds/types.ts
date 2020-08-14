@@ -12,11 +12,11 @@ export type FeedKey = Uint8Array;
  */
 // TODO(burdon): Move to FeedStore (since not a hypercore data structure).
 export interface IFeedGenericBlock<T> {
+  key: Buffer; // TODO(burdon): Is this the party key? Wny buffer?
   seq: number;
-  key: Buffer; // TODO(burdon): Is this the party key?
+  data: T;
   sync: boolean;
   path: string;
-  data: T;
 }
 
 export type IFeedBlock = IFeedGenericBlock<dxos.echo.testing.FeedMessage>;

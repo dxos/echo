@@ -5,24 +5,30 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { humanize } from '@dxos/crypto';
+import { createKeyPair, humanize } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { Database } from './database';
 import { Party } from './parties';
 import { TestModel } from './testing';
 import { ModelFactory } from './models';
-import { codec } from './proto';
-import { latch } from './util';
+import { codec, jsonReplacer } from './proto';
+import { createLoggingTransform, latch } from './util';
 
-const log = debug('dxos:echo:testing');
+const log = debug('dxos:echo:database:testing');
 debug.enable('dxos:echo:*');
 
 describe('api tests', () => {
   test('create party and items.', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
-    const db = new Database({ feedStore, modelFactory });
+
+    const options = {
+      readLogger: createLoggingTransform((message: any) => { log('>>>', JSON.stringify(message, jsonReplacer, 2)); }),
+      writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
+    };
+
+    const db = new Database(feedStore, modelFactory, options);
     await db.initialize();
 
     const parties = await db.queryParties({ open: true });

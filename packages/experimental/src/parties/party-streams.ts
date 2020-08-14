@@ -3,16 +3,22 @@
 //
 
 import assert from 'assert';
-import { Readable, Writable } from 'stream';
+import { Readable, Transform, Writable } from 'stream';
 
 import { keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
+
+import { dxos } from '../proto/gen/testing';
 
 import { createFeedMeta, createWritableFeedStream, IFeedBlock } from '../feeds';
 import { IEchoStream } from '../items';
 import { createTransform } from '../util';
 import { PartyKey } from './types';
-import { dxos } from '../proto/gen/testing';
+
+interface Options {
+  readLogger?: Transform;
+  writeLogger?: Transform;
+}
 
 /**
  * Manages FeedStore I/O for a specific party.
@@ -20,15 +26,17 @@ import { dxos } from '../proto/gen/testing';
 export class PartyStreams {
   private readonly _feedStore: FeedStore;
   private readonly _partyKey: PartyKey;
+  private readonly _options: Options;
 
   private _readStream: Readable | undefined;
   private _writeStream: Writable | undefined;
 
-  constructor (feedStore: FeedStore, partyKey: PartyKey) {
+  constructor (feedStore: FeedStore, partyKey: PartyKey, options?: Options) {
     assert(feedStore);
     assert(partyKey);
     this._feedStore = feedStore;
     this._partyKey = partyKey;
+    this._options = options || {};
   }
 
   get key () {
@@ -87,9 +95,6 @@ export class PartyStreams {
       throw new Error(`Invalid block: ${JSON.stringify(block)}`);
     });
 
-    // TODO(burdon): Filter and order via iterator.
-    this._feedStore.createReadStream({ live: true }).pipe(this._readStream);
-
     //
     // Create writable stream to party's feed.
     //
@@ -104,8 +109,31 @@ export class PartyStreams {
         return data;
       });
 
+    //
+    // Conncet pipieline.
+    //
+
+    const { readLogger, writeLogger } = this._options;
+
+    // TODO(burdon): Use `pipeline`?
+    // pipeline(this._readStream, readLogger, this._feedStore.createReadStream({ live: true }), () => {
+    //   console.log('!!!!!!!!!!!!!!!!!!!!');
+    // });
+
+    // TODO(burdon): Filter and order via iterator.
+    const feedStream = this._feedStore.createReadStream({ live: true });
+    if (readLogger) {
+      feedStream.pipe(readLogger).pipe(this._readStream);
+    } else {
+      feedStream.pipe(this._readStream);
+    }
+
     const feed = await this._feedStore.openFeed(keyToString(this._partyKey));
-    this._writeStream.pipe(createWritableFeedStream(feed));
+    if (writeLogger) {
+      this._writeStream.pipe(writeLogger).pipe(createWritableFeedStream(feed));
+    } else {
+      this._writeStream.pipe(createWritableFeedStream(feed));
+    }
 
     return {
       readStream: this._readStream,

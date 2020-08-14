@@ -51,6 +51,17 @@ export function createTransform<R, W> (callback: (message: R) => Promise<W | und
 }
 
 /**
+ * Injectable logger.
+ * @param logger
+ */
+export function createLoggingTransform (logger: Function = console.log) {
+  return createTransform<any, any>(message => {
+    logger(message);
+    return message;
+  });
+}
+
+/**
  * Wriable stream that collects objects (e.g., for testing).
  */
 export class WritableArray<T> extends Writable {

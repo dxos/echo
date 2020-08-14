@@ -9,6 +9,7 @@ import { Readable } from 'stream';
 import { createReadable, createWritable } from '../util';
 import { IEchoStream, ItemID } from './types';
 import { ItemManager } from './item-manager';
+import { jsonReplacer } from '../proto';
 
 const log = debug('dxos:echo:item:demuxer');
 
@@ -24,7 +25,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
 
   // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
   return createWritable<IEchoStream>(async (message: IEchoStream) => {
-    log('Reading:', JSON.stringify(message));
+    log('Reading:', JSON.stringify(message, jsonReplacer));
     const { data: { itemId, genesis } } = message;
     assert(itemId);
 
