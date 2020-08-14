@@ -14,7 +14,6 @@ import { FeedKey, IFeedBlock } from './types';
 import { createItemMutation } from '../testing';
 import { FeedStoreIterator } from './feed-store-iterator';
 import { createWritableFeedStream } from './stream';
-import { latch } from '../util';
 
 const chance = new Chance();
 
@@ -67,5 +66,7 @@ describe('feed store iterator', () => {
         break;
       }
     }
+
+    expect(count).toBe(config.numMessages);
   });
 });
