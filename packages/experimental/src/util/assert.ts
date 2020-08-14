@@ -16,11 +16,6 @@ import assert from 'assert';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function assumeType<T> (value: unknown): asserts value is T {}
 
-export function assertTypeUrl (value: any, typeUrl: string) {
-  assert(value.__type_url === typeUrl,
-    `Expected message with type URL \`${typeUrl}\` instead got \`${value.__type_url}\``);
-}
-
 /**
  * Checks the type of messages that come from `google.protobuf.Any` encoding.
  *
@@ -31,6 +26,13 @@ export function assertTypeUrl (value: any, typeUrl: string) {
  * @param value
  * @param typeUrl
  */
+// TODO(burdon): Move to codec.
 export function assertAnyType<T> (value: unknown, typeUrl: string): asserts value is T {
   assertTypeUrl(value, typeUrl);
+}
+
+// TODO(burdon): Move to codec.
+export function assertTypeUrl (value: any, typeUrl: string) {
+  assert(value.__type_url === typeUrl,
+    `Expected message with type URL \`${typeUrl}\` instead got \`${value.__type_url}\``);
 }

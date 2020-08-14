@@ -3,7 +3,6 @@
 //
 
 import Chance from 'chance';
-import hypercore from 'hypercore';
 import pify from 'pify';
 import ram from 'random-access-memory';
 import { Writable } from 'stream';
@@ -11,8 +10,6 @@ import tempy from 'tempy';
 
 import { createId, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
-
-import { dxos } from '../proto/gen/testing';
 
 import { latch, sink } from '../util';
 import { createItemMutation } from '../testing';

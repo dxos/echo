@@ -3,13 +3,10 @@
 //
 
 import assert from 'assert';
-import debug from 'debug';
 
 import { ItemID } from '../items';
 import { Model } from './model';
 import { ModelType, ModelConstructor } from './types';
-
-const log = debug('dxos:echo:model');
 
 /**
  * Creates Model instances from a registered collection of Model types.

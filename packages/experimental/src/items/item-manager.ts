@@ -16,7 +16,6 @@ import { Item } from './item';
 import { IEchoStream, ItemID, ItemType } from './types';
 import { ResultSet } from '../result';
 import { createTransform } from '../util';
-import EchoEnvelope = dxos.echo.testing.EchoEnvelope;
 
 const log = debug('dxos:echo:item:manager');
 

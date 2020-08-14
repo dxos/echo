@@ -14,6 +14,7 @@ import { ModelFactory } from './models';
 import { Party, PartyFilter, PartyStreams } from './parties';
 import { ResultSet } from './result';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const log = debug('dxos:echo:database');
 
 interface Options {

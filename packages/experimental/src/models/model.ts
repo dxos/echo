@@ -3,7 +3,6 @@
 //
 
 import assert from 'assert';
-import debug from 'debug';
 import pify from 'pify';
 
 import { Event } from '@dxos/async';
@@ -12,8 +11,6 @@ import { ItemID } from '../items';
 import { IFeedMeta } from '../feeds';
 import { createWritable } from '../util';
 import { ModelMessage, ModelType } from './types';
-
-const log = debug('dxos:echo:model');
 
 /**
  * Abstract base class for Models.

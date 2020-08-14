@@ -5,7 +5,7 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { createKeyPair, humanize } from '@dxos/crypto';
+import { humanize } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { Database } from './database';

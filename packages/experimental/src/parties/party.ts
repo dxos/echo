@@ -11,7 +11,6 @@ import { ResultSet } from '../result';
 import { ModelFactory, ModelType } from '../models';
 import { PartyStreams } from './party-streams';
 import { PartyKey } from './types';
-import { createTransform } from '../util';
 
 /**
  * Party.

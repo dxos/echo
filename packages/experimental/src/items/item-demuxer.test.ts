@@ -4,19 +4,17 @@
 
 import debug from 'debug';
 
-import { sleep } from '@dxos/async';
 import { createId, createKeyPair } from '@dxos/crypto';
 
 import { dxos } from '../proto/gen/testing';
 
 import { ModelFactory } from '../models';
 import { TestModel } from '../testing';
-import { createReadable, createTransform, latch } from '../util';
+import { createTransform, latch } from '../util';
 import { Item } from './item';
 import { createItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 import { IEchoStream } from './types';
-import { createMessage } from '../proto';
 
 const log = debug('dxos:echo:item');
 debug.enable('dxos:echo:*');
