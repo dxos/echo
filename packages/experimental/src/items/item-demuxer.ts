@@ -13,12 +13,13 @@ import { ItemManager } from './item-manager';
 const log = debug('dxos:echo:item:demuxer');
 
 /**
- * Creates a stream that consumes ECHO messages and routes them to the associated items.
+ * Creates a stream that consumes `IEchoStream` messages and routes them to the associated items.
  * @param itemManager
  */
 export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStream => {
   assert(itemManager);
 
+  // Mutations are buffered for each item.
   const itemStreams = new Map<ItemID, Readable>();
 
   // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
@@ -31,7 +32,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
       const { itemType, modelType } = genesis;
       assert(itemType && modelType);
 
-      // Create stream.
+      // Create mutation stream.
       const itemStream = createReadable();
       itemStreams.set(itemId, itemStream);
 
@@ -39,11 +40,11 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
       const item = await itemManager.constructItem(itemId, itemType, modelType, itemStream);
       assert(item.id === itemId);
     } else {
-      // Get the stream.
       // NOTE: the clock should guarantee that the item genesis message has been processed.
       const itemStream = itemStreams.get(itemId);
       assert(itemStream, `Missing item: ${itemId}`);
 
+      // Forward mutations to the item's stream.
       await itemStream.push(message);
     }
   });

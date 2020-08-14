@@ -8,18 +8,22 @@ import { Model } from '../models';
 import { ItemID, ItemType } from './types';
 
 /**
- * Data item.
+ * Atomic data item.
  */
 export class Item {
+  private readonly _itemId: ItemID;
+  private readonly _itemType: ItemType;
+
   // TODO(burdon): System and user model.
-  constructor (
-    private _itemId: ItemID,
-    private _itemType: ItemType,
-    private _model: Model<any>
-  ) {
-    assert(this._itemId);
-    assert(this._itemType);
-    assert(this._model);
+  private readonly _model: Model<any>;
+
+  constructor (itemId: ItemID, itemType: ItemType, model: Model<any>) {
+    assert(itemId);
+    assert(itemType);
+    assert(model);
+    this._itemId = itemId;
+    this._itemType = itemType;
+    this._model = model;
   }
 
   toString () {

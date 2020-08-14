@@ -2,10 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
-// import { LogicalClockStamp } from '../../archive/clock/logical-clock-stamp';
-import { FeedKey } from '../feeds';
-import { ItemID, ItemType } from '../items';
-import { TestModel } from './test-model';
+import { dxos } from '../proto/gen/testing';
+
+import { ItemID } from '../items';
+import { createMessage } from '../proto';
 
 //
 // HALO generators.
@@ -15,76 +15,13 @@ import { TestModel } from './test-model';
 // ECHO generators.
 //
 
-export const createItemMutation = (itemId: ItemID, key: string, value: string) => ({
-  echo: {
-    itemId,
-    itemMutation: {
-      key,
-      value
+export const createItemMutation = (itemId: ItemID, key: string, value: string) =>
+  createMessage<dxos.echo.testing.IFeedMessage>({
+    echo: {
+      itemId,
+      itemMutation: {
+        key,
+        value
+      }
     }
-  }
-});
-
-/*
-export const createPartyAdmit = (feedKey: FeedKey) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.PartyAdmit',
-    feedKey
-  }
-});
-
-export const createPartyEject = (feedKey: FeedKey) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.PartyEject',
-    feedKey
-  }
-});
-
-export const createItemGenesis = (itemId: ItemID, itemType: ItemType, timestamp?: LogicalClockStamp) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.ItemEnvelope',
-    itemId,
-    timestamp: timestamp ? LogicalClockStamp.encode(timestamp) : undefined,
-    genesis: {
-      itemType,
-      modelType: TestModel.type
-    }
-  }
-});
-
-export const createTestItemMutation = (itemId: ItemID, key: string, value: string, timestamp?: LogicalClockStamp) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.ItemEnvelope',
-    itemId,
-    timestamp: timestamp ? LogicalClockStamp.encode(timestamp) : undefined,
-    operation: {
-      __type_url: 'dxos.echo.testing.TestItemMutation',
-      key,
-      value
-    }
-  }
-});
-
-//
-// Basic testing
-//
-
-export const createTestMessage = (value: number) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.TestMessage',
-    value
-  }
-});
-
-export const createTestMessageWithTimestamp = (feedKey: Buffer, timestamp: LogicalClockStamp, value: number) => ({
-  payload: {
-    __type_url: 'dxos.echo.testing.ItemEnvelope',
-    timestamp: LogicalClockStamp.encode(timestamp),
-    operation: {
-      __type_url: 'dxos.echo.testing.TestMessage',
-      value
-    }
-  },
-  feedKey
-});
-*/
+  });

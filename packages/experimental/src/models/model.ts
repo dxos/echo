@@ -6,29 +6,14 @@ import assert from 'assert';
 import debug from 'debug';
 import pify from 'pify';
 
-// TODO(burdon): Rename EventHandler.
 import { Event } from '@dxos/async';
 
 import { ItemID } from '../items';
 import { IFeedMeta } from '../feeds';
 import { createWritable } from '../util';
-
-import { dxos } from '../proto/gen/testing';
+import { ModelMessage, ModelType } from './types';
 
 const log = debug('dxos:echo:model');
-
-//
-// Types
-//
-
-export type ModelType = string;
-
-export type ModelConstructor<T> = new (itemId: ItemID, writable?: NodeJS.WritableStream) => T;
-
-export type ModelMessage<T> = {
-  meta: IFeedMeta,
-  mutation: T
-}
 
 /**
  * Abstract base class for Models.
@@ -37,7 +22,7 @@ export type ModelMessage<T> = {
 export abstract class Model<T> {
   static type: ModelType;
 
-  private readonly _onUpdate = new Event<Model<T>>();
+  private readonly _modelUpdate = new Event<Model<T>>();
   private readonly _processor: NodeJS.WritableStream;
 
   /**
@@ -53,6 +38,9 @@ export abstract class Model<T> {
     // Create the input mutation stream.
     this._processor = createWritable<ModelMessage<T>>(async (message: ModelMessage<T>) => {
       const { meta, mutation } = message;
+      assert(meta);
+      assert(mutation);
+
       await this.processMessage(meta, mutation);
     });
   }
@@ -72,9 +60,9 @@ export abstract class Model<T> {
 
   // TODO(burdon): Factor out.
   subscribe (listener: (result: Model<T>) => void) {
-    this._onUpdate.on(listener);
+    this._modelUpdate.on(listener);
     return () => {
-      this._onUpdate.off(listener);
+      this._modelUpdate.off(listener);
     };
   }
 
@@ -92,7 +80,7 @@ export abstract class Model<T> {
    * @protected
    */
   protected update () {
-    this._onUpdate.emit(this);
+    this._modelUpdate.emit(this);
   }
 
   /**

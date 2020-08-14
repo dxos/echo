@@ -42,6 +42,9 @@ export class Party {
     return this._partyStreams.key;
   }
 
+  /**
+   *
+   */
   async open () {
     if (this._itemManager) {
       return this;
@@ -59,6 +62,9 @@ export class Party {
     return this;
   }
 
+  /**
+   *
+   */
   async close () {
     if (!this._itemManager) {
       return this;

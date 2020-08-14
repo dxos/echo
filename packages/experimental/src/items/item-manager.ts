@@ -5,18 +5,18 @@
 import assert from 'assert';
 import debug from 'debug';
 import pify from 'pify';
-import { EventEmitter } from 'events';
-import { Transform } from 'stream';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 
 import { dxos } from '../proto/gen/testing';
 
-import { ModelType, ModelFactory, Model } from '../models';
+import { ModelType, ModelFactory, Model, ModelMessage } from '../models';
 import { Item } from './item';
-import { ItemID, ItemType } from './types';
+import { IEchoStream, ItemID, ItemType } from './types';
 import { ResultSet } from '../result';
+import { createTransform } from '../util';
+import EchoEnvelope = dxos.echo.testing.EchoEnvelope;
 
 const log = debug('dxos:echo:item:manager');
 
@@ -25,10 +25,10 @@ export interface ItemFilter {
 }
 
 /**
- * Manages creation and index of items.
+ * Manages the creation and indexing of items.
  */
-export class ItemManager extends EventEmitter {
-  private readonly _update = new Event();
+export class ItemManager {
+  private readonly _itemUpdate = new Event<Item>();
 
   // Map of active items.
   private _items = new Map<ItemID, Item>();
@@ -38,13 +38,18 @@ export class ItemManager extends EventEmitter {
   // eslint-disable-next-line
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
-  constructor (
-    private _modelFactory: ModelFactory,
-    private _writable: NodeJS.WritableStream
-  ) {
-    super();
-    assert(this._modelFactory);
-    assert(this._writable);
+  _modelFactory: ModelFactory;
+  _writable: NodeJS.WritableStream;
+
+  /**
+   * @param modelFactory
+   * @param writable Outbound `dxos.echo.testing.IEchoEnvelope` mutation stream.
+   */
+  constructor (modelFactory: ModelFactory, writable: NodeJS.WritableStream) {
+    assert(modelFactory);
+    assert(writable);
+    this._modelFactory = modelFactory;
+    this._writable = writable;
   }
 
   /**
@@ -97,27 +102,42 @@ export class ItemManager extends EventEmitter {
       throw new Error(`Unknown model: ${modelType}`);
     }
 
-    // TODO(burdon): Use createTransform.
-    // Create transform to augment outbound model mutations.
-    const transform = new Transform({
-      objectMode: true,
-      transform (message, _, callback) {
-        callback(null, {
-          itemId,
-          operation: message
-        });
-      }
+    //
+    // Convert outbound mutations.
+    //
+    const outboundTransform = createTransform<any, dxos.echo.testing.IEchoEnvelope>(async (message) => {
+      const response: dxos.echo.testing.IEchoEnvelope = {
+        itemId,
+        itemMutation: message
+      };
+
+      return response;
     });
 
-    // Connect streams.
-    transform.pipe(this._writable);
+    //
+    // Convert inbound mutations.
+    //
+    const inboundTransform = createTransform<IEchoStream, ModelMessage<any>>(async (message: IEchoStream) => {
+      const { meta, data: { itemId: mutationItemId, itemMutation } } = message;
+      assert(mutationItemId === itemId);
+      const response: ModelMessage<any> = {
+        meta,
+        mutation: itemMutation
+      };
+
+      return response;
+    });
 
     // Create model.
-    const model: Model<any> = this._modelFactory.createModel(modelType, itemId, transform);
+    const model: Model<any> = this._modelFactory.createModel(modelType, itemId, outboundTransform);
     assert(model, `Invalid model: ${modelType}`);
 
-    // TODO(burdon): User or system model? Handle by item?
-    readable.pipe(model.processor);
+    // Connect streams.
+    // TODO(burdon): Do these unpipe automatically when the streams are closed/destroyed?
+    outboundTransform.pipe(this._writable);
+
+    // TODO(burdon): Which model?
+    readable.pipe(inboundTransform).pipe(model.processor);
 
     // Create item.
     const item = new Item(itemId, itemType, model);
@@ -126,15 +146,11 @@ export class ItemManager extends EventEmitter {
     log('Constructed:', String(item));
 
     // Item udpated.
-    // TODO(burdon): Get event.
-    // model.on('update', () => {
-    //   item.emit('update', item);
-    //   this.emit('update', item);
-    // });
+    // TODO(burdon): Update the item directly?
+    this._itemUpdate.emit(item);
 
     // Notify pending creates.
     this._pendingItems.get(itemId)?.(item);
-    this.emit('create', item);
     return item;
   }
 
@@ -152,7 +168,7 @@ export class ItemManager extends EventEmitter {
    */
   async queryItems (filter?: ItemFilter): Promise<ResultSet<Item>> {
     const { type } = filter || {};
-    return new ResultSet<Item>(this._update, () => Array.from(this._items.values())
+    return new ResultSet<Item>(this._itemUpdate, () => Array.from(this._items.values())
       .filter(item => !type || type === item.type));
   }
 }

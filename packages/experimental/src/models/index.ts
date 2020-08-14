@@ -4,3 +4,4 @@
 
 export * from './model';
 export * from './model-factory';
+export * from './types';

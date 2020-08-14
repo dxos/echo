@@ -19,7 +19,7 @@ const log = debug('dxos:echo:database');
  * Root object for the ECHO databse.
  */
 export class Database {
-  private readonly _update = new Event();
+  private readonly _partyUpdate = new Event<Party>();
   private readonly _parties = new Map<Buffer, Party>();
   private readonly _feedStore: FeedStore;
   private readonly _modelFactory: ModelFactory;
@@ -40,14 +40,14 @@ export class Database {
   async createParty (): Promise<Party> {
     await this.initialize();
 
-    const key = createKeyPair().publicKey;
+    const { publicKey: key } = createKeyPair();
     const partyStreams = new PartyStreams(this._feedStore, key);
     const party = await new Party(partyStreams, this._modelFactory).open();
     this._parties.set(party.key, party);
 
     // Notify update event.
     // TODO(burdon): How to distinguish event types (create, update, etc.) and propagation?
-    setImmediate(() => this._update.emit());
+    setImmediate(() => this._partyUpdate.emit(party));
 
     return party;
   }
@@ -57,6 +57,6 @@ export class Database {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async queryParties (filter?: PartyFilter): Promise<ResultSet<Party>> {
-    return new ResultSet<Party>(this._update, () => Array.from(this._parties.values()));
+    return new ResultSet<Party>(this._partyUpdate, () => Array.from(this._parties.values()));
   }
 }

@@ -9,7 +9,8 @@ import { dxos } from '../proto/gen/testing';
 import { ModelFactory } from './model-factory';
 import { TestModel } from '../testing';
 import { createTransform, latch } from '../util';
-import { ModelMessage } from './model';
+import { ModelMessage } from './types';
+import { createMessage } from '../proto';
 
 describe('model factory', () => {
   test('model constructor', async () => {
@@ -22,7 +23,7 @@ describe('model factory', () => {
   });
 
   test('model mutation processing', async () => {
-    const feedKey = createKeyPair().publicKey;
+    const { publicKey: feedKey } = createKeyPair();
     const itemId = createId();
 
     const objects: dxos.echo.testing.IItemMutation[] = [];
@@ -49,12 +50,12 @@ describe('model factory', () => {
     expect(model).toBeTruthy();
 
     // Update model.
-    await model.setProperty('title', 'ECHO');
+    await model.setProperty('title', 'Hello');
     expect(objects).toHaveLength(1);
-    expect(objects[0]).toEqual({
+    expect(objects[0]).toEqual(createMessage<dxos.echo.testing.IItemMutation>({
       key: 'title',
-      value: 'ECHO'
-    });
+      value: 'Hello'
+    }, 'dxos.echo.testing.ItemMutation'));
 
     // Expect model has not been updated (mutation has not been processed).
     expect(model.getProperty('title')).toBeFalsy();
@@ -70,6 +71,6 @@ describe('model factory', () => {
     await update;
 
     // Expect model to have been updated.
-    expect(model.getProperty('title')).toEqual('ECHO');
+    expect(model.getProperty('title')).toEqual('Hello');
   });
 });

@@ -6,7 +6,8 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { ItemID } from '../items';
-import { ModelType, ModelConstructor, Model } from './model';
+import { Model } from './model';
+import { ModelType, ModelConstructor } from './types';
 
 const log = debug('dxos:echo:model');
 

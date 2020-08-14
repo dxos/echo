@@ -39,7 +39,7 @@ describe('api tests', () => {
           log('Item:', String(item));
         });
 
-        const result = await party.queryItems({ type: 'document' });
+        const result = await party.queryItems({ type: 'dxos://dxos.org/item/document' });
         expect(result.value).toHaveLength(2);
       });
 
@@ -49,11 +49,11 @@ describe('api tests', () => {
     const party = await db.createParty();
     log('Created:', String(party));
 
-    await party.createItem('document', TestModel.type);
-    await party.createItem('document', TestModel.type);
-    await party.createItem('canvas', TestModel.type);
+    // TODO(burdon): WRN format.
+    await party.createItem('dxos://dxos.org/item/document', TestModel.type);
+    await party.createItem('dxos://dxos.org/item/document', TestModel.type);
+    await party.createItem('dxos://dxos.org/item/kanban', TestModel.type);
 
-    // TODO(burdon): Wait.
     await update;
     unsubscribe();
   });

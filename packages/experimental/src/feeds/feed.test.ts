@@ -8,12 +8,13 @@ import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
 
 import { codec } from '../proto';
 import pify from 'pify';
+import { dxos } from '../proto/gen/testing';
 
 describe('Feed tests:', () => {
   test('codec', () => {
     const feedDescriptor = new FeedDescriptor('test-feed');
 
-    const message1 = {
+    const message1: dxos.echo.testing.IFeedMessage = {
       halo: {
         genesis: {
           feedKey: feedDescriptor.key
@@ -22,7 +23,8 @@ describe('Feed tests:', () => {
     };
 
     const buffer = codec.encode(message1);
-    const message2 = codec.decode(buffer);
+
+    const message2: dxos.echo.testing.IFeedMessage = codec.decode(buffer);
 
     expect(message1).toEqual(message2);
   });
@@ -34,7 +36,7 @@ describe('Feed tests:', () => {
     const feed = await feedStore.openFeed('test-feed');
     expect(feed.length).toBe(0);
 
-    const data = {
+    const data: dxos.echo.testing.IFeedMessage = {
       halo: {
         genesis: {
           feedKey: feed.key
