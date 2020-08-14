@@ -10,10 +10,10 @@ export type FeedKey = Uint8Array;
  * Hypercore message.
  * https://github.com/hypercore-protocol/hypercore
  */
-// TODO(burdon): FeedStore block?
+// TODO(burdon): Move to FeedStore (since not a hypercore data structure).
 export interface IFeedGenericBlock<T> {
   seq: number;
-  key: Buffer;
+  key: Buffer; // TODO(burdon): Is this the party key?
   sync: boolean;
   path: string;
   data: T;
@@ -28,6 +28,15 @@ export interface IFeedMeta {
   feedKey: FeedKey;
   seq: number;
 }
+
+/**
+ * Constructs a meta object from the raw stream object.
+ * @param block
+ */
+export const createFeedMeta = (block: IFeedGenericBlock<any>) => ({
+  feedKey: block.key,
+  seq: block.seq
+});
 
 /**
  *

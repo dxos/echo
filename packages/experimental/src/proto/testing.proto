@@ -20,15 +20,8 @@ import "google/protobuf/any.proto";
 // Outer message type decoded by Codec.
 // NOTE: Hypercore returns a field called `data`, which corresponds to this envelope (not the contained message).
 message FeedMessage {
-  FeedGenesis genesis = 1;
-  HaloEnvelope halo = 2;
-  EchoEnvelope echo = 3;
-}
-
-// Must be the first (zeroth) block in each feed.
-message FeedGenesis {
-  // Defined by genesis feed.
-  PartyGenesis partyGenesis = 1;
+  HaloEnvelope halo = 1;
+  EchoEnvelope echo = 2;
 }
 
 //
@@ -38,12 +31,14 @@ message FeedGenesis {
 // Wrapper for all HALO messages.
 message HaloEnvelope {
   oneof action {
-    PartyAdmit admit = 1;
-    PartyEject eject = 2;
+    PartyGenesis genesis = 1;
+    PartyAdmit admit = 2;
+    PartyEject eject = 3;
   }
 }
 
-// Indicates creation of a party.
+// First block.
+// TODO(burdon): Generalize first block for all feeds.
 message PartyGenesis {
   bytes feedKey = 1;
 }

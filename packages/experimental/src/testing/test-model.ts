@@ -14,7 +14,7 @@ import { Model, ModelType } from '../models';
  */
 export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
   // TODO(burdon): WRN Format?
-  static type: ModelType = 'wrn://dxos.io/model/test';
+  static type: ModelType = 'wrn://dxos.org/model/test';
 
   private _values = new Map();
 

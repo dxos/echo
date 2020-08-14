@@ -23,7 +23,7 @@ export class Item {
   }
 
   toString () {
-    return JSON.stringify({ itemId: this._itemId, itemType: this._itemType });
+    return `Item(${JSON.stringify({ itemId: this._itemId, itemType: this._itemType })})`;
   }
 
   get id (): ItemID {

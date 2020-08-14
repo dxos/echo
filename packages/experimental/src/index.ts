@@ -7,6 +7,7 @@ export * from './feeds';
 export * from './items';
 export * from './models';
 export * from './parties';
+export * from './proto';
 export * from './result';
 export * from './testing';
 export * from './util';

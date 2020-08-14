@@ -6,7 +6,7 @@ import ram from 'random-access-memory';
 
 import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
 
-import { codec } from './codec';
+import { codec } from '../proto';
 import pify from 'pify';
 
 describe('Feed tests:', () => {
@@ -14,8 +14,8 @@ describe('Feed tests:', () => {
     const feedDescriptor = new FeedDescriptor('test-feed');
 
     const message1 = {
-      genesis: {
-        partyGenesis: {
+      halo: {
+        genesis: {
           feedKey: feedDescriptor.key
         }
       }
@@ -35,8 +35,8 @@ describe('Feed tests:', () => {
     expect(feed.length).toBe(0);
 
     const data = {
-      genesis: {
-        partyGenesis: {
+      halo: {
+        genesis: {
           feedKey: feed.key
         }
       }

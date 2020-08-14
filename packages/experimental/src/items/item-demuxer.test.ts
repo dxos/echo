@@ -32,6 +32,12 @@ describe('item demxuer', () => {
     const itemManager = new ItemManager(modelFactory, writable);
     const itemDemuxer = createItemDemuxer(itemManager);
 
+    // Query for items.
+    const items = await itemManager.queryItems();
+    const unsubscribe = items.subscribe(() => {
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    });
+
     // TODO(burdon): Pipe writable output back into partyStream.
     const partyStream = createReadable();
     partyStream.pipe(itemDemuxer);
@@ -42,14 +48,14 @@ describe('item demxuer', () => {
       data: {
         itemId,
         genesis: {
-          itemType: 'document',
+          itemType: 'wrn://dxos.org/item/test',
           modelType: TestModel.type
         }
       }
     });
 
     // TODO(burdon): Wait for event.
-    await sleep(500);
+    await sleep(100);
 
     // Update item (causes mutation to be propagated).
     const item = itemManager.getItem(itemId);
@@ -61,5 +67,6 @@ describe('item demxuer', () => {
 
     // TODO(burdon): Wait for processing (event on item, which should update query).
     console.log(model.properties);
+    unsubscribe();
   });
 });

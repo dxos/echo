@@ -8,25 +8,13 @@
               "nested": {
                 "FeedMessage": {
                   "fields": {
-                    "genesis": {
-                      "type": "FeedGenesis",
-                      "id": 1
-                    },
                     "halo": {
                       "type": "HaloEnvelope",
-                      "id": 2
+                      "id": 1
                     },
                     "echo": {
                       "type": "EchoEnvelope",
-                      "id": 3
-                    }
-                  }
-                },
-                "FeedGenesis": {
-                  "fields": {
-                    "partyGenesis": {
-                      "type": "PartyGenesis",
-                      "id": 1
+                      "id": 2
                     }
                   }
                 },
@@ -34,19 +22,24 @@
                   "oneofs": {
                     "action": {
                       "oneof": [
+                        "genesis",
                         "admit",
                         "eject"
                       ]
                     }
                   },
                   "fields": {
+                    "genesis": {
+                      "type": "PartyGenesis",
+                      "id": 1
+                    },
                     "admit": {
                       "type": "PartyAdmit",
-                      "id": 1
+                      "id": 2
                     },
                     "eject": {
                       "type": "PartyEject",
-                      "id": 2
+                      "id": 3
                     }
                   }
                 },

@@ -2,43 +2,86 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Event } from '@dxos/async';
-import { createId, createKeyPair } from '@dxos/crypto';
+import assert from 'assert';
 
-import { Item, ItemID, ItemType } from '../items';
+import { humanize } from '@dxos/crypto';
+
+import { createItemDemuxer, Item, ItemFilter, ItemManager, ItemType } from '../items';
 import { ResultSet } from '../result';
-import { Model, ModelFactory, ModelType } from '../models';
+import { ModelFactory, ModelType } from '../models';
+import { PartyStreams } from './party-streams';
+import { PartyKey } from './types';
+import { createTransform } from '../util';
 
 /**
  * Party.
  */
 export class Party {
-  private readonly _update = new Event();
-  // TODO(burdon): From halo.
-  private readonly _key: Buffer = createKeyPair().publicKey;
-  // TODO(burdon): Item manager.
-  private readonly _items = new Map<ItemID, Item>();
+  private readonly _partyStreams: PartyStreams;
+  private readonly _modelFactory: ModelFactory;
 
-  constructor (
-    private readonly _modelFactory: ModelFactory
-  ) {}
+  private _itemManager: ItemManager | undefined;
+  private _itemDemuxer: NodeJS.WritableStream | undefined;
 
-  get key (): Buffer {
-    return this._key;
+  /**
+   * @param partyStreams
+   * @param modelFactory
+   */
+  constructor (partyStreams: PartyStreams, modelFactory: ModelFactory) {
+    assert(partyStreams);
+    assert(modelFactory);
+    this._partyStreams = partyStreams;
+    this._modelFactory = modelFactory;
+  }
+
+  toString () {
+    return `Party(${JSON.stringify({ key: humanize(this.key) })})`;
+  }
+
+  get key (): PartyKey {
+    return this._partyStreams.key;
+  }
+
+  async open () {
+    if (this._itemManager) {
+      return this;
+    }
+
+    // TODO(burdon): Logging duplex/transforms.
+    // TODO(burdon): Support read-only parties.
+    const { readStream, writeStream } = await this._partyStreams.open();
+    this._itemManager = new ItemManager(this._modelFactory, writeStream);
+    this._itemDemuxer = createItemDemuxer(this._itemManager);
+
+    // Connect the read stream.
+    readStream.pipe(this._itemDemuxer);
+
+    return this;
+  }
+
+  async close () {
+    if (!this._itemManager) {
+      return this;
+    }
+
+    // Disconnect the read stream.
+    this._partyStreams.readStream?.unpipe(this._itemDemuxer);
+
+    this._itemManager = undefined;
+    this._itemDemuxer = undefined;
+
+    await this._partyStreams.close();
+
+    return this;
   }
 
   async createItem (itemType: ItemType, modelType: ModelType): Promise<Item> {
-    const itemId = createId();
-    const model = this._modelFactory.createModel(modelType, itemId);
-    const item = new Item(itemId, itemType, model);
-    this._items.set(item.id, item);
-    this._update.emit();
-    return item;
+    assert(this._itemManager);
+    return this._itemManager.createItem(itemType, modelType);
   }
 
-  async queryItems (filter?: any): Promise<ResultSet<Item>> {
-    const { type } = filter || {};
-    return new ResultSet<Item>(this._update, () => Array.from(this._items.values())
-      .filter(item => !type || type === item.type));
+  async queryItems (filter?: ItemFilter): Promise<ResultSet<Item>> {
+    assert(this._itemManager);
+    return this._itemManager.queryItems(filter);
   }
 }

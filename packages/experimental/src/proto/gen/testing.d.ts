@@ -11,9 +11,6 @@ export namespace dxos {
             /** Properties of a FeedMessage. */
             interface IFeedMessage {
 
-                /** FeedMessage genesis */
-                genesis?: (dxos.echo.testing.IFeedGenesis|null);
-
                 /** FeedMessage halo */
                 halo?: (dxos.echo.testing.IHaloEnvelope|null);
 
@@ -29,9 +26,6 @@ export namespace dxos {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: dxos.echo.testing.IFeedMessage);
-
-                /** FeedMessage genesis. */
-                public genesis?: (dxos.echo.testing.IFeedGenesis|null);
 
                 /** FeedMessage halo. */
                 public halo?: (dxos.echo.testing.IHaloEnvelope|null);
@@ -110,98 +104,11 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a FeedGenesis. */
-            interface IFeedGenesis {
-
-                /** FeedGenesis partyGenesis */
-                partyGenesis?: (dxos.echo.testing.IPartyGenesis|null);
-            }
-
-            /** Represents a FeedGenesis. */
-            class FeedGenesis implements IFeedGenesis {
-
-                /**
-                 * Constructs a new FeedGenesis.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: dxos.echo.testing.IFeedGenesis);
-
-                /** FeedGenesis partyGenesis. */
-                public partyGenesis?: (dxos.echo.testing.IPartyGenesis|null);
-
-                /**
-                 * Creates a new FeedGenesis instance using the specified properties.
-                 * @param [properties] Properties to set
-                 * @returns FeedGenesis instance
-                 */
-                public static create(properties?: dxos.echo.testing.IFeedGenesis): dxos.echo.testing.FeedGenesis;
-
-                /**
-                 * Encodes the specified FeedGenesis message. Does not implicitly {@link dxos.echo.testing.FeedGenesis.verify|verify} messages.
-                 * @param message FeedGenesis message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encode(message: dxos.echo.testing.IFeedGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Encodes the specified FeedGenesis message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedGenesis.verify|verify} messages.
-                 * @param message FeedGenesis message or plain object to encode
-                 * @param [writer] Writer to encode to
-                 * @returns Writer
-                 */
-                public static encodeDelimited(message: dxos.echo.testing.IFeedGenesis, writer?: $protobuf.Writer): $protobuf.Writer;
-
-                /**
-                 * Decodes a FeedGenesis message from the specified reader or buffer.
-                 * @param reader Reader or buffer to decode from
-                 * @param [length] Message length if known beforehand
-                 * @returns FeedGenesis
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.FeedGenesis;
-
-                /**
-                 * Decodes a FeedGenesis message from the specified reader or buffer, length delimited.
-                 * @param reader Reader or buffer to decode from
-                 * @returns FeedGenesis
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.FeedGenesis;
-
-                /**
-                 * Verifies a FeedGenesis message.
-                 * @param message Plain object to verify
-                 * @returns `null` if valid, otherwise the reason why it is not
-                 */
-                public static verify(message: { [k: string]: any }): (string|null);
-
-                /**
-                 * Creates a FeedGenesis message from a plain object. Also converts values to their respective internal types.
-                 * @param object Plain object
-                 * @returns FeedGenesis
-                 */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.FeedGenesis;
-
-                /**
-                 * Creates a plain object from a FeedGenesis message. Also converts values to other types if specified.
-                 * @param message FeedGenesis
-                 * @param [options] Conversion options
-                 * @returns Plain object
-                 */
-                public static toObject(message: dxos.echo.testing.FeedGenesis, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-                /**
-                 * Converts this FeedGenesis to JSON.
-                 * @returns JSON object
-                 */
-                public toJSON(): { [k: string]: any };
-            }
-
             /** Properties of a HaloEnvelope. */
             interface IHaloEnvelope {
+
+                /** HaloEnvelope genesis */
+                genesis?: (dxos.echo.testing.IPartyGenesis|null);
 
                 /** HaloEnvelope admit */
                 admit?: (dxos.echo.testing.IPartyAdmit|null);
@@ -219,6 +126,9 @@ export namespace dxos {
                  */
                 constructor(properties?: dxos.echo.testing.IHaloEnvelope);
 
+                /** HaloEnvelope genesis. */
+                public genesis?: (dxos.echo.testing.IPartyGenesis|null);
+
                 /** HaloEnvelope admit. */
                 public admit?: (dxos.echo.testing.IPartyAdmit|null);
 
@@ -226,7 +136,7 @@ export namespace dxos {
                 public eject?: (dxos.echo.testing.IPartyEject|null);
 
                 /** HaloEnvelope action. */
-                public action?: ("admit"|"eject");
+                public action?: ("genesis"|"admit"|"eject");
 
                 /**
                  * Creates a new HaloEnvelope instance using the specified properties.

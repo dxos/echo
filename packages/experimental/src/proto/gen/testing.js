@@ -42,7 +42,6 @@ $root.dxos = (function() {
                  * Properties of a FeedMessage.
                  * @memberof dxos.echo.testing
                  * @interface IFeedMessage
-                 * @property {dxos.echo.testing.IFeedGenesis|null} [genesis] FeedMessage genesis
                  * @property {dxos.echo.testing.IHaloEnvelope|null} [halo] FeedMessage halo
                  * @property {dxos.echo.testing.IEchoEnvelope|null} [echo] FeedMessage echo
                  */
@@ -61,14 +60,6 @@ $root.dxos = (function() {
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
-
-                /**
-                 * FeedMessage genesis.
-                 * @member {dxos.echo.testing.IFeedGenesis|null|undefined} genesis
-                 * @memberof dxos.echo.testing.FeedMessage
-                 * @instance
-                 */
-                FeedMessage.prototype.genesis = null;
 
                 /**
                  * FeedMessage halo.
@@ -110,12 +101,10 @@ $root.dxos = (function() {
                 FeedMessage.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.genesis != null && Object.hasOwnProperty.call(message, "genesis"))
-                        $root.dxos.echo.testing.FeedGenesis.encode(message.genesis, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     if (message.halo != null && Object.hasOwnProperty.call(message, "halo"))
-                        $root.dxos.echo.testing.HaloEnvelope.encode(message.halo, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        $root.dxos.echo.testing.HaloEnvelope.encode(message.halo, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     if (message.echo != null && Object.hasOwnProperty.call(message, "echo"))
-                        $root.dxos.echo.testing.EchoEnvelope.encode(message.echo, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                        $root.dxos.echo.testing.EchoEnvelope.encode(message.echo, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     return writer;
                 };
 
@@ -151,12 +140,9 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.genesis = $root.dxos.echo.testing.FeedGenesis.decode(reader, reader.uint32());
-                            break;
-                        case 2:
                             message.halo = $root.dxos.echo.testing.HaloEnvelope.decode(reader, reader.uint32());
                             break;
-                        case 3:
+                        case 2:
                             message.echo = $root.dxos.echo.testing.EchoEnvelope.decode(reader, reader.uint32());
                             break;
                         default:
@@ -194,11 +180,6 @@ $root.dxos = (function() {
                 FeedMessage.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.genesis != null && message.hasOwnProperty("genesis")) {
-                        var error = $root.dxos.echo.testing.FeedGenesis.verify(message.genesis);
-                        if (error)
-                            return "genesis." + error;
-                    }
                     if (message.halo != null && message.hasOwnProperty("halo")) {
                         var error = $root.dxos.echo.testing.HaloEnvelope.verify(message.halo);
                         if (error)
@@ -224,11 +205,6 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.FeedMessage)
                         return object;
                     var message = new $root.dxos.echo.testing.FeedMessage();
-                    if (object.genesis != null) {
-                        if (typeof object.genesis !== "object")
-                            throw TypeError(".dxos.echo.testing.FeedMessage.genesis: object expected");
-                        message.genesis = $root.dxos.echo.testing.FeedGenesis.fromObject(object.genesis);
-                    }
                     if (object.halo != null) {
                         if (typeof object.halo !== "object")
                             throw TypeError(".dxos.echo.testing.FeedMessage.halo: object expected");
@@ -256,12 +232,9 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.genesis = null;
                         object.halo = null;
                         object.echo = null;
                     }
-                    if (message.genesis != null && message.hasOwnProperty("genesis"))
-                        object.genesis = $root.dxos.echo.testing.FeedGenesis.toObject(message.genesis, options);
                     if (message.halo != null && message.hasOwnProperty("halo"))
                         object.halo = $root.dxos.echo.testing.HaloEnvelope.toObject(message.halo, options);
                     if (message.echo != null && message.hasOwnProperty("echo"))
@@ -283,204 +256,13 @@ $root.dxos = (function() {
                 return FeedMessage;
             })();
 
-            testing.FeedGenesis = (function() {
-
-                /**
-                 * Properties of a FeedGenesis.
-                 * @memberof dxos.echo.testing
-                 * @interface IFeedGenesis
-                 * @property {dxos.echo.testing.IPartyGenesis|null} [partyGenesis] FeedGenesis partyGenesis
-                 */
-
-                /**
-                 * Constructs a new FeedGenesis.
-                 * @memberof dxos.echo.testing
-                 * @classdesc Represents a FeedGenesis.
-                 * @implements IFeedGenesis
-                 * @constructor
-                 * @param {dxos.echo.testing.IFeedGenesis=} [properties] Properties to set
-                 */
-                function FeedGenesis(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-
-                /**
-                 * FeedGenesis partyGenesis.
-                 * @member {dxos.echo.testing.IPartyGenesis|null|undefined} partyGenesis
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @instance
-                 */
-                FeedGenesis.prototype.partyGenesis = null;
-
-                /**
-                 * Creates a new FeedGenesis instance using the specified properties.
-                 * @function create
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {dxos.echo.testing.IFeedGenesis=} [properties] Properties to set
-                 * @returns {dxos.echo.testing.FeedGenesis} FeedGenesis instance
-                 */
-                FeedGenesis.create = function create(properties) {
-                    return new FeedGenesis(properties);
-                };
-
-                /**
-                 * Encodes the specified FeedGenesis message. Does not implicitly {@link dxos.echo.testing.FeedGenesis.verify|verify} messages.
-                 * @function encode
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {dxos.echo.testing.IFeedGenesis} message FeedGenesis message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                FeedGenesis.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.partyGenesis != null && Object.hasOwnProperty.call(message, "partyGenesis"))
-                        $root.dxos.echo.testing.PartyGenesis.encode(message.partyGenesis, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-
-                /**
-                 * Encodes the specified FeedGenesis message, length delimited. Does not implicitly {@link dxos.echo.testing.FeedGenesis.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {dxos.echo.testing.IFeedGenesis} message FeedGenesis message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                FeedGenesis.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-
-                /**
-                 * Decodes a FeedGenesis message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {dxos.echo.testing.FeedGenesis} FeedGenesis
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                FeedGenesis.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.FeedGenesis();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.partyGenesis = $root.dxos.echo.testing.PartyGenesis.decode(reader, reader.uint32());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
-                        }
-                    }
-                    return message;
-                };
-
-                /**
-                 * Decodes a FeedGenesis message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {dxos.echo.testing.FeedGenesis} FeedGenesis
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                FeedGenesis.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-
-                /**
-                 * Verifies a FeedGenesis message.
-                 * @function verify
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                FeedGenesis.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.partyGenesis != null && message.hasOwnProperty("partyGenesis")) {
-                        var error = $root.dxos.echo.testing.PartyGenesis.verify(message.partyGenesis);
-                        if (error)
-                            return "partyGenesis." + error;
-                    }
-                    return null;
-                };
-
-                /**
-                 * Creates a FeedGenesis message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {dxos.echo.testing.FeedGenesis} FeedGenesis
-                 */
-                FeedGenesis.fromObject = function fromObject(object) {
-                    if (object instanceof $root.dxos.echo.testing.FeedGenesis)
-                        return object;
-                    var message = new $root.dxos.echo.testing.FeedGenesis();
-                    if (object.partyGenesis != null) {
-                        if (typeof object.partyGenesis !== "object")
-                            throw TypeError(".dxos.echo.testing.FeedGenesis.partyGenesis: object expected");
-                        message.partyGenesis = $root.dxos.echo.testing.PartyGenesis.fromObject(object.partyGenesis);
-                    }
-                    return message;
-                };
-
-                /**
-                 * Creates a plain object from a FeedGenesis message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @static
-                 * @param {dxos.echo.testing.FeedGenesis} message FeedGenesis
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                FeedGenesis.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.defaults)
-                        object.partyGenesis = null;
-                    if (message.partyGenesis != null && message.hasOwnProperty("partyGenesis"))
-                        object.partyGenesis = $root.dxos.echo.testing.PartyGenesis.toObject(message.partyGenesis, options);
-                    return object;
-                };
-
-                /**
-                 * Converts this FeedGenesis to JSON.
-                 * @function toJSON
-                 * @memberof dxos.echo.testing.FeedGenesis
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                FeedGenesis.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
-
-                return FeedGenesis;
-            })();
-
             testing.HaloEnvelope = (function() {
 
                 /**
                  * Properties of a HaloEnvelope.
                  * @memberof dxos.echo.testing
                  * @interface IHaloEnvelope
+                 * @property {dxos.echo.testing.IPartyGenesis|null} [genesis] HaloEnvelope genesis
                  * @property {dxos.echo.testing.IPartyAdmit|null} [admit] HaloEnvelope admit
                  * @property {dxos.echo.testing.IPartyEject|null} [eject] HaloEnvelope eject
                  */
@@ -499,6 +281,14 @@ $root.dxos = (function() {
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
+
+                /**
+                 * HaloEnvelope genesis.
+                 * @member {dxos.echo.testing.IPartyGenesis|null|undefined} genesis
+                 * @memberof dxos.echo.testing.HaloEnvelope
+                 * @instance
+                 */
+                HaloEnvelope.prototype.genesis = null;
 
                 /**
                  * HaloEnvelope admit.
@@ -521,12 +311,12 @@ $root.dxos = (function() {
 
                 /**
                  * HaloEnvelope action.
-                 * @member {"admit"|"eject"|undefined} action
+                 * @member {"genesis"|"admit"|"eject"|undefined} action
                  * @memberof dxos.echo.testing.HaloEnvelope
                  * @instance
                  */
                 Object.defineProperty(HaloEnvelope.prototype, "action", {
-                    get: $util.oneOfGetter($oneOfFields = ["admit", "eject"]),
+                    get: $util.oneOfGetter($oneOfFields = ["genesis", "admit", "eject"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
 
@@ -554,10 +344,12 @@ $root.dxos = (function() {
                 HaloEnvelope.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (message.genesis != null && Object.hasOwnProperty.call(message, "genesis"))
+                        $root.dxos.echo.testing.PartyGenesis.encode(message.genesis, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     if (message.admit != null && Object.hasOwnProperty.call(message, "admit"))
-                        $root.dxos.echo.testing.PartyAdmit.encode(message.admit, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        $root.dxos.echo.testing.PartyAdmit.encode(message.admit, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     if (message.eject != null && Object.hasOwnProperty.call(message, "eject"))
-                        $root.dxos.echo.testing.PartyEject.encode(message.eject, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        $root.dxos.echo.testing.PartyEject.encode(message.eject, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     return writer;
                 };
 
@@ -593,9 +385,12 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.admit = $root.dxos.echo.testing.PartyAdmit.decode(reader, reader.uint32());
+                            message.genesis = $root.dxos.echo.testing.PartyGenesis.decode(reader, reader.uint32());
                             break;
                         case 2:
+                            message.admit = $root.dxos.echo.testing.PartyAdmit.decode(reader, reader.uint32());
+                            break;
+                        case 3:
                             message.eject = $root.dxos.echo.testing.PartyEject.decode(reader, reader.uint32());
                             break;
                         default:
@@ -634,7 +429,17 @@ $root.dxos = (function() {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     var properties = {};
+                    if (message.genesis != null && message.hasOwnProperty("genesis")) {
+                        properties.action = 1;
+                        {
+                            var error = $root.dxos.echo.testing.PartyGenesis.verify(message.genesis);
+                            if (error)
+                                return "genesis." + error;
+                        }
+                    }
                     if (message.admit != null && message.hasOwnProperty("admit")) {
+                        if (properties.action === 1)
+                            return "action: multiple values";
                         properties.action = 1;
                         {
                             var error = $root.dxos.echo.testing.PartyAdmit.verify(message.admit);
@@ -667,6 +472,11 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.HaloEnvelope)
                         return object;
                     var message = new $root.dxos.echo.testing.HaloEnvelope();
+                    if (object.genesis != null) {
+                        if (typeof object.genesis !== "object")
+                            throw TypeError(".dxos.echo.testing.HaloEnvelope.genesis: object expected");
+                        message.genesis = $root.dxos.echo.testing.PartyGenesis.fromObject(object.genesis);
+                    }
                     if (object.admit != null) {
                         if (typeof object.admit !== "object")
                             throw TypeError(".dxos.echo.testing.HaloEnvelope.admit: object expected");
@@ -693,6 +503,11 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
+                    if (message.genesis != null && message.hasOwnProperty("genesis")) {
+                        object.genesis = $root.dxos.echo.testing.PartyGenesis.toObject(message.genesis, options);
+                        if (options.oneofs)
+                            object.action = "genesis";
+                    }
                     if (message.admit != null && message.hasOwnProperty("admit")) {
                         object.admit = $root.dxos.echo.testing.PartyAdmit.toObject(message.admit, options);
                         if (options.oneofs)

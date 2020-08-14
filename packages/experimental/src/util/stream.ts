@@ -37,14 +37,12 @@ export function createWritable<T> (callback: (message: T) => Promise<void>): Nod
  * Creates a transform object stream.
  * @param callback
  */
-export function createTransform<R, W> (callback: (message: R) => Promise<W>) {
+export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined>) {
   return new Transform({
     objectMode: true,
     transform: async (message: R, _, next) => {
       try {
-        const out: W = await callback(message);
-        assert(out);
-        next(null, out);
+        next(null, await callback(message));
       } catch (err) {
         next(err);
       }

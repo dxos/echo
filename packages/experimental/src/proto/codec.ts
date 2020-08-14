@@ -4,7 +4,7 @@
 
 import { Codec } from '@dxos/codec-protobuf';
 
-import TestingSchema from '../proto/gen/testing.json';
+import TestingSchema from './gen/testing.json';
 
 export const codec = new Codec('dxos.echo.testing.FeedMessage')
   .addJson(TestingSchema)

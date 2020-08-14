@@ -32,6 +32,7 @@ export type ModelMessage<T> = {
 
 /**
  * Abstract base class for Models.
+ * Models define a root message type, which is contained in the partent Item's message envelope.
  */
 export abstract class Model<T> {
   static type: ModelType;
@@ -39,12 +40,17 @@ export abstract class Model<T> {
   private readonly _onUpdate = new Event<Model<T>>();
   private readonly _processor: NodeJS.WritableStream;
 
+  /**
+   * @param _itemId Parent item.
+   * @param _writable Output mutation stream.
+   */
   constructor (
     private _itemId: ItemID,
     private _writable?: NodeJS.WritableStream
   ) {
     assert(this._itemId);
 
+    // Create the input mutation stream.
     this._processor = createWritable<ModelMessage<T>>(async (message: ModelMessage<T>) => {
       const { meta, mutation } = message;
       await this.processMessage(meta, mutation);

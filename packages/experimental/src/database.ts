@@ -3,38 +3,60 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { Event } from '@dxos/async';
+import { createKeyPair } from '@dxos/crypto';
+import { FeedStore } from '@dxos/feed-store';
 
-import { ResultSet } from './result';
-import { Party } from './parties';
 import { ModelFactory } from './models';
+import { Party, PartyFilter, PartyStreams } from './parties';
+import { ResultSet } from './result';
 
-// TODO(burdon): Ensure streams are closed when objects are destroyed (on purpose or on error).
-// TODO(burdon): Ensure event handlers are removed.
+const log = debug('dxos:echo:database');
 
 /**
  * Root object for the ECHO databse.
  */
 export class Database {
   private readonly _update = new Event();
-  private readonly _modelFactory: ModelFactory;
   private readonly _parties = new Map<Buffer, Party>();
+  private readonly _feedStore: FeedStore;
+  private readonly _modelFactory: ModelFactory;
 
-  constructor ({ modelFactory }: { modelFactory: ModelFactory }) {
+  constructor ({ feedStore, modelFactory }: { feedStore: FeedStore, modelFactory: ModelFactory }) {
     assert(modelFactory);
+    this._feedStore = feedStore;
     this._modelFactory = modelFactory;
   }
 
+  async initialize () {
+    await this._feedStore.open();
+  }
+
+  /**
+   * Creates a new party.
+   */
   async createParty (): Promise<Party> {
-    const party = new Party(this._modelFactory);
+    await this.initialize();
+
+    const key = createKeyPair().publicKey;
+    const partyStreams = new PartyStreams(this._feedStore, key);
+    const party = await new Party(partyStreams, this._modelFactory).open();
     this._parties.set(party.key, party);
+
+    // Notify update event.
+    // TODO(burdon): How to distinguish event types (create, update, etc.) and propagation?
     setImmediate(() => this._update.emit());
+
     return party;
   }
 
+  /**
+   * @param filter
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async queryParties (filter?: any): Promise<ResultSet<Party>> {
+  async queryParties (filter?: PartyFilter): Promise<ResultSet<Party>> {
     return new ResultSet<Party>(this._update, () => Array.from(this._parties.values()));
   }
 }

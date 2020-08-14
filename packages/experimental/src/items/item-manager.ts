@@ -8,7 +8,7 @@ import pify from 'pify';
 import { EventEmitter } from 'events';
 import { Transform } from 'stream';
 
-import { trigger } from '@dxos/async';
+import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 
 import { dxos } from '../proto/gen/testing';
@@ -16,8 +16,9 @@ import { dxos } from '../proto/gen/testing';
 import { ModelType, ModelFactory, Model } from '../models';
 import { Item } from './item';
 import { ItemID, ItemType } from './types';
+import { ResultSet } from '../result';
 
-const log = debug('dxos:echo:item');
+const log = debug('dxos:echo:item:manager');
 
 export interface ItemFilter {
   type: ItemType
@@ -27,6 +28,8 @@ export interface ItemFilter {
  * Manages creation and index of items.
  */
 export class ItemManager extends EventEmitter {
+  private readonly _update = new Event();
+
   // Map of active items.
   private _items = new Map<ItemID, Item>();
 
@@ -113,14 +116,14 @@ export class ItemManager extends EventEmitter {
     const model: Model<any> = this._modelFactory.createModel(modelType, itemId, transform);
     assert(model, `Invalid model: ${modelType}`);
 
-    // TODO(burdon): ???
+    // TODO(burdon): User or system model? Handle by item?
     readable.pipe(model.processor);
 
     // Create item.
     const item = new Item(itemId, itemType, model);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
-    log('Constructed Item:', String(item));
+    log('Constructed:', String(item));
 
     // Item udpated.
     // TODO(burdon): Get event.
@@ -147,9 +150,9 @@ export class ItemManager extends EventEmitter {
    * Return matching items.
    * @param [filter]
    */
-  getItems (filter: ItemFilter): Item[] {
-    const { type } = filter;
-    return Array.from(this._items.values())
-      .filter(item => !type || item.type === type);
+  async queryItems (filter?: ItemFilter): Promise<ResultSet<Item>> {
+    const { type } = filter || {};
+    return new ResultSet<Item>(this._update, () => Array.from(this._items.values())
+      .filter(item => !type || type === item.type));
   }
 }

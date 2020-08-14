@@ -17,7 +17,7 @@ import { dxos } from '../proto/gen/testing';
 import { latch, sink } from '../util';
 import { createItemMutation } from '../testing';
 
-import { codec } from './codec';
+import { codec } from '../proto';
 import { createWritableFeedStream } from './stream';
 import { IFeedBlock } from './types';
 import assert from 'assert';
