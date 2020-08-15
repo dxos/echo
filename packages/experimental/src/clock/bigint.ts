@@ -2,13 +2,17 @@
 // Copyright 2020 DXOS.org
 //
 
+// TODO(burdon): Why is this needd (and why buffer)?
+// TODO(burdon): Move to util.
 // BigInt/Buffer conversion functions.
-// From: https://coolaj86.com/articles/convert-js-bigints-to-typedarrays/
-// Exported only for unit testing
-// TODO(dboreham): Library or util?
+// From: https://coolaj86.com/articles/convert-js-bigints-to-typedarrays
+// Exported only for unit testing.
+
 export const BigIntToBuffer = (input: BigInt) => {
   let hex = BigInt(input).toString(16);
-  if (hex.length % 2) { hex = '0' + hex; }
+  if (hex.length % 2) {
+    hex = '0' + hex;
+  }
 
   const length = hex.length / 2;
   const u8 = new Uint8Array(length);
@@ -31,7 +35,9 @@ export const BufferToBigInt = (input: Buffer) => {
 
   u8.forEach((i) => {
     let h = i.toString(16);
-    if (h.length % 2) { h = '0' + h; }
+    if (h.length % 2) {
+      h = '0' + h;
+    }
     hex.push(h);
   });
 

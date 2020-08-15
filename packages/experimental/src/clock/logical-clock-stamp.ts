@@ -14,6 +14,10 @@ const log = debug('dxos:echo:clock');
 
 // TODO(dboreham): Separate abstract behavior from vector implementation.
 
+// TODO(dboreham): Rationalize with FeedKey.
+
+type NodeId = Buffer;
+
 export enum Order {
   CONCURRENT,
   EQUAL,
@@ -21,30 +25,25 @@ export enum Order {
   AFTER
 }
 
-// TODO(dboreham): Rationalize with FeedId (key?)
-type NodeId = Buffer;
-
-const getLowestNodeId = (nodeIds: bigint[]): bigint => {
-  return nodeIds.reduce((min, current) => current < min ? current : min, nodeIds[0]);
-};
-
-// TODO(burdon): Rename.
-// TODO(burdon): Refactor (group statics).
-export class LogicalClockStamp {
-  private _vector: Map<bigint, number>;
-
-  // TODO(burdon): Static helpers to standardize type.
-  constructor (
-    data: Map<bigint, number> | [NodeId | bigint, number][] = []
-  ) {
-    if (data instanceof Map) {
-      this._vector = data;
-    } else {
-      this._vector = new Map(
-        data.map(([nodeId, seq]) => [typeof nodeId !== 'bigint' ? BufferToBigInt(nodeId) : nodeId, seq]));
-    }
+// TODO(burdon): Move to util.
+function objectFromEntries<K extends keyof any, V> (entries: [K, V][]): Record<K, V> {
+  const res = {} as any;
+  for (const [key, val] of entries) {
+    res[key] = val;
   }
 
+  return res;
+}
+
+// TODO(burdon): Move to util.
+const minValue = (values: bigint[]): bigint => {
+  return values.reduce((min, current) => current < min ? current : min, values[0]);
+};
+
+/**
+ *
+ */
+export class LogicalClockStamp {
   // TODO(burdon): Constant.
   static zero (): LogicalClockStamp {
     // Empty map from constructor means zero.
@@ -52,8 +51,8 @@ export class LogicalClockStamp {
   }
 
   static compare (a: LogicalClockStamp, b: LogicalClockStamp): Order {
-    log(`Compare a: ${a.log()}`);
-    log(`Compare b: ${b.log()}`);
+    log(`Compare a: ${String(a)}`);
+    log(`Compare b: ${String(b)}`);
 
     const nodeIds: Set<bigint> = new Set();
 
@@ -99,10 +98,8 @@ export class LogicalClockStamp {
   static totalCompare (a: LogicalClockStamp, b: LogicalClockStamp):Order {
     const partialOrder = LogicalClockStamp.compare(a, b);
     if (partialOrder === Order.CONCURRENT) {
-      const aLowestNodeId = getLowestNodeId(Array.from(a._vector.keys()));
-      const bLowestNodeId = getLowestNodeId(Array.from(b._vector.keys()));
-
-      log(`aLowest: ${BigIntToBuffer(aLowestNodeId).toString('hex')}, bLowest: ${BigIntToBuffer(bLowestNodeId).toString('hex')}`);
+      const aLowestNodeId = minValue(Array.from(a._vector.keys()));
+      const bLowestNodeId = minValue(Array.from(b._vector.keys()));
       if (aLowestNodeId === bLowestNodeId) {
         // If the two share the same lowest node id use the seq for that node id to break tie.
         const aSeq = a._vector.get(aLowestNodeId);
@@ -118,25 +115,6 @@ export class LogicalClockStamp {
     } else {
       return partialOrder;
     }
-  }
-
-  private _entries () {
-    return Array.from(this._vector.entries());
-  }
-
-  log (): string {
-    // TODO(dboreham): Use DXOS lib for Buffer as Key.
-    return this._entries().map(([key, value]) => `${BigIntToBuffer(key).toString('hex')}:${value}`).join(', ');
-  }
-
-  // TODO(burdon): Why to/from object AND encode/decode (make all static or external functions).
-  // TODO(dboreham): Encoding scheme is a hack: use typed protocol buffer schema definition.
-  toObject (): Record<string, number> {
-    return objectFromEntries(this._entries().map(([key, value]) => [BigIntToBuffer(key).toString('hex'), value]));
-  }
-
-  static fromObject (source: Record<string, number>): LogicalClockStamp {
-    return new LogicalClockStamp(Object.entries(source).map(([key, seq]) => [Buffer.from(key), seq]));
   }
 
   static encode (value: LogicalClockStamp): dxos.echo.testing.IVectorTimestamp {
@@ -157,36 +135,74 @@ export class LogicalClockStamp {
     }));
   }
 
+  static max (a: LogicalClockStamp, b: LogicalClockStamp) {
+    // TODO(burdon): Clone TS and modify.
+    const res = new Map<bigint, number>(a._vector);
+    for (const [key, count] of b._vector) {
+      res.set(key, Math.max(res.get(key) ?? 0, count));
+    }
+
+    return new LogicalClockStamp(res);
+  }
+
+  // TODO(burdon): Not used?
+  static fromObject (source: Record<string, number>): LogicalClockStamp {
+    return new LogicalClockStamp(Object.entries(source).map(([key, seq]) => [Buffer.from(key), seq]));
+  }
+
+  // Map of sequence numbers indexed by feed key.
+  private readonly _vector: Map<bigint, number>;
+
+  // TODO(burdon): Disallow construction from map unless cloning from factory.
+  constructor (
+    data: Map<bigint, number> | [NodeId | bigint, number][] = []
+  ) {
+    if (data instanceof Map) {
+      this._vector = data;
+    } else {
+      this._vector = new Map(
+        data.map(([nodeId, seq]) => [typeof nodeId !== 'bigint' ? BufferToBigInt(nodeId) : nodeId, seq]));
+    }
+  }
+
+  private _entries () {
+    return Array.from(this._vector.entries());
+  }
+
   private _getSeqForNode (nodeId: bigint): number {
     const seq = this._vector.get(nodeId);
     return (seq === undefined) ? 0 : seq;
   }
 
-  static max (a: LogicalClockStamp, b: LogicalClockStamp) {
-    const res = new Map<bigint, number>(a._vector);
-    for (const [key, count] of b._vector) {
-      res.set(key, Math.max(res.get(key) ?? 0, count));
-    }
-    return new LogicalClockStamp(res);
+  toString (): string {
+    // TODO(dboreham): Use dxos/crypto for Buffer as Key.
+    const values = this._entries().map(([key, value]) => `${BigIntToBuffer(key).toString('hex')}:${value}`).join(', ');
+    return `[${values}]`;
   }
 
-  withoutFeed (feedKey: FeedKey) {
-    const feedKeyInt = BufferToBigInt(feedKey as Buffer);
-    return new LogicalClockStamp(this._entries().filter(([key]) => key !== feedKeyInt));
+  // TODO(burdon): Remove: only used in tests?
+  // TODO(burdon): How is this different from encode?
+  // TODO(dboreham): Encoding scheme is a hack: use typed protocol buffer schema definition.
+  toObject (): Record<string, number> {
+    return objectFromEntries(this._entries().map(([key, value]) => [BigIntToBuffer(key).toString('hex'), value]));
   }
 
+  // TODO(burdon): These methods use FeedKey instead of NodeId?
+
+  // TODO(burdon): No test.
   withFeed (feedKey: FeedKey, seq: number) {
     const feedKeyInt = BufferToBigInt(feedKey as Buffer);
+
+    // TODO(burdon): Filter and add as below.
     const mapClone = new Map(this._vector);
     mapClone.set(feedKeyInt, Math.max(mapClone.get(feedKeyInt) ?? 0, seq));
     return new LogicalClockStamp(mapClone);
   }
-}
 
-function objectFromEntries<K extends keyof any, V> (entries: [K, V][]): Record<K, V> {
-  const res = {} as any;
-  for (const [key, val] of entries) {
-    res[key] = val;
+  // TODO(burdon): No test.
+  withoutFeed (feedKey: FeedKey) {
+    const feedKeyInt = BufferToBigInt(feedKey as Buffer);
+    const vector = this._entries().filter(([key]) => key !== feedKeyInt);
+    return new LogicalClockStamp(vector);
   }
-  return res;
 }

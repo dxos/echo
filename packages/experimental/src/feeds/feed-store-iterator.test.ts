@@ -40,25 +40,28 @@ describe('feed store iterator', () => {
 
     const config = {
       numFeeds: 2,
-      numMessages: 5
+      numMessages: 10
     };
 
-    const streams = [];
+    const streams = new Map();
     for (const i of Array.from({ length: config.numFeeds }, (_, i) => i + 1)) {
       const feed = await feedStore.openFeed(`feed-${i}`);
       const stream = createWritableFeedStream(feed);
-      streams.push({ feed, stream });
+      streams.set(feed.key, { keyKey: feed.key, stream, seq: 0 });
     }
 
-    log('Created:', JSON.stringify({ feeds: streams.map(({ feed }) => humanize(feed.key)) }, undefined, 2));
+    log('Created:', JSON.stringify({ feeds: Object.keys(streams).map(feedKey => humanize(feedKey)) }, undefined, 2));
 
-    const keys = ['title', 'description'];
     for (let i = 0; i < config.numMessages; i++) {
       // TODO(burdon): Randomly create items.
-      const { stream } = chance.pickone(streams);
-      stream.write(createItemMutation(createId(), chance.pickone(keys), chance.word()));
+      const value = chance.pickone(Array.from(streams.values()));
+      const { stream, seq } = value;
+      // TODO(burdon): Set clock.
+      stream.write(createItemMutation(createId(), 'value', String(i)));
+      value.seq = seq + 1;
     }
 
+    // TODO(burdon): Check processed in clock order.
     let count = 0;
     for await (const message of iterator) {
       log(JSON.stringify(message, jsonReplacer, 2));
@@ -68,5 +71,6 @@ describe('feed store iterator', () => {
     }
 
     expect(count).toBe(config.numMessages);
+    expect(Array.from(streams.values()).reduce((sum, { seq }) => sum + seq, 0)).toBe(config.numMessages);
   });
 });

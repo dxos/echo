@@ -16,7 +16,7 @@ describe('LogicalClockStamp', () => {
   // Partial order:
   test('zero', () => {
     const lcsZero = new LogicalClockStamp();
-    const lcsNonZero = new LogicalClockStamp([[randomBytes(), 99999]]);
+    const lcsNonZero = new LogicalClockStamp([[randomBytes(), Infinity]]);
 
     const order = LogicalClockStamp.compare(lcsZero, lcsNonZero);
     log(`compare(zero, nonZero) -> ${Order[order]}`);
@@ -25,6 +25,33 @@ describe('LogicalClockStamp', () => {
     const reverse = LogicalClockStamp.compare(lcsNonZero, lcsZero);
     log(`compare(nonZero, zero) -> ${Order[reverse]}`);
     expect(reverse).toBe(Order.AFTER);
+  });
+
+  test('adding/removing feeds', () => {
+    const feedKey1 = randomBytes();
+    const feedKey2 = randomBytes();
+
+    {
+      // Update.
+      const ts1 = new LogicalClockStamp([[feedKey1, 0]]).withFeed(feedKey1, 1);
+      const ts2 = ts1.withFeed(feedKey1, 1);
+      expect(ts1).toEqual(ts2);
+    }
+
+    {
+      // Don't update.
+      const ts1 = new LogicalClockStamp([[feedKey1, 1]]).withFeed(feedKey1, 0);
+      const ts2 = new LogicalClockStamp([[feedKey1, 1]]);
+      expect(ts1).toEqual(ts2);
+    }
+
+    {
+      // Add and remove.
+      const ts1 = new LogicalClockStamp([[feedKey1, 1]]);
+      const ts2 = ts1.withFeed(feedKey2, 2);
+      const ts3 = ts2.withoutFeed(feedKey2).withoutFeed(feedKey2);
+      expect(ts1).toEqual(ts3);
+    }
   });
 
   test('ordered one node', () => {
@@ -146,7 +173,7 @@ describe('LogicalClockStamp', () => {
 
   test('unordered two nodes total', () => {
     const nodeId1 = randomBytes();
-    // Force nodeId2 to have a higher value then nodeId1
+    // Force nodeId2 to have a higher value then nodeId1.
     const nodeId2 = BigIntToBuffer(BufferToBigInt(nodeId1) + BigInt(1));
 
     const lcsA = new LogicalClockStamp([
@@ -170,7 +197,7 @@ describe('LogicalClockStamp', () => {
 
   test('unrelated two nodes total', () => {
     const nodeId1 = randomBytes();
-    // Force nodeId2 to have a higher value then nodeId1
+    // Force nodeId2 to have a higher value then nodeId1.
     const nodeId2 = BigIntToBuffer(BufferToBigInt(nodeId1) + BigInt(1));
 
     const lcsA = new LogicalClockStamp([
