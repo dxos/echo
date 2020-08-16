@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
 
 import { createKeyPair } from '@dxos/crypto';
@@ -18,7 +19,7 @@ describe('spacetime', () => {
     const { publicKey: feedKey } = createKeyPair();
 
     const tf1 = spacetime.createTimeframe([[feedKey, 1]]);
-    console.log(spacetime.stringify(tf1));
+    log(spacetime.stringify(tf1));
     expect(tf1).toBeTruthy();
   });
 
@@ -34,7 +35,7 @@ describe('spacetime', () => {
       const tf1 = spacetime.createTimeframe([[feedKey1, 1], [feedKey2, 1]]);
       const tf2 = spacetime.createTimeframe([[feedKey1, 2], [feedKey3, 1]]);
       const tf3 = spacetime.merge(tf1, tf2);
-      console.log(JSON.stringify(spacetime.toJson(tf3), undefined, 2));
+      log(JSON.stringify(spacetime.toJson(tf3), undefined, 2));
       expect(spacetime.keyMapper.toArray(tf3)).toHaveLength(3);
     }
 
@@ -44,8 +45,9 @@ describe('spacetime', () => {
       const tf2 = spacetime.createTimeframe([[feedKey1, 3]]);
       const tf3 = spacetime.createTimeframe([[feedKey1, 2]]);
       const tf4 = spacetime.merge(tf1, tf2, tf3);
-      console.log(spacetime.stringify(tf4));
+      log(spacetime.stringify(tf4));
       expect(spacetime.keyMapper.toArray(tf4)).toHaveLength(1);
+      assert(tf4.frames);
       expect(tf4.frames[0].seq).toBe(3);
     }
 
@@ -53,12 +55,12 @@ describe('spacetime', () => {
       // Remove keys.
       const tf1 = spacetime.createTimeframe([[feedKey1, 1], [feedKey2, 2]]);
       const tf2 = spacetime.removeKeys(tf1, [feedKey1, feedKey3]);
-      console.log(spacetime.stringify(tf2));
+      log(spacetime.stringify(tf2));
       expect(spacetime.keyMapper.toArray(tf2)).toHaveLength(1);
     }
   });
 
-  test('compare', () => {
+  test('dependencies', () => {
     const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
     const { publicKey: feedKey1 } = createKeyPair();
@@ -66,11 +68,19 @@ describe('spacetime', () => {
     const { publicKey: feedKey3 } = createKeyPair();
 
     {
-      // Merge (no change).
-      const tf1 = spacetime.createTimeframe([[feedKey1, 1]]);
-      const tf2 = spacetime.createTimeframe([[feedKey1, 2]]);
-      const result = spacetime.compare(tf1, tf2);
-      expect(result).toBe(0);
+      const tf1 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 10]]);
+      const tf2 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 11]]);
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(0);
+    }
+
+    {
+      const tf1 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 10], [feedKey3, 10]]);
+      const tf2 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 9]]);
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(2);
     }
   });
 });

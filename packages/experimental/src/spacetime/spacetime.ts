@@ -10,6 +10,11 @@ import { dxos } from '../proto/gen/testing';
 
 import { FeedKey } from '../feeds';
 
+// Required to access property by variable.
+export interface IIndexable {
+  [key: string]: any;
+}
+
 /**
  * Abstraction of the key field and type.
  * Assumes that the key type is mappable to a sortable scalar value.
@@ -27,13 +32,14 @@ export abstract class KeyMapper<T, S> {
     return this._key;
   }
 
-  get (frame) {
-    return frame[this._key];
+  get (frame: dxos.echo.testing.Timeframe.IFrame): T {
+    return (frame as IIndexable)[this._key];
   }
 
-  toArray (timeframe): [T, number][] {
+  toArray (timeframe: dxos.echo.testing.ITimeframe): [T, number][] {
     const { frames = [] } = timeframe;
-    return frames.map(frame => [frame[this._key], frame.seq]);
+    assert(frames);
+    return frames.map(frame => [(frame as IIndexable)[this._key], frame.seq as number]);
   }
 
   fromArray (frames: [T, number][]): dxos.echo.testing.ITimeframe {
@@ -75,21 +81,21 @@ export class Spacetime {
     return this._keyMapper;
   }
 
-  toJson (timeframe) {
+  toJson (timeframe: dxos.echo.testing.ITimeframe) {
     assert(timeframe);
     const { frames = [] } = timeframe;
-    return frames.map(frame => ({
+    return frames?.map(frame => ({
       key: this._keyMapper.toScalar(this._keyMapper.get(frame)),
       seq: frame.seq
     }));
   }
 
-  stringify (timeframe) {
+  stringify (timeframe: dxos.echo.testing.ITimeframe) {
     assert(timeframe);
     return JSON.stringify(this.toJson(timeframe));
   }
 
-  createTimeframe (frames): dxos.echo.testing.ITimeframe {
+  createTimeframe (frames: [any, number][]): dxos.echo.testing.ITimeframe {
     return {
       frames: frames.map(([key, seq]) => ({ [this._keyMapper.key]: key, seq }))
     };
@@ -119,7 +125,7 @@ export class Spacetime {
    * @param timeframe
    * @param keys
    */
-  removeKeys (timeframe, keys): dxos.echo.testing.ITimeframe {
+  removeKeys (timeframe: dxos.echo.testing.ITimeframe, keys: any[]): dxos.echo.testing.ITimeframe {
     return {
       frames: this._keyMapper.toArray(timeframe)
         .filter(([key]) => keys.indexOf(key) === -1)
@@ -131,44 +137,21 @@ export class Spacetime {
   }
 
   /**
-   * Compare two timeframes.
-   * Compare all sequence numbers for all common keys.
-   *
-   *   [X] [Y] [Z]
-   * A: 1   2   -     A = B
-   * B: 1   -   2
-   *
-   *   [X] [Y] [Z]
-   * A: 1   2   -     A < B
-   * B: 2   4   3
-   *
-   *   [X] [Y] [Z]
-   * A: 3   -   1     A > B
-   * B: 2   4   -
-   *
-   *   [X] [Y] [Z]
-   * A: 1   2   3     A < B (since Node "A" sorts lower than Node "B")
-   * B: 2   1   3
+   * Compares two timeframes and returns an array of frames from the first timeframe where the sequence number
+   * is greater than the associated sequence number from the second timeframe.
    *
    * @param tf1
    * @param tf2
    */
-  // TODO(burdon): Does it matter if the higher node is missing values that the other node has?
-  compare (tf1: dxos.echo.testing.ITimeframe, tf2: dxos.echo.testing.ITimeframe): number {
-    const frames1 = this._keyMapper.toArray(tf1);
-    const frames2 = this._keyMapper.toArray(tf2);
-
-    console.log(frames1);
-    console.log(frames2);
-
-    return 0;
-  }
-
-  /**
-   * Sort timeframes.
-   * @param timeframes
-   */
-  sort (...timeframes: dxos.echo.testing.ITimeframe[]): dxos.echo.testing.ITimeframe[] {
-    return timeframes.sort((a, b) => this.compare(a, b));
+  dependencies<T> (tf1: dxos.echo.testing.ITimeframe, tf2: dxos.echo.testing.ITimeframe): dxos.echo.testing.ITimeframe {
+    return {
+      // Return false (i.e., omit) if tf2 contains an equal or higher sequence number.
+      frames: tf1.frames?.filter(frame => {
+        assert(frame.seq);
+        const key = this._keyMapper.get(frame);
+        const { seq } = tf2.frames?.find(frame => this._keyMapper.get(frame) === key) || {};
+        return (!seq || seq < frame.seq);
+      })
+    };
   }
 }
