@@ -3,5 +3,5 @@
 //
 
 export * from './party';
-export * from './party-streams';
+export * from './pipeline';
 export * from './types';

@@ -113,13 +113,27 @@
                 },
                 "ItemMutation": {
                   "fields": {
-                    "key": {
-                      "type": "string",
+                    "set": {
+                      "type": "Property",
                       "id": 1
                     },
-                    "value": {
-                      "type": "string",
+                    "append": {
+                      "type": "Property",
                       "id": 2
+                    }
+                  },
+                  "nested": {
+                    "Property": {
+                      "fields": {
+                        "key": {
+                          "type": "string",
+                          "id": 1
+                        },
+                        "value": {
+                          "type": "string",
+                          "id": 2
+                        }
+                      }
                     }
                   }
                 },

@@ -20,8 +20,10 @@ export const createItemMutation = (itemId: ItemID, key: string, value: string) =
     echo: {
       itemId,
       itemMutation: {
-        key,
-        value
+        set: {
+          key,
+          value
+        }
       }
     }
   });

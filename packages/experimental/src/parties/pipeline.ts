@@ -28,9 +28,9 @@ const log = debug('dxos:echo:party-streams');
 const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
 /**
- * Manages the inbound and outbound message pipelines for each party.
+ * Manages the inbound and outbound message pipelines for an individual party.
  */
-export class PartyStreams {
+export class Pipeline {
   private readonly _feedStore: FeedStore;
   private readonly _partyKey: PartyKey;
   private readonly _options: Options;
@@ -77,6 +77,7 @@ export class PartyStreams {
    */
   async open (): Promise<{ readStream: NodeJS.ReadableStream, writeStream: NodeJS.WritableStream }> {
     // Current timeframe.
+    // TODO(burdon): Move to party processor.
     let timeframe = spacetime.createTimeframe();
 
     //

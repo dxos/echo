@@ -79,8 +79,13 @@ message ItemGenesis {
 }
 
 message ItemMutation {
-  string key = 1;
-  string value = 2;
+  message Property {
+    string key = 1;
+    string value = 2;
+  }
+
+  Property set = 1;
+  Property append = 2;
 }
 
 // Vector timestamp used to order messages.

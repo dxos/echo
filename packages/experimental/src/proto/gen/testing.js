@@ -1657,8 +1657,8 @@ $root.dxos = (function() {
                  * Properties of an ItemMutation.
                  * @memberof dxos.echo.testing
                  * @interface IItemMutation
-                 * @property {string|null} [key] ItemMutation key
-                 * @property {string|null} [value] ItemMutation value
+                 * @property {dxos.echo.testing.ItemMutation.IProperty|null} [set] ItemMutation set
+                 * @property {dxos.echo.testing.ItemMutation.IProperty|null} [append] ItemMutation append
                  */
 
                 /**
@@ -1677,20 +1677,20 @@ $root.dxos = (function() {
                 }
 
                 /**
-                 * ItemMutation key.
-                 * @member {string} key
+                 * ItemMutation set.
+                 * @member {dxos.echo.testing.ItemMutation.IProperty|null|undefined} set
                  * @memberof dxos.echo.testing.ItemMutation
                  * @instance
                  */
-                ItemMutation.prototype.key = "";
+                ItemMutation.prototype.set = null;
 
                 /**
-                 * ItemMutation value.
-                 * @member {string} value
+                 * ItemMutation append.
+                 * @member {dxos.echo.testing.ItemMutation.IProperty|null|undefined} append
                  * @memberof dxos.echo.testing.ItemMutation
                  * @instance
                  */
-                ItemMutation.prototype.value = "";
+                ItemMutation.prototype.append = null;
 
                 /**
                  * Creates a new ItemMutation instance using the specified properties.
@@ -1716,10 +1716,10 @@ $root.dxos = (function() {
                 ItemMutation.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.key != null && Object.hasOwnProperty.call(message, "key"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
-                    if (message.value != null && Object.hasOwnProperty.call(message, "value"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
+                    if (message.set != null && Object.hasOwnProperty.call(message, "set"))
+                        $root.dxos.echo.testing.ItemMutation.Property.encode(message.set, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.append != null && Object.hasOwnProperty.call(message, "append"))
+                        $root.dxos.echo.testing.ItemMutation.Property.encode(message.append, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     return writer;
                 };
 
@@ -1755,10 +1755,10 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.key = reader.string();
+                            message.set = $root.dxos.echo.testing.ItemMutation.Property.decode(reader, reader.uint32());
                             break;
                         case 2:
-                            message.value = reader.string();
+                            message.append = $root.dxos.echo.testing.ItemMutation.Property.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1795,12 +1795,16 @@ $root.dxos = (function() {
                 ItemMutation.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.key != null && message.hasOwnProperty("key"))
-                        if (!$util.isString(message.key))
-                            return "key: string expected";
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        if (!$util.isString(message.value))
-                            return "value: string expected";
+                    if (message.set != null && message.hasOwnProperty("set")) {
+                        var error = $root.dxos.echo.testing.ItemMutation.Property.verify(message.set);
+                        if (error)
+                            return "set." + error;
+                    }
+                    if (message.append != null && message.hasOwnProperty("append")) {
+                        var error = $root.dxos.echo.testing.ItemMutation.Property.verify(message.append);
+                        if (error)
+                            return "append." + error;
+                    }
                     return null;
                 };
 
@@ -1816,10 +1820,16 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.ItemMutation)
                         return object;
                     var message = new $root.dxos.echo.testing.ItemMutation();
-                    if (object.key != null)
-                        message.key = String(object.key);
-                    if (object.value != null)
-                        message.value = String(object.value);
+                    if (object.set != null) {
+                        if (typeof object.set !== "object")
+                            throw TypeError(".dxos.echo.testing.ItemMutation.set: object expected");
+                        message.set = $root.dxos.echo.testing.ItemMutation.Property.fromObject(object.set);
+                    }
+                    if (object.append != null) {
+                        if (typeof object.append !== "object")
+                            throw TypeError(".dxos.echo.testing.ItemMutation.append: object expected");
+                        message.append = $root.dxos.echo.testing.ItemMutation.Property.fromObject(object.append);
+                    }
                     return message;
                 };
 
@@ -1837,13 +1847,13 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.key = "";
-                        object.value = "";
+                        object.set = null;
+                        object.append = null;
                     }
-                    if (message.key != null && message.hasOwnProperty("key"))
-                        object.key = message.key;
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        object.value = message.value;
+                    if (message.set != null && message.hasOwnProperty("set"))
+                        object.set = $root.dxos.echo.testing.ItemMutation.Property.toObject(message.set, options);
+                    if (message.append != null && message.hasOwnProperty("append"))
+                        object.append = $root.dxos.echo.testing.ItemMutation.Property.toObject(message.append, options);
                     return object;
                 };
 
@@ -1857,6 +1867,216 @@ $root.dxos = (function() {
                 ItemMutation.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
+
+                ItemMutation.Property = (function() {
+
+                    /**
+                     * Properties of a Property.
+                     * @memberof dxos.echo.testing.ItemMutation
+                     * @interface IProperty
+                     * @property {string|null} [key] Property key
+                     * @property {string|null} [value] Property value
+                     */
+
+                    /**
+                     * Constructs a new Property.
+                     * @memberof dxos.echo.testing.ItemMutation
+                     * @classdesc Represents a Property.
+                     * @implements IProperty
+                     * @constructor
+                     * @param {dxos.echo.testing.ItemMutation.IProperty=} [properties] Properties to set
+                     */
+                    function Property(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+
+                    /**
+                     * Property key.
+                     * @member {string} key
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @instance
+                     */
+                    Property.prototype.key = "";
+
+                    /**
+                     * Property value.
+                     * @member {string} value
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @instance
+                     */
+                    Property.prototype.value = "";
+
+                    /**
+                     * Creates a new Property instance using the specified properties.
+                     * @function create
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {dxos.echo.testing.ItemMutation.IProperty=} [properties] Properties to set
+                     * @returns {dxos.echo.testing.ItemMutation.Property} Property instance
+                     */
+                    Property.create = function create(properties) {
+                        return new Property(properties);
+                    };
+
+                    /**
+                     * Encodes the specified Property message. Does not implicitly {@link dxos.echo.testing.ItemMutation.Property.verify|verify} messages.
+                     * @function encode
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {dxos.echo.testing.ItemMutation.IProperty} message Property message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Property.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.key != null && Object.hasOwnProperty.call(message, "key"))
+                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
+                        if (message.value != null && Object.hasOwnProperty.call(message, "value"))
+                            writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
+                        return writer;
+                    };
+
+                    /**
+                     * Encodes the specified Property message, length delimited. Does not implicitly {@link dxos.echo.testing.ItemMutation.Property.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {dxos.echo.testing.ItemMutation.IProperty} message Property message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Property.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+
+                    /**
+                     * Decodes a Property message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {dxos.echo.testing.ItemMutation.Property} Property
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Property.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.ItemMutation.Property();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.key = reader.string();
+                                break;
+                            case 2:
+                                message.value = reader.string();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+
+                    /**
+                     * Decodes a Property message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {dxos.echo.testing.ItemMutation.Property} Property
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Property.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+
+                    /**
+                     * Verifies a Property message.
+                     * @function verify
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Property.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.key != null && message.hasOwnProperty("key"))
+                            if (!$util.isString(message.key))
+                                return "key: string expected";
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            if (!$util.isString(message.value))
+                                return "value: string expected";
+                        return null;
+                    };
+
+                    /**
+                     * Creates a Property message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {dxos.echo.testing.ItemMutation.Property} Property
+                     */
+                    Property.fromObject = function fromObject(object) {
+                        if (object instanceof $root.dxos.echo.testing.ItemMutation.Property)
+                            return object;
+                        var message = new $root.dxos.echo.testing.ItemMutation.Property();
+                        if (object.key != null)
+                            message.key = String(object.key);
+                        if (object.value != null)
+                            message.value = String(object.value);
+                        return message;
+                    };
+
+                    /**
+                     * Creates a plain object from a Property message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @static
+                     * @param {dxos.echo.testing.ItemMutation.Property} message Property
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Property.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.key = "";
+                            object.value = "";
+                        }
+                        if (message.key != null && message.hasOwnProperty("key"))
+                            object.key = message.key;
+                        if (message.value != null && message.hasOwnProperty("value"))
+                            object.value = message.value;
+                        return object;
+                    };
+
+                    /**
+                     * Converts this Property to JSON.
+                     * @function toJSON
+                     * @memberof dxos.echo.testing.ItemMutation.Property
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Property.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+
+                    return Property;
+                })();
 
                 return ItemMutation;
             })();

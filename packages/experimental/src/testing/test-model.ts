@@ -33,15 +33,35 @@ export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
 
   async setProperty (key: string, value: string) {
     await this.write(createMessage<dxos.echo.testing.IItemMutation>({
-      key,
-      value
+      set: {
+        key,
+        value
+      }
+    }, 'dxos.echo.testing.ItemMutation'));
+  }
+
+  async appendProperty (key: string, value: string) {
+    await this.write(createMessage<dxos.echo.testing.IItemMutation>({
+      append: {
+        key,
+        value
+      }
     }, 'dxos.echo.testing.ItemMutation'));
   }
 
   async processMessage (meta: IFeedMeta, mutation: dxos.echo.testing.IItemMutation) {
-    const { key, value } = mutation;
+    if (mutation.set) {
+      const { set: { key, value } } = mutation;
+      this._values.set(key, value);
+    }
+
+    if (mutation.append) {
+      const { append: { key, value } } = mutation;
+      const current = this._values.get(key) || '';
+      this._values.set(key, current + '-' + value);
+    }
+
     await sleep(50);
-    this._values.set(key, value);
     super.update();
   }
 }

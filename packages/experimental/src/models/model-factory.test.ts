@@ -53,8 +53,10 @@ describe('model factory', () => {
     await model.setProperty('title', 'Hello');
     expect(objects).toHaveLength(1);
     expect(objects[0]).toEqual(createMessage<dxos.echo.testing.IItemMutation>({
-      key: 'title',
-      value: 'Hello'
+      set: {
+        key: 'title',
+        value: 'Hello'
+      }
     }, 'dxos.echo.testing.ItemMutation'));
 
     // Expect model has not been updated (mutation has not been processed).

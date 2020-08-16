@@ -9,27 +9,27 @@ import { humanize } from '@dxos/crypto';
 import { createItemDemuxer, Item, ItemFilter, ItemManager, ItemType } from '../items';
 import { ResultSet } from '../result';
 import { ModelFactory, ModelType } from '../models';
-import { PartyStreams } from './party-streams';
+import { Pipeline } from './pipeline';
 import { PartyKey } from './types';
 
 /**
  * Party.
  */
 export class Party {
-  private readonly _partyStreams: PartyStreams;
+  private readonly _pipeline: Pipeline;
   private readonly _modelFactory: ModelFactory;
 
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
 
   /**
-   * @param partyStreams
+   * @param pipeline
    * @param modelFactory
    */
-  constructor (partyStreams: PartyStreams, modelFactory: ModelFactory) {
-    assert(partyStreams);
+  constructor (pipeline: Pipeline, modelFactory: ModelFactory) {
+    assert(pipeline);
     assert(modelFactory);
-    this._partyStreams = partyStreams;
+    this._pipeline = pipeline;
     this._modelFactory = modelFactory;
   }
 
@@ -38,31 +38,30 @@ export class Party {
   }
 
   get key (): PartyKey {
-    return this._partyStreams.key;
+    return this._pipeline.key;
   }
 
   /**
-   *
+   * Opens the pipeline.
    */
   async open () {
     if (this._itemManager) {
       return this;
     }
 
-    // TODO(burdon): Logging duplex/transforms.
     // TODO(burdon): Support read-only parties.
-    const { readStream, writeStream } = await this._partyStreams.open();
+    const { readStream, writeStream } = await this._pipeline.open();
     this._itemManager = new ItemManager(this._modelFactory, writeStream);
     this._itemDemuxer = createItemDemuxer(this._itemManager);
 
-    // Connect the read stream.
+    // Connect to the downstream item demuxer.
     readStream.pipe(this._itemDemuxer);
 
     return this;
   }
 
   /**
-   *
+   * Closes the pipeline.
    */
   async close () {
     if (!this._itemManager) {
@@ -70,12 +69,12 @@ export class Party {
     }
 
     // Disconnect the read stream.
-    this._partyStreams.readStream?.unpipe(this._itemDemuxer);
+    this._pipeline.readStream?.unpipe(this._itemDemuxer);
 
     this._itemManager = undefined;
     this._itemDemuxer = undefined;
 
-    await this._partyStreams.close();
+    await this._pipeline.close();
 
     return this;
   }
