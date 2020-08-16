@@ -53,9 +53,7 @@ describe('api tests', () => {
     });
 
     const party = await db.createParty();
-    log('Created:', String(party));
 
-    // TODO(burdon): WRN format.
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
     await party.createItem('dxos://dxos.org/item/kanban', TestModel.type);

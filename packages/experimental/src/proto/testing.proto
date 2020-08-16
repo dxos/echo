@@ -66,8 +66,8 @@ message EchoEnvelope {
     ItemGenesis genesis = 10;
     ItemMutation itemMutation = 11;
 
-    // TOOD(burdon): System/user model.
-//    google.protobuf.Any dataMutation = 12;
+    // TODO(burdon): System/user model.
+//  google.protobuf.Any dataMutation = 12;
   }
 }
 

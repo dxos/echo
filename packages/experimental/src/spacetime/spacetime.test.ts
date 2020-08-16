@@ -31,6 +31,15 @@ describe('spacetime', () => {
     const { publicKey: feedKey3 } = createKeyPair();
 
     {
+      // Merge.
+      const tf1 = spacetime.createTimeframe();
+      const tf2 = spacetime.createTimeframe([[feedKey1, 2], [feedKey2, 1]]);
+      const tf3 = spacetime.merge(tf1, tf2);
+      log(JSON.stringify(spacetime.toJson(tf3), undefined, 2));
+      expect(spacetime.keyMapper.toArray(tf3)).toHaveLength(2);
+    }
+
+    {
       // Merge (no change).
       const tf1 = spacetime.createTimeframe([[feedKey1, 1], [feedKey2, 1]]);
       const tf2 = spacetime.createTimeframe([[feedKey1, 2], [feedKey3, 1]]);

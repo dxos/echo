@@ -70,10 +70,10 @@ export class FeedIndexMapper extends KeyMapper<number, number> {
 /**
  * Utility class to manipulate Timeframe protocol buffers.
  */
-export class Spacetime {
-  private readonly _keyMapper: KeyMapper<any, any>;
+export class Spacetime<T, S> {
+  private readonly _keyMapper: KeyMapper<T, S>;
 
-  constructor (keyMapper: KeyMapper<any, any>) {
+  constructor (keyMapper: KeyMapper<T, S>) {
     this._keyMapper = keyMapper;
   }
 
@@ -95,9 +95,9 @@ export class Spacetime {
     return JSON.stringify(this.toJson(timeframe));
   }
 
-  createTimeframe (frames: [any, number][]): dxos.echo.testing.ITimeframe {
+  createTimeframe (frames?: [T, number][]): dxos.echo.testing.ITimeframe {
     return {
-      frames: frames.map(([key, seq]) => ({ [this._keyMapper.key]: key, seq }))
+      frames: frames?.map(([key, seq]) => ({ [this._keyMapper.key]: key, seq }))
     };
   }
 
@@ -125,7 +125,7 @@ export class Spacetime {
    * @param timeframe
    * @param keys
    */
-  removeKeys (timeframe: dxos.echo.testing.ITimeframe, keys: any[]): dxos.echo.testing.ITimeframe {
+  removeKeys (timeframe: dxos.echo.testing.ITimeframe, keys: T[]): dxos.echo.testing.ITimeframe {
     return {
       frames: this._keyMapper.toArray(timeframe)
         .filter(([key]) => keys.indexOf(key) === -1)

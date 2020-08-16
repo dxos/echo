@@ -54,6 +54,7 @@ export class Database {
     const partyStreams = new PartyStreams(this._feedStore, key, this._options);
     const party = await new Party(partyStreams, this._modelFactory).open();
     this._parties.set(party.key, party);
+    log(`Created: ${String(party)}`);
 
     // Notify update event.
     // TODO(burdon): How to distinguish event types (create, update, etc.) and propagation?

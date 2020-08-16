@@ -1,5 +1,12 @@
 # ECHO Experimental
 
+## Pipeline
+
+"A key goal of the stream API, particularly the stream.pipe() method, is to limit the buffering of data to acceptable 
+levels such that sources and destinations of differing speeds will not overwhelm the available memory."
+[https://nodejs.org/api/stream.html#stream_buffering]
+
+
 ## Spacetime
 
 TODO(burdon): Normalize "we" and "current node", etc.
@@ -102,14 +109,3 @@ are creating and processing messages at the same time.
 
 We can, therefore, consider being "offline" with respect to other peers as an extreme form of "latency",
 and rely on the same underlying mechanism.
-
-
-## Next
-
-- Stream loggers.
-
-- Reactive components (Database, Party, Item, Model) with event propagation.
-- Event handlers: global state to warn of leaks when system shuts down (show graph).
-- Ensure streams are closed when objects are destroyed (on purpose or on error).
-- Consistent async functions (latch, trigger, etc.)
-- WRN model/item formats.
