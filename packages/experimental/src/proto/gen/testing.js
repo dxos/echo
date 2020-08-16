@@ -1129,11 +1129,10 @@ $root.dxos = (function() {
                  * Properties of an EchoEnvelope.
                  * @memberof dxos.echo.testing
                  * @interface IEchoEnvelope
-                 * @property {dxos.echo.testing.IVectorTimestamp|null} [timestamp] EchoEnvelope timestamp
+                 * @property {dxos.echo.testing.ITimeframe|null} [timeframe] EchoEnvelope timeframe
                  * @property {string|null} [itemId] EchoEnvelope itemId
                  * @property {dxos.echo.testing.IItemGenesis|null} [genesis] EchoEnvelope genesis
                  * @property {dxos.echo.testing.IItemMutation|null} [itemMutation] EchoEnvelope itemMutation
-                 * @property {google.protobuf.IAny|null} [dataMutation] EchoEnvelope dataMutation
                  */
 
                 /**
@@ -1152,12 +1151,12 @@ $root.dxos = (function() {
                 }
 
                 /**
-                 * EchoEnvelope timestamp.
-                 * @member {dxos.echo.testing.IVectorTimestamp|null|undefined} timestamp
+                 * EchoEnvelope timeframe.
+                 * @member {dxos.echo.testing.ITimeframe|null|undefined} timeframe
                  * @memberof dxos.echo.testing.EchoEnvelope
                  * @instance
                  */
-                EchoEnvelope.prototype.timestamp = null;
+                EchoEnvelope.prototype.timeframe = null;
 
                 /**
                  * EchoEnvelope itemId.
@@ -1183,25 +1182,17 @@ $root.dxos = (function() {
                  */
                 EchoEnvelope.prototype.itemMutation = null;
 
-                /**
-                 * EchoEnvelope dataMutation.
-                 * @member {google.protobuf.IAny|null|undefined} dataMutation
-                 * @memberof dxos.echo.testing.EchoEnvelope
-                 * @instance
-                 */
-                EchoEnvelope.prototype.dataMutation = null;
-
                 // OneOf field names bound to virtual getters and setters
                 var $oneOfFields;
 
                 /**
                  * EchoEnvelope action.
-                 * @member {"genesis"|"itemMutation"|"dataMutation"|undefined} action
+                 * @member {"genesis"|"itemMutation"|undefined} action
                  * @memberof dxos.echo.testing.EchoEnvelope
                  * @instance
                  */
                 Object.defineProperty(EchoEnvelope.prototype, "action", {
-                    get: $util.oneOfGetter($oneOfFields = ["genesis", "itemMutation", "dataMutation"]),
+                    get: $util.oneOfGetter($oneOfFields = ["genesis", "itemMutation"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
 
@@ -1229,16 +1220,14 @@ $root.dxos = (function() {
                 EchoEnvelope.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.timestamp != null && Object.hasOwnProperty.call(message, "timestamp"))
-                        $root.dxos.echo.testing.VectorTimestamp.encode(message.timestamp, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.timeframe != null && Object.hasOwnProperty.call(message, "timeframe"))
+                        $root.dxos.echo.testing.Timeframe.encode(message.timeframe, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     if (message.itemId != null && Object.hasOwnProperty.call(message, "itemId"))
                         writer.uint32(/* id 2, wireType 2 =*/18).string(message.itemId);
                     if (message.genesis != null && Object.hasOwnProperty.call(message, "genesis"))
                         $root.dxos.echo.testing.ItemGenesis.encode(message.genesis, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     if (message.itemMutation != null && Object.hasOwnProperty.call(message, "itemMutation"))
                         $root.dxos.echo.testing.ItemMutation.encode(message.itemMutation, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
-                    if (message.dataMutation != null && Object.hasOwnProperty.call(message, "dataMutation"))
-                        $root.google.protobuf.Any.encode(message.dataMutation, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
                     return writer;
                 };
 
@@ -1274,7 +1263,7 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.timestamp = $root.dxos.echo.testing.VectorTimestamp.decode(reader, reader.uint32());
+                            message.timeframe = $root.dxos.echo.testing.Timeframe.decode(reader, reader.uint32());
                             break;
                         case 2:
                             message.itemId = reader.string();
@@ -1284,9 +1273,6 @@ $root.dxos = (function() {
                             break;
                         case 11:
                             message.itemMutation = $root.dxos.echo.testing.ItemMutation.decode(reader, reader.uint32());
-                            break;
-                        case 12:
-                            message.dataMutation = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1324,10 +1310,10 @@ $root.dxos = (function() {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     var properties = {};
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
-                        var error = $root.dxos.echo.testing.VectorTimestamp.verify(message.timestamp);
+                    if (message.timeframe != null && message.hasOwnProperty("timeframe")) {
+                        var error = $root.dxos.echo.testing.Timeframe.verify(message.timeframe);
                         if (error)
-                            return "timestamp." + error;
+                            return "timeframe." + error;
                     }
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         if (!$util.isString(message.itemId))
@@ -1350,16 +1336,6 @@ $root.dxos = (function() {
                                 return "itemMutation." + error;
                         }
                     }
-                    if (message.dataMutation != null && message.hasOwnProperty("dataMutation")) {
-                        if (properties.action === 1)
-                            return "action: multiple values";
-                        properties.action = 1;
-                        {
-                            var error = $root.google.protobuf.Any.verify(message.dataMutation);
-                            if (error)
-                                return "dataMutation." + error;
-                        }
-                    }
                     return null;
                 };
 
@@ -1375,10 +1351,10 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.EchoEnvelope)
                         return object;
                     var message = new $root.dxos.echo.testing.EchoEnvelope();
-                    if (object.timestamp != null) {
-                        if (typeof object.timestamp !== "object")
-                            throw TypeError(".dxos.echo.testing.EchoEnvelope.timestamp: object expected");
-                        message.timestamp = $root.dxos.echo.testing.VectorTimestamp.fromObject(object.timestamp);
+                    if (object.timeframe != null) {
+                        if (typeof object.timeframe !== "object")
+                            throw TypeError(".dxos.echo.testing.EchoEnvelope.timeframe: object expected");
+                        message.timeframe = $root.dxos.echo.testing.Timeframe.fromObject(object.timeframe);
                     }
                     if (object.itemId != null)
                         message.itemId = String(object.itemId);
@@ -1391,11 +1367,6 @@ $root.dxos = (function() {
                         if (typeof object.itemMutation !== "object")
                             throw TypeError(".dxos.echo.testing.EchoEnvelope.itemMutation: object expected");
                         message.itemMutation = $root.dxos.echo.testing.ItemMutation.fromObject(object.itemMutation);
-                    }
-                    if (object.dataMutation != null) {
-                        if (typeof object.dataMutation !== "object")
-                            throw TypeError(".dxos.echo.testing.EchoEnvelope.dataMutation: object expected");
-                        message.dataMutation = $root.google.protobuf.Any.fromObject(object.dataMutation);
                     }
                     return message;
                 };
@@ -1414,11 +1385,11 @@ $root.dxos = (function() {
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.timestamp = null;
+                        object.timeframe = null;
                         object.itemId = "";
                     }
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp"))
-                        object.timestamp = $root.dxos.echo.testing.VectorTimestamp.toObject(message.timestamp, options);
+                    if (message.timeframe != null && message.hasOwnProperty("timeframe"))
+                        object.timeframe = $root.dxos.echo.testing.Timeframe.toObject(message.timeframe, options);
                     if (message.itemId != null && message.hasOwnProperty("itemId"))
                         object.itemId = message.itemId;
                     if (message.genesis != null && message.hasOwnProperty("genesis")) {
@@ -1430,11 +1401,6 @@ $root.dxos = (function() {
                         object.itemMutation = $root.dxos.echo.testing.ItemMutation.toObject(message.itemMutation, options);
                         if (options.oneofs)
                             object.action = "itemMutation";
-                    }
-                    if (message.dataMutation != null && message.hasOwnProperty("dataMutation")) {
-                        object.dataMutation = $root.google.protobuf.Any.toObject(message.dataMutation, options);
-                        if (options.oneofs)
-                            object.action = "dataMutation";
                     }
                     return object;
                 };
@@ -1895,25 +1861,25 @@ $root.dxos = (function() {
                 return ItemMutation;
             })();
 
-            testing.VectorTimestamp = (function() {
+            testing.Timeframe = (function() {
 
                 /**
-                 * Properties of a VectorTimestamp.
+                 * Properties of a Timeframe.
                  * @memberof dxos.echo.testing
-                 * @interface IVectorTimestamp
-                 * @property {Array.<dxos.echo.testing.VectorTimestamp.IPart>|null} [timestamp] VectorTimestamp timestamp
+                 * @interface ITimeframe
+                 * @property {Array.<dxos.echo.testing.Timeframe.IFrame>|null} [frames] Timeframe frames
                  */
 
                 /**
-                 * Constructs a new VectorTimestamp.
+                 * Constructs a new Timeframe.
                  * @memberof dxos.echo.testing
-                 * @classdesc Represents a VectorTimestamp.
-                 * @implements IVectorTimestamp
+                 * @classdesc Represents a Timeframe.
+                 * @implements ITimeframe
                  * @constructor
-                 * @param {dxos.echo.testing.IVectorTimestamp=} [properties] Properties to set
+                 * @param {dxos.echo.testing.ITimeframe=} [properties] Properties to set
                  */
-                function VectorTimestamp(properties) {
-                    this.timestamp = [];
+                function Timeframe(properties) {
+                    this.frames = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -1921,78 +1887,78 @@ $root.dxos = (function() {
                 }
 
                 /**
-                 * VectorTimestamp timestamp.
-                 * @member {Array.<dxos.echo.testing.VectorTimestamp.IPart>} timestamp
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * Timeframe frames.
+                 * @member {Array.<dxos.echo.testing.Timeframe.IFrame>} frames
+                 * @memberof dxos.echo.testing.Timeframe
                  * @instance
                  */
-                VectorTimestamp.prototype.timestamp = $util.emptyArray;
+                Timeframe.prototype.frames = $util.emptyArray;
 
                 /**
-                 * Creates a new VectorTimestamp instance using the specified properties.
+                 * Creates a new Timeframe instance using the specified properties.
                  * @function create
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp=} [properties] Properties to set
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp instance
+                 * @param {dxos.echo.testing.ITimeframe=} [properties] Properties to set
+                 * @returns {dxos.echo.testing.Timeframe} Timeframe instance
                  */
-                VectorTimestamp.create = function create(properties) {
-                    return new VectorTimestamp(properties);
+                Timeframe.create = function create(properties) {
+                    return new Timeframe(properties);
                 };
 
                 /**
-                 * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * Encodes the specified Timeframe message. Does not implicitly {@link dxos.echo.testing.Timeframe.verify|verify} messages.
                  * @function encode
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp} message VectorTimestamp message or plain object to encode
+                 * @param {dxos.echo.testing.ITimeframe} message Timeframe message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                VectorTimestamp.encode = function encode(message, writer) {
+                Timeframe.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.timestamp != null && message.timestamp.length)
-                        for (var i = 0; i < message.timestamp.length; ++i)
-                            $root.dxos.echo.testing.VectorTimestamp.Part.encode(message.timestamp[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.frames != null && message.frames.length)
+                        for (var i = 0; i < message.frames.length; ++i)
+                            $root.dxos.echo.testing.Timeframe.Frame.encode(message.frames[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     return writer;
                 };
 
                 /**
-                 * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
+                 * Encodes the specified Timeframe message, length delimited. Does not implicitly {@link dxos.echo.testing.Timeframe.verify|verify} messages.
                  * @function encodeDelimited
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
-                 * @param {dxos.echo.testing.IVectorTimestamp} message VectorTimestamp message or plain object to encode
+                 * @param {dxos.echo.testing.ITimeframe} message Timeframe message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                VectorTimestamp.encodeDelimited = function encodeDelimited(message, writer) {
+                Timeframe.encodeDelimited = function encodeDelimited(message, writer) {
                     return this.encode(message, writer).ldelim();
                 };
 
                 /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer.
+                 * Decodes a Timeframe message from the specified reader or buffer.
                  * @function decode
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
+                 * @returns {dxos.echo.testing.Timeframe} Timeframe
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                VectorTimestamp.decode = function decode(reader, length) {
+                Timeframe.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.VectorTimestamp();
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.Timeframe();
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            if (!(message.timestamp && message.timestamp.length))
-                                message.timestamp = [];
-                            message.timestamp.push($root.dxos.echo.testing.VectorTimestamp.Part.decode(reader, reader.uint32()));
+                            if (!(message.frames && message.frames.length))
+                                message.frames = [];
+                            message.frames.push($root.dxos.echo.testing.Timeframe.Frame.decode(reader, reader.uint32()));
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2003,123 +1969,123 @@ $root.dxos = (function() {
                 };
 
                 /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
+                 * Decodes a Timeframe message from the specified reader or buffer, length delimited.
                  * @function decodeDelimited
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
+                 * @returns {dxos.echo.testing.Timeframe} Timeframe
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                VectorTimestamp.decodeDelimited = function decodeDelimited(reader) {
+                Timeframe.decodeDelimited = function decodeDelimited(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
                 };
 
                 /**
-                 * Verifies a VectorTimestamp message.
+                 * Verifies a Timeframe message.
                  * @function verify
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                VectorTimestamp.verify = function verify(message) {
+                Timeframe.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.timestamp != null && message.hasOwnProperty("timestamp")) {
-                        if (!Array.isArray(message.timestamp))
-                            return "timestamp: array expected";
-                        for (var i = 0; i < message.timestamp.length; ++i) {
-                            var error = $root.dxos.echo.testing.VectorTimestamp.Part.verify(message.timestamp[i]);
+                    if (message.frames != null && message.hasOwnProperty("frames")) {
+                        if (!Array.isArray(message.frames))
+                            return "frames: array expected";
+                        for (var i = 0; i < message.frames.length; ++i) {
+                            var error = $root.dxos.echo.testing.Timeframe.Frame.verify(message.frames[i]);
                             if (error)
-                                return "timestamp." + error;
+                                return "frames." + error;
                         }
                     }
                     return null;
                 };
 
                 /**
-                 * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * Creates a Timeframe message from a plain object. Also converts values to their respective internal types.
                  * @function fromObject
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
                  * @param {Object.<string,*>} object Plain object
-                 * @returns {dxos.echo.testing.VectorTimestamp} VectorTimestamp
+                 * @returns {dxos.echo.testing.Timeframe} Timeframe
                  */
-                VectorTimestamp.fromObject = function fromObject(object) {
-                    if (object instanceof $root.dxos.echo.testing.VectorTimestamp)
+                Timeframe.fromObject = function fromObject(object) {
+                    if (object instanceof $root.dxos.echo.testing.Timeframe)
                         return object;
-                    var message = new $root.dxos.echo.testing.VectorTimestamp();
-                    if (object.timestamp) {
-                        if (!Array.isArray(object.timestamp))
-                            throw TypeError(".dxos.echo.testing.VectorTimestamp.timestamp: array expected");
-                        message.timestamp = [];
-                        for (var i = 0; i < object.timestamp.length; ++i) {
-                            if (typeof object.timestamp[i] !== "object")
-                                throw TypeError(".dxos.echo.testing.VectorTimestamp.timestamp: object expected");
-                            message.timestamp[i] = $root.dxos.echo.testing.VectorTimestamp.Part.fromObject(object.timestamp[i]);
+                    var message = new $root.dxos.echo.testing.Timeframe();
+                    if (object.frames) {
+                        if (!Array.isArray(object.frames))
+                            throw TypeError(".dxos.echo.testing.Timeframe.frames: array expected");
+                        message.frames = [];
+                        for (var i = 0; i < object.frames.length; ++i) {
+                            if (typeof object.frames[i] !== "object")
+                                throw TypeError(".dxos.echo.testing.Timeframe.frames: object expected");
+                            message.frames[i] = $root.dxos.echo.testing.Timeframe.Frame.fromObject(object.frames[i]);
                         }
                     }
                     return message;
                 };
 
                 /**
-                 * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
+                 * Creates a plain object from a Timeframe message. Also converts values to other types if specified.
                  * @function toObject
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @static
-                 * @param {dxos.echo.testing.VectorTimestamp} message VectorTimestamp
+                 * @param {dxos.echo.testing.Timeframe} message Timeframe
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                VectorTimestamp.toObject = function toObject(message, options) {
+                Timeframe.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
                     var object = {};
                     if (options.arrays || options.defaults)
-                        object.timestamp = [];
-                    if (message.timestamp && message.timestamp.length) {
-                        object.timestamp = [];
-                        for (var j = 0; j < message.timestamp.length; ++j)
-                            object.timestamp[j] = $root.dxos.echo.testing.VectorTimestamp.Part.toObject(message.timestamp[j], options);
+                        object.frames = [];
+                    if (message.frames && message.frames.length) {
+                        object.frames = [];
+                        for (var j = 0; j < message.frames.length; ++j)
+                            object.frames[j] = $root.dxos.echo.testing.Timeframe.Frame.toObject(message.frames[j], options);
                     }
                     return object;
                 };
 
                 /**
-                 * Converts this VectorTimestamp to JSON.
+                 * Converts this Timeframe to JSON.
                  * @function toJSON
-                 * @memberof dxos.echo.testing.VectorTimestamp
+                 * @memberof dxos.echo.testing.Timeframe
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                VectorTimestamp.prototype.toJSON = function toJSON() {
+                Timeframe.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
-                VectorTimestamp.Part = (function() {
+                Timeframe.Frame = (function() {
 
                     /**
-                     * Properties of a Part.
-                     * @memberof dxos.echo.testing.VectorTimestamp
-                     * @interface IPart
-                     * @property {Uint8Array|null} [feedKey] Part feedKey
-                     * @property {number|null} [feedIndex] Part feedIndex
-                     * @property {number|null} [seq] Part seq
+                     * Properties of a Frame.
+                     * @memberof dxos.echo.testing.Timeframe
+                     * @interface IFrame
+                     * @property {Uint8Array|null} [feedKey] Frame feedKey
+                     * @property {number|null} [feedIndex] Frame feedIndex
+                     * @property {number|null} [seq] Frame seq
                      */
 
                     /**
-                     * Constructs a new Part.
-                     * @memberof dxos.echo.testing.VectorTimestamp
-                     * @classdesc Represents a Part.
-                     * @implements IPart
+                     * Constructs a new Frame.
+                     * @memberof dxos.echo.testing.Timeframe
+                     * @classdesc Represents a Frame.
+                     * @implements IFrame
                      * @constructor
-                     * @param {dxos.echo.testing.VectorTimestamp.IPart=} [properties] Properties to set
+                     * @param {dxos.echo.testing.Timeframe.IFrame=} [properties] Properties to set
                      */
-                    function Part(properties) {
+                    function Frame(properties) {
                         if (properties)
                             for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                                 if (properties[keys[i]] != null)
@@ -2127,51 +2093,51 @@ $root.dxos = (function() {
                     }
 
                     /**
-                     * Part feedKey.
+                     * Frame feedKey.
                      * @member {Uint8Array} feedKey
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @instance
                      */
-                    Part.prototype.feedKey = $util.newBuffer([]);
+                    Frame.prototype.feedKey = $util.newBuffer([]);
 
                     /**
-                     * Part feedIndex.
+                     * Frame feedIndex.
                      * @member {number} feedIndex
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @instance
                      */
-                    Part.prototype.feedIndex = 0;
+                    Frame.prototype.feedIndex = 0;
 
                     /**
-                     * Part seq.
+                     * Frame seq.
                      * @member {number} seq
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @instance
                      */
-                    Part.prototype.seq = 0;
+                    Frame.prototype.seq = 0;
 
                     /**
-                     * Creates a new Part instance using the specified properties.
+                     * Creates a new Frame instance using the specified properties.
                      * @function create
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IPart=} [properties] Properties to set
-                     * @returns {dxos.echo.testing.VectorTimestamp.Part} Part instance
+                     * @param {dxos.echo.testing.Timeframe.IFrame=} [properties] Properties to set
+                     * @returns {dxos.echo.testing.Timeframe.Frame} Frame instance
                      */
-                    Part.create = function create(properties) {
-                        return new Part(properties);
+                    Frame.create = function create(properties) {
+                        return new Frame(properties);
                     };
 
                     /**
-                     * Encodes the specified Part message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Part.verify|verify} messages.
+                     * Encodes the specified Frame message. Does not implicitly {@link dxos.echo.testing.Timeframe.Frame.verify|verify} messages.
                      * @function encode
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IPart} message Part message or plain object to encode
+                     * @param {dxos.echo.testing.Timeframe.IFrame} message Frame message or plain object to encode
                      * @param {$protobuf.Writer} [writer] Writer to encode to
                      * @returns {$protobuf.Writer} Writer
                      */
-                    Part.encode = function encode(message, writer) {
+                    Frame.encode = function encode(message, writer) {
                         if (!writer)
                             writer = $Writer.create();
                         if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
@@ -2184,33 +2150,33 @@ $root.dxos = (function() {
                     };
 
                     /**
-                     * Encodes the specified Part message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Part.verify|verify} messages.
+                     * Encodes the specified Frame message, length delimited. Does not implicitly {@link dxos.echo.testing.Timeframe.Frame.verify|verify} messages.
                      * @function encodeDelimited
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.IPart} message Part message or plain object to encode
+                     * @param {dxos.echo.testing.Timeframe.IFrame} message Frame message or plain object to encode
                      * @param {$protobuf.Writer} [writer] Writer to encode to
                      * @returns {$protobuf.Writer} Writer
                      */
-                    Part.encodeDelimited = function encodeDelimited(message, writer) {
+                    Frame.encodeDelimited = function encodeDelimited(message, writer) {
                         return this.encode(message, writer).ldelim();
                     };
 
                     /**
-                     * Decodes a Part message from the specified reader or buffer.
+                     * Decodes a Frame message from the specified reader or buffer.
                      * @function decode
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
                      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                      * @param {number} [length] Message length if known beforehand
-                     * @returns {dxos.echo.testing.VectorTimestamp.Part} Part
+                     * @returns {dxos.echo.testing.Timeframe.Frame} Frame
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    Part.decode = function decode(reader, length) {
+                    Frame.decode = function decode(reader, length) {
                         if (!(reader instanceof $Reader))
                             reader = $Reader.create(reader);
-                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.VectorTimestamp.Part();
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.dxos.echo.testing.Timeframe.Frame();
                         while (reader.pos < end) {
                             var tag = reader.uint32();
                             switch (tag >>> 3) {
@@ -2232,30 +2198,30 @@ $root.dxos = (function() {
                     };
 
                     /**
-                     * Decodes a Part message from the specified reader or buffer, length delimited.
+                     * Decodes a Frame message from the specified reader or buffer, length delimited.
                      * @function decodeDelimited
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
                      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                     * @returns {dxos.echo.testing.VectorTimestamp.Part} Part
+                     * @returns {dxos.echo.testing.Timeframe.Frame} Frame
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    Part.decodeDelimited = function decodeDelimited(reader) {
+                    Frame.decodeDelimited = function decodeDelimited(reader) {
                         if (!(reader instanceof $Reader))
                             reader = new $Reader(reader);
                         return this.decode(reader, reader.uint32());
                     };
 
                     /**
-                     * Verifies a Part message.
+                     * Verifies a Frame message.
                      * @function verify
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
                      * @param {Object.<string,*>} message Plain object to verify
                      * @returns {string|null} `null` if valid, otherwise the reason why it is not
                      */
-                    Part.verify = function verify(message) {
+                    Frame.verify = function verify(message) {
                         if (typeof message !== "object" || message === null)
                             return "object expected";
                         if (message.feedKey != null && message.hasOwnProperty("feedKey"))
@@ -2271,17 +2237,17 @@ $root.dxos = (function() {
                     };
 
                     /**
-                     * Creates a Part message from a plain object. Also converts values to their respective internal types.
+                     * Creates a Frame message from a plain object. Also converts values to their respective internal types.
                      * @function fromObject
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
                      * @param {Object.<string,*>} object Plain object
-                     * @returns {dxos.echo.testing.VectorTimestamp.Part} Part
+                     * @returns {dxos.echo.testing.Timeframe.Frame} Frame
                      */
-                    Part.fromObject = function fromObject(object) {
-                        if (object instanceof $root.dxos.echo.testing.VectorTimestamp.Part)
+                    Frame.fromObject = function fromObject(object) {
+                        if (object instanceof $root.dxos.echo.testing.Timeframe.Frame)
                             return object;
-                        var message = new $root.dxos.echo.testing.VectorTimestamp.Part();
+                        var message = new $root.dxos.echo.testing.Timeframe.Frame();
                         if (object.feedKey != null)
                             if (typeof object.feedKey === "string")
                                 $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
@@ -2295,15 +2261,15 @@ $root.dxos = (function() {
                     };
 
                     /**
-                     * Creates a plain object from a Part message. Also converts values to other types if specified.
+                     * Creates a plain object from a Frame message. Also converts values to other types if specified.
                      * @function toObject
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @static
-                     * @param {dxos.echo.testing.VectorTimestamp.Part} message Part
+                     * @param {dxos.echo.testing.Timeframe.Frame} message Frame
                      * @param {$protobuf.IConversionOptions} [options] Conversion options
                      * @returns {Object.<string,*>} Plain object
                      */
-                    Part.toObject = function toObject(message, options) {
+                    Frame.toObject = function toObject(message, options) {
                         if (!options)
                             options = {};
                         var object = {};
@@ -2328,20 +2294,20 @@ $root.dxos = (function() {
                     };
 
                     /**
-                     * Converts this Part to JSON.
+                     * Converts this Frame to JSON.
                      * @function toJSON
-                     * @memberof dxos.echo.testing.VectorTimestamp.Part
+                     * @memberof dxos.echo.testing.Timeframe.Frame
                      * @instance
                      * @returns {Object.<string,*>} JSON object
                      */
-                    Part.prototype.toJSON = function toJSON() {
+                    Frame.prototype.toJSON = function toJSON() {
                         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                     };
 
-                    return Part;
+                    return Frame;
                 })();
 
-                return VectorTimestamp;
+                return Timeframe;
             })();
 
             return testing;

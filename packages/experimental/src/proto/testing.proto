@@ -59,7 +59,7 @@ message PartyEject {
 
 // Wrapper for all ECHO messages.
 message EchoEnvelope {
-  VectorTimestamp timestamp = 1;
+  Timeframe timeframe = 1;
   string itemId = 2;
 
   oneof action {
@@ -84,8 +84,8 @@ message ItemMutation {
 }
 
 // Vector timestamp used to order messages.
-message VectorTimestamp {
-  message Part {
+message Timeframe {
+  message Frame {
     // TODO(burdon): Remove (see below)?
     bytes feedKey = 1;
     // TODO(burdon): Determine if admit DAG can be ordered. Requires party messages to be ordered (by lexical feed key).
@@ -93,5 +93,5 @@ message VectorTimestamp {
     int32 seq = 3;
   }
 
-  repeated Part timestamp = 1;
+  repeated Frame frames = 1;
 }

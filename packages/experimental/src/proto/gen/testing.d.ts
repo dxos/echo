@@ -482,8 +482,8 @@ export namespace dxos {
             /** Properties of an EchoEnvelope. */
             interface IEchoEnvelope {
 
-                /** EchoEnvelope timestamp */
-                timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
+                /** EchoEnvelope timeframe */
+                timeframe?: (dxos.echo.testing.ITimeframe|null);
 
                 /** EchoEnvelope itemId */
                 itemId?: (string|null);
@@ -493,9 +493,6 @@ export namespace dxos {
 
                 /** EchoEnvelope itemMutation */
                 itemMutation?: (dxos.echo.testing.IItemMutation|null);
-
-                /** EchoEnvelope dataMutation */
-                dataMutation?: (google.protobuf.IAny|null);
             }
 
             /** Represents an EchoEnvelope. */
@@ -507,8 +504,8 @@ export namespace dxos {
                  */
                 constructor(properties?: dxos.echo.testing.IEchoEnvelope);
 
-                /** EchoEnvelope timestamp. */
-                public timestamp?: (dxos.echo.testing.IVectorTimestamp|null);
+                /** EchoEnvelope timeframe. */
+                public timeframe?: (dxos.echo.testing.ITimeframe|null);
 
                 /** EchoEnvelope itemId. */
                 public itemId: string;
@@ -519,11 +516,8 @@ export namespace dxos {
                 /** EchoEnvelope itemMutation. */
                 public itemMutation?: (dxos.echo.testing.IItemMutation|null);
 
-                /** EchoEnvelope dataMutation. */
-                public dataMutation?: (google.protobuf.IAny|null);
-
                 /** EchoEnvelope action. */
-                public action?: ("genesis"|"itemMutation"|"dataMutation");
+                public action?: ("genesis"|"itemMutation");
 
                 /**
                  * Creates a new EchoEnvelope instance using the specified properties.
@@ -794,195 +788,195 @@ export namespace dxos {
                 public toJSON(): { [k: string]: any };
             }
 
-            /** Properties of a VectorTimestamp. */
-            interface IVectorTimestamp {
+            /** Properties of a Timeframe. */
+            interface ITimeframe {
 
-                /** VectorTimestamp timestamp */
-                timestamp?: (dxos.echo.testing.VectorTimestamp.IPart[]|null);
+                /** Timeframe frames */
+                frames?: (dxos.echo.testing.Timeframe.IFrame[]|null);
             }
 
-            /** Represents a VectorTimestamp. */
-            class VectorTimestamp implements IVectorTimestamp {
+            /** Represents a Timeframe. */
+            class Timeframe implements ITimeframe {
 
                 /**
-                 * Constructs a new VectorTimestamp.
+                 * Constructs a new Timeframe.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: dxos.echo.testing.IVectorTimestamp);
+                constructor(properties?: dxos.echo.testing.ITimeframe);
 
-                /** VectorTimestamp timestamp. */
-                public timestamp: dxos.echo.testing.VectorTimestamp.IPart[];
+                /** Timeframe frames. */
+                public frames: dxos.echo.testing.Timeframe.IFrame[];
 
                 /**
-                 * Creates a new VectorTimestamp instance using the specified properties.
+                 * Creates a new Timeframe instance using the specified properties.
                  * @param [properties] Properties to set
-                 * @returns VectorTimestamp instance
+                 * @returns Timeframe instance
                  */
-                public static create(properties?: dxos.echo.testing.IVectorTimestamp): dxos.echo.testing.VectorTimestamp;
+                public static create(properties?: dxos.echo.testing.ITimeframe): dxos.echo.testing.Timeframe;
 
                 /**
-                 * Encodes the specified VectorTimestamp message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
-                 * @param message VectorTimestamp message or plain object to encode
+                 * Encodes the specified Timeframe message. Does not implicitly {@link dxos.echo.testing.Timeframe.verify|verify} messages.
+                 * @param message Timeframe message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encode(message: dxos.echo.testing.ITimeframe, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Encodes the specified VectorTimestamp message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.verify|verify} messages.
-                 * @param message VectorTimestamp message or plain object to encode
+                 * Encodes the specified Timeframe message, length delimited. Does not implicitly {@link dxos.echo.testing.Timeframe.verify|verify} messages.
+                 * @param message Timeframe message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: dxos.echo.testing.IVectorTimestamp, writer?: $protobuf.Writer): $protobuf.Writer;
+                public static encodeDelimited(message: dxos.echo.testing.ITimeframe, writer?: $protobuf.Writer): $protobuf.Writer;
 
                 /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer.
+                 * Decodes a Timeframe message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns VectorTimestamp
+                 * @returns Timeframe
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp;
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.Timeframe;
 
                 /**
-                 * Decodes a VectorTimestamp message from the specified reader or buffer, length delimited.
+                 * Decodes a Timeframe message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns VectorTimestamp
+                 * @returns Timeframe
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp;
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.Timeframe;
 
                 /**
-                 * Verifies a VectorTimestamp message.
+                 * Verifies a Timeframe message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
                 public static verify(message: { [k: string]: any }): (string|null);
 
                 /**
-                 * Creates a VectorTimestamp message from a plain object. Also converts values to their respective internal types.
+                 * Creates a Timeframe message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
-                 * @returns VectorTimestamp
+                 * @returns Timeframe
                  */
-                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp;
+                public static fromObject(object: { [k: string]: any }): dxos.echo.testing.Timeframe;
 
                 /**
-                 * Creates a plain object from a VectorTimestamp message. Also converts values to other types if specified.
-                 * @param message VectorTimestamp
+                 * Creates a plain object from a Timeframe message. Also converts values to other types if specified.
+                 * @param message Timeframe
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: dxos.echo.testing.VectorTimestamp, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                public static toObject(message: dxos.echo.testing.Timeframe, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                 /**
-                 * Converts this VectorTimestamp to JSON.
+                 * Converts this Timeframe to JSON.
                  * @returns JSON object
                  */
                 public toJSON(): { [k: string]: any };
             }
 
-            namespace VectorTimestamp {
+            namespace Timeframe {
 
-                /** Properties of a Part. */
-                interface IPart {
+                /** Properties of a Frame. */
+                interface IFrame {
 
-                    /** Part feedKey */
+                    /** Frame feedKey */
                     feedKey?: (Uint8Array|null);
 
-                    /** Part feedIndex */
+                    /** Frame feedIndex */
                     feedIndex?: (number|null);
 
-                    /** Part seq */
+                    /** Frame seq */
                     seq?: (number|null);
                 }
 
-                /** Represents a Part. */
-                class Part implements IPart {
+                /** Represents a Frame. */
+                class Frame implements IFrame {
 
                     /**
-                     * Constructs a new Part.
+                     * Constructs a new Frame.
                      * @param [properties] Properties to set
                      */
-                    constructor(properties?: dxos.echo.testing.VectorTimestamp.IPart);
+                    constructor(properties?: dxos.echo.testing.Timeframe.IFrame);
 
-                    /** Part feedKey. */
+                    /** Frame feedKey. */
                     public feedKey: Uint8Array;
 
-                    /** Part feedIndex. */
+                    /** Frame feedIndex. */
                     public feedIndex: number;
 
-                    /** Part seq. */
+                    /** Frame seq. */
                     public seq: number;
 
                     /**
-                     * Creates a new Part instance using the specified properties.
+                     * Creates a new Frame instance using the specified properties.
                      * @param [properties] Properties to set
-                     * @returns Part instance
+                     * @returns Frame instance
                      */
-                    public static create(properties?: dxos.echo.testing.VectorTimestamp.IPart): dxos.echo.testing.VectorTimestamp.Part;
+                    public static create(properties?: dxos.echo.testing.Timeframe.IFrame): dxos.echo.testing.Timeframe.Frame;
 
                     /**
-                     * Encodes the specified Part message. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Part.verify|verify} messages.
-                     * @param message Part message or plain object to encode
+                     * Encodes the specified Frame message. Does not implicitly {@link dxos.echo.testing.Timeframe.Frame.verify|verify} messages.
+                     * @param message Frame message or plain object to encode
                      * @param [writer] Writer to encode to
                      * @returns Writer
                      */
-                    public static encode(message: dxos.echo.testing.VectorTimestamp.IPart, writer?: $protobuf.Writer): $protobuf.Writer;
+                    public static encode(message: dxos.echo.testing.Timeframe.IFrame, writer?: $protobuf.Writer): $protobuf.Writer;
 
                     /**
-                     * Encodes the specified Part message, length delimited. Does not implicitly {@link dxos.echo.testing.VectorTimestamp.Part.verify|verify} messages.
-                     * @param message Part message or plain object to encode
+                     * Encodes the specified Frame message, length delimited. Does not implicitly {@link dxos.echo.testing.Timeframe.Frame.verify|verify} messages.
+                     * @param message Frame message or plain object to encode
                      * @param [writer] Writer to encode to
                      * @returns Writer
                      */
-                    public static encodeDelimited(message: dxos.echo.testing.VectorTimestamp.IPart, writer?: $protobuf.Writer): $protobuf.Writer;
+                    public static encodeDelimited(message: dxos.echo.testing.Timeframe.IFrame, writer?: $protobuf.Writer): $protobuf.Writer;
 
                     /**
-                     * Decodes a Part message from the specified reader or buffer.
+                     * Decodes a Frame message from the specified reader or buffer.
                      * @param reader Reader or buffer to decode from
                      * @param [length] Message length if known beforehand
-                     * @returns Part
+                     * @returns Frame
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.VectorTimestamp.Part;
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): dxos.echo.testing.Timeframe.Frame;
 
                     /**
-                     * Decodes a Part message from the specified reader or buffer, length delimited.
+                     * Decodes a Frame message from the specified reader or buffer, length delimited.
                      * @param reader Reader or buffer to decode from
-                     * @returns Part
+                     * @returns Frame
                      * @throws {Error} If the payload is not a reader or valid buffer
                      * @throws {$protobuf.util.ProtocolError} If required fields are missing
                      */
-                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.VectorTimestamp.Part;
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): dxos.echo.testing.Timeframe.Frame;
 
                     /**
-                     * Verifies a Part message.
+                     * Verifies a Frame message.
                      * @param message Plain object to verify
                      * @returns `null` if valid, otherwise the reason why it is not
                      */
                     public static verify(message: { [k: string]: any }): (string|null);
 
                     /**
-                     * Creates a Part message from a plain object. Also converts values to their respective internal types.
+                     * Creates a Frame message from a plain object. Also converts values to their respective internal types.
                      * @param object Plain object
-                     * @returns Part
+                     * @returns Frame
                      */
-                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.VectorTimestamp.Part;
+                    public static fromObject(object: { [k: string]: any }): dxos.echo.testing.Timeframe.Frame;
 
                     /**
-                     * Creates a plain object from a Part message. Also converts values to other types if specified.
-                     * @param message Part
+                     * Creates a plain object from a Frame message. Also converts values to other types if specified.
+                     * @param message Frame
                      * @param [options] Conversion options
                      * @returns Plain object
                      */
-                    public static toObject(message: dxos.echo.testing.VectorTimestamp.Part, options?: $protobuf.IConversionOptions): { [k: string]: any };
+                    public static toObject(message: dxos.echo.testing.Timeframe.Frame, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
                     /**
-                     * Converts this Part to JSON.
+                     * Converts this Frame to JSON.
                      * @returns JSON object
                      */
                     public toJSON(): { [k: string]: any };

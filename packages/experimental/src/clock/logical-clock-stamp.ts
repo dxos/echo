@@ -117,18 +117,18 @@ export class LogicalClockStamp {
     }
   }
 
-  static encode (value: LogicalClockStamp): dxos.echo.testing.IVectorTimestamp {
+  static encode (value: LogicalClockStamp): dxos.echo.testing.ITimeframe {
     return {
-      timestamp: value._entries().map(([feed, count]) => ({
+      frames: value._entries().map(([feed, count]) => ({
         feedKey: BigIntToBuffer(feed),
         seq: count
       }))
     };
   }
 
-  static decode (enc: dxos.echo.testing.IVectorTimestamp) {
-    assert(enc.timestamp);
-    return new LogicalClockStamp(enc.timestamp.map(feed => {
+  static decode (enc: dxos.echo.testing.ITimeframe) {
+    assert(enc.frames);
+    return new LogicalClockStamp(enc.frames.map(feed => {
       assert(feed.feedKey);
       assert(feed.seq);
       return [Buffer.from(feed.feedKey), feed.seq];

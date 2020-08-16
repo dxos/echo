@@ -72,14 +72,13 @@
                     "action": {
                       "oneof": [
                         "genesis",
-                        "itemMutation",
-                        "dataMutation"
+                        "itemMutation"
                       ]
                     }
                   },
                   "fields": {
-                    "timestamp": {
-                      "type": "VectorTimestamp",
+                    "timeframe": {
+                      "type": "Timeframe",
                       "id": 1
                     },
                     "itemId": {
@@ -93,10 +92,6 @@
                     "itemMutation": {
                       "type": "ItemMutation",
                       "id": 11
-                    },
-                    "dataMutation": {
-                      "type": "google.protobuf.Any",
-                      "id": 12
                     }
                   }
                 },
@@ -128,16 +123,16 @@
                     }
                   }
                 },
-                "VectorTimestamp": {
+                "Timeframe": {
                   "fields": {
-                    "timestamp": {
+                    "frames": {
                       "rule": "repeated",
-                      "type": "Part",
+                      "type": "Frame",
                       "id": 1
                     }
                   },
                   "nested": {
-                    "Part": {
+                    "Frame": {
                       "fields": {
                         "feedKey": {
                           "type": "bytes",
