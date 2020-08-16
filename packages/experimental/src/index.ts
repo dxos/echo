@@ -9,5 +9,6 @@ export * from './models';
 export * from './parties';
 export * from './proto';
 export * from './result';
+export * from './spacetime';
 export * from './testing';
 export * from './util';

@@ -5,9 +5,9 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { dxos } from '../proto/gen/testing';
+import { dxos } from '../src/proto/gen/testing';
 
-import { FeedKey } from '../feeds';
+import { FeedKey } from '../src/feeds';
 import { BigIntToBuffer, BufferToBigInt } from './bigint';
 
 const log = debug('dxos:echo:clock');
