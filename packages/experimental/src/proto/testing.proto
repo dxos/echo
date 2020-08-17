@@ -38,9 +38,10 @@ message HaloEnvelope {
 }
 
 // First block.
-// TODO(burdon): Generalize first block for all feeds.
+// TODO(burdon): Generalize first block for all feeds (i.e., for owner and joiner).
 message PartyGenesis {
-  bytes feedKey = 1;
+  bytes partyKey = 1;
+  bytes feedKey = 2;
 }
 
 // Admit to party.

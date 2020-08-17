@@ -212,6 +212,9 @@ export namespace dxos {
             /** Properties of a PartyGenesis. */
             interface IPartyGenesis {
 
+                /** PartyGenesis partyKey */
+                partyKey?: (Uint8Array|null);
+
                 /** PartyGenesis feedKey */
                 feedKey?: (Uint8Array|null);
             }
@@ -224,6 +227,9 @@ export namespace dxos {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: dxos.echo.testing.IPartyGenesis);
+
+                /** PartyGenesis partyKey. */
+                public partyKey: Uint8Array;
 
                 /** PartyGenesis feedKey. */
                 public feedKey: Uint8Array;

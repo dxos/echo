@@ -4,12 +4,24 @@
 
 import { dxos } from '../proto/gen/testing';
 
+import { FeedKey } from '../feeds';
 import { ItemID } from '../items';
+import { PartyKey } from '../parties';
 import { createMessage } from '../proto';
 
 //
 // HALO generators.
 //
+
+export const createPartyGenesis = (partyKey: PartyKey, feedKey: FeedKey) =>
+  createMessage<dxos.echo.testing.IFeedMessage>({
+    halo: {
+      genesis: {
+        partyKey,
+        feedKey
+      }
+    }
+  });
 
 //
 // ECHO generators.

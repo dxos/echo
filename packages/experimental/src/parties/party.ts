@@ -38,7 +38,7 @@ export class Party {
   }
 
   get key (): PartyKey {
-    return this._pipeline.key;
+    return this._pipeline.partyKey;
   }
 
   /**

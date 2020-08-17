@@ -11,8 +11,9 @@ import { createKeyPair } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { ModelFactory } from './models';
-import { Party, PartyFilter, Pipeline } from './parties';
+import { Party, PartyFilter, PartyKey, Pipeline } from './parties';
 import { ResultSet } from './result';
+import { PartyProcessor } from './parties/party-processor';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const log = debug('dxos:echo:database');
@@ -27,7 +28,7 @@ interface Options {
  */
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
-  private readonly _parties = new Map<Buffer, Party>();
+  private readonly _parties = new Map<PartyKey, Party>();
   private readonly _feedStore: FeedStore;
   private readonly _modelFactory: ModelFactory;
   private readonly _options: Options;
@@ -51,10 +52,11 @@ export class Database {
     await this.initialize();
 
     // Create party key.
-    const { publicKey: key } = createKeyPair();
+    const { publicKey: partykey } = createKeyPair();
 
     // Create pary
-    const pipeline = new Pipeline(this._feedStore, key, this._options);
+    const partyProcessor = new PartyProcessor(partykey);
+    const pipeline = new Pipeline(this._feedStore, partyProcessor, this._options);
     const party = await new Party(pipeline, this._modelFactory).open();
     this._parties.set(party.key, party);
     log(`Created: ${String(party)}`);

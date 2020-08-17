@@ -9,6 +9,11 @@ import { IFeedMeta } from '../feeds';
 export type ItemID = string;
 export type ItemType = string;
 
+export interface IHaloStream {
+  meta: IFeedMeta;
+  data: dxos.echo.testing.IHaloEnvelope;
+}
+
 export interface IEchoStream {
   meta: IFeedMeta;
   data: dxos.echo.testing.IEchoEnvelope;

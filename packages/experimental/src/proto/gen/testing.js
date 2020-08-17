@@ -541,6 +541,7 @@ $root.dxos = (function() {
                  * Properties of a PartyGenesis.
                  * @memberof dxos.echo.testing
                  * @interface IPartyGenesis
+                 * @property {Uint8Array|null} [partyKey] PartyGenesis partyKey
                  * @property {Uint8Array|null} [feedKey] PartyGenesis feedKey
                  */
 
@@ -558,6 +559,14 @@ $root.dxos = (function() {
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
+
+                /**
+                 * PartyGenesis partyKey.
+                 * @member {Uint8Array} partyKey
+                 * @memberof dxos.echo.testing.PartyGenesis
+                 * @instance
+                 */
+                PartyGenesis.prototype.partyKey = $util.newBuffer([]);
 
                 /**
                  * PartyGenesis feedKey.
@@ -591,8 +600,10 @@ $root.dxos = (function() {
                 PartyGenesis.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (message.partyKey != null && Object.hasOwnProperty.call(message, "partyKey"))
+                        writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.partyKey);
                     if (message.feedKey != null && Object.hasOwnProperty.call(message, "feedKey"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.feedKey);
+                        writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.feedKey);
                     return writer;
                 };
 
@@ -628,6 +639,9 @@ $root.dxos = (function() {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
+                            message.partyKey = reader.bytes();
+                            break;
+                        case 2:
                             message.feedKey = reader.bytes();
                             break;
                         default:
@@ -665,6 +679,9 @@ $root.dxos = (function() {
                 PartyGenesis.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (message.partyKey != null && message.hasOwnProperty("partyKey"))
+                        if (!(message.partyKey && typeof message.partyKey.length === "number" || $util.isString(message.partyKey)))
+                            return "partyKey: buffer expected";
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
                         if (!(message.feedKey && typeof message.feedKey.length === "number" || $util.isString(message.feedKey)))
                             return "feedKey: buffer expected";
@@ -683,6 +700,11 @@ $root.dxos = (function() {
                     if (object instanceof $root.dxos.echo.testing.PartyGenesis)
                         return object;
                     var message = new $root.dxos.echo.testing.PartyGenesis();
+                    if (object.partyKey != null)
+                        if (typeof object.partyKey === "string")
+                            $util.base64.decode(object.partyKey, message.partyKey = $util.newBuffer($util.base64.length(object.partyKey)), 0);
+                        else if (object.partyKey.length)
+                            message.partyKey = object.partyKey;
                     if (object.feedKey != null)
                         if (typeof object.feedKey === "string")
                             $util.base64.decode(object.feedKey, message.feedKey = $util.newBuffer($util.base64.length(object.feedKey)), 0);
@@ -704,7 +726,14 @@ $root.dxos = (function() {
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.defaults)
+                    if (options.defaults) {
+                        if (options.bytes === String)
+                            object.partyKey = "";
+                        else {
+                            object.partyKey = [];
+                            if (options.bytes !== Array)
+                                object.partyKey = $util.newBuffer(object.partyKey);
+                        }
                         if (options.bytes === String)
                             object.feedKey = "";
                         else {
@@ -712,6 +741,9 @@ $root.dxos = (function() {
                             if (options.bytes !== Array)
                                 object.feedKey = $util.newBuffer(object.feedKey);
                         }
+                    }
+                    if (message.partyKey != null && message.hasOwnProperty("partyKey"))
+                        object.partyKey = options.bytes === String ? $util.base64.encode(message.partyKey, 0, message.partyKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.partyKey) : message.partyKey;
                     if (message.feedKey != null && message.hasOwnProperty("feedKey"))
                         object.feedKey = options.bytes === String ? $util.base64.encode(message.feedKey, 0, message.feedKey.length) : options.bytes === Array ? Array.prototype.slice.call(message.feedKey) : message.feedKey;
                     return object;

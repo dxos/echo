@@ -14,6 +14,7 @@ import { codec, jsonReplacer } from '../proto';
 import { createWritable, latch } from '../util';
 import { Pipeline } from './pipeline';
 import { createAppendPropertyMutation } from '../testing';
+import { PartyProcessor } from './party-processor';
 
 const log = debug('dxos:echo:pipeline:test');
 debug.enable('dxos:echo:*');
@@ -24,7 +25,8 @@ describe('pipeline', () => {
     await feedStore.open();
 
     const { publicKey: partyKey } = createKeyPair();
-    const pipeline = new Pipeline(feedStore, partyKey);
+    const partyProcessor = new PartyProcessor(partyKey);
+    const pipeline = new Pipeline(feedStore, partyProcessor);
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();
 

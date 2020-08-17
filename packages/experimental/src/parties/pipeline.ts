@@ -17,7 +17,7 @@ import { IEchoStream } from '../items';
 import { jsonReplacer } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { createTransform } from '../util';
-import { PartyKey } from './types';
+import { PartyProcessor } from './party-processor';
 
 interface Options {
   readLogger?: Transform;
@@ -33,7 +33,7 @@ const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
  */
 export class Pipeline {
   private readonly _feedStore: FeedStore;
-  private readonly _partyKey: PartyKey;
+  private readonly _partyProcessor: PartyProcessor;
   private readonly _options: Options;
 
   // Messages to be consumed from pipeline (e.g., mutations to model).
@@ -42,16 +42,16 @@ export class Pipeline {
   // Messages to write into pipeline (e.g., mutations from model).
   private _writeStream: Writable | undefined;
 
-  constructor (feedStore: FeedStore, partyKey: PartyKey, options?: Options) {
+  constructor (feedStore: FeedStore, partyProcessor: PartyProcessor, options?: Options) {
     assert(feedStore);
-    assert(partyKey);
+    assert(partyProcessor);
     this._feedStore = feedStore;
-    this._partyKey = partyKey;
+    this._partyProcessor = partyProcessor;
     this._options = options || {};
   }
 
-  get key () {
-    return this._partyKey;
+  get partyKey () {
+    return this._partyProcessor.partyKey;
   }
 
   get isOpen () {
@@ -81,7 +81,6 @@ export class Pipeline {
    */
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream]> {
     // Current timeframe.
-    // TODO(burdon): Move to party processor.
     let timeframe = spacetime.createTimeframe();
 
     //
@@ -92,10 +91,15 @@ export class Pipeline {
 
       // TODO(burdon): Inject party processor to manage admitted feeds.
       if (message.halo) {
-        return;
+        await this._partyProcessor.processMessage({
+          meta: createFeedMeta(block),
+          data: message.halo
+        });
       }
 
       // Update timeframe.
+      // NOTE: It is OK to update here even though the message may not have been processed,
+      // since any paused dependent message must be intended for this stream.
       const { key, seq } = block;
       timeframe = spacetime.merge(timeframe, spacetime.createTimeframe([[key as any, seq]]));
 
@@ -155,7 +159,7 @@ export class Pipeline {
     });
 
     // Write messages to feed-store.
-    const feed = await this._feedStore.openFeed(keyToString(this._partyKey));
+    const feed = await this._feedStore.openFeed(keyToString(this.partyKey));
     const feedWriteStream = createWritableFeedStream(feed);
     pipeline([this._writeStream, timeframeTransform, writeLogger, feedWriteStream].filter(Boolean) as any[], (err) => {
       // TODO(burdon): Handle error.
@@ -179,7 +183,7 @@ export class Pipeline {
     }
 
     if (this._writeStream) {
-      this._feedStore.closeFeed(keyToString(this._partyKey));
+      this._feedStore.closeFeed(keyToString(this.partyKey));
       this._writeStream.destroy();
       this._writeStream = undefined;
     }
