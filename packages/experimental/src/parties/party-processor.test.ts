@@ -33,5 +33,6 @@ describe('party-processor', () => {
 
     await partyProcessor.processMessage(message);
     expect(partyProcessor.feedKeys).toHaveLength(1);
+    log(partyProcessor.feedKeys);
   });
 });

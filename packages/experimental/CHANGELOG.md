@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [08-17-20] Pipeline with basic party-procesor.
 - [08-17-20] Working message order.
 - [08-16-20] Set/append mutations.
 - [08-16-20] Pipeline.
@@ -20,8 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Critical
 
-- Pipeline with party procesor.
-- Pipeline with feed-store-iterator.
+- Pipeline with feed-store-iterator (using party-processor).
+- Pipeline and tests with party-procesor that manages admits feeds (using replay feed-store).
 
 ### Backlog
 

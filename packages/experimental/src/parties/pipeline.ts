@@ -42,6 +42,7 @@ export class Pipeline {
   // Messages to write into pipeline (e.g., mutations from model).
   private _writeStream: Writable | undefined;
 
+  // TODO(burdon): Replace feed-store with feed-store-iterator.
   constructor (feedStore: FeedStore, partyProcessor: PartyProcessor, options?: Options) {
     assert(feedStore);
     assert(partyProcessor);
