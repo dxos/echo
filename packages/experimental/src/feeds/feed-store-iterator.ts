@@ -6,6 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
 
+import { keyToString } from '@dxos/crypto';
 import { FeedStore, FeedDescriptor, createBatchStream } from '@dxos/feed-store';
 
 import { createReadable, Trigger } from '../util';
@@ -19,34 +20,34 @@ const log = debug('dxos:echo:feed-store-iterator');
  * @param feedStore
  * @param feedSelector - Returns true if the feed should be considered.
  * @param messageSelector - Returns the index of the selected message candidate (or undefined).
+ * @readonly {NodeJS.ReadableStream} readable stream.
  */
 export async function createOrderedFeedStream (
   feedStore: FeedStore,
-  feedSelector: (feedKey: FeedKey) => Promise<boolean>, // TODO(burdon): Why async?
+  feedSelector: (feedKey: FeedKey) => boolean,
   messageSelector: (candidates: IFeedBlock[]) => number | undefined = () => 0
-) {
-  if (feedStore.closing || feedStore.closed) {
-    throw new Error('FeedStore closed');
-  }
-
+): Promise<NodeJS.ReadableStream> {
+  assert(!feedStore.closing && !feedStore.closed);
   if (!feedStore.opened) {
     await feedStore.ready();
   }
 
   const iterator = new FeedStoreIterator(feedSelector, messageSelector);
 
-  // TODO(burdon): Move into iteratore.initialize() instead of private methods here.
+  // TODO(burdon): Only add feeds that belong to party (or use feedSelector).
   const initialDescriptors = feedStore.getDescriptors().filter(descriptor => descriptor.opened);
   for (const descriptor of initialDescriptors) {
     iterator.addFeedDescriptor(descriptor);
   }
 
-  // Subscribe to new feeds.
-  // TODO(burdon): Need to test belongs to party.
+  // TODO(burdon): Only add feeds that belong to party (or use feedSelector).
   (feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
     iterator.addFeedDescriptor(descriptor);
   });
 
+  // Create stream from iterator.
+  // TODO(burdon): What happens to iterator when the stream is closed?
+  // TODO(burdon): Is there a way to avoid setImmediate. Separate function to creast stream?
   const readStream = createReadable<IFeedBlock>();
   setImmediate(async () => {
     for await (const message of iterator) {
@@ -54,7 +55,7 @@ export async function createOrderedFeedStream (
     }
   });
 
-  return { readStream, iterator };
+  return readStream;
 }
 
 /**
@@ -77,7 +78,7 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
   private readonly _trigger = new Trigger();
   private readonly _generatorInstance = this._generator();
 
-  private readonly _feedSelector: (feedKey: FeedKey) => Promise<boolean>;
+  private readonly _feedSelector: (feedKey: FeedKey) => boolean;
   private readonly _messageSelector: (candidates: IFeedBlock[]) => number | undefined;
 
   // Needed for round-robin ordering.
@@ -86,7 +87,7 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
   private _destroyed = false;
 
   constructor (
-    feedSelector: (feedKey: FeedKey) => Promise<boolean>,
+    feedSelector: (feedKey: FeedKey) => boolean,
     messageSelector: (candidates: IFeedBlock[]) => number | undefined
   ) {
     assert(feedSelector);
@@ -104,12 +105,10 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
     this._trigger.wake();
   }
 
-  // TODO(burdon): Hack/rename.
-  tickle () {
-    this._trigger.wake();
-  }
-
-  // TODO(burdon): Close?
+  /**
+   *
+   */
+  // TODO(burdon): Rename close?
   // TODO(marik-d): Does this need to close the streams, or will they be garbage-collected automatically?
   destroy () {
     this._destroyed = true;
@@ -124,11 +123,15 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
     return this._generatorInstance;
   }
 
+  /**
+   *
+   * @private
+   */
   // TODO(burdon): Comment.
   private async _reevaluateFeeds () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [keyHex, feed] of this._openFeeds) {
-      if (!await this._feedSelector(feed.descriptor.key)) {
+      if (!this._feedSelector(feed.descriptor.key)) {
         feed.frozen = true;
       }
     }
@@ -139,7 +142,7 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
         const stream = new Readable({ objectMode: true })
           .wrap(createBatchStream(descriptor.feed, { live: true }));
 
-        this._openFeeds.set(descriptor.key.toString('hex'), {
+        this._openFeeds.set(keyToString(descriptor.key), {
           descriptor,
           iterator: stream[Symbol.asyncIterator](),
           frozen: false,
@@ -151,6 +154,10 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
     }
   }
 
+  /**
+   *
+   * @private
+   */
   // TODO(burdon): Comment.
   private _popSendQueue () {
     const openFeeds = Array.from(this._openFeeds.values());
@@ -168,12 +175,16 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
     }
 
     const pickedCandidate = candidates[selected];
-    const feed = this._openFeeds.get(pickedCandidate.key.toString('hex'));
+    const feed = this._openFeeds.get(keyToString(pickedCandidate.key));
     assert(feed);
 
     return feed.sendQueue.shift();
   }
 
+  /**
+   *
+   * @private
+   */
   // TODO(burdon): Comment.
   private _pollFeeds () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -190,16 +201,28 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
     }
   }
 
+  /**
+   *
+   * @private
+   */
   // TODO(burdon): Comment.
   private async _waitForData () {
     this._pollFeeds();
 
+    // TODO(burdon): This should timeout.
+    //   There is a (rare) potential race condition where one feed gets blocked on a message that is enqueue
+    //   in a demuxed stream. Meanwhile the inbound queue dries up (or is deadlocked) so this trigger is not
+    //   awoken. A timeout would enable the iterator to restart.
+    //   NOTE: When implementing this mechanism be sure to maintain the comment above.
     await this._trigger.wait();
 
     log('Ready');
     this._trigger.reset(); // TODO(burdon): Reset atomically?
   }
 
+  /**
+   *
+   */
   // TODO(burdon): Comment.
   async * _generator () {
     while (!this._destroyed) {

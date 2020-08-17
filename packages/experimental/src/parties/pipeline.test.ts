@@ -5,10 +5,10 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { createId, createKeyPair, humanize } from '@dxos/crypto';
+import { createId, createKeyPair } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
-import { createOrderedFeedStream, createWritableFeedStream, FeedKey, IFeedBlock } from '../feeds';
+import { createWritableFeedStream } from '../feeds';
 import { IEchoStream } from '../items';
 import { codec, jsonReplacer } from '../proto';
 import { createWritable, latch } from '../util';
@@ -23,19 +23,6 @@ describe('pipeline', () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     await feedStore.open();
 
-    const selector = async (feedKey: FeedKey) => {
-      log('Select:', humanize(feedKey));
-      return true;
-    };
-
-    const sequencer = (candidates: IFeedBlock[]) => {
-      log('Sequence:', JSON.stringify(candidates, jsonReplacer, 2));
-      return 0;
-    };
-
-    // TODO(burdon): Pass into pipeline (instead of feedStore).
-    const iterator = await createOrderedFeedStream(feedStore, selector, sequencer);
-
     const { publicKey: partyKey } = createKeyPair();
     const pipeline = new Pipeline(feedStore, partyKey);
     const [readStream] = await pipeline.open();
@@ -43,12 +30,12 @@ describe('pipeline', () => {
 
     //
     // Pipeline consumer.
-    // TODO(burdon): Check order.
+    // TODO(burdon): Check order (re-use feed-store-iterator test logic).
     //
     const numMessages = 5;
     const [counter, updateCounter] = latch(numMessages);
     readStream.pipe(createWritable<IEchoStream>(async message => {
-      console.log('###', JSON.stringify(message, jsonReplacer, 2));
+      log('Processed:', JSON.stringify(message, jsonReplacer, 2));
       updateCounter();
     }));
 

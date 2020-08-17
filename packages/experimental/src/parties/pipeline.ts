@@ -90,7 +90,7 @@ export class Pipeline {
     this._readStream = createTransform<IFeedBlock, IEchoStream>(async (block: IFeedBlock) => {
       const { data: message } = block;
 
-      // TODO(burdon): Inject party processor.
+      // TODO(burdon): Inject party processor to manage admitted feeds.
       if (message.halo) {
         return;
       }

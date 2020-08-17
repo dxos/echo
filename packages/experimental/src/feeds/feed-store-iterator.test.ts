@@ -53,7 +53,6 @@ describe('feed store iterator', () => {
         const { data: { echo: { timeframe } } } = candidate;
         const dependencies = spacetime.dependencies(timeframe, currentTimeframe);
         if (dependencies.frames?.length) {
-          // log('Skipping', spacetime.stringify(timeframe), spacetime.stringify(currentTimeframe), spacetime.stringify(dependencies));
           return;
         }
 
@@ -72,7 +71,7 @@ describe('feed store iterator', () => {
       return next[0]?.i;
     };
 
-    const { readStream, iterator } = await createOrderedFeedStream(feedStore, async () => true, messageSelector);
+    const readStream = await createOrderedFeedStream(feedStore, () => true, messageSelector);
 
     //
     // Create feeds.
@@ -132,9 +131,7 @@ describe('feed store iterator', () => {
       expect(i).toBe(j);
 
       // Update timeframe for node.
-      // TODO(burdon): Need to trigger iterator.
       currentTimeframe = spacetime.merge(currentTimeframe, spacetime.createTimeframe([[feedKey, seq]]));
-      iterator.tickle();
 
       updateCounter();
       j++;
