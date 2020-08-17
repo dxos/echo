@@ -22,15 +22,17 @@ export abstract class Model<T> {
   private readonly _modelUpdate = new Event<Model<T>>();
   private readonly _processor: NodeJS.WritableStream;
 
+  private readonly _itemId: ItemID;
+  private readonly _writable?: NodeJS.WritableStream;
+
   /**
-   * @param _itemId Parent item.
-   * @param _writable Output mutation stream.
+   * @param itemId Parent item.
+   * @param writable Output mutation stream (unless read-only).
    */
-  constructor (
-    private _itemId: ItemID,
-    private _writable?: NodeJS.WritableStream
-  ) {
-    assert(this._itemId);
+  constructor (itemId: ItemID, writable?: NodeJS.WritableStream) {
+    assert(itemId);
+    this._itemId = itemId;
+    this._writable = writable;
 
     // Create the input mutation stream.
     this._processor = createWritable<ModelMessage<T>>(async (message: ModelMessage<T>) => {
@@ -47,7 +49,7 @@ export abstract class Model<T> {
   }
 
   get readOnly (): boolean {
-    return this._writable !== undefined;
+    return this._writable === undefined;
   }
 
   // TODO(burdon): Rename.
@@ -55,7 +57,7 @@ export abstract class Model<T> {
     return this._processor;
   }
 
-  // TODO(burdon): Factor out.
+  // TODO(burdon): How to subtype handler via polymorphic this types?
   subscribe (listener: (result: Model<T>) => void) {
     this._modelUpdate.on(listener);
     return () => {
@@ -64,11 +66,11 @@ export abstract class Model<T> {
   }
 
   /**
-   * Wraps the message within an ItemEnvelope then writes to the output stream.
+   * Writes the raw mutation to the output stream.
    * @param mutation
    */
   protected async write (mutation: T): Promise<void> {
-    assert(this._writable, 'Read-only model');
+    assert(this._writable, 'Read-only model.');
     await pify(this._writable.write.bind(this._writable))(mutation);
   }
 

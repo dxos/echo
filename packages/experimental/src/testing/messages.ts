@@ -15,12 +15,25 @@ import { createMessage } from '../proto';
 // ECHO generators.
 //
 
-export const createItemMutation = (itemId: ItemID, key: string, value: string) =>
+export const createSetPropertyMutation = (itemId: ItemID, key: string, value: string) =>
   createMessage<dxos.echo.testing.IFeedMessage>({
     echo: {
       itemId,
       itemMutation: {
         set: {
+          key,
+          value
+        }
+      }
+    }
+  });
+
+export const createAppendPropertyMutation = (itemId: ItemID, key: string, value: string) =>
+  createMessage<dxos.echo.testing.IFeedMessage>({
+    echo: {
+      itemId,
+      itemMutation: {
+        append: {
           key,
           value
         }

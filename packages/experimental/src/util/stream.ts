@@ -34,14 +34,14 @@ export function createWritable<T> (callback: (message: T) => Promise<void>): Nod
 
 /**
  * Creates a transform object stream.
- * @param callback
+ * @param [callback] Callback or null to pass-through.
  */
-export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined>) {
+export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined> | undefined) {
   return new Transform({
     objectMode: true,
     transform: async (message: R, _, next) => {
       try {
-        next(null, await callback(message));
+        next(null, callback ? await callback(message) : message);
       } catch (err) {
         next(err);
       }

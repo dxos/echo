@@ -14,7 +14,6 @@ import { createMessage } from '../proto';
  * Test model.
  */
 export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
-  // TODO(burdon): WRN Format?
   static type: ModelType = 'dxos://dxos.org/model/test';
 
   private _values = new Map();
@@ -58,7 +57,7 @@ export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
     if (mutation.append) {
       const { append: { key, value } } = mutation;
       const current = this._values.get(key) || '';
-      this._values.set(key, current + '-' + value);
+      this._values.set(key, current + ':' + value);
     }
 
     await sleep(50);

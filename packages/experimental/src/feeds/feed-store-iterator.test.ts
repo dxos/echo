@@ -11,7 +11,7 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { codec, jsonReplacer } from '../proto';
 import { FeedKey, IFeedBlock } from './types';
-import { createItemMutation } from '../testing';
+import { createSetPropertyMutation } from '../testing';
 import { FeedStoreIterator } from './feed-store-iterator';
 import { createWritableFeedStream } from './stream';
 
@@ -57,7 +57,7 @@ describe('feed store iterator', () => {
       const value = chance.pickone(Array.from(streams.values()));
       const { stream, seq } = value;
       // TODO(burdon): Set clock.
-      stream.write(createItemMutation(createId(), 'value', String(i)));
+      stream.write(createSetPropertyMutation(createId(), 'value', String(i)));
       value.seq = seq + 1;
     }
 

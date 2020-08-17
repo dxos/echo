@@ -12,7 +12,7 @@ import { createId, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { latch, sink } from '../util';
-import { createItemMutation } from '../testing';
+import { createSetPropertyMutation } from '../testing';
 
 import { codec } from '../proto';
 import { createWritableFeedStream } from './stream';
@@ -85,7 +85,7 @@ describe('Stream tests', () => {
     const itemId = createId();
     const outputStream = createWritableFeedStream(feed);
     for (let i = 0; i < count; i++) {
-      outputStream.write(createItemMutation(itemId, `key-${i}`, `${i}`));
+      outputStream.write(createSetPropertyMutation(itemId, `key-${i}`, `${i}`));
     }
 
     await counter;
@@ -116,7 +116,7 @@ describe('Stream tests', () => {
     for (let i = 0; i < config.numBlocks; i++) {
       const { path, feed } = chance.pickone(descriptors);
       count.set(path, (count.get(path) ?? 0) + 1);
-      await feed.append(createItemMutation(createId(), `key-${i}`, `${i}`));
+      await feed.append(createSetPropertyMutation(createId(), `key-${i}`, `${i}`));
     }
 
     // Test stream.
