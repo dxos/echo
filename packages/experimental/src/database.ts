@@ -50,7 +50,10 @@ export class Database {
   async createParty (): Promise<Party> {
     await this.initialize();
 
+    // Create party key.
     const { publicKey: key } = createKeyPair();
+
+    // Create pary
     const pipeline = new Pipeline(this._feedStore, key, this._options);
     const party = await new Party(pipeline, this._modelFactory).open();
     this._parties.set(party.key, party);

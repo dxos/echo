@@ -15,7 +15,7 @@ import { ModelFactory } from './models';
 import { codec, jsonReplacer } from './proto';
 import { createLoggingTransform, latch } from './util';
 
-const log = debug('dxos:echo:database:testing');
+const log = debug('dxos:echo:database:test');
 debug.enable('dxos:echo:*');
 
 describe('api tests', () => {
@@ -35,7 +35,7 @@ describe('api tests', () => {
     log('Parties:', parties.value.map(party => humanize(party.key)));
     expect(parties.value).toHaveLength(0);
 
-    const [update, onUpdate] = latch();
+    const [updated, onUpdate] = latch();
     const unsubscribe = parties.subscribe(async (parties: Party[]) => {
       log('Updated:', parties.map(party => humanize(party.key)));
       expect(parties).toHaveLength(1);
@@ -58,7 +58,7 @@ describe('api tests', () => {
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
     await party.createItem('dxos://dxos.org/item/kanban', TestModel.type);
 
-    await update;
+    await updated;
     unsubscribe();
   });
 });

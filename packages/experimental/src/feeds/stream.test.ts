@@ -19,7 +19,7 @@ import { createWritableFeedStream } from './stream';
 import { IFeedBlock } from './types';
 import assert from 'assert';
 
-const chance = new Chance();
+const chance = new Chance(999);
 
 //
 // Streams: https://devhints.io/nodejs-stream

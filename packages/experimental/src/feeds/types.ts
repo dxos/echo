@@ -12,7 +12,7 @@ export type FeedKey = Uint8Array;
  */
 // TODO(burdon): Move to FeedStore (since not a hypercore data structure).
 export interface IFeedGenericBlock<T> {
-  key: Buffer; // TODO(burdon): Is this the party key? Wny buffer?
+  key: Buffer; // TODO(burdon): Rename feedKey if defined in FeedStore?
   seq: number;
   data: T;
   sync: boolean;

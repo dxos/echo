@@ -48,11 +48,16 @@ export abstract class KeyMapper<T, S> {
     };
   }
 
+  abstract equals (key1: T, key2: T): boolean;
   abstract toScalar (value: T): S;
   abstract fromScalar (value: S): T;
 }
 
 export class FeedKeyMapper extends KeyMapper<FeedKey, string> {
+  equals (key1: FeedKey, key2: FeedKey) {
+    return Buffer.compare(key1, key2) === 0;
+  }
+
   toScalar (value: FeedKey): string {
     return keyToString(value);
   }
@@ -63,6 +68,7 @@ export class FeedKeyMapper extends KeyMapper<FeedKey, string> {
 }
 
 export class FeedIndexMapper extends KeyMapper<number, number> {
+  equals (key1: number, key2: number) { return key1 === key2; }
   toScalar (value: number): number { return value; }
   fromScalar (value: number): number { return value; }
 }
@@ -90,14 +96,13 @@ export class Spacetime<T, S> {
     }));
   }
 
-  stringify (timeframe: dxos.echo.testing.ITimeframe) {
-    assert(timeframe);
-    return JSON.stringify(this.toJson(timeframe));
+  stringify (timeframe?: dxos.echo.testing.ITimeframe | null | undefined) {
+    return timeframe ? JSON.stringify(this.toJson(timeframe)) : null;
   }
 
   createTimeframe (frames?: [T, number][]): dxos.echo.testing.ITimeframe {
     return {
-      frames: frames?.map(([key, seq]) => ({ [this._keyMapper.key]: key, seq }))
+      frames: (frames || []).map(([key, seq]) => ({ [this._keyMapper.key]: key, seq }))
     };
   }
 
@@ -145,12 +150,13 @@ export class Spacetime<T, S> {
    */
   dependencies<T> (tf1: dxos.echo.testing.ITimeframe, tf2: dxos.echo.testing.ITimeframe): dxos.echo.testing.ITimeframe {
     return {
-      // Return false (i.e., omit) if tf2 contains an equal or higher sequence number.
       frames: tf1.frames?.filter(frame => {
-        assert(frame.seq);
+        assert(frame.seq !== undefined && frame.seq !== null);
         const key = this._keyMapper.get(frame);
-        const { seq } = tf2.frames?.find(frame => this._keyMapper.get(frame) === key) || {};
-        return (!seq || seq < frame.seq);
+        const { seq } = tf2.frames?.find(frame => this._keyMapper.equals(this._keyMapper.get(frame), key)) || {};
+
+        // Return true to omit (i.e., dependency NOT met).
+        return (seq === undefined || seq === null || seq < frame.seq);
       })
     };
   }

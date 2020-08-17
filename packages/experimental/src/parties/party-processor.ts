@@ -3,9 +3,9 @@
 //
 
 /**
- *
+ * Manages current party state (e.g., admitted feeds).
  */
-// TODO(burdon): Implement feed iterator methods.
+// TODO(burdon): Move to ./halo subdir.
 export class PartyProcessor {
 
 }

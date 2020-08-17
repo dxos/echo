@@ -9,7 +9,7 @@ import { createKeyPair } from '@dxos/crypto';
 
 import { FeedKeyMapper, Spacetime } from './spacetime';
 
-const log = debug('dxos:echo:clock');
+const log = debug('dxos:echo:spacetime:test');
 debug.enable('dxos:echo:*');
 
 describe('spacetime', () => {
@@ -75,6 +75,51 @@ describe('spacetime', () => {
     const { publicKey: feedKey1 } = createKeyPair();
     const { publicKey: feedKey2 } = createKeyPair();
     const { publicKey: feedKey3 } = createKeyPair();
+
+    {
+      const tf1 = spacetime.createTimeframe();
+      const tf2 = spacetime.createTimeframe();
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(0);
+    }
+
+    {
+      const tf1 = spacetime.createTimeframe();
+      const tf2 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 11]]);
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(0);
+    }
+
+    {
+      const tf1 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 10]]);
+      const tf2 = spacetime.createTimeframe();
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(2);
+    }
+
+    // TODO(burdon): Test 0.
+    {
+      const tf1 = spacetime.createTimeframe([[feedKey1, 0]]);
+      const tf2 = spacetime.createTimeframe([[feedKey1, 0]]);
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(0);
+    }
+
+    {
+      const tf1 = spacetime.createTimeframe([[feedKey1, 1]]);
+      const tf2 = spacetime.createTimeframe([[feedKey1, 1]]);
+      const tf3 = spacetime.dependencies(tf1, tf2);
+      log('!!!!!!!!!!!!!!!!!');
+      log(spacetime.stringify(tf1));
+      log(spacetime.stringify(tf2));
+      log(spacetime.stringify(tf3));
+      expect(tf3.frames).toHaveLength(0);
+      log('!!!!!!!!!!!!!!!!!');
+    }
 
     {
       const tf1 = spacetime.createTimeframe([[feedKey1, 10], [feedKey2, 10]]);

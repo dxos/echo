@@ -7,6 +7,10 @@ declare module 'hypercore' {
 
     export interface Feed {
 
+      key: Buffer;
+
+      length: number;
+
       /**
        * Appends a block of data to the feed.
        * Callback is called with (err, seq) when all data has been written at the returned seq number or error will be not null.

@@ -14,8 +14,9 @@ import { dxos } from '../proto/gen/testing';
 
 import { createFeedMeta, createWritableFeedStream, IFeedBlock } from '../feeds';
 import { IEchoStream } from '../items';
-import { createTransform } from '../util';
+import { jsonReplacer } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
+import { createTransform } from '../util';
 import { PartyKey } from './types';
 
 interface Options {
@@ -23,7 +24,7 @@ interface Options {
   writeLogger?: Transform;
 }
 
-const log = debug('dxos:echo:party-streams');
+const log = debug('dxos:echo:pipeline');
 
 const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
@@ -35,7 +36,10 @@ export class Pipeline {
   private readonly _partyKey: PartyKey;
   private readonly _options: Options;
 
+  // Messages to be consumed from pipeline (e.g., mutations to model).
   private _readStream: Readable | undefined;
+
+  // Messages to write into pipeline (e.g., mutations from model).
   private _writeStream: Writable | undefined;
 
   constructor (feedStore: FeedStore, partyKey: PartyKey, options?: Options) {
@@ -50,12 +54,12 @@ export class Pipeline {
     return this._partyKey;
   }
 
-  get isReadable () {
+  get isOpen () {
     return this._readStream !== undefined;
   }
 
-  get isWriteable () {
-    return this._writeStream !== undefined;
+  get readonly () {
+    return this._writeStream === undefined;
   }
 
   get readStream () {
@@ -75,21 +79,19 @@ export class Pipeline {
    *       Transform(dxos.echo.testing.IEchoEnvelope => dxos.echo.testing.IFeedMessage): update clock
    *         Feed
    */
-  async open (): Promise<{ readStream: NodeJS.ReadableStream, writeStream: NodeJS.WritableStream }> {
+  async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream]> {
     // Current timeframe.
     // TODO(burdon): Move to party processor.
     let timeframe = spacetime.createTimeframe();
 
     //
-    // Create readable stream from set of party feeds.
+    // Processes inbound messages (piped from feed store).
     //
     this._readStream = createTransform<IFeedBlock, IEchoStream>(async (block: IFeedBlock) => {
-      // TODO(burdon): Which key is this?
-      // assert(block.key === this.key);
-      const { data } = block;
+      const { data: message } = block;
 
       // TODO(burdon): Inject party processor.
-      if (data.halo) {
+      if (message.halo) {
         return;
       }
 
@@ -97,18 +99,23 @@ export class Pipeline {
       const { key, seq } = block;
       timeframe = spacetime.merge(timeframe, spacetime.createTimeframe([[key as any, seq]]));
 
-      if (data.echo) {
-        return {
-          meta: createFeedMeta(block),
-          data: data.echo
-        };
+      if (message.echo) {
+        // Validate messge.
+        const { itemId } = message.echo;
+        if (itemId) {
+          return {
+            meta: createFeedMeta(block),
+            data: message.echo
+          };
+        }
       }
 
-      throw new Error(`Invalid block: ${JSON.stringify(block)}`);
+      // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream).
+      log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
     });
 
     //
-    // Create writable stream to party's feed.
+    // Processes outbound messages (piped to feed store).
     //
     this._writeStream = createTransform<dxos.echo.testing.IEchoEnvelope, dxos.echo.testing.IFeedMessage>(
       async (message: dxos.echo.testing.IEchoEnvelope) => {
@@ -139,24 +146,26 @@ export class Pipeline {
 
     const { readLogger, writeLogger } = this._options;
 
+    // Read message from feed-store.
     // TODO(burdon): Filter feeds and select messages by Timeframe (via iterator).
-    const inbound = this._feedStore.createReadStream({ live: true });
-    pipeline([inbound, readLogger, this._readStream].filter(Boolean), (err) => {
+    const feedReadStream = this._feedStore.createReadStream({ live: true });
+    pipeline([feedReadStream, readLogger, this._readStream].filter(Boolean), (err) => {
       // TODO(burdon): Handle error.
       log(err || 'Inbound pipieline closed.');
     });
 
+    // Write messages to feed-store.
     const feed = await this._feedStore.openFeed(keyToString(this._partyKey));
-    const outbound = createWritableFeedStream(feed);
-    pipeline([this._writeStream, timeframeTransform, writeLogger, outbound].filter(Boolean) as any[], (err) => {
+    const feedWriteStream = createWritableFeedStream(feed);
+    pipeline([this._writeStream, timeframeTransform, writeLogger, feedWriteStream].filter(Boolean) as any[], (err) => {
       // TODO(burdon): Handle error.
       log(err || 'Outbound pipeline closed.');
     });
 
-    return {
-      readStream: this._readStream,
-      writeStream: this._writeStream
-    };
+    return [
+      this._readStream,
+      this._writeStream
+    ];
   }
 
   /**

@@ -35,6 +35,7 @@ describe('Subscriber', () => {
 
     const { subscriber, feed } = await createSubscriber(root, topic);
 
+    // TODO(burdon): Convert to latch.
     const n = types.length * 10;
     const count = wait(done, 2 * (n / types.length));
 

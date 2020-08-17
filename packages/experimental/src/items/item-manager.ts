@@ -17,7 +17,7 @@ import { IEchoStream, ItemID, ItemType } from './types';
 import { ResultSet } from '../result';
 import { createTransform } from '../util';
 
-const log = debug('dxos:echo:item:manager');
+const log = debug('dxos:echo:item-manager');
 
 export interface ItemFilter {
   type: ItemType
@@ -38,17 +38,17 @@ export class ItemManager {
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
   _modelFactory: ModelFactory;
-  _writable: NodeJS.WritableStream;
+  _writeStream: NodeJS.WritableStream;
 
   /**
    * @param modelFactory
-   * @param writable Outbound `dxos.echo.testing.IEchoEnvelope` mutation stream.
+   * @param writeStream Outbound `dxos.echo.testing.IEchoEnvelope` mutation stream.
    */
-  constructor (modelFactory: ModelFactory, writable: NodeJS.WritableStream) {
+  constructor (modelFactory: ModelFactory, writeStream: NodeJS.WritableStream) {
     assert(modelFactory);
-    assert(writable);
+    assert(writeStream);
     this._modelFactory = modelFactory;
-    this._writable = writable;
+    this._writeStream = writeStream;
   }
 
   /**
@@ -76,7 +76,8 @@ export class ItemManager {
       }
     };
 
-    await pify(this._writable.write.bind(this._writable))(message);
+    // TODO(burdon): Push?
+    await pify(this._writeStream.write.bind(this._writeStream))(message);
 
     // Unlocked by construct.
     log('Waiting for item...');
@@ -133,7 +134,7 @@ export class ItemManager {
 
     // Connect streams.
     // TODO(burdon): Do these unpipe automatically when the streams are closed/destroyed?
-    outboundTransform.pipe(this._writable);
+    outboundTransform.pipe(this._writeStream);
 
     // TODO(burdon): Which model?
     readable.pipe(inboundTransform).pipe(model.processor);

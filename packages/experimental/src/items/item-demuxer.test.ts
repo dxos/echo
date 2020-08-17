@@ -16,7 +16,7 @@ import { createItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 import { IEchoStream } from './types';
 
-const log = debug('dxos:echo:item');
+const log = debug('dxos:echo:item-demuxer:test');
 debug.enable('dxos:echo:*');
 
 describe('item demxuer', () => {
@@ -48,11 +48,11 @@ describe('item demxuer', () => {
     const itemId = createId();
 
     // Query for items.
-    const [itemsUpdate, onItemsUpdate] = latch();
+    const [updatedItems, onUpdateItem] = latch();
     const items = await itemManager.queryItems();
     const unsubscribe = items.subscribe((items: Item[]) => {
       expect(items).toHaveLength(1);
-      onItemsUpdate();
+      onUpdateItem();
     });
 
     const message: dxos.echo.testing.IEchoEnvelope = {
@@ -65,7 +65,7 @@ describe('item demxuer', () => {
     await writable.write(message);
 
     // Wait for mutations to be processed.
-    await itemsUpdate;
+    await updatedItems;
 
     // Update item (causes mutation to be propagated).
     const item = itemManager.getItem(itemId);
@@ -73,15 +73,15 @@ describe('item demxuer', () => {
     const model: TestModel = item?.model as TestModel;
     await model.setProperty('title', 'Hello');
 
-    const [modelUpdate, onModelUpdate] = latch();
+    const [updated, onUpdate] = latch();
     model.subscribe(model => {
       expect((model as TestModel).keys.length).toBe(1);
-      onModelUpdate();
+      onUpdate();
     });
 
     // TODO(burdon): Should trigger itemManager update also.
     // Wait for model mutation to propagate.
-    await modelUpdate;
+    await updated;
 
     log('Properties', model.keys);
     expect(model.keys.length).toBe(1);

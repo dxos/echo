@@ -75,15 +75,15 @@ describe('test model', () => {
     // Connect output to input processor.
     transform.pipe(model.processor);
 
-    const [count, updateCount] = latch();
+    const [counter, updateCounter] = latch();
     const unsubscribe = model.subscribe(model => {
       expect((model as TestModel).getProperty('title')).toBe('DXOS');
-      updateCount();
+      updateCounter();
     });
 
     await model.setProperty('title', 'DXOS');
 
-    await count;
+    await counter;
     unsubscribe();
   });
 });

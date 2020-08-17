@@ -50,11 +50,11 @@ export class Party {
     }
 
     // TODO(burdon): Support read-only parties.
-    const { readStream, writeStream } = await this._pipeline.open();
-    this._itemManager = new ItemManager(this._modelFactory, writeStream);
-    this._itemDemuxer = createItemDemuxer(this._itemManager);
+    const [readStream, writeStream] = await this._pipeline.open();
 
     // Connect to the downstream item demuxer.
+    this._itemManager = new ItemManager(this._modelFactory, writeStream);
+    this._itemDemuxer = createItemDemuxer(this._itemManager);
     readStream.pipe(this._itemDemuxer);
 
     return this;

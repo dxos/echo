@@ -4,8 +4,13 @@
 
 import { Readable, Writable, Transform } from 'stream';
 
+//
+// Stream utils.
+// https://nodejs.org/api/stream.html
+//
+
 /**
- * Create a readable stream.
+ * Create a readable stream that can be used as a buffer into which messages can be pushed.
  */
 export function createReadable<T> (): Readable {
   return new Readable({
