@@ -41,11 +41,14 @@ export class PartyProcessor {
   }
 
   async processMessage (message: IHaloStream) {
-    const { data } = message;
+    const { data: { genesis } } = message;
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
 
-    if (data.genesis) {
-      const { partyKey, feedKey } = data.genesis;
+    //
+    // Party genesis.
+    //
+    if (genesis) {
+      const { partyKey, feedKey } = genesis;
       assert(partyKey === this._partyKey);
       assert(feedKey);
       this._feedKeys.add(feedKey);

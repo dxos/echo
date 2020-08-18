@@ -13,7 +13,7 @@ import { createFeedMeta, IFeedBlock } from '../feeds';
 import { IEchoStream } from '../items';
 import { jsonReplacer } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
-import { createPassThrough, createTransform } from '../util';
+import { createTransform } from '../util';
 import { PartyProcessor } from './party-processor';
 
 interface Options {
