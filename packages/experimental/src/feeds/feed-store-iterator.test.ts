@@ -92,42 +92,37 @@ describe('feed store iterator', () => {
     // Write messages to feeds.
     // TODO(burdon): Randomly create items.
     //
-    {
-      let previous;
-      for (let i = 0; i < config.numMessages; i++) {
-        const feed = chance.pickone(Array.from(feeds.values()));
+    for (let i = 0; i < config.numMessages; i++) {
+      const feed = chance.pickone(Array.from(feeds.values()));
 
-        // Create timeframe dependency.
-        const timeframe = spacetime.createTimeframe(Array.from(feeds.values())
-          .filter(f => f.key !== feed.key && f.length > 0)
-          .map(f => [f.key, f.length - 1])
-        );
+      // Create timeframe dependency.
+      const timeframe = spacetime.createTimeframe(Array.from(feeds.values())
+        .filter(f => f.key !== feed.key && f.length > 0)
+        .map(f => [f.key, f.length - 1])
+      );
 
-        // Create data.
-        const word = chance.word();
-        const value = { i, word, previous };
-        const message = createAppendPropertyMutation(createId(), 'value', JSON.stringify(value), timeframe);
-        previous = word;
+      // Create data.
+      const word = chance.word();
+      const value = { i, word };
+      const message = createAppendPropertyMutation(createId(), 'value', JSON.stringify(value), timeframe);
 
-        // Write data.
-        await pify(feed.append.bind(feed))(message);
-        log('Write:', keyToString(feed.key), value, spacetime.stringify(timeframe));
-      }
+      // Write data.
+      await pify(feed.append.bind(feed))(message);
+      log('Write:', keyToString(feed.key), value, spacetime.stringify(timeframe));
     }
 
     //
     // Consume iterator.
     //
     let j = 0;
-    // let lastValue = undefined;
     const [counter, updateCounter] = latch(config.numMessages);
     const writeStream = createWritable<IFeedBlock>(async message => {
       // TODO(burdon): Check order.
       assert(message.data?.echo?.itemMutation?.append?.value);
       const { key: feedKey, seq, data: { echo: { timeframe, itemMutation: { append: { value } } } } } = message;
-      const { i, word, previous } = JSON.parse(value);
+      const { i, word } = JSON.parse(value);
       assert(timeframe);
-      log('Read:', j, { i, word, previous }, i === j, spacetime.stringify(timeframe));
+      log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
       expect(i).toBe(j);
 
       // Update timeframe for node.
