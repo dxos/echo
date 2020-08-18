@@ -19,8 +19,10 @@ const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
  * Manages current party state (e.g., admitted feeds).
  */
 export abstract class PartyProcessor {
-  protected readonly _feedKeys = new Set<FeedKey>();
   protected readonly _partyKey: PartyKey;
+
+  // Active set of admitted feeds.
+  protected readonly _feedKeys = new Set<FeedKey>();
 
   // Current timeframe.
   private _timeframe = spacetime.createTimeframe();
