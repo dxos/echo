@@ -9,16 +9,17 @@ import { createKeyPair } from '@dxos/crypto';
 
 import { IHaloStream } from '../items';
 import { createPartyGenesis } from '../testing';
-import { PartyProcessor } from './party-processor';
+import { TestPartyProcessor } from './party-processor';
 
 const log = debug('dxos:echo:party-processor:test');
 debug.enable('dxos:echo:*');
 
 describe('party-processor', () => {
-  test('basic messages', async () => {
+  test('genesis', async () => {
     const { publicKey: partyKey } = createKeyPair();
     const { publicKey: feedKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey, feedKey);
+
+    const partyProcessor = new TestPartyProcessor(partyKey, feedKey);
     expect(partyProcessor.partyKey).toBeTruthy();
 
     const { halo: data } = createPartyGenesis(partyKey, feedKey);

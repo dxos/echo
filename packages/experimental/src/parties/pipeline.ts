@@ -12,7 +12,6 @@ import { dxos } from '../proto/gen/testing';
 import { createFeedMeta, IFeedBlock } from '../feeds';
 import { IEchoStream } from '../items';
 import { jsonReplacer } from '../proto';
-import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { createTransform } from '../util';
 import { PartyProcessor } from './party-processor';
 
@@ -22,8 +21,6 @@ interface Options {
 }
 
 const log = debug('dxos:echo:pipeline');
-
-const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
 /**
  * Manages the inbound and outbound message pipelines for an individual party.
@@ -91,9 +88,6 @@ export class Pipeline {
    *         Feed
    */
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream?]> {
-    // Current timeframe.
-    let timeframe = spacetime.createTimeframe();
-
     const { readLogger, writeLogger } = this._options;
 
     //
@@ -116,7 +110,7 @@ export class Pipeline {
       // NOTE: It is OK to update here even though the message may not have been processed,
       // since any paused dependent message must be intended for this stream.
       const { key, seq } = block;
-      timeframe = spacetime.merge(timeframe, spacetime.createTimeframe([[key as any, seq]]));
+      this._partyProcessor.updateTimeframe(key, seq);
 
       //
       // ECHO
@@ -154,7 +148,7 @@ export class Pipeline {
         async (message: dxos.echo.testing.IEchoEnvelope) => {
           const data: dxos.echo.testing.IFeedMessage = {
             echo: merge({
-              timeframe
+              timeframe: this._partyProcessor.timeframe
             }, message)
           };
 

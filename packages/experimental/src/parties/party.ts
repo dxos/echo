@@ -74,6 +74,7 @@ export class Party {
     this._itemManager = undefined;
     this._itemDemuxer = undefined;
 
+    // TODO(burdon): Test closes cleanly (i.e., can re-open).
     await this._pipeline.close();
 
     return this;

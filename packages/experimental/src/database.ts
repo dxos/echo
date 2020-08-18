@@ -10,7 +10,7 @@ import { createKeyPair, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { ModelFactory } from './models';
-import { Party, PartyFilter, PartyKey, PartyProcessor, Pipeline } from './parties';
+import { Party, PartyFilter, PartyKey, TestPartyProcessor, Pipeline } from './parties';
 import { ResultSet } from './result';
 import { createOrderedFeedStream, createWritableFeedStream, FeedKey } from './feeds';
 
@@ -50,16 +50,14 @@ export class Database {
     await this.initialize();
 
     // Create party key.
+    // TODO(burdon): Move into Party?
     const { publicKey: partykey } = createKeyPair();
     const feed = await this._feedStore.openFeed(keyToString(partykey));
-    const partyProcessor = new PartyProcessor(partykey, feed.key);
-    const feedSelector = (feedKey: FeedKey) => partyProcessor.containsFeed(feedKey);
-
-    // TODO(burdon): Refactor spacetime message selector from feed-store-iterator tests.
-    const messageSelector = () => 0;
+    const partyProcessor = new TestPartyProcessor(partykey, feed.key); // TODO(burdon): Which key to use?
 
     // Create pipeline.
-    const feedReadStream = await createOrderedFeedStream(this._feedStore, feedSelector, messageSelector);
+    const feedReadStream = await createOrderedFeedStream(
+      this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
 

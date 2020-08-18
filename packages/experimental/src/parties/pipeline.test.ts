@@ -14,15 +14,16 @@ import { codec, jsonReplacer } from '../proto';
 import { createWritable, latch } from '../util';
 import { Pipeline } from './pipeline';
 import { createAppendPropertyMutation } from '../testing';
-import { PartyProcessor } from './party-processor';
+import { TestPartyProcessor } from './party-processor';
 
 const log = debug('dxos:echo:pipeline:test');
 debug.enable('dxos:echo:*');
 
+// TODO(burdon): Test read-only.
 describe('pipeline', () => {
   test('streams', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    const feedReadStream = await createOrderedFeedStream(feedStore, () => true, () => 0);
+    const feedReadStream = await createOrderedFeedStream(feedStore);
     const feed = await feedStore.openFeed('test-feed');
     const writeStream = createWritableFeedStream(feed);
 
@@ -30,7 +31,7 @@ describe('pipeline', () => {
     // Create pipeline.
     //
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey, feed.key);
+    const partyProcessor = new TestPartyProcessor(partyKey, feed.key);
     const pipeline = new Pipeline(partyProcessor, feedReadStream);
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();

@@ -43,7 +43,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
       const item = await itemManager.constructItem(itemId, itemType, modelType, itemStream);
       assert(item.id === itemId);
     } else {
-      // NOTE: the clock should guarantee that the item genesis message has been processed.
+      // NOTE: Spacetime should guarantee that the item genesis message has already been processed.
       const itemStream = itemStreams.get(itemId);
       assert(itemStream, `Missing item: ${itemId}`);
 

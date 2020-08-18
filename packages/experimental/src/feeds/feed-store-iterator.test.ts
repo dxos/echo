@@ -43,6 +43,7 @@ describe('feed store iterator', () => {
     // Update when processed downstream.
     let currentTimeframe = spacetime.createTimeframe();
 
+    // TODO(burdon): Factor out/generalize.
     // Select message based on timeframe.
     const messageSelector = (candidates: IFeedBlock[]) => {
       log('Current:', spacetime.stringify(currentTimeframe));
@@ -117,12 +118,13 @@ describe('feed store iterator', () => {
     let j = 0;
     const [counter, updateCounter] = latch(config.numMessages);
     const writeStream = createWritable<IFeedBlock>(async message => {
-      // TODO(burdon): Check order.
       assert(message.data?.echo?.itemMutation?.append?.value);
       const { key: feedKey, seq, data: { echo: { timeframe, itemMutation: { append: { value } } } } } = message;
-      const { i, word } = JSON.parse(value);
       assert(timeframe);
+      const { i, word } = JSON.parse(value);
       log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
+
+      // Check order.
       expect(i).toBe(j);
 
       // Update timeframe for node.

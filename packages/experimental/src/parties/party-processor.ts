@@ -5,22 +5,30 @@
 import assert from 'assert';
 import debug from 'debug';
 
+import { FeedKey, FeedSelector, IFeedBlock, MessageSelector } from '../feeds';
 import { IHaloStream } from '../items';
-import { PartyKey } from './types';
 import { jsonReplacer } from '../proto';
-import { FeedKey } from '../feeds';
+import { FeedKeyMapper, Spacetime } from '../spacetime';
+import { PartyKey } from './types';
 
 const log = debug('dxos:echo:party-processor');
+
+const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
 /**
  * Manages current party state (e.g., admitted feeds).
  */
-// TODO(burdon): Base class extended by HALO.
-export class PartyProcessor {
-  private readonly _feedKeys = new Set<FeedKey>();
+export abstract class PartyProcessor {
+  protected readonly _feedKeys = new Set<FeedKey>();
+  protected readonly _partyKey: PartyKey;
 
-  private readonly _partyKey: PartyKey;
+  // Current timeframe.
+  private _timeframe = spacetime.createTimeframe();
 
+  /**
+   * @param partyKey
+   * @param feedKey - Genesis feed for node.
+   */
   constructor (partyKey: PartyKey, feedKey: FeedKey) {
     assert(partyKey);
     assert(feedKey);
@@ -36,11 +44,33 @@ export class PartyProcessor {
     return Array.from(this._feedKeys);
   }
 
-  containsFeed (feedKey: FeedKey) {
-    return Array.from(this._feedKeys.values()).findIndex(k => Buffer.compare(k, feedKey) === 0) !== -1;
+  get timeframe () {
+    return this._timeframe;
   }
 
-  async processMessage (message: IHaloStream) {
+  get feedSelector (): FeedSelector {
+    return (feedKey: FeedKey) =>
+      Array.from(this._feedKeys.values()).findIndex(k => Buffer.compare(k, feedKey) === 0) !== -1;
+  }
+
+  // TODO(burdon): Factor out from feed-store-iterator test.
+  get messageSelector (): MessageSelector {
+    return (candidates: IFeedBlock[]) => 0;
+  }
+
+  updateTimeframe (key: FeedKey, seq: number) {
+    this._timeframe = spacetime.merge(this._timeframe, spacetime.createTimeframe([[key as any, seq]]));
+  }
+
+  abstract async processMessage (message: IHaloStream): Promise<void>;
+}
+
+/**
+ * Party processor for testing.
+ */
+// TODO(burdon): Move when refactoring experimental.
+export class TestPartyProcessor extends PartyProcessor {
+  async processMessage (message: IHaloStream): Promise<void> {
     const { data: { genesis } } = message;
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
 

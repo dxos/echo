@@ -54,6 +54,7 @@ describe('api tests', () => {
 
     const party = await db.createParty();
 
+    // TODO(burdon): Test item mutations.
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
     await party.createItem('dxos://dxos.org/item/kanban', TestModel.type);

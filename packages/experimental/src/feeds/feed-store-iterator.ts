@@ -14,18 +14,23 @@ import { FeedKey, IFeedBlock } from './types';
 
 const log = debug('dxos:echo:feed-store-iterator');
 
+// TODO(burdon): Invert (ask for set of feed keys).
+export type FeedSelector = (feedKey: FeedKey) => boolean;
+
+export type MessageSelector = (candidates: IFeedBlock[]) => number | undefined;
+
 /**
  * Creates an ordered stream.
  *
  * @param feedStore
- * @param feedSelector - Returns true if the feed should be considered.
- * @param messageSelector - Returns the index of the selected message candidate (or undefined).
+ * @param [feedSelector] - Returns true if the feed should be considered.
+ * @param [messageSelector] - Returns the index of the selected message candidate (or undefined).
  * @readonly {NodeJS.ReadableStream} readable stream.
  */
 export async function createOrderedFeedStream (
   feedStore: FeedStore,
-  feedSelector: (feedKey: FeedKey) => boolean,
-  messageSelector: (candidates: IFeedBlock[]) => number | undefined = () => 0
+  feedSelector: FeedSelector = () => true,
+  messageSelector: MessageSelector = () => 0
 ): Promise<NodeJS.ReadableStream> {
   assert(!feedStore.closing && !feedStore.closed);
   if (!feedStore.opened) {
@@ -79,8 +84,8 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
   private readonly _trigger = new Trigger();
   private readonly _generatorInstance = this._generator();
 
-  private readonly _feedSelector: (feedKey: FeedKey) => boolean;
-  private readonly _messageSelector: (candidates: IFeedBlock[]) => number | undefined;
+  private readonly _feedSelector: FeedSelector;
+  private readonly _messageSelector: MessageSelector;
 
   // Needed for round-robin ordering.
   private _messageCount = 0;
@@ -88,8 +93,8 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
   private _destroyed = false;
 
   constructor (
-    feedSelector: (feedKey: FeedKey) => boolean,
-    messageSelector: (candidates: IFeedBlock[]) => number | undefined
+    feedSelector: FeedSelector,
+    messageSelector: MessageSelector
   ) {
     assert(feedSelector);
     assert(messageSelector);

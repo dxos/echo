@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Readable, Writable, Transform, PassThrough } from 'stream';
+import { PassThrough, Readable, Transform, Writable } from 'stream';
 
 //
 // Stream utils.
@@ -10,7 +10,7 @@ import { Readable, Writable, Transform, PassThrough } from 'stream';
 //
 
 /**
- * Create a readable stream that can be used as a buffer into which messages can be pushed.
+ * Creates a readable stream that can be used as a buffer into which messages can be pushed.
  */
 export function createReadable<T> (): Readable {
   return new Readable({
@@ -41,9 +41,9 @@ export function createWritable<T> (callback: (message: T) => Promise<void>): Nod
  * Creates a no-op transform.
  */
 export function createPassThrough<T> (): PassThrough {
-  return new Transform({
+  return new PassThrough({
     objectMode: true,
-    transform: async (message, _, next) => {
+    transform: async (message: T, _, next) => {
       next(null, message);
     }
   });
@@ -53,7 +53,7 @@ export function createPassThrough<T> (): PassThrough {
  * Creates a transform object stream.
  * @param [callback] Callback or null to pass-through.
  */
-export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined> | undefined) {
+export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined> | undefined): Transform {
   return new Transform({
     objectMode: true,
     transform: async (message: R, _, next) => {
@@ -70,7 +70,7 @@ export function createTransform<R, W> (callback: (message: R) => Promise<W | und
  * Injectable logger.
  * @param logger
  */
-export function createLoggingTransform (logger: Function = console.log) {
+export function createLoggingTransform (logger: Function = console.log): Transform {
   return createTransform<any, any>(message => {
     logger(message);
     return message;
