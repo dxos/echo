@@ -17,10 +17,10 @@ debug.enable('dxos:echo:*');
 describe('party-processor', () => {
   test('basic messages', async () => {
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey);
+    const { publicKey: feedKey } = createKeyPair();
+    const partyProcessor = new PartyProcessor(partyKey, feedKey);
     expect(partyProcessor.partyKey).toBeTruthy();
 
-    const { publicKey: feedKey } = createKeyPair();
     const { halo: data } = createPartyGenesis(partyKey, feedKey);
     assert(data);
     const message: IHaloStream = {

@@ -8,7 +8,7 @@ import ram from 'random-access-memory';
 import { createId, createKeyPair } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
-import { createWritableFeedStream } from '../feeds';
+import { createOrderedFeedStream, createWritableFeedStream } from '../feeds';
 import { IEchoStream } from '../items';
 import { codec, jsonReplacer } from '../proto';
 import { createWritable, latch } from '../util';
@@ -22,11 +22,16 @@ debug.enable('dxos:echo:*');
 describe('pipeline', () => {
   test('streams', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    await feedStore.open();
+    const feedReadStream = await createOrderedFeedStream(feedStore, () => true, () => 0);
+    const feed = await feedStore.openFeed('test-feed');
+    const writeStream = createWritableFeedStream(feed);
 
+    //
+    // Create pipeline.
+    //
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey);
-    const pipeline = new Pipeline(feedStore, partyProcessor);
+    const partyProcessor = new PartyProcessor(partyKey, feed.key);
+    const pipeline = new Pipeline(partyProcessor, feedReadStream);
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();
 
@@ -45,8 +50,6 @@ describe('pipeline', () => {
     // Write directly to feed store.
     // TODO(burdon): Write to multiple feeds.
     //
-    const feed = await feedStore.openFeed('test-feed');
-    const writeStream = createWritableFeedStream(feed);
 
     const itemId = createId();
     for (let i = 0; i < numMessages; i++) {

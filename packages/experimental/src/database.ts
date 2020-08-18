@@ -4,23 +4,21 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import { Transform } from 'stream';
 
 import { Event } from '@dxos/async';
-import { createKeyPair } from '@dxos/crypto';
+import { createKeyPair, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { ModelFactory } from './models';
-import { Party, PartyFilter, PartyKey, Pipeline } from './parties';
+import { Party, PartyFilter, PartyKey, PartyProcessor, Pipeline } from './parties';
 import { ResultSet } from './result';
-import { PartyProcessor } from './parties/party-processor';
+import { createOrderedFeedStream, createWritableFeedStream, FeedKey } from './feeds';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const log = debug('dxos:echo:database');
 
 interface Options {
-  readLogger?: Transform;
-  writeLogger?: Transform;
+  readLogger?: NodeJS.ReadWriteStream;
+  writeLogger?: NodeJS.ReadWriteStream;
 }
 
 /**
@@ -53,10 +51,19 @@ export class Database {
 
     // Create party key.
     const { publicKey: partykey } = createKeyPair();
+    const feed = await this._feedStore.openFeed(keyToString(partykey));
+    const partyProcessor = new PartyProcessor(partykey, feed.key);
+    const feedSelector = (feedKey: FeedKey) => partyProcessor.containsFeed(feedKey);
 
-    // Create pary
-    const partyProcessor = new PartyProcessor(partykey);
-    const pipeline = new Pipeline(this._feedStore, partyProcessor, this._options);
+    // TODO(burdon): Refactor spacetime message selector from feed-store-iterator tests.
+    const messageSelector = () => 0;
+
+    // Create pipeline.
+    const feedReadStream = await createOrderedFeedStream(this._feedStore, feedSelector, messageSelector);
+    const feedWriteStream = createWritableFeedStream(feed);
+    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
+
+    // Create party.
     const party = await new Party(pipeline, this._modelFactory).open();
     this._parties.set(party.key, party);
     log(`Created: ${String(party)}`);

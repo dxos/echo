@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Readable, Writable, Transform } from 'stream';
+import { Readable, Writable, Transform, PassThrough } from 'stream';
 
 //
 // Stream utils.
@@ -33,6 +33,18 @@ export function createWritable<T> (callback: (message: T) => Promise<void>): Nod
       } catch (err) {
         next(err);
       }
+    }
+  });
+}
+
+/**
+ * Creates a no-op transform.
+ */
+export function createPassThrough<T> (): PassThrough {
+  return new Transform({
+    objectMode: true,
+    transform: async (message, _, next) => {
+      next(null, message);
     }
   });
 }

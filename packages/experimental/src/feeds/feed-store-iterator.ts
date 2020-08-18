@@ -29,6 +29,7 @@ export async function createOrderedFeedStream (
 ): Promise<NodeJS.ReadableStream> {
   assert(!feedStore.closing && !feedStore.closed);
   if (!feedStore.opened) {
+    await feedStore.open();
     await feedStore.ready();
   }
 
@@ -103,6 +104,7 @@ class FeedStoreIterator implements AsyncIterable<IFeedBlock> {
   addFeedDescriptor (descriptor: FeedDescriptor) {
     this._candidateFeeds.add(descriptor);
     this._trigger.wake();
+    return this;
   }
 
   /**

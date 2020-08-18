@@ -38,15 +38,14 @@ export class ItemManager {
   private _pendingItems = new Map<ItemID, (item: Item) => void>();
 
   _modelFactory: ModelFactory;
-  _writeStream: NodeJS.WritableStream;
+  _writeStream?: NodeJS.WritableStream;
 
   /**
    * @param modelFactory
    * @param writeStream Outbound `dxos.echo.testing.IEchoEnvelope` mutation stream.
    */
-  constructor (modelFactory: ModelFactory, writeStream: NodeJS.WritableStream) {
+  constructor (modelFactory: ModelFactory, writeStream?: NodeJS.WritableStream) {
     assert(modelFactory);
-    assert(writeStream);
     this._modelFactory = modelFactory;
     this._writeStream = writeStream;
   }
@@ -57,6 +56,7 @@ export class ItemManager {
    * @param modelType model type
    */
   async createItem (itemType: ItemType, modelType: ModelType): Promise<Item> {
+    assert(this._writeStream);
     assert(itemType);
     assert(modelType);
 
@@ -92,6 +92,7 @@ export class ItemManager {
    * @param readable Inbound mutation stream.
    */
   async constructItem (itemId: ItemID, itemType: ItemType, modelType: ModelType, readable: NodeJS.ReadableStream) {
+    assert(this._writeStream);
     assert(itemId);
     assert(itemType);
     assert(modelType);
