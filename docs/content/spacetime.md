@@ -1,21 +1,27 @@
-# ECHO Experimental
-
-## Spacetime
+# Spacetime
 
 TODO(burdon): Normalize "we" and "current node", etc.
 
-In a decentralized world, no two events can happen concurrently. 
-We need a mechanism to determine whether a particular operation processed by one node can be considered 
-to have happened before or after another operation on another node. 
+In a decentralized world, no two events can happen simultaneously.
+
+We need a mechanism whereby nodes processing messages from multiple feeds (typically one per peer)
+can determine in which order it should process these messages.
+In other words, the node needs to determine whether a particular operation should be considered 
+to have happened before or after another operation (from a different feed). 
+
 Furthermore, we need all nodes to agree on this ordering -- even when they have different subsets 
 of the available information.
-
 NOTE: To achieve consistency, we still typically require CRDTs to deterministically process operations from
 multiple nodes that happen (apparently) concurrently.
 
-Feeds consist of message blocks, and each feed has a genesis block at sequence number 0.
-A party consists of a set of feeds -- one from each o the participating nodes.
-Each feed has a unique ID called the `FeedKey`.
+Feeds consist of ordered message blocks that are implemented via a signed 
+[Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree) are replicated using 
+the [Hypercore](https://www.datprotocol.com/deps/0002-hypercore).
+
+Feeds are signed using a the private key of the originating node. 
+The corresponding public key (or `FeedKey`) is exchanged with peers so that they can verify the integrity of the feed.
+Each feed has a genesis block at sequence number 0.
+A party consists of a set of feeds -- typically from each of the participating nodes.
 
 Over time, nodes may "discover" additional nodes that have been "admitted" to the party.
 NOTE: The admission process is goverened by HALO and out of current scope.
@@ -39,6 +45,7 @@ One problem, however, is that at any given point, most nodes will have imperfect
 Timeframes are relative to the message that contains them.
 They determine the "state" of the node at the point at which the message was created.
 NOTE: Each node processes all messages (even its own!) using the same algorithm.
+
 [[TODO(burdon)]] Therefore, the Timeframe at the point when the message is GENERATED may be different from the point
 at which it is PROCESSED on the creating node.
 
@@ -67,13 +74,14 @@ In some cases, multiple candidate messages may be able to be processed since all
 have already been processed. However, in such circumstances each node must make the same deterministic selection.
 Therefore, a "tie break" rule determines which message to process first.
 For example, the algorithm may pick the message with the lowest sequence number (and in the case of another tie,
-the lowest lexcial value of the associated feed's FeedKey.)
+the lowest lexcial value of the originating feed's FeedKey.)
 
 NOTE: Since concurrently operating nodes will typically have different subsets of the party feeds synchronized,
 it is possible (again, likely!) that different nodes will process some subset of messages in different order,
-however this will only happen for "branches" of messages that are not dependent on each other.
+however, this will only happen for "branches" of messages that are not dependent on each other.
+Such messages may be considered to be "concurrent".
 
-For example, consider four nodes with associated feeds A, B, C, and D.
+For example, consider four nodes with respective feeds A, B, C, and D.
 Initially each of the nodes creates messages and synchronizes these with each other.
 Suppose that each node writes 100 messages.
 At some point, each node will have processed 400 messages (4 x 100), although not necessarily in the same
@@ -102,14 +110,3 @@ are creating and processing messages at the same time.
 
 We can, therefore, consider being "offline" with respect to other peers as an extreme form of "latency",
 and rely on the same underlying mechanism.
-
-
-## Next
-
-- Stream loggers.
-
-- Reactive components (Database, Party, Item, Model) with event propagation.
-- Event handlers: global state to warn of leaks when system shuts down (show graph).
-- Ensure streams are closed when objects are destroyed (on purpose or on error).
-- Consistent async functions (latch, trigger, etc.)
-- WRN model/item formats.
