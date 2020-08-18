@@ -149,19 +149,20 @@ export class Pipeline {
     // https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback
     //
 
+    // Read message from feed-store.
+    const feedReadStream = this._feedStore.createReadStream({ live: true });
+
+    // Write messages to feed-store.
+    const feed = await this._feedStore.openFeed(keyToString(this.partyKey));
+    const feedWriteStream = createWritableFeedStream(feed);
+
     const { readLogger, writeLogger } = this._options;
 
-    // Read message from feed-store.
-    // TODO(burdon): Filter feeds and select messages by Timeframe (via iterator).
-    const feedReadStream = this._feedStore.createReadStream({ live: true });
     pipeline([feedReadStream, readLogger, this._readStream].filter(Boolean), (err) => {
       // TODO(burdon): Handle error.
       log(err || 'Inbound pipieline closed.');
     });
 
-    // Write messages to feed-store.
-    const feed = await this._feedStore.openFeed(keyToString(this.partyKey));
-    const feedWriteStream = createWritableFeedStream(feed);
     pipeline([this._writeStream, timeframeTransform, writeLogger, feedWriteStream].filter(Boolean) as any[], (err) => {
       // TODO(burdon): Handle error.
       log(err || 'Outbound pipeline closed.');
