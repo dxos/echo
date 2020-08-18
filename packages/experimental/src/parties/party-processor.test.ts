@@ -9,7 +9,7 @@ import { createKeyPair } from '@dxos/crypto';
 
 import { IHaloStream } from '../items';
 import { createPartyGenesis } from '../testing';
-import { TestPartyProcessor } from './party-processor';
+import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:party-processor:test');
 debug.enable('dxos:echo:*');

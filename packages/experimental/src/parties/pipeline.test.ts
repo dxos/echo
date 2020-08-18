@@ -14,7 +14,7 @@ import { codec, jsonReplacer } from '../proto';
 import { createWritable, latch } from '../util';
 import { Pipeline } from './pipeline';
 import { createAppendPropertyMutation } from '../testing';
-import { TestPartyProcessor } from './party-processor';
+import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:pipeline:test');
 debug.enable('dxos:echo:*');

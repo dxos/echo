@@ -12,7 +12,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from './models';
 import { Party, PartyFilter, PartyKey, TestPartyProcessor, Pipeline } from './parties';
 import { ResultSet } from './result';
-import { createOrderedFeedStream, createWritableFeedStream, FeedKey } from './feeds';
+import { createOrderedFeedStream, createWritableFeedStream } from './feeds';
 
 const log = debug('dxos:echo:database');
 

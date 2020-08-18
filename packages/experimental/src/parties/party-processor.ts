@@ -7,9 +7,9 @@ import debug from 'debug';
 
 import { FeedKey, FeedSelector, IFeedBlock, MessageSelector } from '../feeds';
 import { IHaloStream } from '../items';
-import { jsonReplacer } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { PartyKey } from './types';
+import { jsonReplacer } from '../proto';
 
 const log = debug('dxos:echo:party-processor');
 
@@ -57,6 +57,7 @@ export abstract class PartyProcessor {
 
   // TODO(burdon): Factor out from feed-store-iterator test.
   get messageSelector (): MessageSelector {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     return (candidates: IFeedBlock[]) => 0;
   }
 
@@ -64,29 +65,10 @@ export abstract class PartyProcessor {
     this._timeframe = spacetime.merge(this._timeframe, spacetime.createTimeframe([[key as any, seq]]));
   }
 
-  abstract async processMessage (message: IHaloStream): Promise<void>;
-}
-
-/**
- * Party processor for testing.
- */
-// TODO(burdon): Move when refactoring experimental.
-export class TestPartyProcessor extends PartyProcessor {
   async processMessage (message: IHaloStream): Promise<void> {
-    const { data: { genesis } } = message;
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
-
-    //
-    // Party genesis.
-    //
-    if (genesis) {
-      const { partyKey, feedKey } = genesis;
-      assert(partyKey === this._partyKey);
-      assert(feedKey);
-      this._feedKeys.add(feedKey);
-      return;
-    }
-
-    throw new Error(`Invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+    return this._processMessage(message);
   }
+
+  abstract async _processMessage (message: IHaloStream): Promise<void>;
 }
