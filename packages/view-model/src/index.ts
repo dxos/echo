@@ -1,1 +1,5 @@
-export * from './view-model';
+//
+// Copyright 2020 DXOS.org
+//
+
+export * from './item-model';
