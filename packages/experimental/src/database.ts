@@ -35,6 +35,7 @@ export class Database {
     this._partyManager = new PartyManager(feedStore, modelFactory, options);
   }
 
+  // TODO(burdon): Chain events from PartyManager.
   async open () {
     await this._partyManager.open();
   }

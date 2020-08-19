@@ -61,4 +61,26 @@ describe('Party manager', () => {
 
     await update;
   });
+
+  test('Create from cold start', async () => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    await feedStore.open();
+
+    // Create raw parties.
+    // TODO(burdon): Create multiple feeds.
+    const numParties = 3;
+    for (let i = 0; i < numParties; i++) {
+      const { publicKey: partyKey } = createKeyPair();
+      const feed = await feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+      const feedStream = createWritableFeedStream(feed);
+      await feedStream.write(createPartyGenesis(partyKey, feed.key));
+    }
+
+    // Open.
+    const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
+    const partyManager = new PartyManager(feedStore, modelFactory);
+    await partyManager.open();
+
+    expect(partyManager.parties).toHaveLength(numParties);
+  });
 });

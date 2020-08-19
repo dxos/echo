@@ -45,7 +45,7 @@ describe('api tests', () => {
           log('Item:', String(item));
         });
 
-        const result = await party.queryItems({ type: 'dxos://dxos.org/item/document' });
+        const result = await party.queryItems({ type: 'drn://dxos.org/item/document' });
         expect(result.value).toHaveLength(2);
       });
 
@@ -56,9 +56,9 @@ describe('api tests', () => {
     expect(party.isOpen).toBeTruthy();
 
     // TODO(burdon): Test item mutations.
-    await party.createItem('dxos://dxos.org/item/document', TestModel.type);
-    await party.createItem('dxos://dxos.org/item/document', TestModel.type);
-    await party.createItem('dxos://dxos.org/item/kanban', TestModel.type);
+    await party.createItem('drn://dxos.org/item/document', TestModel.type);
+    await party.createItem('drn://dxos.org/item/document', TestModel.type);
+    await party.createItem('drn://dxos.org/item/kanban', TestModel.type);
 
     await updated;
     unsubscribe();

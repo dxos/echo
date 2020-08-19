@@ -58,7 +58,7 @@ describe('item demxuer', () => {
     const message: dxos.echo.testing.IEchoEnvelope = {
       itemId,
       genesis: {
-        itemType: 'dxos://dxos.org/item/test',
+        itemType: 'drn://dxos.org/item/test',
         modelType: TestModel.type
       }
     };

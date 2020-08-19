@@ -52,8 +52,6 @@ export class PartyManager {
     this._modelFactory = modelFactory;
     this._options = options || {};
 
-    // TODO(burdon): Iterate descriptors and pre-create Party objects.
-
     // Listen for feed construction.
     this._onFeed = async (feed: hypercore.Feed, descriptor: FeedDescriptor) => {
       // NOTE: Party creation (below) creates a new feed which immediately triggers this event.
@@ -71,6 +69,15 @@ export class PartyManager {
   async open () {
     await this._feedStore.open();
     (this._feedStore as any).on('feed', this._onFeed);
+
+    // Iterate descriptors and pre-create Party objects.
+    for (const descriptor of this._feedStore.getDescriptors()) {
+      const { metadata: { partyKey } } = descriptor;
+      assert(partyKey);
+      if (!this._parties.has(keyToString(partyKey))) {
+        await this._constructParty(partyKey);
+      }
+    }
   }
 
   async close () {

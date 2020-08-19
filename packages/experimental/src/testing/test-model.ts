@@ -14,7 +14,7 @@ import { createMessage } from '../proto';
  * Test model.
  */
 export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
-  static type: ModelType = 'dxos://dxos.org/model/test';
+  static type: ModelType = 'drn://dxos.org/model/test';
 
   private _values = new Map();
 
