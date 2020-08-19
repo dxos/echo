@@ -14,7 +14,7 @@ const wait = (callback, n) => () => (--n === 0) && callback();
 
 const createSubscriber = async (path, topic) => {
   const feedStore = new FeedStore(createStorage('./temp', STORAGE_RAM), { feedOptions: { valueEncoding: 'json' } });
-  await feedStore.initialize();
+  await feedStore.open();
 
   const subscriber = new Subscriber(feedStore);
 

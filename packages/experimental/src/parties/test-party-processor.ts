@@ -20,8 +20,9 @@ export class TestPartyProcessor extends PartyProcessor {
     //
     if (genesis) {
       const { partyKey, feedKey } = genesis;
-      assert(partyKey === this._partyKey);
+      assert(partyKey);
       assert(feedKey);
+      assert(Buffer.compare(partyKey, this._partyKey) === 0);
       this._feedKeys.add(feedKey);
       return;
     }

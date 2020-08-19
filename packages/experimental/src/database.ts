@@ -3,20 +3,15 @@
 //
 
 import assert from 'assert';
-import debug from 'debug';
 
 import { Event } from '@dxos/async';
-import { createKeyPair, keyToString } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { ModelFactory } from './models';
-import { Party, PartyFilter, PartyKey, TestPartyProcessor, Pipeline } from './parties';
+import { Party, PartyFilter, PartyKey, PartyManager } from './parties';
 import { ResultSet } from './result';
-import { createOrderedFeedStream, createWritableFeedStream } from './feeds';
 
-const log = debug('dxos:echo:database');
-
-interface Options {
+export interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
 }
@@ -26,51 +21,50 @@ interface Options {
  */
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
-  private readonly _parties = new Map<PartyKey, Party>();
-  private readonly _feedStore: FeedStore;
-  private readonly _modelFactory: ModelFactory;
-  private readonly _options: Options;
+  private readonly _partyManager: PartyManager;
 
+  /**
+   * @param feedStore
+   * @param modelFactory
+   * @param options
+   */
+  // TODO(burdon): Pass in PartyManager?
   constructor (feedStore: FeedStore, modelFactory: ModelFactory, options?: Options) {
     assert(feedStore);
     assert(modelFactory);
-    this._feedStore = feedStore;
-    this._modelFactory = modelFactory;
-    this._options = options || {};
+    this._partyManager = new PartyManager(feedStore, modelFactory, options);
   }
 
-  async initialize () {
-    await this._feedStore.open();
+  async open () {
+    await this._partyManager.open();
+  }
+
+  async close () {
+    await this._partyManager.close();
   }
 
   /**
    * Creates a new party.
    */
   async createParty (): Promise<Party> {
-    await this.initialize();
+    await this.open();
 
-    // Create party key.
-    // TODO(burdon): Move into Party?
-    const { publicKey: partykey } = createKeyPair();
-    const feed = await this._feedStore.openFeed(keyToString(partykey));
-    const partyProcessor = new TestPartyProcessor(partykey, feed.key); // TODO(burdon): Which key to use?
-
-    // Create pipeline.
-    const feedReadStream = await createOrderedFeedStream(
-      this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
-    const feedWriteStream = createWritableFeedStream(feed);
-    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
-
-    // Create party.
-    const party = await new Party(pipeline, this._modelFactory).open();
-    this._parties.set(party.key, party);
-    log(`Created: ${String(party)}`);
+    const party = await this._partyManager.createParty();
+    await party.open();
 
     // Notify update event.
-    // TODO(burdon): How to distinguish event types (create, update, etc.) and propagation?
     setImmediate(() => this._partyUpdate.emit(party));
 
     return party;
+  }
+
+  /**
+   * @param partyKey
+   */
+  async getParty (partyKey: PartyKey): Promise<Party | undefined> {
+    await this.open();
+
+    return this._partyManager.parties.find(party => Buffer.compare(party.key, partyKey) === 0);
   }
 
   /**
@@ -78,6 +72,8 @@ export class Database {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async queryParties (filter?: PartyFilter): Promise<ResultSet<Party>> {
-    return new ResultSet<Party>(this._partyUpdate, () => Array.from(this._parties.values()));
+    await this.open();
+
+    return new ResultSet<Party>(this._partyUpdate, () => this._partyManager.parties);
   }
 }

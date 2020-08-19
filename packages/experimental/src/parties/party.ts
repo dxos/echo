@@ -16,21 +16,21 @@ import { PartyKey } from './types';
  * Party.
  */
 export class Party {
-  private readonly _pipeline: Pipeline;
   private readonly _modelFactory: ModelFactory;
+  private readonly _pipeline: Pipeline;
 
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
 
   /**
-   * @param pipeline
    * @param modelFactory
+   * @param pipeline
    */
-  constructor (pipeline: Pipeline, modelFactory: ModelFactory) {
-    assert(pipeline);
+  constructor (modelFactory: ModelFactory, pipeline: Pipeline) {
     assert(modelFactory);
-    this._pipeline = pipeline;
+    assert(pipeline);
     this._modelFactory = modelFactory;
+    this._pipeline = pipeline;
   }
 
   toString () {
@@ -39,6 +39,10 @@ export class Party {
 
   get key (): PartyKey {
     return this._pipeline.partyKey;
+  }
+
+  get isOpen (): boolean {
+    return !!this._itemManager;
   }
 
   /**

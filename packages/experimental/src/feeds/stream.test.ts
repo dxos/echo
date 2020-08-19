@@ -65,7 +65,7 @@ describe('Stream tests', () => {
 
   test('feed streams', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    await feedStore.initialize();
+    await feedStore.open();
 
     const feed = await feedStore.openFeed('test-feed');
     const inputStream = feedStore.createReadStream({ live: true, feedStoreInfo: true });

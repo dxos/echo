@@ -14,6 +14,11 @@ import { FeedKey, IFeedBlock } from './types';
 
 const log = debug('dxos:echo:feed-store-iterator');
 
+// TODO(burdon): Redesign FeedStore:
+// - event handlers
+// - remove path and metadata
+// - construction separate from open
+
 // TODO(burdon): Invert (ask for set of feed keys).
 export type FeedSelector = (feedKey: FeedKey) => boolean;
 

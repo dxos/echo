@@ -13,7 +13,7 @@ import { ItemManager } from './item-manager';
 describe('items', () => {
   test('item construction', async () => {
     const feedStore = new FeedStore(ram);
-    await feedStore.initialize();
+    await feedStore.open();
     const feed = await feedStore.openFeed('test-feed');
 
     const modelFactory = new ModelFactory();

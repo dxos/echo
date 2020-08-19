@@ -29,7 +29,7 @@ describe('api tests', () => {
     };
 
     const db = new Database(feedStore, modelFactory, options);
-    await db.initialize();
+    await db.open();
 
     const parties = await db.queryParties({ open: true });
     log('Parties:', parties.value.map(party => humanize(party.key)));
@@ -53,6 +53,7 @@ describe('api tests', () => {
     });
 
     const party = await db.createParty();
+    expect(party.isOpen).toBeTruthy();
 
     // TODO(burdon): Test item mutations.
     await party.createItem('dxos://dxos.org/item/document', TestModel.type);
