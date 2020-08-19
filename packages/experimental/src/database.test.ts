@@ -47,6 +47,9 @@ describe('api tests', () => {
 
         const result = await party.queryItems({ type: 'drn://dxos.org/item/document' });
         expect(result.value).toHaveLength(2);
+
+        const value = await party.getProperty('title');
+        expect(value).toBe('DXOS');
       });
 
       onUpdate();
@@ -54,6 +57,9 @@ describe('api tests', () => {
 
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
+
+    // Properties.
+    await party.setProperty('title', 'DXOS');
 
     // TODO(burdon): Test item mutations.
     await party.createItem('drn://dxos.org/item/document', TestModel.type);

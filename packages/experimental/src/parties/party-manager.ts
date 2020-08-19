@@ -14,8 +14,8 @@ import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
 import { Options } from '../database';
 import { createOrderedFeedStream, createWritableFeedStream } from '../feeds';
 import { ModelFactory } from '../models';
-import { createPartyGenesis } from '../testing';
-import { Party } from './party';
+import { createPartyGenesis, TestModel } from '../testing';
+import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
 import { PartyKey } from './types';
 import { TestPartyProcessor } from './test-party-processor';
@@ -101,6 +101,10 @@ export class PartyManager {
     // TODO(burdon): Call party processor to write genesis, etc.
     const message = createPartyGenesis(partyKey, feed.key);
     await pify(feed.append.bind(feed))(message);
+
+    // Create special properties item.
+    await party.open();
+    await party.createItem(PARTY_ITEM_TYPE, TestModel.type);
 
     return party;
   }

@@ -11,6 +11,10 @@ import { ResultSet } from '../result';
 import { ModelFactory, ModelType } from '../models';
 import { Pipeline } from './pipeline';
 import { PartyKey } from './types';
+import { TestModel } from '../testing';
+
+// TODO(burdon): Namespace?
+export const PARTY_ITEM_TYPE = '__PARTY_PROPERTIES__';
 
 /**
  * Party.
@@ -83,19 +87,19 @@ export class Party {
     return this;
   }
 
-  // TODO(burdon): Construct special Item for party properties.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // TODO(burdon): Block until model updated?
   async setProperty (key: string, value: any): Promise<Party> {
-    assert(this.isOpen);
+    const item = await this._gePropertiestItem();
+    await (item.model as TestModel).setProperty(key, value);
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getProperty (key: string): Promise<any> {
-    assert(this.isOpen);
-    return undefined;
+    const item = await this._gePropertiestItem();
+    return await (item.model as TestModel).getProperty(key);
   }
 
+  // TODO(burdon): Block until model updated?
   async createItem (itemType: ItemType, modelType: ModelType): Promise<Item> {
     assert(this._itemManager);
     return this._itemManager.createItem(itemType, modelType);
@@ -104,5 +108,13 @@ export class Party {
   async queryItems (filter?: ItemFilter): Promise<ResultSet<Item>> {
     assert(this._itemManager);
     return this._itemManager.queryItems(filter);
+  }
+
+  async _gePropertiestItem () {
+    assert(this.isOpen);
+    assert(this._itemManager);
+    const { value: items } = await this._itemManager?.queryItems({ type: PARTY_ITEM_TYPE });
+    assert(items.length === 1);
+    return items[0];
   }
 }
