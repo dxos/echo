@@ -5,6 +5,7 @@
 import assert from 'assert';
 import debug from 'debug';
 import hypercore from 'hypercore';
+import pify from 'pify';
 
 import { Event } from '@dxos/async';
 import { createKeyPair, keyToString } from '@dxos/crypto';
@@ -18,7 +19,6 @@ import { Party } from './party';
 import { Pipeline } from './pipeline';
 import { PartyKey } from './types';
 import { TestPartyProcessor } from './test-party-processor';
-import pify from 'pify';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -26,8 +26,8 @@ const log = debug('dxos:echo:party-manager');
  * Manages the life-cycle of parties.
  */
 export class PartyManager {
-  // TODO(burdon): Buffer equivalence doesn't work for map.
-  // TODO(burdon): Query from data store (i.e., not just open parties).
+  // Map of parties by party key.
+  // NOTE: Buffer equivalence doesn't work for map.
   private readonly _parties = new Map<string, Party>();
 
   private readonly _feedStore: FeedStore;
@@ -36,6 +36,8 @@ export class PartyManager {
 
   private readonly _onFeed: (feed: hypercore.Feed, descriptor: FeedDescriptor) => void;
 
+  // External event listener.
+  // TODO(burdon): Wrap with subscribe.
   readonly update = new Event<Party>();
 
   /**
@@ -50,6 +52,9 @@ export class PartyManager {
     this._modelFactory = modelFactory;
     this._options = options || {};
 
+    // TODO(burdon): Iterate descriptors and pre-create Party objects.
+
+    // Listen for feed construction.
     this._onFeed = async (feed: hypercore.Feed, descriptor: FeedDescriptor) => {
       // NOTE: Party creation (below) creates a new feed which immediately triggers this event.
       // We need to defer execution of the event processing until the Party object has been
@@ -81,9 +86,6 @@ export class PartyManager {
    * Creates a new party.
    */
   async createParty (): Promise<Party> {
-    // TODO(burdon): Assert doesn't exist.
-
-    // Create party key.
     const { publicKey: partyKey } = createKeyPair();
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
     const party = await this._constructParty(partyKey);
@@ -111,19 +113,20 @@ export class PartyManager {
   }
 
   /**
-   * Constructs a new party object.
+   * Constructs and registers a party object.
    *
    * @param partyKey
    */
   async _constructParty (partyKey: PartyKey): Promise<Party> {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
+    //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
+    //   In this case create pipeline in read-only mode.
     const descriptor = this._feedStore.getDescriptors().find(descriptor => descriptor.path === keyToString(partyKey));
     assert(descriptor, `Feed not found for party: ${keyToString(partyKey)}`);
     const feed = descriptor.feed;
 
-    const partyProcessor = new TestPartyProcessor(partyKey, feed.key);
-
     // Create pipeline.
+    const partyProcessor = new TestPartyProcessor(partyKey, feed.key);
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
