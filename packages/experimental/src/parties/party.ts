@@ -78,10 +78,22 @@ export class Party {
     this._itemManager = undefined;
     this._itemDemuxer = undefined;
 
-    // TODO(burdon): Test closes cleanly (i.e., can re-open).
     await this._pipeline.close();
 
     return this;
+  }
+
+  // TODO(burdon): Construct special Item for party properties.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async setProperty (key: string, value: any): Promise<Party> {
+    assert(this.isOpen);
+    return this;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getProperty (key: string): Promise<any> {
+    assert(this.isOpen);
+    return undefined;
   }
 
   async createItem (itemType: ItemType, modelType: ModelType): Promise<Item> {

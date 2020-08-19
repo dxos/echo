@@ -57,17 +57,25 @@
                 },
                 "PartyAdmit": {
                   "fields": {
-                    "feedKey": {
+                    "partyKey": {
                       "type": "bytes",
                       "id": 1
+                    },
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 2
                     }
                   }
                 },
                 "PartyEject": {
                   "fields": {
-                    "feedKey": {
+                    "partyKey": {
                       "type": "bytes",
                       "id": 1
+                    },
+                    "feedKey": {
+                      "type": "bytes",
+                      "id": 2
                     }
                   }
                 },

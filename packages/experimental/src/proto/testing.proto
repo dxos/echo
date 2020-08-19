@@ -46,12 +46,14 @@ message PartyGenesis {
 
 // Admit to party.
 message PartyAdmit {
-  bytes feedKey = 1;
+  bytes partyKey = 1;
+  bytes feedKey = 2;
 }
 
 // Reject from party.
 message PartyEject {
-  bytes feedKey = 1;
+  bytes partyKey = 1;
+  bytes feedKey = 2;
 }
 
 //

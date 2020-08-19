@@ -308,6 +308,9 @@ export namespace dxos {
             /** Properties of a PartyAdmit. */
             interface IPartyAdmit {
 
+                /** PartyAdmit partyKey */
+                partyKey?: (Uint8Array|null);
+
                 /** PartyAdmit feedKey */
                 feedKey?: (Uint8Array|null);
             }
@@ -320,6 +323,9 @@ export namespace dxos {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: dxos.echo.testing.IPartyAdmit);
+
+                /** PartyAdmit partyKey. */
+                public partyKey: Uint8Array;
 
                 /** PartyAdmit feedKey. */
                 public feedKey: Uint8Array;
@@ -398,6 +404,9 @@ export namespace dxos {
             /** Properties of a PartyEject. */
             interface IPartyEject {
 
+                /** PartyEject partyKey */
+                partyKey?: (Uint8Array|null);
+
                 /** PartyEject feedKey */
                 feedKey?: (Uint8Array|null);
             }
@@ -410,6 +419,9 @@ export namespace dxos {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: dxos.echo.testing.IPartyEject);
+
+                /** PartyEject partyKey. */
+                public partyKey: Uint8Array;
 
                 /** PartyEject feedKey. */
                 public feedKey: Uint8Array;
