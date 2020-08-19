@@ -104,19 +104,7 @@ export class ItemManager {
     }
 
     //
-    // Convert outbound mutations.
-    //
-    const outboundTransform = createTransform<any, dxos.echo.testing.IEchoEnvelope>(async (message) => {
-      const response: dxos.echo.testing.IEchoEnvelope = {
-        itemId,
-        itemMutation: message
-      };
-
-      return response;
-    });
-
-    //
-    // Convert inbound mutations.
+    // Convert inbound mutation (to model).
     //
     const inboundTransform = createTransform<IEchoStream, ModelMessage<any>>(async (message: IEchoStream) => {
       const { meta, data: { itemId: mutationItemId, itemMutation } } = message;
@@ -124,6 +112,18 @@ export class ItemManager {
       const response: ModelMessage<any> = {
         meta,
         mutation: itemMutation
+      };
+
+      return response;
+    });
+
+    //
+    // Convert outbound mutation (from model).
+    //
+    const outboundTransform = createTransform<any, dxos.echo.testing.IEchoEnvelope>(async (message) => {
+      const response: dxos.echo.testing.IEchoEnvelope = {
+        itemId,
+        itemMutation: message
       };
 
       return response;
@@ -137,7 +137,7 @@ export class ItemManager {
     // TODO(burdon): Do these unpipe automatically when the streams are closed/destroyed?
     outboundTransform.pipe(this._writeStream);
 
-    // TODO(burdon): Which model?
+    // TODO(burdon): Dispatch or data model?
     readable.pipe(inboundTransform).pipe(model.processor);
 
     // Create item.

@@ -67,9 +67,11 @@ message EchoEnvelope {
 
   oneof action {
     ItemGenesis genesis = 10;
+
+    // TODO(burdon): Rename properties model (and replace with ObjectModel).
     ItemMutation itemMutation = 11;
 
-    // TODO(burdon): System/user model.
+    // TODO(burdon): Dispatch to data model.
 //  google.protobuf.Any dataMutation = 12;
   }
 }
