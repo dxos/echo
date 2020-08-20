@@ -1,7 +1,7 @@
 {
-  "name": "@dxos/echo-experimental",
+  "name": "@dxos/object-model",
   "version": "1.0.0-beta.28",
-  "description": "ECHO database monorepo.",
+  "description": "ECHO object model.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo-db#readme",
   "bugs": {
     "url": "https://github.com/dxos/echo/issues"
@@ -13,14 +13,14 @@
   "license": "GPL-3.0",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "npm run clean && npm run build:protobuf && npm run build:ts",
     "build:ts": "tsc",
     "build:protobuf": "mkdir -p src/proto/gen && npm run build:protobuf:json && npm run build:protobuf:js && npm run build:protobuf:ts",
-    "build:protobuf:json": "pbjs -t json src/proto/testing.proto -o ./src/proto/gen/testing.json",
-    "build:protobuf:js": "pbjs -t static-module -w commonjs src/proto/testing.proto -o ./src/proto/gen/testing.js",
-    "build:protobuf:ts": "pbts src/proto/gen/testing.js -o ./src/proto/gen/testing.d.ts",
+    "build:protobuf:json": "pbjs -t json src/proto/object.proto -o ./src/proto/gen/object.json",
+    "build:protobuf:js": "pbjs -t static-module -w commonjs src/proto/object.proto -o ./src/proto/gen/object.js",
+    "build:protobuf:ts": "pbts src/proto/gen/object.js -o ./src/proto/gen/object.d.ts",
     "clean": "del-cli dist",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --verbose src",
@@ -53,11 +53,8 @@
     "hypercore": "^7.7.1",
     "js-data-structs": "^1.1.2",
     "lodash.merge": "^4.6.2",
-    "pify": "^5.0.0",
     "protobufjs": "^6.9.0",
-    "random-access-memory": "^3.1.1",
-    "source-map-support": "^0.5.12",
-    "stream-buffers": "^3.0.2"
+    "source-map-support": "^0.5.12"
   },
   "devDependencies": {
     "@types/jest": "^25.2.3",
@@ -66,7 +63,7 @@
     "eslint-plugin-jest": "^23.13.1",
     "jest": "^26.2.2",
     "semistandard": "14.2.0",
-    "tempy": "^0.6.0",
+    "stream-buffers": "^3.0.2",
     "ts-jest": "^26.1.4",
     "typescript": "^3.9.3",
     "wait-for-expect": "^3.0.2"
