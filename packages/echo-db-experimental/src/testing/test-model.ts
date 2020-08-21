@@ -48,14 +48,14 @@ export class TestModel extends Model<dxos.echo.testing.IItemMutation> {
     }, 'dxos.echo.testing.ItemMutation'));
   }
 
-  async processMessage (meta: IFeedMeta, mutation: dxos.echo.testing.IItemMutation) {
-    if (mutation.set) {
-      const { set: { key, value } } = mutation;
+  async processMessage (meta: IFeedMeta, message: dxos.echo.testing.IItemMutation) {
+    if (message.set) {
+      const { set: { key, value } } = message;
       this._values.set(key, value);
     }
 
-    if (mutation.append) {
-      const { append: { key, value } } = mutation;
+    if (message.append) {
+      const { append: { key, value } } = message;
       const current = this._values.get(key) || '';
       this._values.set(key, current + ':' + value);
     }

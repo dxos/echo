@@ -160,9 +160,9 @@ export class MutationUtil {
   }
 
   static applyMutation (object: any, mutation: dxos.echo.ObjectMutation.IMutation) {
-    const { operation = 0, key, value } = mutation;
+    const { operation = dxos.echo.ObjectMutation.Operation.SET, key, value } = mutation;
     switch (operation) {
-      case 0: {
+      case dxos.echo.ObjectMutation.Operation.SET: {
         ValueUtil.applyValue(object, key!, value!);
         break;
       }

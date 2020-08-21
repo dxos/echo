@@ -6,7 +6,7 @@ import { dxos } from '../proto/gen/testing';
 
 import { IFeedMeta } from '../feeds';
 
-export type ItemID = string;
+export type ItemID = string; // TODO(burdon): Change to Buffer.
 export type ItemType = string;
 
 // TODO(burdon): Move to feed/types.

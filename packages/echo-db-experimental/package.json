@@ -1,8 +1,8 @@
 {
-  "name": "@dxos/echo-experimental",
+  "name": "@dxos/echo-db-experimental",
   "version": "1.0.0-beta.28",
   "description": "ECHO database monorepo.",
-  "homepage": "https://github.com/dxos/echo/tree/master/packages/echo-db#readme",
+  "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
     "url": "https://github.com/dxos/echo/issues"
   },

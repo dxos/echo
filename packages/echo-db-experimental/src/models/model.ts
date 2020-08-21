@@ -70,7 +70,10 @@ export abstract class Model<T> {
    * @param mutation
    */
   protected async write (mutation: T): Promise<void> {
-    assert(this._writable, 'Read-only model.');
+    if (!this._writable) {
+      throw new Error(`Read-only model: ${this._itemId}`);
+    }
+
     await pify(this._writable.write.bind(this._writable))(mutation);
   }
 
@@ -86,7 +89,7 @@ export abstract class Model<T> {
    * Process the message.
    * @abstract
    * @param {Object} meta
-   * @param {Object} mutation
+   * @param {Object} message
    */
-  async abstract processMessage (meta: IFeedMeta, mutation: T): Promise<void>;
+  async abstract processMessage (meta: IFeedMeta, message: T): Promise<void>;
 }
