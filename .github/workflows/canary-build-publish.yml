@@ -31,3 +31,4 @@ jobs:
           yarn lerna publish -y prerelease --dist-tag="canary" --force-publish --no-verify-access
         env:
           NODE_AUTH_TOKEN: ${{secrets.dxos_npm_token}}
+
