@@ -27,6 +27,7 @@ jobs:
           yarn lint
           yarn build
           yarn test
-          yarn lerna publish -y prerelease --dist-tag="canary" --force-publish
+# Added --no-verify-access below as workaround for apparent security bug in lerna https://github.com/lerna/lerna/issues/1685
+          yarn lerna publish -y prerelease --dist-tag="canary" --force-publish --no-verify-access
         env:
           NODE_AUTH_TOKEN: ${{secrets.dxos_npm_token}}
