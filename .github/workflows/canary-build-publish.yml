@@ -22,6 +22,7 @@ jobs:
         run: |
           git config --global user.email "npm@dxos.network"
           git config --global user.name "DXOS"
+          npm config set scripts-prepend-node-path auto
           yarn
           yarn lint
           yarn build
