@@ -1,0 +1,25 @@
+//
+// Copyright 2020 DXOS.org
+//
+
+syntax = "proto3";
+
+package dxos;
+
+import "google/protobuf/any.proto";
+
+import "halo.proto";
+import "echo.proto";
+import "testing.proto";
+
+//
+// Typescript Note:
+// Use the interface name in code (e.g., IFeedEvenlope) and the concrete class name in the __type_url reference.
+//
+
+// Outer message type decoded by Codec.
+// NOTE: Hypercore returns a field called `data`, which corresponds to this envelope (not the contained message).
+message FeedMessage {
+  dxos.halo.HaloEnvelope halo = 1;
+  dxos.echo.EchoEnvelope echo = 2;
+}

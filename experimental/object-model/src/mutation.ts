@@ -5,7 +5,8 @@
 /* eslint-disable no-unused-vars */
 
 import assert from 'assert';
-import { dxos } from './proto/gen/echo';
+
+import { dxos } from './proto';
 
 /**
  * @typedef {Object} Value
@@ -154,16 +155,15 @@ export class ValueUtil {
  */
 export class MutationUtil {
   static applyMutations (object: any, messages: dxos.echo.ObjectMutation.IMutation[]) {
-    console.log(':::::::::::', object, messages);
-
+    assert(messages);
     messages.forEach(message => MutationUtil.applyMutation(object, message));
     return object;
   }
 
   static applyMutation (object: any, mutation: dxos.echo.ObjectMutation.IMutation) {
-    const { operation = 0, key, value } = mutation;
+    const { operation = dxos.echo.ObjectMutation.Operation.SET, key, value } = mutation;
     switch (operation) {
-      case 0: {
+      case dxos.echo.ObjectMutation.Operation.SET: {
         ValueUtil.applyValue(object, key!, value!);
         break;
       }
