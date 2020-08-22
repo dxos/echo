@@ -3,9 +3,8 @@
 //
 
 import { createKeyPair, createId } from '@dxos/crypto';
+import { dxos } from '@dxos/experimental-echo-protocol';
 import { createTransform, latch } from '@dxos/experimental-util';
-
-import { dxos } from '../proto/gen/testing';
 
 import { ModelMessage } from '../types';
 import { TestModel } from './test-model';
@@ -25,28 +24,8 @@ describe('test model', () => {
     // Set mutation
     const { publicKey: feedKey } = createKeyPair();
 
-    model.processMessage({
-      feedKey,
-      seq: 1
-    }, {
-      set: {
-        key: 'title',
-        value: 'DXOS'
-      }
-    });
+    model.processMessage({ feedKey, seq: 1 }, { key: 'title', value: 'DXOS' });
     expect(model.getProperty('title')).toBe('DXOS');
-    expect(model.keys).toHaveLength(1);
-
-    model.processMessage({
-      feedKey,
-      seq: 1
-    }, {
-      append: {
-        key: 'title',
-        value: '0.0.1'
-      }
-    });
-    expect(model.getProperty('title')).toBe('DXOS:0.0.1');
     expect(model.keys).toHaveLength(1);
   });
 

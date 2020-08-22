@@ -14,9 +14,10 @@ export function jsonReplacer (this: any, key: string, value: any): any {
     return `[${humanize(key)}]:[${keyToString(key)}]`;
   }
 
-  if (Array.isArray(value)) {
-    return value.length;
-  } else {
-    return value;
-  }
+  // TODO(burdon): Option.
+  // if (Array.isArray(value)) {
+  //   return value.length;
+  // } else {
+  return value;
+  // }
 }

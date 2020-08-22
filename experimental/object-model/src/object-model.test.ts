@@ -6,9 +6,8 @@ import debug from 'debug';
 
 import { expectToThrow } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
+import { dxos } from '@dxos/experimental-echo-protocol';
 import { WritableArray } from '@dxos/experimental-util';
-
-import { dxos } from './proto';
 
 import { ObjectModel } from './object-model';
 import { ValueUtil } from './mutation';

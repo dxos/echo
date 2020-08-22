@@ -6,9 +6,10 @@ import assert from 'assert';
 
 import { Event } from '@dxos/async';
 import { FeedStore } from '@dxos/feed-store';
+import { PartyKey } from '@dxos/experimental-echo-protocol';
+import { ModelFactory } from '@dxos/experimental-model-factory';
 
-import { ModelFactory } from '../../model-factory/src';
-import { Party, PartyFilter, PartyKey, PartyManager } from './parties';
+import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
 
 export interface Options {

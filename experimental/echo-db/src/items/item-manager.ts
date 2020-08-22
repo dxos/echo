@@ -8,14 +8,12 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
+import { dxos, ItemID, ItemType, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/experimental-model-factory';
+import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
-import { dxos } from '../../../echo-protocol/src/proto/gen/testing';
-
-import { ModelType, ModelFactory, Model, ModelMessage } from '../../../model-factory/src';
-import { Item } from './item';
-import { IEchoStream, ItemID, ItemType } from './types';
 import { ResultSet } from '../result';
-import { createTransform } from '../../../util/src';
+import { Item } from './item';
 
 const log = debug('dxos:echo:item-manager');
 
@@ -107,11 +105,13 @@ export class ItemManager {
     // Convert inbound mutation (to model).
     //
     const inboundTransform = createTransform<IEchoStream, ModelMessage<any>>(async (message: IEchoStream) => {
-      const { meta, data: { itemId: mutationItemId, itemMutation } } = message;
+      console.log('>>>>>', JSON.stringify(message, jsonReplacer, 2));
+
+      const { meta, data: { itemId: mutationItemId, objectMutation } } = message;
       assert(mutationItemId === itemId);
       const response: ModelMessage<any> = {
         meta,
-        mutation: itemMutation
+        mutation: objectMutation
       };
 
       return response;
@@ -123,8 +123,10 @@ export class ItemManager {
     const outboundTransform = createTransform<any, dxos.echo.IEchoEnvelope>(async (message) => {
       const response: dxos.echo.IEchoEnvelope = {
         itemId,
-        itemMutation: message
+        objectMutation: message
       };
+
+      console.log('<<<<<', JSON.stringify(message, undefined, 2));
 
       return response;
     });
@@ -134,10 +136,7 @@ export class ItemManager {
     assert(model, `Invalid model: ${modelType}`);
 
     // Connect streams.
-    // TODO(burdon): Do these unpipe automatically when the streams are closed/destroyed?
     outboundTransform.pipe(this._writeStream);
-
-    // TODO(burdon): Dispatch or data model?
     readable.pipe(inboundTransform).pipe(model.processor);
 
     // Create item.

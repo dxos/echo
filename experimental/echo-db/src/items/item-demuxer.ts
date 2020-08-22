@@ -6,12 +6,10 @@ import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
 
-import { dxos } from '../../../echo-protocol/src/proto/gen/testing';
+import { dxos, IEchoStream, ItemID } from '@dxos/experimental-echo-protocol';
+import { createReadable, createWritable, jsonReplacer } from '@dxos/experimental-util';
 
-import { createReadable, createWritable } from '../../../util/src';
-import { IEchoStream, ItemID } from './types';
 import { ItemManager } from './item-manager';
-import { jsonReplacer } from '../../../echo-protocol/src/proto';
 
 const log = debug('dxos:echo:item-demuxer');
 

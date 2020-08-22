@@ -10,29 +10,27 @@ import { PassThrough, Readable, Transform, Writable } from 'stream';
 // https://nodejs.org/api/stream.html
 //
 
+import { any } from '@dxos/codec-protobuf';
+
+// TODO(burdon): Move to @dxos/codec.
+// TODO(burdon): The parent should call this (not the message creator).
+export function createAny<T> (data: T, typeUrl: string) {
+  return any(typeUrl, data);
+}
+
 /**
  * Returns a stream that appends messages directly to a hypercore feed.
  * @param feed
  * @returns {NodeJS.WritableStream}
  */
 // TODO(burdon): Move to @dxos/codec.
-export const createWritableFeedStream = (feed: Feed) => new Writable({
-  objectMode: true,
-  write (message, _, callback) {
-    feed.append(message, callback);
-  }
-});
-
-/**
- * Creates a statically checked message, with optional ANY type.
- * @param data
- * @param typeUrl
- */
-// TODO(burdon): Move to @dxos/codec.
-export function createMessage<T> (data: T, typeUrl?: string): T {
-  return typeUrl ? Object.assign({
-    __type_url: typeUrl
-  }, data) : data;
+export function createWritableFeedStream (feed: Feed) {
+  return new Writable({
+    objectMode: true,
+    write (message, _, callback) {
+      feed.append(message, callback);
+    }
+  });
 }
 
 /**

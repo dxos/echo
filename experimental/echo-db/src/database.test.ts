@@ -7,14 +7,13 @@ import ram from 'random-access-memory';
 
 import { humanize } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
+import { codec } from '@dxos/experimental-echo-protocol';
+import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
+import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-util';
 
 import { Database } from './database';
 import { Party } from './parties';
-import { TestModel } from './testing';
-import { ModelFactory } from '../../model-factory/src';
-import { codec, jsonReplacer } from '../../echo-protocol/src/proto';
-import { createLoggingTransform, latch } from '../../util/src';
 
 const log = debug('dxos:echo:database:test');
 debug.enable('dxos:echo:*');
@@ -23,8 +22,7 @@ describe('api tests', () => {
   test('create party and items.', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const modelFactory = new ModelFactory()
-      .registerModel(ObjectModel.type, ObjectModel)
-      .registerModel(TestModel.type, TestModel);
+      .registerModel(ObjectModel.type, ObjectModel);
 
     const options = {
       readLogger: createLoggingTransform((message: any) => { log('>>>', JSON.stringify(message, jsonReplacer, 2)); }),
@@ -65,9 +63,9 @@ describe('api tests', () => {
     await party.setProperty('title', 'DXOS');
 
     // TODO(burdon): Test item mutations.
-    // await party.createItem('wrn://dxos.org/item/document', TestModel.type);
-    // await party.createItem('wrn://dxos.org/item/document', TestModel.type);
-    // await party.createItem('wrn://dxos.org/item/kanban', TestModel.type);
+    // await party.createItem('wrn://dxos.org/item/document');
+    // await party.createItem('wrn://dxos.org/item/document');
+    // await party.createItem('wrn://dxos.org/item/kanban');
 
     await updated;
     unsubscribe();

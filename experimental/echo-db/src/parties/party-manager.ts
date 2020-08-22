@@ -10,15 +10,14 @@ import pify from 'pify';
 import { Event } from '@dxos/async';
 import { createKeyPair, keyToString } from '@dxos/crypto';
 import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
-import { ObjectModel } from '@dxos/experimental-object-model'; // TODO(burdon): Cycle.
+import { createOrderedFeedStream, createPartyGenesis, PartyKey } from '@dxos/experimental-echo-protocol';
+import { ModelFactory } from '@dxos/experimental-model-factory';
+import { ObjectModel } from '@dxos/experimental-object-model';
+import { createWritableFeedStream } from '@dxos/experimental-util';
 
 import { Options } from '../database';
-import { createOrderedFeedStream, createWritableFeedStream } from '../../../echo-protocol/src/feeds';
-import { ModelFactory } from '../../../model-factory/src';
-import { createPartyGenesis } from '../testing';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
-import { PartyKey } from './types';
 import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:party-manager');

@@ -6,15 +6,14 @@ import assert from 'assert';
 
 import { humanize } from '@dxos/crypto';
 import { ObjectModel } from '@dxos/experimental-object-model';
+import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
+import { ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 
-import { createItemDemuxer, Item, ItemFilter, ItemManager, ItemType } from '../items';
+import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
-import { Model, ModelFactory, ModelType } from '../../../model-factory/src';
 import { Pipeline } from './pipeline';
-import { PartyKey } from './types';
 
-// TODO(burdon): Namespace?
-export const PARTY_ITEM_TYPE = '__PARTY_PROPERTIES__';
+export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
 /**
  * Party.
@@ -99,7 +98,7 @@ export class Party {
   }
 
   // TODO(burdon): Block until model updated?
-  async createItem (itemType: ItemType, modelType: ModelType): Promise<Item<any>> {
+  async createItem (itemType: ItemType, modelType: ModelType = ObjectModel.type): Promise<Item<any>> {
     assert(this._itemManager);
     return this._itemManager.createItem(itemType, modelType);
   }
@@ -109,8 +108,6 @@ export class Party {
     return this._itemManager.queryItems(filter);
   }
 
-  // TODO(burdon): ???
-  // @ts-ignore
   async _getPropertiestItem (): Promise<Item<ObjectModel>> {
     assert(this.isOpen);
     assert(this._itemManager);

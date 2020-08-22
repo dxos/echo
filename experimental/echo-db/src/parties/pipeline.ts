@@ -7,11 +7,9 @@ import debug from 'debug';
 import merge from 'lodash/merge';
 import { pipeline, Readable, Writable } from 'stream';
 
-import { dxos } from '@dxos/experimental-echo-protocol';
+import { dxos, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
-import { createFeedMeta, FeedBlock } from '../../../echo-protocol/src/feeds';
-import { IEchoStream } from '../items';
 import { PartyProcessor } from './party-processor';
 
 interface Options {

@@ -5,11 +5,10 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { FeedKey, FeedSelector, FeedBlock, MessageSelector } from '../../../echo-protocol/src/feeds';
-import { IHaloStream } from '../items';
-import { FeedKeyMapper, Spacetime } from '../../../echo-protocol/src/spacetime';
-import { PartyKey } from './types';
-import { jsonReplacer } from '../../../echo-protocol/src/proto';
+import {
+  FeedKey, FeedSelector, FeedBlock, FeedKeyMapper, IHaloStream, PartyKey, Spacetime, MessageSelector
+} from '@dxos/experimental-echo-protocol';
+import { jsonReplacer } from '@dxos/experimental-util';
 
 const log = debug('dxos:echo:party-processor');
 

@@ -14,7 +14,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { createWritable, latch } from '@dxos/experimental-util';
 
 import { FeedKeyMapper, Spacetime } from '../spacetime';
-import { dxos, codec, createTestItemMutation } from '../proto';
+import { codec, createTestItemMutation } from '../proto';
 import { FeedBlock } from '../types';
 import { createOrderedFeedStream } from './feed-store-iterator';
 
@@ -27,7 +27,7 @@ describe('feed store iterator', () => {
   test('test message order', async () => {
     const config = {
       numFeeds: 5,
-      numMessages: 50
+      numMessages: 100
     };
 
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
@@ -117,13 +117,12 @@ describe('feed store iterator', () => {
     let j = 0;
     const [counter, updateCounter] = latch(config.numMessages);
     const writeStream = createWritable<FeedBlock>(async message => {
-      assert(message.data?.echo?.objectMutation?.value);
+      assert(message.data?.echo?.customMutation);
 
-      const { key: feedKey, seq, data: { echo: { itemId, timeframe, customMutation } } } = message;
+      const { key: feedKey, seq, data: { echo: { itemId, timeframe, customMutation: { value } } } } = message;
       assert(itemId);
       assert(timeframe);
-      assert(customMutation);
-      const { i, word } = JSON.parse(String(customMutation as dxos.echo.testing.ITestItemMutation));
+      const { i, word } = JSON.parse(value as any as string);
       log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
 
       // Check order.

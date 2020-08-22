@@ -36,12 +36,8 @@ describe('Stream tests', () => {
       const feed = await feedStore.openFeed('test-feed');
       feedKey = feed.key;
 
-      await pify(feed.append.bind(feed))({
-        payload: {
-          __type_url: 'dxos.echo.TestItemMutation',
-          value: createId()
-        }
-      });
+      const itemId = createId();
+      await pify(feed.append.bind(feed))(createTestItemMutation(itemId, 'value', 'test'));
 
       await feedStore.close();
     }
@@ -108,13 +104,13 @@ describe('Stream tests', () => {
     const descriptors = feedStore.getDescriptors();
     expect(descriptors).toHaveLength(config.numFeeds);
 
-    // Create messages.
+    // Create messages randonly for different feeds.
     const count = new Map();
-    const itemId = createId();
     for (let i = 0; i < config.numBlocks; i++) {
       // Randomly create items.
       const { path, feed } = chance.pickone(descriptors);
       count.set(path, (count.get(path) ?? 0) + 1);
+      const itemId = createId();
       await feed.append(createTestItemMutation(itemId, 'value', String(i)));
     }
 

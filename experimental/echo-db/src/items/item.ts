@@ -4,8 +4,8 @@
 
 import assert from 'assert';
 
-import { Model } from '../../../model-factory/src';
-import { ItemID, ItemType } from './types';
+import { ItemID, ItemType } from '@dxos/experimental-echo-protocol';
+import { Model } from '@dxos/experimental-model-factory';
 
 /**
  * Atomic data item.

@@ -6,7 +6,7 @@
 
 import assert from 'assert';
 
-import { dxos } from './proto';
+import { dxos } from '@dxos/experimental-echo-protocol';
 
 /**
  * @typedef {Object} Value
@@ -129,9 +129,9 @@ export class ValueUtil {
 
     // Apply object properties.
     if (value[Type.OBJECT]) {
-      const { properties } = value[Type.OBJECT]!;
       const nestedObject = {};
-      (properties ?? []).forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key!, value!));
+      const { properties }: { properties: dxos.echo.KeyValue[] } = value[Type.OBJECT]!;
+      properties.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key!, value!));
       object[key] = nestedObject;
       return object;
     }

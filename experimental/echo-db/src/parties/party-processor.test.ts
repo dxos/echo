@@ -6,9 +6,8 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { createKeyPair } from '@dxos/crypto';
+import { createPartyGenesis, IHaloStream } from '@dxos/experimental-echo-protocol';
 
-import { IHaloStream } from '../items';
-import { createPartyGenesis } from '../testing';
 import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:party-processor:test');

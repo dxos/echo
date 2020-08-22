@@ -4,8 +4,8 @@
 
 import { Codec } from '@dxos/codec-protobuf';
 
-import EchoSchema from './gen/dxos.json';
+import Schema from './gen/dxos.json';
 
-export const codec = new Codec('dxos.echo.FeedMessage')
-  .addJson(EchoSchema)
+export const codec = new Codec('dxos.FeedMessage')
+  .addJson(Schema)
   .build();

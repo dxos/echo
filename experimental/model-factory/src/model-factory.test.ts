@@ -3,9 +3,8 @@
 //
 
 import { createId, createKeyPair } from '@dxos/crypto';
-import { createMessage, createTransform, latch } from '@dxos/experimental-util';
-
-import { dxos } from './proto/gen/testing';
+import { createAny, createTransform, latch } from '@dxos/experimental-util';
+import { dxos } from '@dxos/experimental-echo-protocol';
 
 import { TestModel } from './testing';
 import { ModelFactory } from './model-factory';
@@ -53,11 +52,9 @@ describe('model factory', () => {
     // Update model.
     await model.setProperty('title', 'Hello');
     expect(objects).toHaveLength(1);
-    expect(objects[0]).toEqual(createMessage<dxos.echo.testing.ITestItemMutation>({
-      set: {
-        key: 'title',
-        value: 'Hello'
-      }
+    expect(objects[0]).toEqual(createAny<dxos.echo.testing.ITestItemMutation>({
+      key: 'title',
+      value: 'Hello'
     }, 'dxos.echo.testing.TestItemMutation'));
 
     // Expect model has not been updated (mutation has not been processed).

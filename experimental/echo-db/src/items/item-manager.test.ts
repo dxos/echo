@@ -5,9 +5,9 @@
 import ram from 'random-access-memory';
 
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/experimental-model-factory';
+import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { ModelFactory } from '../../../model-factory/src';
-import { createWritableFeedStream } from '../../../echo-protocol/src/feeds';
 import { ItemManager } from './item-manager';
 
 describe('items', () => {

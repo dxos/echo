@@ -4,8 +4,9 @@
 
 import assert from 'assert';
 
-import { IHaloStream } from '../items';
-import { jsonReplacer } from '../../../echo-protocol/src/proto';
+import { IHaloStream } from '@dxos/experimental-echo-protocol';
+import { jsonReplacer } from '@dxos/experimental-util';
+
 import { PartyProcessor } from './party-processor';
 
 /**

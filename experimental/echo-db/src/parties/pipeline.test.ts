@@ -8,12 +8,11 @@ import ram from 'random-access-memory';
 import { createId, createKeyPair } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
-import { createOrderedFeedStream, createWritableFeedStream } from '../../../echo-protocol/src/feeds';
-import { IEchoStream } from '../items';
-import { codec, jsonReplacer } from '../../../echo-protocol/src/proto';
-import { createWritable, latch } from '../../../util/src';
+import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/experimental-util';
+import { codec, createOrderedFeedStream, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { createSetPropertyMutation } from '@dxos/experimental-model-factory';
+
 import { Pipeline } from './pipeline';
-import { createAppendPropertyMutation } from '../testing';
 import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:pipeline:test');
@@ -54,7 +53,7 @@ describe('pipeline', () => {
 
     const itemId = createId();
     for (let i = 0; i < numMessages; i++) {
-      const message = createAppendPropertyMutation(itemId, 'value', String(i));
+      const message = createSetPropertyMutation(itemId, 'value', String(i));
       writeStream.write(message);
     }
 
