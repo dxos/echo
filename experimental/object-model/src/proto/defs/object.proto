@@ -4,9 +4,7 @@
 
 syntax = "proto3";
 
-package dxos.echo;
-
-import "google/protobuf/any.proto";
+package dxos.echo.object;
 
 //
 // Object mutation messages.

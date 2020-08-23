@@ -14,6 +14,12 @@ import { any } from '@dxos/codec-protobuf';
 
 // TODO(burdon): Move to @dxos/codec.
 // TODO(burdon): The parent should call this (not the message creator).
+// TODO(burdon): Create version with short into code (for system types); Make compatable with google any.
+/**
+ * NOTE: The parameterized type `T` should be the generated interface, whereas the `typeUrl` should be the classnae.
+ * @param data
+ * @param typeUrl
+ */
 export function createAny<T> (data: T, typeUrl: string) {
   return any(typeUrl, data);
 }

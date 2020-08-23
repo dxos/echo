@@ -14,7 +14,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { createWritable, latch } from '@dxos/experimental-util';
 
 import { FeedKeyMapper, Spacetime } from '../spacetime';
-import { codec, createTestItemMutation } from '../proto';
+import { codec, dxos, createTestItemMutation } from '../proto';
 import { FeedBlock } from '../types';
 import { createOrderedFeedStream } from './feed-store-iterator';
 
@@ -104,7 +104,7 @@ describe('feed store iterator', () => {
       // Create data.
       const word = chance.word();
       const value = { i, word };
-      const message = createTestItemMutation(createId(), 'value', JSON.stringify(value), timeframe);
+      const message = createTestItemMutation(createId(), String(i), word, timeframe);
 
       // Write data.
       await pify(feed.append.bind(feed))(message);
@@ -117,12 +117,14 @@ describe('feed store iterator', () => {
     let j = 0;
     const [counter, updateCounter] = latch(config.numMessages);
     const writeStream = createWritable<FeedBlock>(async message => {
-      assert(message.data?.echo?.customMutation);
+      assert(message.data?.echo?.mutation);
 
-      const { key: feedKey, seq, data: { echo: { itemId, timeframe, customMutation: { value } } } } = message;
+      const { key: feedKey, seq, data: { echo: { itemId, timeframe, mutation } } } = message;
       assert(itemId);
       assert(timeframe);
-      const { i, word } = JSON.parse(value as any as string);
+      assert(mutation);
+      const { key, value: word } = (mutation as dxos.echo.testing.ITestItemMutation);
+      const i = parseInt(key!);
       log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
 
       // Check order.

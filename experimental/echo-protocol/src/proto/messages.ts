@@ -42,7 +42,7 @@ export const createTestItemMutation = (
   echo: {
     itemId,
     timeframe,
-    customMutation: createAny<dxos.echo.testing.ITestItemMutation>({
+    mutation: createAny<dxos.echo.testing.ITestItemMutation>({
       key,
       value
     }, 'dxos.echo.testing.TestItemMutation')
