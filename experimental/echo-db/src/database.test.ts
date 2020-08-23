@@ -16,7 +16,7 @@ import { Database } from './database';
 import { Party } from './parties';
 
 const log = debug('dxos:echo:database:test');
-debug.enable('dxos:echo:*');
+debug.enable('dxos:*:error,dxos:echo:*');
 
 describe('api tests', () => {
   // TODO(burdon): Separate test to update party properties.
@@ -26,10 +26,11 @@ describe('api tests', () => {
     const modelFactory = new ModelFactory()
       .registerModel(ObjectModel.meta, ObjectModel);
 
-    const options = {
+    const verbose = false;
+    const options = verbose ? {
       readLogger: createLoggingTransform((message: any) => { log('>>>', JSON.stringify(message, jsonReplacer, 2)); }),
       writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
-    };
+    } : undefined;
 
     const db = new Database(feedStore, modelFactory, options);
     await db.open();
@@ -41,6 +42,8 @@ describe('api tests', () => {
     const [updated, onUpdate] = latch();
     const unsubscribe = parties.subscribe(async (parties: Party[]) => {
       log('Updated:', parties.map(party => humanize(party.key)));
+
+      // TODO(burdon): Update currently called after all mutations below have completed?
       expect(parties).toHaveLength(1);
       parties.map(async party => {
         const items = await party.queryItems();
@@ -48,14 +51,15 @@ describe('api tests', () => {
           log('Item:', String(item));
         });
 
-        // const result = await party.queryItems({ type: 'wrn://dxos.org/item/document' });
-        // expect(result.value).toHaveLength(2);
+        // TODO(burdon): Check item mutations.
+        const result = await party.queryItems({ type: 'wrn://dxos.org/item/document' });
+        expect(result.value).toHaveLength(2);
 
         const value = await party.getProperty('title');
         expect(value).toBe('DXOS');
-      });
 
-      onUpdate();
+        onUpdate();
+      });
     });
 
     const party = await db.createParty();
@@ -65,9 +69,9 @@ describe('api tests', () => {
     await party.setProperty('title', 'DXOS');
 
     // TODO(burdon): Test item mutations.
-    // await party.createItem('wrn://dxos.org/item/document');
-    // await party.createItem('wrn://dxos.org/item/document');
-    // await party.createItem('wrn://dxos.org/item/kanban');
+    await party.createItem('wrn://dxos.org/item/document');
+    await party.createItem('wrn://dxos.org/item/document');
+    await party.createItem('wrn://dxos.org/item/kanban');
 
     await updated;
     unsubscribe();

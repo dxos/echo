@@ -2,15 +2,18 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
 import { Feed } from 'hypercore';
 import { PassThrough, Readable, Transform, Writable } from 'stream';
+
+import { any } from '@dxos/codec-protobuf';
+
+const error = debug('dxos:stream:error');
 
 //
 // Stream utils.
 // https://nodejs.org/api/stream.html
 //
-
-import { any } from '@dxos/codec-protobuf';
 
 // TODO(burdon): Move to @dxos/codec.
 // TODO(burdon): The parent should call this (not the message creator).
@@ -61,6 +64,7 @@ export function createWritable<T> (callback: (message: T) => Promise<void>): Nod
         await callback(message);
         next();
       } catch (err) {
+        error(err);
         next(err);
       }
     }
@@ -81,15 +85,17 @@ export function createPassThrough<T> (): PassThrough {
 
 /**
  * Creates a transform object stream.
- * @param [callback] Callback or null to pass-through.
+ * @param callback
  */
-export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined> | undefined): Transform {
+export function createTransform<R, W> (callback: (message: R) => Promise<W | undefined>): Transform {
   return new Transform({
     objectMode: true,
     transform: async (message: R, _, next) => {
       try {
-        next(null, callback ? await callback(message) : message);
+        const response = await callback(message);
+        next(null, response);
       } catch (err) {
+        error(err);
         next(err);
       }
     }

@@ -18,6 +18,7 @@ interface Options {
 }
 
 const log = debug('dxos:echo:pipeline');
+const error = debug('dxos:echo:pipeline:error');
 
 /**
  * Manages the inbound and outbound message pipelines for an individual party.
@@ -133,7 +134,7 @@ export class Pipeline {
       this._readStream
     ].filter(Boolean) as any[], (err) => {
       // TODO(burdon): Handle error.
-      log(err || 'Inbound pipieline closed.');
+      error('Inbound pipieline:', err || 'closed');
     });
 
     //
@@ -158,7 +159,7 @@ export class Pipeline {
         this._feedWriteStream
       ].filter(Boolean) as any[], (err) => {
         // TODO(burdon): Handle error.
-        log(err || 'Outbound pipeline closed.');
+        error('Outbound pipeline:', err || 'closed');
       });
     }
 

@@ -22,7 +22,7 @@ const log = debug('dxos:echo:object-model');
 export class ObjectModel extends Model<_dxos.echo.object.IObjectMutationSet> {
   static meta: ModelMeta = {
     type: 'wrn://dxos.org/model/object',
-    mutation: 'dxos.echo.object.IObjectMutationSet'
+    mutation: 'dxos.echo.object.ObjectMutationSet'
   };
 
   private _object = {};
