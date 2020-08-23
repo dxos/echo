@@ -3,16 +3,19 @@
 //
 
 import { dxos, FeedMeta } from '@dxos/experimental-echo-protocol';
-import { createAny } from '@dxos/experimental-util';
+import { checkType } from '@dxos/experimental-util';
 
 import { Model } from '../model';
-import { ModelType } from '../types';
+import { ModelMeta } from '../types';
 
 /**
  * Test model.
  */
 export class TestModel extends Model<dxos.echo.testing.ITestItemMutation> {
-  static type: ModelType = 'wrn://dxos.org/model/test';
+  static meta: ModelMeta = {
+    type: 'wrn://dxos.org/model/test',
+    mutation: 'dxos.echo.testing.TestItemMutation'
+  };
 
   private _values = new Map();
 
@@ -29,10 +32,10 @@ export class TestModel extends Model<dxos.echo.testing.ITestItemMutation> {
   }
 
   async setProperty (key: string, value: string) {
-    await this.write(createAny<dxos.echo.testing.ITestItemMutation>({
+    await this.write(checkType<dxos.echo.testing.ITestItemMutation>({
       key,
       value
-    }, 'dxos.echo.testing.TestItemMutation'));
+    }));
   }
 
   async _processMessage (meta: FeedMeta, message: dxos.echo.testing.ITestItemMutation) {

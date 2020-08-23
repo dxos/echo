@@ -10,7 +10,7 @@ import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 import { dxos, ItemID, ItemType, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/experimental-model-factory';
-import { createTransform, jsonReplacer } from '@dxos/experimental-util';
+import { createTransform } from '@dxos/experimental-util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
@@ -87,7 +87,7 @@ export class ItemManager {
    * @param itemId
    * @param itemType
    * @param modelType
-   * @param readable Inbound mutation stream.
+   * @param readable - Inbound mutation stream (from multiplexer).
    */
   async constructItem (itemId: ItemID, itemType: ItemType, modelType: ModelType, readable: NodeJS.ReadableStream) {
     assert(this._writeStream);
@@ -102,31 +102,27 @@ export class ItemManager {
     }
 
     //
-    // Convert inbound mutation (to model).
+    // Convert inbound envelope message to model specific mutation.
     //
     const inboundTransform = createTransform<IEchoStream, ModelMessage<any>>(async (message: IEchoStream) => {
-      console.log('>>>>>', JSON.stringify(message, jsonReplacer, 2));
-
-      const { meta, data: { itemId: mutationItemId, objectMutation } } = message;
+      const { meta, data: { itemId: mutationItemId, mutation } } = message;
       assert(mutationItemId === itemId);
       const response: ModelMessage<any> = {
         meta,
-        mutation: objectMutation
+        mutation
       };
 
       return response;
     });
 
     //
-    // Convert outbound mutation (from model).
+    // Convert model-specific outbound mutation to outbound envelope message.
     //
-    const outboundTransform = createTransform<any, dxos.echo.IEchoEnvelope>(async (message) => {
+    const outboundTransform = createTransform<any, dxos.echo.IEchoEnvelope>(async (mutation) => {
       const response: dxos.echo.IEchoEnvelope = {
         itemId,
-        objectMutation: message
+        mutation
       };
-
-      console.log('<<<<<', JSON.stringify(message, undefined, 2));
 
       return response;
     });
@@ -136,8 +132,8 @@ export class ItemManager {
     assert(model, `Invalid model: ${modelType}`);
 
     // Connect streams.
-    outboundTransform.pipe(this._writeStream);
     readable.pipe(inboundTransform).pipe(model.processor);
+    outboundTransform.pipe(this._writeStream);
 
     // Create item.
     const item = new Item(itemId, itemType, model);

@@ -15,8 +15,8 @@ describe('model factory', () => {
     const itemId = createId();
 
     // Create model.
-    const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
-    const model = modelFactory.createModel<TestModel>(TestModel.type, itemId);
+    const modelFactory = new ModelFactory().registerModel(TestModel.meta, TestModel);
+    const model = modelFactory.createModel<TestModel>(TestModel.meta.type, itemId);
     expect(model).toBeTruthy();
   });
 
@@ -30,14 +30,14 @@ describe('model factory', () => {
     const writable = createTransform<
       dxos.echo.testing.ITestItemMutation, ModelMessage<dxos.echo.testing.ITestItemMutation>
       >(
-        async (message: dxos.echo.testing.ITestItemMutation) => {
-          objects.push(message);
+        async (mutation: dxos.echo.testing.ITestItemMutation) => {
+          objects.push(mutation);
           const out: ModelMessage<dxos.echo.testing.ITestItemMutation> = {
             meta: {
               feedKey,
               seq: 1
             },
-            mutation: message
+            mutation
           };
 
           return out;
@@ -45,8 +45,8 @@ describe('model factory', () => {
       );
 
     // Create model.
-    const modelFactory = new ModelFactory().registerModel(TestModel.type, TestModel);
-    const model = modelFactory.createModel<TestModel>(TestModel.type, itemId, writable);
+    const modelFactory = new ModelFactory().registerModel(TestModel.meta, TestModel);
+    const model = modelFactory.createModel<TestModel>(TestModel.meta.type, itemId, writable);
     expect(model).toBeTruthy();
 
     // Update model.

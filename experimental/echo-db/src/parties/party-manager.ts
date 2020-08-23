@@ -104,7 +104,7 @@ export class PartyManager {
 
     // Create special properties item.
     await party.open();
-    await party.createItem(PARTY_ITEM_TYPE, ObjectModel.type);
+    await party.createItem(PARTY_ITEM_TYPE, ObjectModel.meta.type);
 
     return party;
   }

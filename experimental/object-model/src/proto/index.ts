@@ -2,8 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import ObjecctSchema from './gen/object.json';
+import ObjectSchema from './gen/object.json';
 
-export const Schema = ObjecctSchema;
+export const Schema = ObjectSchema;
 
 export { dxos } from './gen/object';

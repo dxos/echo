@@ -7,7 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import { FeedMeta } from '@dxos/experimental-echo-protocol';
-import { ModelType, Model } from '@dxos/experimental-model-factory';
+import { ModelMeta, Model } from '@dxos/experimental-model-factory';
 import { checkType, jsonReplacer } from '@dxos/experimental-util';
 
 import { dxos as _dxos } from './proto/gen/object';
@@ -20,7 +20,10 @@ const log = debug('dxos:echo:object-model');
  * Object mutation model.
  */
 export class ObjectModel extends Model<_dxos.echo.object.IObjectMutationSet> {
-  static type: ModelType = 'wrn://dxos.org/model/object';
+  static meta: ModelMeta = {
+    type: 'wrn://dxos.org/model/object',
+    mutation: 'dxos.echo.object.IObjectMutationSet'
+  };
 
   private _object = {};
 
@@ -46,7 +49,8 @@ export class ObjectModel extends Model<_dxos.echo.object.IObjectMutationSet> {
     await this.write(checkType<_dxos.echo.object.IObjectMutationSet>({
       mutations: [
         {
-          operation: _dxos.echo.object.ObjectMutation.Operation.SET,
+          // TODO(burdon): Namespace conflict when imported into echo-db.
+          operation: 0, // _dxos.echo.object.ObjectMutation.Operation.SET,
           key,
           value: ValueUtil.createMessage(value)
         }

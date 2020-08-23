@@ -162,7 +162,8 @@ export class MutationUtil {
   static applyMutation (object: any, mutation: _dxos.echo.object.IObjectMutation) {
     const { operation = _dxos.echo.object.ObjectMutation.Operation.SET, key, value } = mutation;
     switch (operation) {
-      case _dxos.echo.object.ObjectMutation.Operation.SET: {
+      // TODO(burdon): Namespace conflict when imported into echo-db.
+      case 0: { // _dxos.echo.object.ObjectMutation.Operation.SET: {
         ValueUtil.applyValue(object, key!, value!);
         break;
       }

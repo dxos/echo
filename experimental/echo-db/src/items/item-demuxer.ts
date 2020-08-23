@@ -33,7 +33,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
       const { itemType, modelType } = genesis;
       assert(itemType && modelType);
 
-      // Create mutation stream.
+      // Create inbound stream for item.
       const itemStream = createReadable<dxos.echo.IEchoEnvelope>();
       itemStreams.set(itemId, itemStream);
 

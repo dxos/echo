@@ -4,3 +4,4 @@
 
 export * from './mutation';
 export * from './object-model';
+export * from './proto';

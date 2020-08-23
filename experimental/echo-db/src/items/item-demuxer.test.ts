@@ -21,7 +21,7 @@ describe('item demxuer', () => {
     const { publicKey: feedKey } = createKeyPair();
 
     const modelFactory = new ModelFactory()
-      .registerModel(TestModel.type, TestModel);
+      .registerModel(TestModel.meta, TestModel);
 
     //
     //
@@ -56,7 +56,7 @@ describe('item demxuer', () => {
       itemId,
       genesis: {
         itemType: 'wrn://dxos.org/item/test',
-        modelType: TestModel.type
+        modelType: TestModel.meta.type
       }
     };
     await writable.write(message);

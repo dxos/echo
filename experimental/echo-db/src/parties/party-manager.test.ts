@@ -20,7 +20,7 @@ debug.enable('dxos:echo:*');
 describe('Party manager', () => {
   test('Created locally', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    const modelFactory = new ModelFactory().registerModel(ObjectModel.type, ObjectModel);
+    const modelFactory = new ModelFactory().registerModel(ObjectModel.meta, ObjectModel);
     const partyManager = new PartyManager(feedStore, modelFactory);
     await partyManager.open();
 
@@ -40,7 +40,7 @@ describe('Party manager', () => {
 
   test('Created via sync', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    const modelFactory = new ModelFactory().registerModel(ObjectModel.type, ObjectModel);
+    const modelFactory = new ModelFactory().registerModel(ObjectModel.meta, ObjectModel);
     const partyManager = new PartyManager(feedStore, modelFactory);
     await partyManager.open();
 
@@ -76,7 +76,7 @@ describe('Party manager', () => {
     }
 
     // Open.
-    const modelFactory = new ModelFactory().registerModel(ObjectModel.type, ObjectModel);
+    const modelFactory = new ModelFactory().registerModel(ObjectModel.meta, ObjectModel);
     const partyManager = new PartyManager(feedStore, modelFactory);
     await partyManager.open();
 

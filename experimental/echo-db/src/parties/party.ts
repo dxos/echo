@@ -98,7 +98,7 @@ export class Party {
   }
 
   // TODO(burdon): Block until model updated?
-  async createItem (itemType: ItemType, modelType: ModelType = ObjectModel.type): Promise<Item<any>> {
+  async createItem (itemType: ItemType, modelType: ModelType = ObjectModel.meta.type): Promise<Item<any>> {
     assert(this._itemManager);
     return this._itemManager.createItem(itemType, modelType);
   }

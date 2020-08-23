@@ -7,13 +7,13 @@ import assert from 'assert';
 import { ItemID } from '@dxos/experimental-echo-protocol';
 
 import { Model } from './model';
-import { ModelType, ModelConstructor } from './types';
+import { ModelType, ModelMeta, ModelConstructor } from './types';
 
 /**
  * Creates Model instances from a registered collection of Model types.
  */
 export class ModelFactory {
-  private _models = new Map<ModelType, ModelConstructor<any>>();
+  private _models = new Map<ModelType, { meta: ModelMeta, constructor: ModelConstructor<any> }>();
 
   // TODO(burdon): Require version.
 
@@ -22,22 +22,22 @@ export class ModelFactory {
     return this._models.has(modelType);
   }
 
-  registerModel (modelType: ModelType, modelConstructor: ModelConstructor<any>): ModelFactory {
-    assert(modelType);
-    assert(modelConstructor);
-    this._models.set(modelType, modelConstructor);
+  registerModel (meta: ModelMeta, constructor: ModelConstructor<any>): ModelFactory {
+    assert(meta && meta.type && meta.mutation);
+    assert(constructor);
+    this._models.set(meta.type, { meta, constructor });
     return this;
   }
 
   createModel<T extends Model<any>> (modelType: ModelType, itemId: ItemID, writable?: NodeJS.WritableStream): T {
     assert(itemId);
-
-    const modelConstructor = this._models.get(modelType) as ModelConstructor<T>;
-    if (!modelConstructor) {
+    if (!this._models.has(modelType)) {
       throw new Error(`Invalid model type: ${modelType}`);
     }
 
+    const { meta, constructor } = this._models.get(modelType)!;
+
     // eslint-disable-next-line new-cap
-    return new modelConstructor(itemId, writable);
+    return new constructor(meta, itemId, writable);
   }
 }

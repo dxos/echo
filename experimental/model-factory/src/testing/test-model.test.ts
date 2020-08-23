@@ -12,7 +12,7 @@ import { TestModel } from './test-model';
 describe('test model', () => {
   test('basic mutations', () => {
     const itemId = createId();
-    const model = new TestModel(itemId);
+    const model = new TestModel(TestModel.meta, itemId);
 
     // Model
     expect(model.itemId).toBe(itemId);
@@ -52,7 +52,7 @@ describe('test model', () => {
         });
 
     // Create a writable model.
-    const model = new TestModel(itemId, transform);
+    const model = new TestModel(TestModel.meta, itemId, transform);
 
     // Connect output to input processor.
     transform.pipe(model.processor);

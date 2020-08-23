@@ -7,29 +7,31 @@ import pify from 'pify';
 
 import { Event } from '@dxos/async';
 import { FeedMeta, ItemID } from '@dxos/experimental-echo-protocol';
-import { createWritable } from '@dxos/experimental-util';
+import { createAny, createWritable } from '@dxos/experimental-util';
 
-import { ModelType, ModelMessage } from './types';
+import { ModelMessage, ModelMeta } from './types';
 
 /**
  * Abstract base class for Models.
  * Models define a root message type, which is contained in the partent Item's message envelope.
  */
 export abstract class Model<T> {
-  static type: ModelType;
-
   private readonly _modelUpdate = new Event<Model<T>>();
   private readonly _processor: NodeJS.WritableStream;
 
+  private readonly _meta: ModelMeta;
   private readonly _itemId: ItemID;
   private readonly _writable?: NodeJS.WritableStream;
 
   /**
+   * @param meta
    * @param itemId Parent item.
    * @param writable Output mutation stream (unless read-only).
    */
-  constructor (itemId: ItemID, writable?: NodeJS.WritableStream) {
+  constructor (meta: ModelMeta, itemId: ItemID, writable?: NodeJS.WritableStream) {
+    assert(meta);
     assert(itemId);
+    this._meta = meta;
     this._itemId = itemId;
     this._writable = writable;
 
@@ -73,7 +75,9 @@ export abstract class Model<T> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await pify(this._writable.write.bind(this._writable))(mutation);
+    await pify(this._writable.write.bind(this._writable))(
+      createAny<T>(mutation, this._meta.mutation)
+    );
   }
 
   async processMessage (meta: FeedMeta, message: T): Promise<void> {

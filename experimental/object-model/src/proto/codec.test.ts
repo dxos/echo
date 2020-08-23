@@ -4,7 +4,7 @@
 
 import { createId } from '@dxos/crypto';
 import { Codec } from '@dxos/codec-protobuf';
-import { dxos, Schema as ProtoSchema } from '@dxos/experimental-echo-protocol';
+import { dxos, Schema } from '@dxos/experimental-echo-protocol';
 import { createAny } from '@dxos/experimental-util';
 
 import ObjectSchema from './gen/object.json';
@@ -13,7 +13,7 @@ import ObjectSchema from './gen/object.json';
 import { dxos as _dxos } from './gen/object';
 
 const codec = new Codec('dxos.FeedMessage')
-  .addJson(ProtoSchema)
+  .addJson(Schema)
   .addJson(ObjectSchema)
   .build();
 

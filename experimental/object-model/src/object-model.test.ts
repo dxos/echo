@@ -18,7 +18,7 @@ debug.enable('dxos:echo:*');
 describe('object model', () => {
   test('read-only', async () => {
     const itemId = createId();
-    const model = new ObjectModel(itemId);
+    const model = new ObjectModel(ObjectModel.meta, itemId);
     expect(model.itemId).toBe(itemId);
     expect(model.toObject()).toEqual({});
     log(model.toObject());
@@ -32,7 +32,7 @@ describe('object model', () => {
     const buffer = new WritableArray<_dxos.echo.object.IObjectMutationSet>();
 
     const itemId = createId();
-    const model = new ObjectModel(itemId, buffer);
+    const model = new ObjectModel(ObjectModel.meta, itemId, buffer);
     expect(model.itemId).toBe(itemId);
     expect(model.toObject()).toEqual({});
     log(model.toObject());

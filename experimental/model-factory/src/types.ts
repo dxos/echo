@@ -10,7 +10,14 @@ import { FeedMeta, ItemID } from '@dxos/experimental-echo-protocol';
 
 export type ModelType = string;
 
-export type ModelConstructor<T> = new (itemId: ItemID, writable?: NodeJS.WritableStream) => T;
+export type MessageType = string;
+
+export type ModelMeta = {
+  type: ModelType,
+  mutation: MessageType
+}
+
+export type ModelConstructor<T> = new (meta: ModelMeta, itemId: ItemID, writable?: NodeJS.WritableStream) => T;
 
 export type ModelMessage<T> = {
   meta: FeedMeta,
