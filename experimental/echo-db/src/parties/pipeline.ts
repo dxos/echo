@@ -7,6 +7,7 @@ import debug from 'debug';
 import merge from 'lodash/merge';
 import { pipeline, Readable, Writable } from 'stream';
 
+import { Event } from '@dxos/async';
 import { dxos, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
@@ -21,9 +22,10 @@ const log = debug('dxos:echo:pipeline');
 const error = debug('dxos:echo:pipeline:error');
 
 /**
- * Manages the inbound and outbound message pipelines for an individual party.
+ * Manages the inbound and outbound message streams for an individual party.
  */
 export class Pipeline {
+  private readonly _errors = new Event<Error>();
   private readonly _partyProcessor: PartyProcessor;
   private readonly _feedReadStream: NodeJS.ReadableStream;
   private readonly _feedWriteStream?: NodeJS.WritableStream;
@@ -36,7 +38,7 @@ export class Pipeline {
   private _writeStream: Writable | undefined;
 
   /**
-   * @param partyProcessor - Processes HALO messages to update party state.
+   * @param {PartyProcessor} partyProcessor - Processes HALO messages to update party state.
    * @param feedReadStream - Inbound messages from the feed store.
    * @param [feedWriteStream] - Outbound messages to the writable feed.
    * @param [options]
@@ -73,6 +75,10 @@ export class Pipeline {
 
   get writeStream () {
     return this._writeStream;
+  }
+
+  get errors () {
+    return this._errors;
   }
 
   /**
@@ -135,6 +141,9 @@ export class Pipeline {
     ].filter(Boolean) as any[], (err) => {
       // TODO(burdon): Handle error.
       error('Inbound pipieline:', err || 'closed');
+      if (err) {
+        this._errors.emit(err);
+      }
     });
 
     //
@@ -160,6 +169,9 @@ export class Pipeline {
       ].filter(Boolean) as any[], (err) => {
         // TODO(burdon): Handle error.
         error('Outbound pipeline:', err || 'closed');
+        if (err) {
+          this._errors.emit(err);
+        }
       });
     }
 
@@ -172,7 +184,7 @@ export class Pipeline {
   /**
    * Close all streams.
    */
-  // TODO(burdon): Does destroy automatically close downstream pipelines? Check close/end events.
+  // TODO(burdon): Create test that all streams are closed cleanly.
   async close () {
     if (this._readStream) {
       this._readStream.destroy();

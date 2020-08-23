@@ -90,7 +90,7 @@ export class PartyManager {
   }
 
   /**
-   * Creates a new party.
+   * Creates a new party, writing its genesis block to the stream.
    */
   async createParty (): Promise<Party> {
     const { publicKey: partyKey } = createKeyPair();
@@ -102,8 +102,10 @@ export class PartyManager {
     const message = createPartyGenesis(partyKey, feed.key);
     await pify(feed.append.bind(feed))(message);
 
-    // Create special properties item.
+    // Connect the pipeline.
     await party.open();
+
+    // Create special properties item.
     await party.createItem(PARTY_ITEM_TYPE, ObjectModel.meta.type);
 
     return party;
@@ -111,7 +113,6 @@ export class PartyManager {
 
   /**
    * Gets existing party object or constructs a new one.
-   *
    * @param partyKey
    */
   async _getOrCreateParty (partyKey: PartyKey): Promise<Party> {
@@ -125,7 +126,6 @@ export class PartyManager {
 
   /**
    * Constructs and registers a party object.
-   *
    * @param partyKey
    */
   async _constructParty (partyKey: PartyKey): Promise<Party> {

@@ -16,6 +16,7 @@ const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
 /**
  * Manages current party state (e.g., admitted feeds).
+ * This is a base class that is extended by `HALO`, which manages access control.
  */
 export abstract class PartyProcessor {
   protected readonly _partyKey: PartyKey;

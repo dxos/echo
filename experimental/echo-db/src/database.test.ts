@@ -26,7 +26,7 @@ describe('api tests', () => {
     const modelFactory = new ModelFactory()
       .registerModel(ObjectModel.meta, ObjectModel);
 
-    const verbose = false;
+    const verbose = true;
     const options = verbose ? {
       readLogger: createLoggingTransform((message: any) => { log('>>>', JSON.stringify(message, jsonReplacer, 2)); }),
       writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })

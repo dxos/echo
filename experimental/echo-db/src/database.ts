@@ -18,16 +18,25 @@ export interface Options {
 }
 
 /**
- * Root object for the ECHO databse.
+ * This is the root object for the ECHO database.
+ * It is used to query and mutate the state of all data accessible to the containing node.
+ * Shared datasets are contained within `Parties` which consiste of immutable messages within multiple `Feeds`.
+ * These feeds are replicated across peers in the network and stored in the `FeedStore`.
+ * Parties contain queryable data `Items` which are reconstituted from an ordered stream of mutations by
+ * different `Models`. The `Model` also handles `Item` mutations, which are streamed back to the `FeedStore`.
+ * When opened, `Parties` construct a pair of inbound and outbound pipelines that connects each `Party` specific
+ * `ItemManager` to the `FeedStore`.
+ * Messages are streamed into the pipeline (from the `FeedStore`) in logical order, determined by the
+ * `Spactime` `Timeframe` (which implements a vector clock).
  */
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
   private readonly _partyManager: PartyManager;
 
   /**
-   * @param feedStore
-   * @param modelFactory
-   * @param options
+   * @param {FeedStore} feedStore
+   * @param {ModelFactory} modelFactory
+   * @param {Options} options
    */
   // TODO(burdon): Pass in PartyManager?
   constructor (feedStore: FeedStore, modelFactory: ModelFactory, options?: Options) {
@@ -36,11 +45,16 @@ export class Database {
     this._partyManager = new PartyManager(feedStore, modelFactory, options);
   }
 
-  // TODO(burdon): Chain events from PartyManager.
+  /**
+   * Opens the pary and constructs the inbound/outbound mutation streams.
+   */
   async open () {
     await this._partyManager.open();
   }
 
+  /**
+   * Closes the party and associated streams.
+   */
   async close () {
     await this._partyManager.close();
   }
@@ -61,7 +75,8 @@ export class Database {
   }
 
   /**
-   * @param partyKey
+   * Returns an individual party by it's key.
+   * @param {PartyKey} partyKey
    */
   async getParty (partyKey: PartyKey): Promise<Party | undefined> {
     await this.open();
@@ -70,7 +85,8 @@ export class Database {
   }
 
   /**
-   * @param filter
+   * Queries for a set of Parties matching the optional filter.
+   * @param {PartyFilter} filter
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async queryParties (filter?: PartyFilter): Promise<ResultSet<Party>> {
