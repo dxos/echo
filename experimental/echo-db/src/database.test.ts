@@ -19,8 +19,10 @@ const log = debug('dxos:echo:database:test');
 debug.enable('dxos:echo:*');
 
 describe('api tests', () => {
+  // TODO(burdon): Separate test to update party properties.
   test('create party and items.', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+
     const modelFactory = new ModelFactory()
       .registerModel(ObjectModel.type, ObjectModel);
 

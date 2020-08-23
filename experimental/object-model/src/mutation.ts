@@ -6,7 +6,7 @@
 
 import assert from 'assert';
 
-import { dxos } from '@dxos/experimental-echo-protocol';
+import { dxos as _dxos } from './proto/gen/object';
 
 /**
  * @typedef {Object} Value
@@ -44,7 +44,7 @@ const SCALAR_TYPES = [
  * Represents a named property value.
  */
 export class KeyValueUtil {
-  static createMessage (key: string, value: any): dxos.echo.IKeyValue {
+  static createMessage (key: string, value: any): _dxos.echo.object.IKeyValue {
     assert(key);
 
     return {
@@ -64,7 +64,7 @@ export class ValueUtil {
    * @param {any} value
    * @return {{Value}}
    */
-  static createMessage (value: any): dxos.echo.IValue {
+  static createMessage (value: any): _dxos.echo.object.IValue {
     // NOTE: Process `null` different from `undefined`.
     if (value === null) {
       return { [Type.NULL]: true };
@@ -83,31 +83,31 @@ export class ValueUtil {
     }
   }
 
-  static bytes (value: Uint8Array): dxos.echo.IValue {
+  static bytes (value: Uint8Array): _dxos.echo.object.IValue {
     return { [Type.BYTES]: value };
   }
 
-  static bool (value: boolean): dxos.echo.IValue {
+  static bool (value: boolean): _dxos.echo.object.IValue {
     return { [Type.BOOLEAN]: value };
   }
 
-  static integer (value: number): dxos.echo.IValue {
+  static integer (value: number): _dxos.echo.object.IValue {
     return { [Type.INTEGER]: value };
   }
 
-  static float (value: number): dxos.echo.IValue {
+  static float (value: number): _dxos.echo.object.IValue {
     return { [Type.FLOAT]: value };
   }
 
-  static string (value: string): dxos.echo.IValue {
+  static string (value: string): _dxos.echo.object.IValue {
     return { [Type.STRING]: value };
   }
 
-  static datetime (value: string): dxos.echo.IValue {
+  static datetime (value: string): _dxos.echo.object.IValue {
     return { [Type.DATETIME]: value };
   }
 
-  static object (value: Record<string, any>): dxos.echo.IValue {
+  static object (value: Record<string, any>): _dxos.echo.object.IValue {
     return {
       [Type.OBJECT]: {
         properties: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
@@ -115,7 +115,7 @@ export class ValueUtil {
     };
   }
 
-  static applyValue (object: any, key: string, value: dxos.echo.IValue) {
+  static applyValue (object: any, key: string, value: _dxos.echo.object.IValue) {
     assert(object);
     assert(key);
     assert(value);
@@ -130,7 +130,7 @@ export class ValueUtil {
     // Apply object properties.
     if (value[Type.OBJECT]) {
       const nestedObject = {};
-      const { properties }: { properties: dxos.echo.KeyValue[] } = value[Type.OBJECT]!;
+      const { properties }: { properties: _dxos.echo.object.KeyValue[] } = value[Type.OBJECT]!;
       properties.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key!, value!));
       object[key] = nestedObject;
       return object;
@@ -150,20 +150,19 @@ export class ValueUtil {
 
 /**
  * Represents mutations on objects.
- *
- * { id, objectId, property, value, depends }
  */
 export class MutationUtil {
-  static applyMutations (object: any, messages: dxos.echo.ObjectMutation.IMutation[]) {
-    assert(messages);
-    messages.forEach(message => MutationUtil.applyMutation(object, message));
+  static applyMutationSet (object: any, message: _dxos.echo.object.IObjectMutationSet) {
+    assert(message);
+    const { mutations } = message;
+    mutations?.forEach(mutation => MutationUtil.applyMutation(object, mutation));
     return object;
   }
 
-  static applyMutation (object: any, mutation: dxos.echo.ObjectMutation.IMutation) {
-    const { operation = dxos.echo.ObjectMutation.Operation.SET, key, value } = mutation;
+  static applyMutation (object: any, mutation: _dxos.echo.object.IObjectMutation) {
+    const { operation = _dxos.echo.object.ObjectMutation.Operation.SET, key, value } = mutation;
     switch (operation) {
-      case dxos.echo.ObjectMutation.Operation.SET: {
+      case _dxos.echo.object.ObjectMutation.Operation.SET: {
         ValueUtil.applyValue(object, key!, value!);
         break;
       }
@@ -172,12 +171,6 @@ export class MutationUtil {
       default:
         throw new Error(`Operation not implemented: ${operation}`);
     }
-  }
-
-  static createMessage (objectId: string, { deleted = false }: { deleted?: boolean }): dxos.echo.IObjectMutation {
-    return {
-      objectId,
-      deleted
-    };
+    return object;
   }
 }

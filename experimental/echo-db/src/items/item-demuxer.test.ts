@@ -85,7 +85,7 @@ describe('item demxuer', () => {
 
     //
     // Wait for model mutation to propagate.
-    // TODO(burdon): Should trigger itemManager update also.
+    // TODO(burdon): Should trigger itemManager update?
     //
 
     await updated;

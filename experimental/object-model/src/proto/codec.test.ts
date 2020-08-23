@@ -10,7 +10,7 @@ import { createAny } from '@dxos/experimental-util';
 import ObjectSchema from './gen/object.json';
 
 // NOTE: Cannot merge namespace definitions.
-import { dxos as dxos_ } from './gen/object';
+import { dxos as _dxos } from './gen/object';
 
 const codec = new Codec('dxos.FeedMessage')
   .addJson(ProtoSchema)
@@ -22,8 +22,8 @@ describe('Protobuf', () => {
     const message1: dxos.FeedMessage = {
       echo: {
         itemId: createId(),
-        mutation: createAny<dxos_.echo.object.IObjectMutation>({
-          operation: dxos_.echo.object.ObjectMutation.Operation.SET,
+        mutation: createAny<_dxos.echo.object.IObjectMutation>({
+          operation: _dxos.echo.object.ObjectMutation.Operation.SET,
           key: 'title',
           value: {
             string: 'DXOS'

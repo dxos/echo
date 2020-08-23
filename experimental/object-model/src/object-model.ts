@@ -6,9 +6,11 @@ import debug from 'debug';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
-import { dxos, FeedMeta } from '@dxos/experimental-echo-protocol';
+import { FeedMeta } from '@dxos/experimental-echo-protocol';
 import { ModelType, Model } from '@dxos/experimental-model-factory';
 import { checkType, jsonReplacer } from '@dxos/experimental-util';
+
+import { dxos as _dxos } from './proto/gen/object';
 
 import { MutationUtil, ValueUtil } from './mutation';
 
@@ -17,7 +19,7 @@ const log = debug('dxos:echo:object-model');
 /**
  * Object mutation model.
  */
-export class ObjectModel extends Model<dxos.echo.IObjectMutation> {
+export class ObjectModel extends Model<_dxos.echo.object.IObjectMutationSet> {
   static type: ModelType = 'wrn://dxos.org/model/object';
 
   private _object = {};
@@ -41,10 +43,10 @@ export class ObjectModel extends Model<dxos.echo.IObjectMutation> {
 
   // TODO(burdon): Create builder pattern (replace static methods).
   async setProperty (key: string, value: any) {
-    await this.write(checkType<dxos.echo.ObjectMutation>({
+    await this.write(checkType<_dxos.echo.object.IObjectMutationSet>({
       mutations: [
         {
-          operation: dxos.echo.ObjectMutation.Operation.SET,
+          operation: _dxos.echo.object.ObjectMutation.Operation.SET,
           key,
           value: ValueUtil.createMessage(value)
         }
@@ -52,10 +54,9 @@ export class ObjectModel extends Model<dxos.echo.IObjectMutation> {
     }));
   }
 
-  async _processMessage (meta: FeedMeta, messsage: dxos.echo.IObjectMutation) {
+  async _processMessage (meta: FeedMeta, messsage: _dxos.echo.object.IObjectMutationSet) {
     log('processMessage', JSON.stringify({ meta, messsage }, jsonReplacer));
-    const { mutations } = messsage;
-    MutationUtil.applyMutations(this._object, mutations!);
+    MutationUtil.applyMutationSet(this._object, messsage);
     return true;
   }
 }
