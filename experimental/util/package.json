@@ -65,9 +65,6 @@
     "extends": [
       "plugin:jest/recommended",
       "eslint-config-semistandard"
-    ],
-    "rules": {
-      "babel/semi": 1
-    }
+    ]
   }
 }
