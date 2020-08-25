@@ -13,7 +13,7 @@ import { trigger } from '@dxos/async';
  * @param event
  * @param count
  */
-// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
+// TODO(marik-d): Use version from @dxos/async
 export const sink = (emitter: EventEmitter, event: string, count = 1) => {
   let resolver: Function;
 
@@ -30,7 +30,7 @@ export const sink = (emitter: EventEmitter, event: string, count = 1) => {
   return new Promise(resolve => { resolver = resolve; });
 };
 
-// TODO(burdon): Factor out to @dxos/async. (also remove useValue).
+// TODO(marik-d): Use version from @dxos/async
 export const latch = (n = 1) => {
   assert(n > 0);
 
@@ -50,6 +50,7 @@ export const latch = (n = 1) => {
   ] as const;
 };
 
+// TODO(marik-d): Use version from @dxos/async
 export class Trigger {
   _promise!: Promise<void>;
   _wake!: () => void;
