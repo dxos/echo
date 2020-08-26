@@ -2,14 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import assert from 'assert';
-
 import { Event } from '@dxos/async';
-import { FeedStore } from '@dxos/feed-store';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-
-import { Party, PartyFilter, PartyManager, Invitation, InvitationResponse } from './parties';
+import { Invitation, InvitationResponse, Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
 
 /**
@@ -27,11 +22,6 @@ import { ResultSet } from './result';
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
 
-  /**
-   * @param {FeedStore} feedStore
-   * @param {ModelFactory} modelFactory
-   * @param {Options} options
-   */
   constructor (private readonly _partyManager: PartyManager) { }
 
   /**

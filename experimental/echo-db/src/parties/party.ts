@@ -2,17 +2,15 @@
 // Copyright 2020 DXOS.org
 //
 
-import assert from 'assert';
-
-import { humanize, keyToString } from '@dxos/crypto';
-import { ObjectModel } from '@dxos/experimental-object-model';
+import { humanize } from '@dxos/crypto';
+import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
-import { ItemType, PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
-
+import { ObjectModel } from '@dxos/experimental-object-model';
+import assert from 'assert';
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
-import { Pipeline } from './pipeline';
 import { PartyProcessor } from './party-processor';
+import { Pipeline } from './pipeline';
 
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 

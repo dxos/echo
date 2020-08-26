@@ -2,23 +2,21 @@
 // Copyright 2020 DXOS.org
 //
 
+import { Event } from '@dxos/async';
+import { createKeyPair, keyToString } from '@dxos/crypto';
+import { createOrderedFeedStream, createPartyGenesis, FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
+import { ModelFactory } from '@dxos/experimental-model-factory';
+import { ObjectModel } from '@dxos/experimental-object-model';
+import { createWritableFeedStream } from '@dxos/experimental-util';
+import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
 import assert from 'assert';
 import debug from 'debug';
 import hypercore from 'hypercore';
 import pify from 'pify';
-
-import { Event } from '@dxos/async';
-import { createKeyPair, keyToString, keyToBuffer } from '@dxos/crypto';
-import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
-import { createOrderedFeedStream, createPartyGenesis, PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
-import { createWritableFeedStream } from '@dxos/experimental-util';
-
 import { Party, PARTY_ITEM_TYPE } from './party';
+import { FeedSetProvider } from './party-processor';
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
-import { FeedSetProvider } from './party-processor';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -133,7 +131,7 @@ export class PartyManager {
 
   /**
    * Construct a party object and start replicating with the remote peer that created that party.
-   * @param partyKey 
+   * @param partyKey
    * @param feeds Set of feeds belonging to that party
    */
   async constructRemoteParty (partyKey: PartyKey, feeds: FeedKey[]) {
