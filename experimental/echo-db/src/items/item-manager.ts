@@ -18,7 +18,7 @@ import { Item } from './item';
 const log = debug('dxos:echo:item-manager');
 
 export interface ItemFilter {
-  type: ItemType
+  type: ItemType | undefined
 }
 
 /**
@@ -50,12 +50,11 @@ export class ItemManager {
 
   /**
    * Creates an item and writes the genesis message.
-   * @param itemType item type
-   * @param modelType model type
+   * @param {ModelType} modelType
+   * @param {ItemType} [itemType]
    */
-  async createItem (itemType: ItemType, modelType: ModelType): Promise<Item<any>> {
+  async createItem (modelType: ModelType, itemType?: ItemType): Promise<Item<any>> {
     assert(this._writeStream);
-    assert(itemType);
     assert(modelType);
 
     // Pending until constructed (after genesis block is read from stream).
@@ -83,14 +82,13 @@ export class ItemManager {
   /**
    * Constructs an item with the appropriate model.
    * @param itemId
-   * @param itemType
    * @param modelType
+   * @param itemType
    * @param readStream - Inbound mutation stream (from multiplexer).
    */
-  async constructItem (itemId: ItemID, itemType: ItemType, modelType: ModelType, readStream: NodeJS.ReadableStream) {
+  async constructItem (itemId: ItemID, modelType: ModelType, itemType: ItemType, readStream: NodeJS.ReadableStream) {
     assert(this._writeStream);
     assert(itemId);
-    assert(itemType);
     assert(modelType);
     assert(readStream);
 

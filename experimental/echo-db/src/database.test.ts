@@ -91,9 +91,9 @@ describe('api tests', () => {
     expect(party.isOpen).toBeTruthy();
 
     // TODO(burdon): Test item mutations.
-    await party.createItem('wrn://dxos.org/item/document');
-    await party.createItem('wrn://dxos.org/item/document');
-    await party.createItem('wrn://dxos.org/item/kanban');
+    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
+    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
+    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/kanban');
 
     await updated;
     unsubscribe();
@@ -120,7 +120,7 @@ describe('api tests', () => {
 
         const { first: item } = await party.queryItems({ type: 'wrn://dxos.org/item/document' });
         expect(item.children).toHaveLength(1);
-        expect(item.children[0].type).toBe('wrn://dxos.org/item/text');
+        expect(item.children[0].type).toBe(undefined);
         onUpdate();
       });
     });
@@ -128,8 +128,8 @@ describe('api tests', () => {
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const parent = await party.createItem('wrn://dxos.org/item/document');
-    const child = await party.createItem('wrn://dxos.org/item/text');
+    const parent = await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
+    const child = await party.createItem();
     await parent.addChild(child);
 
     await updated;

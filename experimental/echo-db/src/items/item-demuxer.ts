@@ -34,14 +34,14 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
     //
     if (genesis) {
       const { itemType, modelType } = genesis;
-      assert(itemType && modelType);
+      assert(modelType);
 
       // Create inbound stream for item.
       const itemStream = createReadable<dxos.echo.IEchoEnvelope>();
       itemStreams.set(itemId, itemStream);
 
       // Create item.
-      const item = await itemManager.constructItem(itemId, itemType, modelType, itemStream);
+      const item = await itemManager.constructItem(itemId, modelType, itemType, itemStream);
       assert(item.id === itemId);
 
       return;

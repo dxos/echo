@@ -14,10 +14,10 @@ import { checkType } from '@dxos/experimental-util';
  */
 export class Item<M extends Model<any>> {
   private readonly _itemId: ItemID;
-  private readonly _itemType: ItemType;
+  private readonly _itemType?: ItemType; // TODO(burdon): If optional, is this just a label (or "kind"?)
+  private readonly _model: M;
   private readonly _writeStream?: NodeJS.WritableStream;
   private readonly _children = new Set<Item<any>>();
-  private readonly _model: M;
 
   /**
    * Items are constructed by a `Party` object.
@@ -28,7 +28,6 @@ export class Item<M extends Model<any>> {
    */
   constructor (itemId: ItemID, itemType: ItemType, model: M, writeStream?: NodeJS.WritableStream) {
     assert(itemId);
-    assert(itemType);
     assert(model);
     this._itemId = itemId;
     this._itemType = itemType;
@@ -44,7 +43,7 @@ export class Item<M extends Model<any>> {
     return this._itemId;
   }
 
-  get type (): ItemType {
+  get type (): ItemType | undefined {
     return this._itemType;
   }
 
