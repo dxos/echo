@@ -65,7 +65,7 @@ export class Pipeline {
     return this._readStream !== undefined;
   }
 
-  get readonly () {
+  get readOnly () {
     return this._writeStream === undefined;
   }
 

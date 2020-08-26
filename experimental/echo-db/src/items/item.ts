@@ -51,7 +51,7 @@ export class Item<M extends Model<any>> {
     return this._model;
   }
 
-  get readonly () {
+  get readOnly () {
     return !!this._writeStream;
   }
 

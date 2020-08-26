@@ -93,6 +93,8 @@ export class PartyManager {
    * Creates a new party, writing its genesis block to the stream.
    */
   async createParty (): Promise<Party> {
+    assert(!this._options.readOnly);
+
     const { publicKey: partyKey } = createKeyPair();
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
     const party = await this._constructParty(partyKey);
