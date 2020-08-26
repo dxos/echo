@@ -1,22 +1,22 @@
 import { NodeOrchestrator, Platform } from '@dxos/node-spawner';
 import { NodeHandle } from '@dxos/node-spawner/dist/src/node-handle';
 
-async function invite(inviter: NodeHandle, invitee: NodeHandle) {
+async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   inviter.sendEvent({
     command: 'CREATE_PARTY'
   });
   const { details: invitation } = await inviter.log.waitFor(data => data.name === 'invitation');
-  console.log({ invitation })
+  console.log({ invitation });
   invitee.sendEvent({
     command: 'ACCEPT_INVITATION',
-    invitation,
-  })
+    invitation
+  });
   const { details: invitationResponse } = await invitee.log.waitFor(data => data.name === 'invitationResponse');
-  console.log({ invitationResponse })
+  console.log({ invitationResponse });
   inviter.sendEvent({
     command: 'FINALIZE_INVITATION',
-    invitationResponse,
-  })
+    invitationResponse
+  });
 }
 
 test('E2E Agent testing', async () => {
@@ -33,13 +33,13 @@ test('E2E Agent testing', async () => {
   });
 
   await invite(node1, node2);
-  
+
   node1.sendEvent({});
-  
+
   await node1.metrics.update.waitFor(() => !!node1.metrics.getNumber('itemCount') && node1.metrics.getNumber('itemCount')! >= 2);
-  console.log('NODE 1 has items')
+  console.log('NODE 1 has items');
   await node2.metrics.update.waitFor(() => !!node2.metrics.getNumber('itemCount') && node2.metrics.getNumber('itemCount')! >= 2);
-  console.log('NODE 2 has items')
+  console.log('NODE 2 has items');
 
   node1.snapshot();
 

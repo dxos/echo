@@ -41,9 +41,9 @@ export class Party {
    * @param {Pipeline} pipeline
    */
   constructor (
-    private readonly _modelFactory: ModelFactory, 
+    private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
-    private readonly _partyProcessor: PartyProcessor,
+    private readonly _partyProcessor: PartyProcessor
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
@@ -157,14 +157,14 @@ export class Party {
     return items[0];
   }
 
-  createInvitation(): Invitation {
+  createInvitation (): Invitation {
     return {
       partyKey: this.key,
-      feeds: this._pipeline.memberFeeds,
-    }
+      feeds: this._pipeline.memberFeeds
+    };
   }
 
-  finalizeInvitation(response: InvitationResponse) {
+  finalizeInvitation (response: InvitationResponse) {
     this._partyProcessor.admitFeed(response.newFeedKey);
   }
 }

@@ -81,7 +81,7 @@ export class Pipeline {
     return this._errors;
   }
 
-  get memberFeeds() {
+  get memberFeeds () {
     return this._partyProcessor.feedKeys;
   }
 

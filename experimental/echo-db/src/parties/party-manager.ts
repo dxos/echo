@@ -161,23 +161,23 @@ export class PartyManager {
     return party;
   }
 
-  async constructRemoteParty(partyKey: PartyKey, feeds: FeedKey[]) {
+  async constructRemoteParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
     // TODO(marik-d): Duplicated code
-     const partyProcessor = new TestPartyProcessor(partyKey, [...feeds, feed.key]);
-     const feedReadStream = await createOrderedFeedStream(
-       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
-     const feedWriteStream = createWritableFeedStream(feed);
-     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
- 
+    const partyProcessor = new TestPartyProcessor(partyKey, [...feeds, feed.key]);
+    const feedReadStream = await createOrderedFeedStream(
+      this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
+    const feedWriteStream = createWritableFeedStream(feed);
+    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
+
      // Kick off replication
      // TODO(marik-d): Set-up cleanup callbacks
      this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
- 
+
      // Create party.
      const party = new Party(this._modelFactory, pipeline, partyProcessor);
      this._parties.set(keyToString(party.key), party);
- 
+
      return { party, ownFeed: feed.key };
   }
 }

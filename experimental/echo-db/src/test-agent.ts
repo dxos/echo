@@ -33,7 +33,7 @@ export default class TestAgent implements Agent {
   }
 
   async onEvent (event: JsonObject) {
-    if(event.command === 'CREATE_PARTY') {
+    if (event.command === 'CREATE_PARTY') {
       this.party = await this.db.createParty();
 
       const items = await this.party.queryItems();
@@ -42,14 +42,14 @@ export default class TestAgent implements Agent {
       });
 
       const invitation = this.party.createInvitation();
-      this.environment.log('invitation',  {
+      this.environment.log('invitation', {
         partyKey: keyToString(invitation.partyKey as any),
-        feeds: invitation.feeds.map(keyToString),
-      })
-    } else if(event.command === 'ACCEPT_INVITATION') {
+        feeds: invitation.feeds.map(keyToString)
+      });
+    } else if (event.command === 'ACCEPT_INVITATION') {
       const { response, party } = await this.db.acceptInvitation({
         partyKey: keyToBuffer((event.invitation as any).partyKey),
-        feeds: (event.invitation as any).feeds.map(keyToBuffer),
+        feeds: (event.invitation as any).feeds.map(keyToBuffer)
       });
       this.party = party;
       const items = await this.party.queryItems();
@@ -57,11 +57,11 @@ export default class TestAgent implements Agent {
         this.environment.metrics.set('itemCount', items.length);
       });
 
-      this.environment.log('invitationResponse', { newFeedKey: keyToString(response.newFeedKey) })
-    } else if(event.command === 'FINALIZE_INVITATION') {
+      this.environment.log('invitationResponse', { newFeedKey: keyToString(response.newFeedKey) });
+    } else if (event.command === 'FINALIZE_INVITATION') {
       this.party?.finalizeInvitation({
-        newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey),
-      })
+        newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
+      });
     } else {
       this.party!.createItem('wrn://dxos.org/item/document');
     }

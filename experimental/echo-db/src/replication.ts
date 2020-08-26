@@ -5,7 +5,7 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 import { PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
 import { keyToString, discoveryKey } from '@dxos/crypto';
 
-export function createReplicationMixin(networkManager: any, feedStore: FeedStore, peerId: Buffer) {
+export function createReplicationMixin (networkManager: any, feedStore: FeedStore, peerId: Buffer) {
   return (partyKey: PartyKey, activeFeeds: FeedSetProvider) => {
     const openFeed = async (key: FeedKey) => {
       const topic = keyToString(partyKey);

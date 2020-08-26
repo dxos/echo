@@ -42,7 +42,7 @@ export abstract class PartyProcessor {
   constructor (partyKey: PartyKey, feeds: FeedKey[]) {
     assert(partyKey);
     this._partyKey = partyKey;
-    for(const feed of feeds) {
+    for (const feed of feeds) {
       this._feedKeys.add(feed);
     }
   }
@@ -94,7 +94,7 @@ export abstract class PartyProcessor {
   abstract async _processMessage (message: IHaloStream): Promise<void>;
 
   // TODO(marik-d): This should probably be abstracted over some invitation mechanism
-  async admitFeed(key: FeedKey) {
+  async admitFeed (key: FeedKey) {
     this._addFeedKey(key);
   }
 }
