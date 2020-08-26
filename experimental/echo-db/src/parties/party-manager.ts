@@ -132,10 +132,22 @@ export class PartyManager {
   }
 
   /**
+   * Construct a party object and start replicating with the remote peer that created that party.
+   * @param partyKey 
+   * @param feeds Set of feeds belonging to that party
+   */
+  async constructRemoteParty (partyKey: PartyKey, feeds: FeedKey[]) {
+    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+    const party = await this._constructParty(partyKey, feeds);
+    return { party, ownFeed: feed.key };
+  }
+
+  /**
    * Constructs and registers a party object.
    * @param partyKey
+   * @param feeds Extra set of feeds to be included in the party
    */
-  async _constructParty (partyKey: PartyKey): Promise<Party> {
+  async _constructParty (partyKey: PartyKey, feeds: FeedKey[] = []): Promise<Party> {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -144,14 +156,13 @@ export class PartyManager {
     const feed = descriptor.feed;
 
     // Create pipeline.
-    const partyProcessor = new TestPartyProcessor(partyKey, [feed.key]);
+    const partyProcessor = new TestPartyProcessor(partyKey, [feed.key, ...feeds]);
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
 
     // Kick off replication
-    // TODO(marik-d): Set-up cleanup callbacks
     this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
 
     // Create party.
@@ -159,25 +170,5 @@ export class PartyManager {
     this._parties.set(keyToString(party.key), party);
 
     return party;
-  }
-
-  async constructRemoteParty (partyKey: PartyKey, feeds: FeedKey[]) {
-    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
-    // TODO(marik-d): Duplicated code
-    const partyProcessor = new TestPartyProcessor(partyKey, [...feeds, feed.key]);
-    const feedReadStream = await createOrderedFeedStream(
-      this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
-    const feedWriteStream = createWritableFeedStream(feed);
-    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
-
-     // Kick off replication
-     // TODO(marik-d): Set-up cleanup callbacks
-     this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
-
-     // Create party.
-     const party = new Party(this._modelFactory, pipeline, partyProcessor);
-     this._parties.set(keyToString(party.key), party);
-
-     return { party, ownFeed: feed.key };
   }
 }
