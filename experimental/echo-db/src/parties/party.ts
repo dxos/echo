@@ -4,25 +4,32 @@
 
 import assert from 'assert';
 
-import { humanize } from '@dxos/crypto';
+import { humanize, keyToString } from '@dxos/crypto';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
-import { ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
+import { ItemType, PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
 
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
 import { Pipeline } from './pipeline';
+import { PartyProcessor } from './party-processor';
 
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
+
+export interface Invitation {
+  partyKey: PartyKey
+  feeds: FeedKey[]
+}
+
+export interface InvitationResponse {
+  newFeedKey: FeedKey
+}
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
  * of mutations.
  */
 export class Party {
-  private readonly _modelFactory: ModelFactory;
-  private readonly _pipeline: Pipeline;
-
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
 
@@ -33,11 +40,14 @@ export class Party {
    * @param {ModelFactory} modelFactory
    * @param {Pipeline} pipeline
    */
-  constructor (modelFactory: ModelFactory, pipeline: Pipeline) {
-    assert(modelFactory);
-    assert(pipeline);
-    this._modelFactory = modelFactory;
-    this._pipeline = pipeline;
+  constructor (
+    private readonly _modelFactory: ModelFactory, 
+    private readonly _pipeline: Pipeline,
+    private readonly _partyProcessor: PartyProcessor,
+  ) {
+    assert(this._modelFactory);
+    assert(this._pipeline);
+    assert(this._partyProcessor);
   }
 
   toString () {
@@ -145,5 +155,16 @@ export class Party {
     const { value: items } = await this._itemManager?.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1);
     return items[0];
+  }
+
+  createInvitation(): Invitation {
+    return {
+      partyKey: this.key,
+      feeds: this._pipeline.memberFeeds,
+    }
+  }
+
+  finalizeInvitation(response: InvitationResponse) {
+    this._partyProcessor.admitFeed(response.newFeedKey);
   }
 }

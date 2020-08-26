@@ -9,17 +9,12 @@ import { FeedStore } from '@dxos/feed-store';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 
-import { Party, PartyFilter, PartyManager } from './parties';
+import { Party, PartyFilter, PartyManager, Invitation, InvitationResponse } from './parties';
 import { ResultSet } from './result';
-
-export interface Options {
-  readLogger?: NodeJS.ReadWriteStream;
-  writeLogger?: NodeJS.ReadWriteStream;
-}
 
 /**
  * This is the root object for the ECHO database.
- * It is used to query and mutate the state of all data accessible to the containing node.
+ * It is used to query and mutate the statse of all data accessible to the containing node.
  * Shared datasets are contained within `Parties` which consiste of immutable messages within multiple `Feeds`.
  * These feeds are replicated across peers in the network and stored in the `FeedStore`.
  * Parties contain queryable data `Items` which are reconstituted from an ordered stream of mutations by
@@ -31,19 +26,13 @@ export interface Options {
  */
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
-  private readonly _partyManager: PartyManager;
 
   /**
    * @param {FeedStore} feedStore
    * @param {ModelFactory} modelFactory
    * @param {Options} options
    */
-  // TODO(burdon): Pass in PartyManager?
-  constructor (feedStore: FeedStore, modelFactory: ModelFactory, options?: Options) {
-    assert(feedStore);
-    assert(modelFactory);
-    this._partyManager = new PartyManager(feedStore, modelFactory, options);
-  }
+  constructor (private readonly _partyManager: PartyManager) { }
 
   /**
    * Opens the pary and constructs the inbound/outbound mutation streams.
@@ -93,5 +82,14 @@ export class Database {
     await this.open();
 
     return new ResultSet<Party>(this._partyUpdate, () => this._partyManager.parties);
+  }
+
+  async acceptInvitation(invitation: Invitation) {
+    const { party, ownFeed } = await this._partyManager.constructRemoteParty(invitation.partyKey, invitation.feeds);
+    await party.open();
+
+    const response: InvitationResponse = { newFeedKey: ownFeed }
+
+    return { party, response } 
   }
 }

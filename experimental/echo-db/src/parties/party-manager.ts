@@ -8,19 +8,25 @@ import hypercore from 'hypercore';
 import pify from 'pify';
 
 import { Event } from '@dxos/async';
-import { createKeyPair, keyToString } from '@dxos/crypto';
+import { createKeyPair, keyToString, keyToBuffer } from '@dxos/crypto';
 import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
-import { createOrderedFeedStream, createPartyGenesis, PartyKey } from '@dxos/experimental-echo-protocol';
+import { createOrderedFeedStream, createPartyGenesis, PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { Options } from '../database';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
+import { FeedSetProvider } from './party-processor';
 
 const log = debug('dxos:echo:party-manager');
+
+export interface Options {
+  readLogger?: NodeJS.ReadWriteStream;
+  writeLogger?: NodeJS.ReadWriteStream;
+  replicationMixin?: (partyKey: Uint8Array, feedSet: FeedSetProvider) => void,
+}
 
 /**
  * Manages the life-cycle of parties.
@@ -59,6 +65,7 @@ export class PartyManager {
       // constructed and mapped -- otherwise we will inadvertantly cause a new instance to be created.
       setImmediate(async () => {
         const { metadata: { partyKey } } = descriptor;
+        assert(partyKey);
         const party = await this._getOrCreateParty(partyKey);
         await party.open();
         this.update.emit(party);
@@ -137,16 +144,40 @@ export class PartyManager {
     const feed = descriptor.feed;
 
     // Create pipeline.
-    const partyProcessor = new TestPartyProcessor(partyKey, feed.key);
+    const partyProcessor = new TestPartyProcessor(partyKey, [feed.key]);
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
 
+    // Kick off replication
+    // TODO(marik-d): Set-up cleanup callbacks
+    this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
+
     // Create party.
-    const party = new Party(this._modelFactory, pipeline);
+    const party = new Party(this._modelFactory, pipeline, partyProcessor);
     this._parties.set(keyToString(party.key), party);
 
     return party;
+  }
+
+  async constructRemoteParty(partyKey: PartyKey, feeds: FeedKey[]) {
+    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+    // TODO(marik-d): Duplicated code
+     const partyProcessor = new TestPartyProcessor(partyKey, [...feeds, feed.key]);
+     const feedReadStream = await createOrderedFeedStream(
+       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
+     const feedWriteStream = createWritableFeedStream(feed);
+     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
+ 
+     // Kick off replication
+     // TODO(marik-d): Set-up cleanup callbacks
+     this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
+ 
+     // Create party.
+     const party = new Party(this._modelFactory, pipeline, partyProcessor);
+     this._parties.set(keyToString(party.key), party);
+ 
+     return { party, ownFeed: feed.key };
   }
 }

@@ -13,7 +13,7 @@ import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-
 
 import { codec } from './codec';
 import { Database } from './database';
-import { Party } from './parties';
+import { Party, PartyManager } from './parties';
 
 const log = debug('dxos:echo:database:test');
 debug.enable('dxos:*:error,dxos:echo:*');
@@ -32,7 +32,8 @@ describe('api tests', () => {
       writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
     } : undefined;
 
-    const db = new Database(feedStore, modelFactory, options);
+    const partyManager = new PartyManager(feedStore, modelFactory, options);
+    const db = new Database(partyManager);
     await db.open();
 
     const parties = await db.queryParties({ open: true });

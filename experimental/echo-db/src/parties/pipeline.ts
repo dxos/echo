@@ -8,7 +8,7 @@ import merge from 'lodash/merge';
 import { pipeline, Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
-import { dxos, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { dxos, createFeedMeta, FeedBlock, IEchoStream, FeedKey } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
 import { PartyProcessor } from './party-processor';
@@ -79,6 +79,10 @@ export class Pipeline {
 
   get errors () {
     return this._errors;
+  }
+
+  get memberFeeds() {
+    return this._partyProcessor.feedKeys;
   }
 
   /**
