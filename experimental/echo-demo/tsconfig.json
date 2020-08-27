@@ -9,6 +9,7 @@
     "composite": true,
     "sourceMap": true,
     "declarationMap": true,
+    "jsx": "react",
     "lib": [
       "ESNext"
     ],

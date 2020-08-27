@@ -5,6 +5,7 @@
 import React from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
 
+// @ts-ignore
 import { FullScreen } from '@dxos/gem-core';
 
 export default {
