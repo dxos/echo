@@ -143,9 +143,9 @@ export class PartyManager {
   /**
    * Constructs and registers a party object.
    * @param partyKey
-   * @param feeds Extra set of feeds to be included in the party
+   * @param feedKeys Extra set of feeds to be included in the party
    */
-  async _constructParty (partyKey: PartyKey, feeds: FeedKey[] = []): Promise<Party> {
+  async _constructParty (partyKey: PartyKey, feedKeys: FeedKey[] = []): Promise<Party> {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -154,7 +154,7 @@ export class PartyManager {
     const feed = descriptor.feed;
 
     // Create pipeline.
-    const partyProcessor = new TestPartyProcessor(partyKey, [feed.key, ...feeds]);
+    const partyProcessor = new TestPartyProcessor(partyKey, [feed.key, ...feedKeys]);
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
