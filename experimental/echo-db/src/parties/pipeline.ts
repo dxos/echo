@@ -10,10 +10,12 @@ import debug from 'debug';
 import merge from 'lodash/merge';
 import { pipeline, Readable, Writable } from 'stream';
 import { PartyProcessor } from './party-processor';
+import { ReplicatorFactory, IReplicationAdapter } from '../replication';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
+  replicatorFactory?: ReplicatorFactory;
 }
 
 const log = debug('dxos:echo:pipeline');
@@ -34,6 +36,8 @@ export class Pipeline {
 
   // Messages to write into pipeline (e.g., mutations from model).
   private _writeStream: Writable | undefined;
+
+  private _replicationAdapter?: IReplicationAdapter;
 
   /**
    * @param {PartyProcessor} partyProcessor - Processes HALO messages to update party state.
@@ -177,6 +181,10 @@ export class Pipeline {
       });
     }
 
+    // Replication
+    this._replicationAdapter = this._options.replicatorFactory?.(this.partyKey, this._partyProcessor.getActiveFeedSet());
+    this._replicationAdapter?.start();
+
     return [
       this._readStream,
       this._writeStream
@@ -197,5 +205,7 @@ export class Pipeline {
       this._writeStream.destroy();
       this._writeStream = undefined;
     }
+
+    this._replicationAdapter?.stop();
   }
 }

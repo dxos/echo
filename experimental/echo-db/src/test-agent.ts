@@ -7,7 +7,7 @@ import { Database } from './database';
 import { NetworkManager } from '@dxos/network-manager';
 import { FeedStore } from '@dxos/feed-store';
 import { keyToString, keyToBuffer, randomBytes } from '@dxos/crypto';
-import { createReplicationMixin } from './replication';
+import { createReplicatorFactory } from './replication';
 import { Inviter } from './invitation';
 
 export default class TestAgent implements Agent {
@@ -28,7 +28,7 @@ export default class TestAgent implements Agent {
       .registerModel(ObjectModel.meta, ObjectModel);
 
     const partyManager = new PartyManager(feedStore, modelFactory, {
-      replicationMixin: createReplicationMixin(networkManager, feedStore, randomBytes())
+      replicatorFactory: createReplicatorFactory(networkManager, feedStore, randomBytes())
     });
     this.db = new Database(partyManager);
     await this.db.open();

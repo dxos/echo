@@ -14,16 +14,16 @@ import debug from 'debug';
 import hypercore from 'hypercore';
 import pify from 'pify';
 import { Party, PARTY_ITEM_TYPE } from './party';
-import { FeedSetProvider } from './party-processor';
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
+import { ReplicatorFactory } from '../replication';
 
 const log = debug('dxos:echo:party-manager');
 
 export interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
-  replicationMixin?: (partyKey: Uint8Array, feedSet: FeedSetProvider) => void,
+  replicatorFactory?: ReplicatorFactory,
 }
 
 /**
@@ -159,9 +159,6 @@ export class PartyManager {
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
-
-    // Kick off replication
-    this._options.replicationMixin?.(partyKey, partyProcessor.getActiveFeedSet());
 
     // Create party.
     const party = new Party(this._modelFactory, pipeline, partyProcessor);
