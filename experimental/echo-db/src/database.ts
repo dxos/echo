@@ -10,7 +10,7 @@ import { Invitation, InvitationResponse } from './invitation';
 
 /**
  * This is the root object for the ECHO database.
- * It is used to query and mutate the statse of all data accessible to the containing node.
+ * It is used to query and mutate the state of all data accessible to the containing node.
  * Shared datasets are contained within `Parties` which consiste of immutable messages within multiple `Feeds`.
  * These feeds are replicated across peers in the network and stored in the `FeedStore`.
  * Parties contain queryable data `Items` which are reconstituted from an ordered stream of mutations by

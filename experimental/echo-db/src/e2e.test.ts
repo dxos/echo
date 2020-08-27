@@ -37,9 +37,9 @@ test('E2E Agent testing', async () => {
   node1.sendEvent({});
 
   await node1.metrics.update.waitFor(() => !!node1.metrics.getNumber('itemCount') && node1.metrics.getNumber('itemCount')! >= 2);
-  console.log('NODE 1 has items');
+  console.log('node1 has items');
   await node2.metrics.update.waitFor(() => !!node2.metrics.getNumber('itemCount') && node2.metrics.getNumber('itemCount')! >= 2);
-  console.log('NODE 2 has items');
+  console.log('node2 has items');
 
   node1.snapshot();
 

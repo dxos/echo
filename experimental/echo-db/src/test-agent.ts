@@ -1,14 +1,15 @@
-import { Agent, JsonObject, Environment } from '@dxos/node-spawner';
+import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
-import { codec } from './codec';
-import { Party, PartyManager } from './parties';
-import { Database } from './database';
-import { NetworkManager } from '@dxos/network-manager';
 import { FeedStore } from '@dxos/feed-store';
-import { keyToString, keyToBuffer, randomBytes } from '@dxos/crypto';
-import { createReplicatorFactory } from './replication';
+import { NetworkManager } from '@dxos/network-manager';
+import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
+
+import { codec } from './codec';
+import { Database } from './database';
 import { Inviter } from './invitation';
+import { Party, PartyManager } from './parties';
+import { createReplicatorFactory } from './replication';
 
 export default class TestAgent implements Agent {
   private party?: Party;
@@ -80,6 +81,5 @@ export default class TestAgent implements Agent {
     };
   }
 
-  async destroy (): Promise<void> {
-  }
+  async destroy (): Promise<void> { }
 }

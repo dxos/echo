@@ -1,9 +1,10 @@
-import { FeedSetProvider } from './parties/party-processor';
+import { discoveryKey, keyToString } from '@dxos/crypto';
+import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
-import { PartyKey, FeedKey } from '@dxos/experimental-echo-protocol';
-import { keyToString, discoveryKey } from '@dxos/crypto';
+
+import { FeedSetProvider } from './parties/party-processor';
 
 export interface IReplicationAdapter {
   start(): void
