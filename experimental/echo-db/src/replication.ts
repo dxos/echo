@@ -77,6 +77,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
         if (!discoveryKey(this.partyKey).equals(dk)) {
           return undefined;
         }
+        // TODO(marik-d): Why does this do side effects
         protocol.setContext({ topic: keyToString(this.partyKey) });
         return this.partyKey;
       }
