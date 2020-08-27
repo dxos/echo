@@ -11,17 +11,9 @@ import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { Inviter, Invitation } from '../invitation';
 
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
-
-export interface Invitation {
-  partyKey: PartyKey
-  feeds: FeedKey[]
-}
-
-export interface InvitationResponse {
-  newFeedKey: FeedKey
-}
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -155,14 +147,12 @@ export class Party {
     return items[0];
   }
 
-  createInvitation (): Invitation {
-    return {
+  createInvitation (): Inviter {
+    const invitation: Invitation = {
       partyKey: this.key,
       feeds: this._pipeline.memberFeeds
     };
-  }
 
-  finalizeInvitation (response: InvitationResponse) {
-    this._partyProcessor.admitFeed(response.newFeedKey);
+    return new Inviter(invitation, this._partyProcessor);
   }
 }

@@ -4,8 +4,9 @@
 
 import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
-import { Invitation, InvitationResponse, Party, PartyFilter, PartyManager } from './parties';
+import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
+import { Invitation, InvitationResponse } from './invitation';
 
 /**
  * This is the root object for the ECHO database.

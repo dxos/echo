@@ -8,10 +8,12 @@ import { NetworkManager } from '@dxos/network-manager';
 import { FeedStore } from '@dxos/feed-store';
 import { keyToString, keyToBuffer, randomBytes } from '@dxos/crypto';
 import { createReplicationMixin } from './replication';
+import { Inviter } from './invitation';
 
 export default class TestAgent implements Agent {
   private party?: Party;
   private db!: Database;
+  private inviter?: Inviter;
 
   constructor (private environment: Environment) {}
 
@@ -41,10 +43,10 @@ export default class TestAgent implements Agent {
         this.environment.metrics.set('itemCount', items.length);
       });
 
-      const invitation = this.party.createInvitation();
+      this.inviter = this.party.createInvitation();
       this.environment.log('invitation', {
-        partyKey: keyToString(invitation.partyKey as any),
-        feeds: invitation.feeds.map(keyToString)
+        partyKey: keyToString(this.inviter.invitation.partyKey as any),
+        feeds: this.inviter.invitation.feeds.map(keyToString)
       });
     } else if (event.command === 'ACCEPT_INVITATION') {
       const { response, party } = await this.db.acceptInvitation({
@@ -59,7 +61,7 @@ export default class TestAgent implements Agent {
 
       this.environment.log('invitationResponse', { newFeedKey: keyToString(response.newFeedKey) });
     } else if (event.command === 'FINALIZE_INVITATION') {
-      this.party?.finalizeInvitation({
+      this.inviter?.finalize({
         newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
       });
     } else {
