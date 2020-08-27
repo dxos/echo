@@ -49,7 +49,7 @@ export default class TestAgent implements Agent {
         feeds: this.inviter.invitation.feeds.map(keyToString)
       });
     } else if (event.command === 'ACCEPT_INVITATION') {
-      const { response, party } = await this.db.acceptInvitation({
+      const { response, party } = await this.db.joinParty({
         partyKey: keyToBuffer((event.invitation as any).partyKey),
         feeds: (event.invitation as any).feeds.map(keyToBuffer)
       });
