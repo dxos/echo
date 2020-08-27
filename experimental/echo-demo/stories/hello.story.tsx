@@ -12,10 +12,35 @@ export default {
   decorators: [withKnobs]
 };
 
+//
+// Database => Party => Item => Model
+//
+
 export const withHello = () => {
+  const { partyKey } = useParams();
+  const database = useDatabase();
+  const parties = useParties();
+  const party = useParty(partyKey);
+  const items = useItems(partyKey);
+
+  const handleClick = async () => {
+    const item = await party.createItem(ObjectModel.meta, 'wrn://dxos.org/item/document');
+    item.setProperty('title', 'Hello');
+  };
+
   return (
     <FullScreen>
-      <div>Hello</div>
+      <ul>
+        {
+          parties.map(party => <li>{party.getProperty('title')}</li>)
+        }
+      </ul>
+      <ul>
+        {
+          items.map(item => <li>{item.model.getProperty('title')}</li>)
+        }
+      </ul>
+      <Button onClick={handleClick}>New</Button>
     </FullScreen>
   );
 };
