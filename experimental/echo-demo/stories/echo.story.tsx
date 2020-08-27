@@ -55,28 +55,17 @@ const useDatabase = () => {
   return new Database(feedStore, modelFactory);
 };
 
-export const withDatabase = () => {
-  const classes = useDefaultStyles();
-  const [resizeListener, size] = useResizeAware();
-  const { width, height } = size;
-  const grid = useGrid({ width, height });
-  const markers = useRef<SVGGElement>(null);
-
-  // TODO(burdon): Render parties and items.
-  const database = useDatabase();
-
-  const [data] = useDataButton(() => convertTreeToGraph(createTree(4)));
-  const [layout] = useState(new ForceLayout());
+const GraphComponent = ({ grid, database, dx }: { grid: any, database: any, dx: number }) => {
+  const [layout] = useState(new ForceLayout({
+    center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y })
+  }));
   const [{ nodeProjector, linkProjector }] = useState({
     nodeProjector: new NodeProjector({ node: { radius: 16, showLabels: false } }),
     linkProjector: new LinkProjector({ nodeRadius: 16, showArrows: true })
   });
 
-  // Arrows markers.
-  useEffect(() => {
-    d3.select(markers.current)
-      .call(createArrowMarkers());
-  }, []);
+  // TODO(burdon): Generate data from database.
+  const [data] = useDataButton(() => convertTreeToGraph(createTree(4)));
 
   // TODO(burdon): Create data.
   useEffect(() => {
@@ -89,6 +78,34 @@ export const withDatabase = () => {
   }, []);
 
   return (
+    <Graph
+      grid={grid}
+      data={data}
+      layout={layout}
+      nodeProjector={nodeProjector}
+      linkProjector={linkProjector}
+    />
+  );
+};
+
+export const withDatabase = () => {
+  const classes = useDefaultStyles();
+  const [resizeListener, size] = useResizeAware();
+  const { width, height } = size;
+  const grid = useGrid({ width, height });
+  const markers = useRef<SVGGElement>(null);
+
+  // TODO(burdon): Connect via in-memory replicator.
+  const database1 = useDatabase();
+  const database2 = useDatabase();
+
+  // Arrows markers.
+  useEffect(() => {
+    d3.select(markers.current)
+      .call(createArrowMarkers());
+  }, []);
+
+  return (
     <FullScreen>
       {resizeListener}
       <SVG width={width} height={height}>
@@ -96,13 +113,8 @@ export const withDatabase = () => {
 
         <g ref={markers} className={classes.markers} />
 
-        <Graph
-          grid={grid}
-          data={data}
-          layout={layout}
-          nodeProjector={nodeProjector}
-          linkProjector={linkProjector}
-        />
+        <GraphComponent database={database1} grid={grid} dx={-50} />
+        <GraphComponent database={database2} grid={grid} dx={+50} />
       </SVG>
     </FullScreen>
   );
