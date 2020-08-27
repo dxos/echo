@@ -18,7 +18,7 @@ export function createReplicatorFactory (networkManager: any, feedStore: FeedSto
     feedStore,
     peerId,
     partyKey,
-    activeFeeds,
+    activeFeeds
   );
 }
 
@@ -26,22 +26,21 @@ export function createReplicatorFactory (networkManager: any, feedStore: FeedSto
  * Joins a network swarm with replication protocol. Coordinates opening new feeds in the feed store.
  */
 export class ReplicationAdapter implements IReplicationAdapter {
-
-  constructor(
+  constructor (
     private readonly networkManager: any,
     private readonly feedStore: FeedStore,
     private readonly peerId: Buffer,
     private readonly partyKey: PartyKey,
-    private readonly activeFeeds: FeedSetProvider,
+    private readonly activeFeeds: FeedSetProvider
   ) {}
 
-  start(): void {
+  start (): void {
     this.networkManager.joinProtocolSwarm(
       this.partyKey,
       ({ channel }: any) => this._createProtocol(channel));
   }
 
-  private _openFeed(key: FeedKey) {
+  private _openFeed (key: FeedKey) {
     const topic = keyToString(this.partyKey);
 
     // Get the feed if we have it already, else create it.
@@ -50,7 +49,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
     this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, { key: Buffer.from(key), metadata: { partyKey: this.partyKey } } as any);
   }
 
-  private _createProtocol(channel: any) {
+  private _createProtocol (channel: any) {
     const replicator = new Replicator({
       load: async () => {
         const partyFeeds = await Promise.all(this.activeFeeds.get().map(feedKey => this._openFeed(feedKey)));
@@ -87,7 +86,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
     return protocol;
   }
 
-  stop(): void {
+  stop (): void {
     // TODO(marik-d): Not implmented
   }
 }

@@ -11,12 +11,12 @@ export interface InvitationResponse {
 }
 
 export class Inviter {
-  constructor(
+  constructor (
     public readonly invitation: Invitation,
-    private readonly _partyProcessor: PartyProcessor,
+    private readonly _partyProcessor: PartyProcessor
   ) {}
 
-  finalize(response: InvitationResponse) {
+  finalize (response: InvitationResponse) {
     this._partyProcessor.admitFeed(response.newFeedKey);
   }
 }
