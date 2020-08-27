@@ -5,7 +5,8 @@
 import assert from 'assert';
 import debug from 'debug';
 import merge from 'lodash/merge';
-import { pipeline, Readable, Writable } from 'stream';
+import pump from 'pump';
+import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
 import { dxos, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
@@ -134,11 +135,11 @@ export class Pipeline {
       log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
     });
 
-    pipeline([
+    pump([
       this._feedReadStream,
       readLogger,
       this._readStream
-    ].filter(Boolean) as any[], (err) => {
+    ].filter(Boolean) as any[], (err: Error | undefined) => {
       // TODO(burdon): Handle error.
       error('Inbound pipieline:', err || 'closed');
       if (err) {
@@ -162,11 +163,11 @@ export class Pipeline {
           return data;
         });
 
-      pipeline([
+      pump([
         this._writeStream,
         writeLogger,
         this._feedWriteStream
-      ].filter(Boolean) as any[], (err) => {
+      ].filter(Boolean) as any[], (err: Error | undefined) => {
         // TODO(burdon): Handle error.
         error('Outbound pipeline:', err || 'closed');
         if (err) {

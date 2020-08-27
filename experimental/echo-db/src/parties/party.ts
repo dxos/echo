@@ -72,7 +72,7 @@ export class Party {
     readStream.pipe(this._itemDemuxer);
 
     // TODO(burdon): Propagate errors.
-    this._unsubscribePipeline = this._pipeline.errors.on(() => {});
+    this._unsubscribePipeline = this._pipeline.errors.on(err => console.error(err));
 
     return this;
   }
