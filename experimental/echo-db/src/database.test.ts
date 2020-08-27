@@ -32,7 +32,7 @@ describe('api tests', () => {
       writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
     } : undefined;
 
-    const partyManager = new PartyManager(feedStore, modelFactory, options);
+    const partyManager = new PartyManager(feedStore, modelFactory, undefined, options);
     const db = new Database(partyManager);
     await db.open();
 
@@ -44,7 +44,7 @@ describe('api tests', () => {
     const unsubscribe = parties.subscribe(async (parties: Party[]) => {
       log('Updated:', parties.map(party => humanize(party.key)));
 
-      // TODO(burdon): Update currently called after all mutations below have completed?
+      // TODO(burdon): Update currentybly called after all mutations below have completed?
       expect(parties).toHaveLength(1);
       parties.map(async party => {
         const items = await party.queryItems();

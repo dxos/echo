@@ -25,7 +25,6 @@ const log = debug('dxos:echo:party-manager');
 export interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
-  replicatorFactory?: ReplicatorFactory,
 }
 
 /**
@@ -51,7 +50,12 @@ export class PartyManager {
    * @param modelFactory
    * @param options
    */
-  constructor (feedStore: FeedStore, modelFactory: ModelFactory, options?: Options) {
+  constructor (
+    feedStore: FeedStore,
+    modelFactory: ModelFactory,
+    private readonly replicatorFactory?: ReplicatorFactory,
+    options?: Options
+  ) {
     assert(feedStore);
     assert(modelFactory);
     this._feedStore = feedStore;
@@ -160,7 +164,7 @@ export class PartyManager {
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
-    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._options);
+    const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
 
     // Create party.
     const party = new Party(this._modelFactory, pipeline, partyProcessor);

@@ -15,7 +15,6 @@ import { ReplicatorFactory, IReplicationAdapter } from '../replication';
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
-  replicatorFactory?: ReplicatorFactory;
 }
 
 const log = debug('dxos:echo:pipeline');
@@ -49,6 +48,7 @@ export class Pipeline {
     partyProcessor: PartyProcessor,
     feedReadStream: NodeJS.ReadableStream,
     feedWriteStream?: NodeJS.WritableStream,
+    private readonly replicatorFactory?: ReplicatorFactory,
     options?: Options
   ) {
     assert(partyProcessor);
@@ -182,7 +182,7 @@ export class Pipeline {
     }
 
     // Replication
-    this._replicationAdapter = this._options.replicatorFactory?.(this.partyKey, this._partyProcessor.getActiveFeedSet());
+    this._replicationAdapter = this.replicatorFactory?.(this.partyKey, this._partyProcessor.getActiveFeedSet());
     this._replicationAdapter?.start();
 
     return [
