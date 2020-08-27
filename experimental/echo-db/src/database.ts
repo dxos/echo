@@ -76,7 +76,7 @@ export class Database {
   }
 
   async joinParty (invitation: Invitation) {
-    const { party, ownFeed } = await this._partyManager.constructRemoteParty(invitation.partyKey, invitation.feeds);
+    const { party, ownFeed } = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
     await party.open();
 
     const response: InvitationResponse = { newFeedKey: ownFeed };

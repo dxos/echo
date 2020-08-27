@@ -117,6 +117,17 @@ export class PartyManager {
   }
 
   /**
+   * Construct a party object and start replicating with the remote peer that created that party.
+   * @param partyKey
+   * @param feeds Set of feeds belonging to that party
+   */
+  async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
+    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+    const party = await this._constructParty(partyKey, feeds);
+    return { party, ownFeed: feed.key };
+  }
+
+  /**
    * Gets existing party object or constructs a new one.
    * @param partyKey
    */
@@ -127,17 +138,6 @@ export class PartyManager {
     }
 
     return party;
-  }
-
-  /**
-   * Construct a party object and start replicating with the remote peer that created that party.
-   * @param partyKey
-   * @param feeds Set of feeds belonging to that party
-   */
-  async constructRemoteParty (partyKey: PartyKey, feeds: FeedKey[]) {
-    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
-    const party = await this._constructParty(partyKey, feeds);
-    return { party, ownFeed: feed.key };
   }
 
   /**
