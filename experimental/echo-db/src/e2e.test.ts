@@ -1,5 +1,8 @@
-import { NodeOrchestrator, Platform } from '@dxos/node-spawner';
-import { NodeHandle } from '@dxos/node-spawner/dist/src/node-handle';
+//
+// Copyright 2020 DXOS.org
+//
+
+import { NodeOrchestrator, Platform, NodeHandle } from '@dxos/node-spawner';
 
 async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   inviter.sendEvent({

@@ -1,5 +1,5 @@
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
-import { PartyProcessor } from './parties';
+import { PartyProcessor, Party } from './parties';
 
 export interface Invitation {
   partyKey: PartyKey
@@ -19,4 +19,11 @@ export class Inviter {
   finalize (response: InvitationResponse) {
     this._partyProcessor.admitFeed(response.newFeedKey);
   }
+}
+
+export class InvitationResponder {
+  constructor(
+    public readonly party: Party,
+    public readonly response: InvitationResponse,
+  ) {}
 }

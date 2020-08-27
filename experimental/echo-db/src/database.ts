@@ -6,7 +6,7 @@ import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
-import { Invitation, InvitationResponse } from './invitation';
+import { Invitation, InvitationResponse, InvitationResponder } from './invitation';
 
 /**
  * This is the root object for the ECHO database.
@@ -75,12 +75,16 @@ export class Database {
     return new ResultSet<Party>(this._partyUpdate, () => this._partyManager.parties);
   }
 
-  async joinParty (invitation: Invitation) {
+  /**
+   * Joins a party that was created by another peer and starts replicating with it.
+   * @param invitation 
+   */
+  async joinParty (invitation: Invitation): Promise<InvitationResponder> {
     const { party, ownFeed } = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
     await party.open();
 
     const response: InvitationResponse = { newFeedKey: ownFeed };
 
-    return { party, response };
+    return new InvitationResponder(party, response);
   }
 }

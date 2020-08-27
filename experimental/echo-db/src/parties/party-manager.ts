@@ -2,6 +2,11 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+import debug from 'debug';
+import hypercore from 'hypercore';
+import pify from 'pify';
+
 import { Event } from '@dxos/async';
 import { createKeyPair, keyToString } from '@dxos/crypto';
 import { createOrderedFeedStream, createPartyGenesis, FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
@@ -9,14 +14,11 @@ import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
-import assert from 'assert';
-import debug from 'debug';
-import hypercore from 'hypercore';
-import pify from 'pify';
+
+import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
-import { ReplicatorFactory } from '../replication';
 
 const log = debug('dxos:echo:party-manager');
 
