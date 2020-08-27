@@ -129,8 +129,7 @@ export class PartyManager {
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
-    const party = await this._constructParty(partyKey, feeds);
-    return { party, ownFeed: feed.key };
+    return this._constructParty(partyKey, feeds);
   }
 
   /**
@@ -167,7 +166,7 @@ export class PartyManager {
     const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
 
     // Create party.
-    const party = new Party(this._modelFactory, pipeline, partyProcessor);
+    const party = new Party(this._modelFactory, pipeline, partyProcessor, feed.key);
     this._parties.set(keyToString(party.key), party);
 
     return party;

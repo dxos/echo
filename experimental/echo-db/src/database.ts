@@ -80,10 +80,10 @@ export class Database {
    * @param invitation 
    */
   async joinParty (invitation: Invitation): Promise<InvitationResponder> {
-    const { party, ownFeed } = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
+    const party = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
     await party.open();
 
-    const response: InvitationResponse = { newFeedKey: ownFeed };
+    const response: InvitationResponse = { newFeedKey: party.writeFeedKey };
 
     return new InvitationResponder(party, response);
   }
