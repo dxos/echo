@@ -22,8 +22,8 @@ export class Inviter {
 }
 
 export class InvitationResponder {
-  constructor(
+  constructor (
     public readonly party: Party,
-    public readonly response: InvitationResponse,
+    public readonly response: InvitationResponse
   ) {}
 }

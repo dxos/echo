@@ -77,7 +77,7 @@ export class Database {
 
   /**
    * Joins a party that was created by another peer and starts replicating with it.
-   * @param invitation 
+   * @param invitation
    */
   async joinParty (invitation: Invitation): Promise<InvitationResponder> {
     const party = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
