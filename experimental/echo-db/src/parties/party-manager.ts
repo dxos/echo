@@ -22,9 +22,10 @@ import { TestPartyProcessor } from './test-party-processor';
 
 const log = debug('dxos:echo:party-manager');
 
-export interface Options {
+interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
+  readOnly?: boolean
 }
 
 /**
@@ -104,6 +105,8 @@ export class PartyManager {
    * Creates a new party, writing its genesis block to the stream.
    */
   async createParty (): Promise<Party> {
+    assert(!this._options.readOnly);
+
     const { publicKey: partyKey } = createKeyPair();
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
     const party = await this._constructParty(partyKey);
@@ -117,7 +120,7 @@ export class PartyManager {
     await party.open();
 
     // Create special properties item.
-    await party.createItem(PARTY_ITEM_TYPE, ObjectModel.meta.type);
+    await party.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
 
     return party;
   }

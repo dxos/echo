@@ -8,6 +8,12 @@ import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
 import { Invitation, InvitationResponse, InvitationResponder } from './invitation';
 
+export interface Options {
+  readOnly?: false;
+  readLogger?: NodeJS.ReadWriteStream;
+  writeLogger?: NodeJS.ReadWriteStream;
+}
+
 /**
  * This is the root object for the ECHO database.
  * It is used to query and mutate the state of all data accessible to the containing node.
@@ -23,7 +29,14 @@ import { Invitation, InvitationResponse, InvitationResponder } from './invitatio
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
 
-  constructor (private readonly _partyManager: PartyManager) { }
+  constructor (
+    private readonly _partyManager: PartyManager,
+    private readonly _options: Options = {},
+  ) { }
+
+  get readOnly () {
+    return this._options.readOnly;
+  }
 
   /**
    * Opens the pary and constructs the inbound/outbound mutation streams.
@@ -43,6 +56,10 @@ export class Database {
    * Creates a new party.
    */
   async createParty (): Promise<Party> {
+    if (this._options.readOnly) {
+      throw new Error('Read-only.');
+    }
+
     await this.open();
 
     const party = await this._partyManager.createParty();
