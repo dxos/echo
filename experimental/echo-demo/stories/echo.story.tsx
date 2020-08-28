@@ -55,6 +55,7 @@ const useDatabase = () => {
   return new Database(feedStore, modelFactory);
 };
 
+// TODO(burdon): Factor out.
 const GraphComponent = ({ grid, database, dx }: { grid: any, database: any, dx: number }) => {
   const [layout] = useState(new ForceLayout({
     center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y })
@@ -67,13 +68,12 @@ const GraphComponent = ({ grid, database, dx }: { grid: any, database: any, dx: 
   // TODO(burdon): Generate data from database.
   const [data] = useDataButton(() => convertTreeToGraph(createTree(4)));
 
-  // TODO(burdon): Create data.
+  // TODO(burdon): Create data on UX event.
   useEffect(() => {
     setImmediate(async () => {
       await database.open();
-      const party = await database.createParty();
       const parties = database.queryParties();
-      console.log(party, parties);
+      console.log(parties);
     });
   }, []);
 
@@ -95,7 +95,8 @@ export const withDatabase = () => {
   const grid = useGrid({ width, height });
   const markers = useRef<SVGGElement>(null);
 
-  // TODO(burdon): Connect via in-memory replicator.
+  // TODO(burdon): Connect database instances via in-memory replicator.
+  // TODO(burdon): Create party and invite both nodes here.
   const database1 = useDatabase();
   const database2 = useDatabase();
 
