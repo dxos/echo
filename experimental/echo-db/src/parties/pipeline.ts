@@ -2,9 +2,6 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Event } from '@dxos/async';
-import { createFeedMeta, dxos, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
-import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 import assert from 'assert';
 import debug from 'debug';
 import merge from 'lodash/merge';
@@ -15,7 +12,6 @@ import { Event } from '@dxos/async';
 import { dxos, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
-import { pipeline, Readable, Writable } from 'stream';
 import { PartyProcessor } from './party-processor';
 import { ReplicatorFactory, IReplicationAdapter } from '../replication';
 

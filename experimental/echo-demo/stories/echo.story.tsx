@@ -29,7 +29,7 @@ import {
 } from '@dxos/gem-spore';
 
 import { FeedStore } from '@dxos/feed-store';
-import { codec, Database } from '@dxos/experimental-echo-db';
+import { codec, Database, PartyManager } from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 
@@ -52,7 +52,8 @@ const useDatabase = () => {
   const modelFactory = new ModelFactory()
     .registerModel(ObjectModel.meta, ObjectModel);
 
-  return new Database(feedStore, modelFactory);
+  const partyManager = new PartyManager(feedStore, modelFactory);
+  return new Database(partyManager);
 };
 
 // TODO(burdon): Factor out.
