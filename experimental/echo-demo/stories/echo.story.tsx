@@ -5,9 +5,12 @@
 // @ts-ignore
 import * as d3 from 'd3';
 import debug from 'debug';
+// @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
+
 // @ts-ignore
 import ram from 'random-access-memory';
+
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
 import { withKnobs, button } from '@storybook/addon-knobs';
@@ -17,123 +20,105 @@ import {
   FullScreen,
   Grid,
   SVG,
-  createTree,
-  convertTreeToGraph,
   useGrid,
-  useObjectMutator
 // @ts-ignore
 } from '@dxos/gem-core';
 
 import {
-  Graph,
-  ForceLayout,
-  NodeProjector,
-  LinkProjector,
   useDefaultStyles,
   createArrowMarkers
 // @ts-ignore
 } from '@dxos/gem-spore';
 
 import { FeedStore } from '@dxos/feed-store';
-import { codec, Database, PartyManager } from '@dxos/experimental-echo-db';
+import { codec, createReplicatorFactory, Database, PartyManager } from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
-import { createReplicatorFactory } from '@dxos/experimental-echo-db/dist/src/replication';
 // @ts-ignore
 import { randomBytes } from '@dxos/crypto';
 // @ts-ignore
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
-debug.enable('dxos:*');
+
+import { EchoContext, EchoGraph } from '../src';
+
+const log = debug('dxos:echo:demo');
+debug.enable('dxos:echo:demo, dxos:echo:item-manager');
 
 export default {
-  title: 'Experimental',
+  title: 'Demo',
   decorators: [withKnobs]
 };
 
-const useDataButton = (generate: Function, label = 'Refresh') => {
-  const [data, setData, getData, updateData] = useObjectMutator(generate());
-  button(label, () => setData(generate()));
-  return [data, setData, getData, updateData];
-};
-
-const useDatabase = () => {
-  const [database] = useState(() => { 
+const createDatabase = () => {
+  const [database] = useState(() => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
 
     const modelFactory = new ModelFactory()
       .registerModel(ObjectModel.meta, ObjectModel);
-    
-    // TODO: Remove global in-memory swarm
+
+    // TODO(burdon): API: Remove global in-memory swarm.
     const networkManager = new NetworkManager(feedStore, new SwarmProvider());
     const partyManager = new PartyManager(
       feedStore,
       modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes()),
+      createReplicatorFactory(networkManager, feedStore, randomBytes())
     );
+
     return new Database(partyManager);
   });
+
+  log('Created:', String(database));
+
   return database;
 };
 
-// TODO(burdon): Factor out.
-const GraphComponent = ({ grid, database, dx }: { grid: any, database: any, dx: number }) => {
-  const [layout] = useState(new ForceLayout({
-    center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y })
-  }));
-  const [{ nodeProjector, linkProjector }] = useState({
-    nodeProjector: new NodeProjector({ node: { radius: 16, showLabels: false } }),
-    linkProjector: new LinkProjector({ nodeRadius: 16, showArrows: true })
-  });
+export const withDatabase = () => {
+  const db1 = createDatabase();
+  const db2 = createDatabase();
 
-  // TODO(burdon): Generate data from database.
-  const [data] = useDataButton(() => convertTreeToGraph(createTree(4)));
-
-  // TODO(burdon): Create data on UX event.
   useEffect(() => {
     setImmediate(async () => {
-      await database.open();
-      const parties = database.queryParties();
-      console.log(parties);
+      // Create party and invite.
+      const party1 = await db1.createParty();
+      log('Created Party:', String(party1));
+
+      // Invite party.
+      const invitation = party1.createInvitation();
+      log('Invitation request:', invitation.request);
+
+      // Join party.
+      const responder = await db2.joinParty(invitation.request);
+
+      // Response.
+      log('Invitation response:', invitation.request);
+      await invitation.finalize(responder.response);
+
+      // Invited
+      const party2 = responder.party;
+      log('Invited Party:', String(party2));
+
+      // Create items.
+      const item1 = await party1.createItem(ObjectModel.meta.type);
+      const item2 = await party1.createItem(ObjectModel.meta.type);
+      await item1.addChild(item2);
+      log('Created Item:', String(item1));
     });
   }, []);
 
   return (
-    <Graph
-      grid={grid}
-      data={data}
-      layout={layout}
-      nodeProjector={nodeProjector}
-      linkProjector={linkProjector}
-    />
-  );
+    <Test nodes={[
+      { id: 'A', database: db1 },
+      { id: 'B', database: db2 }
+    ]} />
+  )
 };
 
-export const withDatabase = () => {
+export const Test = ({ nodes }) => {
   const classes = useDefaultStyles();
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
   const markers = useRef<SVGGElement>(null);
-
-  // TODO(burdon): Connect database instances via in-memory replicator.
-  // TODO(burdon): Create party and invite both nodes here.
-  const database1 = useDatabase();
-  const database2 = useDatabase();
-
-  useEffect(() => {
-    setImmediate(async () => {
-      const party1 = await database1.createParty();
-      const inviter = party1.createInvitation();
-      const responder = await database2.joinParty(inviter.invitation);
-      inviter.finalize(responder.response);
-      const party2 = responder.party;
-
-      const item = await party1.createItem(ObjectModel.meta.type);
-
-      const result = await party2.queryItems();
-      result.subscribe(console.log)
-    });
-  }, []);
 
   // Arrows markers.
   useEffect(() => {
@@ -149,8 +134,11 @@ export const withDatabase = () => {
 
         <g ref={markers} className={classes.markers} />
 
-        <GraphComponent database={database1} grid={grid} dx={-50} />
-        <GraphComponent database={database2} grid={grid} dx={+50} />
+        {nodes.map(({ id, database }, i) => (
+          <EchoContext.Provider key={id} value={database}>
+            <EchoGraph id={id} grid={grid} dx={-50 + (i * 100 / (nodes.length - 1))} />
+          </EchoContext.Provider>
+        ))}
       </SVG>
     </FullScreen>
   );

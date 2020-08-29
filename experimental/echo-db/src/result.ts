@@ -7,7 +7,7 @@ import assert from 'assert';
 import { Event } from '@dxos/async';
 
 /**
- * Query results.
+ * Reactive query results.
  */
 export class ResultSet<T> {
   private readonly _resultsUpdate = new Event<T[]>();

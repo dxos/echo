@@ -4,9 +4,10 @@
 
 import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
+
+import { InvitationRequest, InvitationResponse, InvitationResponder } from './invitation';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
-import { Invitation, InvitationResponse, InvitationResponder } from './invitation';
 
 export interface Options {
   readOnly?: false;
@@ -31,8 +32,13 @@ export class Database {
 
   constructor (
     private readonly _partyManager: PartyManager,
-    private readonly _options: Options = {},
+    private readonly _options: Options = {}
   ) {}
+
+  // TODO(burdon): Identifier?
+  toString() {
+    return `Database()`;
+  }
 
   get readOnly () {
     return this._options.readOnly;
@@ -72,6 +78,20 @@ export class Database {
   }
 
   /**
+   * Joins a party that was created by another peer and starts replicating with it.
+   * @param invitation
+   */
+  async joinParty (invitation: InvitationRequest): Promise<InvitationResponder> {
+    await this.open();
+
+    const { partyKey, feeds } = invitation;
+    const party = await this._partyManager.addParty(partyKey, feeds);
+    await party.open();
+
+    return new InvitationResponder(party, { newFeedKey: party.writeFeedKey });
+  }
+
+  /**
    * Returns an individual party by it's key.
    * @param {PartyKey} partyKey
    */
@@ -90,18 +110,5 @@ export class Database {
     await this.open();
 
     return new ResultSet<Party>(this._partyUpdate, () => this._partyManager.parties);
-  }
-
-  /**
-   * Joins a party that was created by another peer and starts replicating with it.
-   * @param invitation
-   */
-  async joinParty (invitation: Invitation): Promise<InvitationResponder> {
-    const party = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
-    await party.open();
-
-    const response: InvitationResponse = { newFeedKey: party.writeFeedKey };
-
-    return new InvitationResponder(party, response);
   }
 }

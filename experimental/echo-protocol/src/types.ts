@@ -2,13 +2,25 @@
 // Copyright 2020 DXOS.org
 //
 
-import { dxos } from './proto';
+import { dxos as halo_dxos } from '@dxos/credentials'; // TODO(burdon): Rename.
+
+import { protocol_dxos } from './proto';
+
+//
+// Keys
+//
+
+// TODO(telackey): Removing the specific PartyKey/FeedKey/IdentityKey types is advisable. They are not different
+// types of things, only distinct uses, and the same key may be used in more than one way (eg, as both the IdentityKey
+// for the user and as the PartyKey for their HALO).
+
+export type PublicKey = Uint8Array;
 
 //
 // Feed
 //
 
-export type FeedKey = Uint8Array;
+export type FeedKey = PublicKey;
 
 export type FeedMeta = {
   feedKey: FeedKey;
@@ -37,16 +49,17 @@ export const createFeedMeta = (block: IFeedGenericBlock<any>): FeedMeta => ({
   seq: block.seq
 });
 
-export type FeedBlock = IFeedGenericBlock<dxos.FeedMessage>;
+export type FeedBlock = IFeedGenericBlock<protocol_dxos.FeedMessage>;
 
 export interface IHaloStream {
   meta: FeedMeta;
-  data: dxos.halo.IHaloEnvelope;
+  // TODO(telackey): Rename dxos.halo.IHaloEnvelope
+  data: halo_dxos.credentials.Message;
 }
 
 export interface IEchoStream {
   meta: FeedMeta;
-  data: dxos.echo.IEchoEnvelope;
+  data: protocol_dxos.echo.IEchoEnvelope;
 }
 
 //
@@ -62,4 +75,10 @@ export type ItemType = string;
 // Party
 //
 
-export type PartyKey = Uint8Array;
+export type PartyKey = PublicKey;
+
+//
+// Identity
+//
+
+export type IdentityKey = PublicKey;

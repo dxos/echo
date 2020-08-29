@@ -5,7 +5,7 @@
 import debug from 'debug';
 
 import { createId, createKeyPair } from '@dxos/crypto';
-import { dxos, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { protocol_dxos, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { ModelFactory, TestModel } from '@dxos/experimental-model-factory';
 import { createTransform, latch } from '@dxos/experimental-util';
 
@@ -14,7 +14,6 @@ import { createItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 
 const log = debug('dxos:echo:item-demuxer:test');
-debug.enable('dxos:echo:*');
 
 describe('item demxuer', () => {
   test('set-up', async () => {
@@ -27,8 +26,8 @@ describe('item demxuer', () => {
     //
     //
 
-    const writeStream = createTransform<dxos.echo.IEchoEnvelope, IEchoStream>(
-      async (message: dxos.echo.IEchoEnvelope): Promise<IEchoStream> => ({
+    const writeStream = createTransform<protocol_dxos.echo.IEchoEnvelope, IEchoStream>(
+      async (message: protocol_dxos.echo.IEchoEnvelope): Promise<IEchoStream> => ({
         meta: {
           feedKey,
           seq: 0
@@ -52,7 +51,7 @@ describe('item demxuer', () => {
     });
 
     const itemId = createId();
-    const message: dxos.echo.IEchoEnvelope = {
+    const message: protocol_dxos.echo.IEchoEnvelope = {
       itemId,
       genesis: {
         itemType: 'wrn://dxos.org/item/test',

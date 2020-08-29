@@ -2,16 +2,18 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+
 import { humanize } from '@dxos/crypto';
 import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
-import assert from 'assert';
+
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
+import { Invitation } from '../invitation';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-import { Inviter, Invitation } from '../invitation';
 
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
@@ -140,22 +142,19 @@ export class Party {
   }
 
   /**
+   * Creates an invition for a remote peer.
+   */
+  createInvitation (): Invitation {
+    return new Invitation(this._partyProcessor, { partyKey: this.key, feeds: this._pipeline.memberFeeds });
+  }
+
+  /**
    * Returns a special Item that is used by the Party to manage its properties.
    */
   async _getPropertiestItem (): Promise<Item<ObjectModel>> {
-    assert(this.isOpen);
     assert(this._itemManager);
     const { value: items } = await this._itemManager?.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1);
     return items[0];
-  }
-
-  createInvitation (): Inviter {
-    const invitation: Invitation = {
-      partyKey: this.key,
-      feeds: this._pipeline.memberFeeds
-    };
-
-    return new Inviter(invitation, this._partyProcessor);
   }
 }

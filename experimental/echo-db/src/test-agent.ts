@@ -1,3 +1,7 @@
+// TODO(marik-d): Move this file to gravity
+/* eslint-disable */
+// @ts-nocheck
+
 import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
@@ -7,7 +11,7 @@ import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
 
 import { codec } from './codec';
 import { Database } from './database';
-import { Inviter } from './invitation';
+import { Inviter } from './invitationMeta';
 import { Party, PartyManager } from './parties';
 import { createReplicatorFactory } from './replication';
 

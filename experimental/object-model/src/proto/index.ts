@@ -6,4 +6,4 @@ import ObjectSchema from './gen/object.json';
 
 export const Schema = ObjectSchema;
 
-export { dxos } from './gen/object';
+export { dxos as object_dxos } from './gen/object';

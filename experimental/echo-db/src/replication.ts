@@ -1,11 +1,16 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { discoveryKey, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
-import { FeedSetProvider } from './parties/party-processor';
+import { FeedSetProvider } from './parties';
 
+// TODO(burdon): ???.
 export interface IReplicationAdapter {
   start(): void
   stop(): void
@@ -36,18 +41,19 @@ export class ReplicationAdapter implements IReplicationAdapter {
   ) {}
 
   start (): void {
-    this.networkManager.joinProtocolSwarm(
-      this.partyKey,
-      ({ channel }: any) => this._createProtocol(channel));
+    this.networkManager.joinProtocolSwarm(this.partyKey, ({ channel }: any) => this._createProtocol(channel));
   }
 
   private _openFeed (key: FeedKey) {
     const topic = keyToString(this.partyKey);
 
     // Get the feed if we have it already, else create it.
-    // TODO(marik-d): Rethink FeedStore API: Remove openFeed
+    // TODO(marik-d): Rethink FeedStore API: Remove openFeed.
     return this.feedStore.getOpenFeed(desc => desc.feed.key.equals(key)) ||
-    this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, { key: Buffer.from(key), metadata: { partyKey: this.partyKey } } as any);
+    this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, {
+      key: Buffer.from(key),
+      metadata: { partyKey: this.partyKey }
+    } as any);
   }
 
   private _createProtocol (channel: any) {
@@ -77,7 +83,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
         if (!discoveryKey(this.partyKey).equals(dk)) {
           return undefined;
         }
-        // TODO(marik-d): Why does this do side effects
+        // TODO(marik-d): Why does this do side effects.
         protocol.setContext({ topic: keyToString(this.partyKey) });
         return this.partyKey;
       }
@@ -89,6 +95,6 @@ export class ReplicationAdapter implements IReplicationAdapter {
   }
 
   stop (): void {
-    // TODO(marik-d): Not implmented
+    // TODO(marik-d): Not implmented.
   }
 }
