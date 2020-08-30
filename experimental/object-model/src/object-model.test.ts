@@ -1,5 +1,5 @@
 //
-// Copyright 2020 DXOS.org
+// Copyright 2020 protocol_dxos.org
 //
 
 import debug from 'debug';
@@ -8,7 +8,7 @@ import { expectToThrow } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
 import { WritableArray } from '@dxos/experimental-util';
 
-import { dxos } from './proto';
+import { dxos as protocol_dxos } from './proto';
 import { ObjectModel } from './object-model';
 import { ValueUtil } from './mutation';
 
@@ -29,7 +29,7 @@ describe('object model', () => {
   });
 
   test('mutation', async () => {
-    const buffer = new WritableArray<dxos.object.IObjectMutationSet>();
+    const buffer = new WritableArray<protocol_dxos.echo.object.IObjectMutationSet>();
 
     const itemId = createId();
     const model = new ObjectModel(ObjectModel.meta, itemId, buffer);

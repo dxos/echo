@@ -4,7 +4,7 @@
 
 syntax = "proto3";
 
-package dxos.object;
+package dxos.echo.object;
 
 //
 // Object mutation messages.

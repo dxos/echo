@@ -1,5 +1,5 @@
 //
-// Copyright 2020 DXOS.org
+// Copyright 2020 protocol_dxos.org
 //
 
 import debug from 'debug';
@@ -10,7 +10,7 @@ import { FeedMeta } from '@dxos/experimental-echo-protocol';
 import { ModelMeta, Model } from '@dxos/experimental-model-factory';
 import { checkType, jsonReplacer } from '@dxos/experimental-util';
 
-import { dxos } from './proto';
+import { dxos as protocol_dxos } from './proto';
 import { MutationUtil, ValueUtil } from './mutation';
 
 const log = debug('dxos:echo:object-model');
@@ -18,10 +18,10 @@ const log = debug('dxos:echo:object-model');
 /**
  * Object mutation model.
  */
-export class ObjectModel extends Model<dxos.object.IObjectMutationSet> {
+export class ObjectModel extends Model<protocol_dxos.echo.object.IObjectMutationSet> {
   static meta: ModelMeta = {
-    type: 'wrn://dxos.org/model/object',
-    mutation: 'dxos.object.ObjectMutationSet'
+    type: 'wrn://protocol_dxos.org/model/object',
+    mutation: 'protocol_dxos.echo.object.ObjectMutationSet'
   };
 
   private _object = {};
@@ -45,11 +45,11 @@ export class ObjectModel extends Model<dxos.object.IObjectMutationSet> {
 
   // TODO(burdon): Create builder pattern (replace static methods).
   async setProperty (key: string, value: any) {
-    await this.write(checkType<dxos.object.IObjectMutationSet>({
+    await this.write(checkType<protocol_dxos.echo.object.IObjectMutationSet>({
       mutations: [
         {
           // TODO(burdon): Namespace conflict when imported into echo-db.
-          operation: 0, // _dxos.object.ObjectMutation.Operation.SET,
+          operation: 0, // _protocol_dxos.echo.object.ObjectMutation.Operation.SET,
           key,
           value: ValueUtil.createMessage(value)
         }
@@ -57,7 +57,7 @@ export class ObjectModel extends Model<dxos.object.IObjectMutationSet> {
     }));
   }
 
-  async _processMessage (meta: FeedMeta, messsage: dxos.object.IObjectMutationSet) {
+  async _processMessage (meta: FeedMeta, messsage: protocol_dxos.echo.object.IObjectMutationSet) {
     log('processMessage', JSON.stringify({ meta, messsage }, jsonReplacer));
     MutationUtil.applyMutationSet(this._object, messsage);
     return true;
