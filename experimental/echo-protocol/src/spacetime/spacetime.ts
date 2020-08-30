@@ -147,7 +147,9 @@ export class Spacetime<T, S> {
    * @param tf1
    * @param tf2
    */
-  dependencies<T> (tf1: dxos.echo.ITimeframe, tf2: dxos.echo.ITimeframe): dxos.echo.ITimeframe {
+  dependencies<T> (
+    tf1: dxos.echo.ITimeframe, tf2: dxos.echo.ITimeframe
+  ): dxos.echo.ITimeframe {
     return {
       frames: tf1.frames?.filter(frame => {
         assert(frame.seq !== undefined && frame.seq !== null);

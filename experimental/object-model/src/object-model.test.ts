@@ -29,7 +29,7 @@ describe('object model', () => {
   });
 
   test('mutation', async () => {
-    const buffer = new WritableArray<dxos.echo.object.IObjectMutationSet>();
+    const buffer = new WritableArray<dxos.object.IObjectMutationSet>();
 
     const itemId = createId();
     const model = new ObjectModel(ObjectModel.meta, itemId, buffer);

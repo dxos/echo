@@ -44,7 +44,7 @@ const SCALAR_TYPES = [
  * Represents a named property value.
  */
 export class KeyValueUtil {
-  static createMessage (key: string, value: any): dxos.echo.object.IKeyValue {
+  static createMessage (key: string, value: any): dxos.object.IKeyValue {
     assert(key);
 
     return {
@@ -64,7 +64,7 @@ export class ValueUtil {
    * @param {any} value
    * @return {{Value}}
    */
-  static createMessage (value: any): dxos.echo.object.IValue {
+  static createMessage (value: any): dxos.object.IValue {
     // NOTE: Process `null` different from `undefined`.
     if (value === null) {
       return { [Type.NULL]: true };
@@ -83,31 +83,31 @@ export class ValueUtil {
     }
   }
 
-  static bytes (value: Uint8Array): dxos.echo.object.IValue {
+  static bytes (value: Uint8Array): dxos.object.IValue {
     return { [Type.BYTES]: value };
   }
 
-  static bool (value: boolean): dxos.echo.object.IValue {
+  static bool (value: boolean): dxos.object.IValue {
     return { [Type.BOOLEAN]: value };
   }
 
-  static integer (value: number): dxos.echo.object.IValue {
+  static integer (value: number): dxos.object.IValue {
     return { [Type.INTEGER]: value };
   }
 
-  static float (value: number): dxos.echo.object.IValue {
+  static float (value: number): dxos.object.IValue {
     return { [Type.FLOAT]: value };
   }
 
-  static string (value: string): dxos.echo.object.IValue {
+  static string (value: string): dxos.object.IValue {
     return { [Type.STRING]: value };
   }
 
-  static datetime (value: string): dxos.echo.object.IValue {
+  static datetime (value: string): dxos.object.IValue {
     return { [Type.DATETIME]: value };
   }
 
-  static object (value: Record<string, any>): dxos.echo.object.IValue {
+  static object (value: Record<string, any>): dxos.object.IValue {
     return {
       [Type.OBJECT]: {
         properties: Object.keys(value).map(key => KeyValueUtil.createMessage(key, value[key]))
@@ -115,7 +115,7 @@ export class ValueUtil {
     };
   }
 
-  static applyValue (object: any, key: string, value: dxos.echo.object.IValue) {
+  static applyValue (object: any, key: string, value: dxos.object.IValue) {
     assert(object);
     assert(key);
     assert(value);
@@ -130,7 +130,7 @@ export class ValueUtil {
     // Apply object properties.
     if (value[Type.OBJECT]) {
       const nestedObject = {};
-      const { properties }: { properties: dxos.echo.object.KeyValue[] } = value[Type.OBJECT]!;
+      const { properties }: { properties: dxos.object.KeyValue[] } = value[Type.OBJECT]!;
       properties.forEach(({ key, value }) => ValueUtil.applyValue(nestedObject, key!, value!));
       object[key] = nestedObject;
       return object;
@@ -152,18 +152,18 @@ export class ValueUtil {
  * Represents mutations on objects.
  */
 export class MutationUtil {
-  static applyMutationSet (object: any, message: dxos.echo.object.IObjectMutationSet) {
+  static applyMutationSet (object: any, message: dxos.object.IObjectMutationSet) {
     assert(message);
     const { mutations } = message;
     mutations?.forEach(mutation => MutationUtil.applyMutation(object, mutation));
     return object;
   }
 
-  static applyMutation (object: any, mutation: dxos.echo.object.IObjectMutation) {
-    const { operation = dxos.echo.object.ObjectMutation.Operation.SET, key, value } = mutation;
+  static applyMutation (object: any, mutation: dxos.object.IObjectMutation) {
+    const { operation = dxos.object.ObjectMutation.Operation.SET, key, value } = mutation;
     switch (operation) {
       // TODO(burdon): Namespace conflict when imported into echo-db.
-      case 0: { // dxos.echo.object.ObjectMutation.Operation.SET: {
+      case 0: { // dxos.object.ObjectMutation.Operation.SET: {
         ValueUtil.applyValue(object, key!, value!);
         break;
       }

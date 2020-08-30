@@ -11,4 +11,9 @@ export const Schema = ProtoSchema;
 //   export * as protocol from './gen/dxos'; (doens't work in other modules: TS2503: Cannot find namespace 'protocol')
 //   https://github.com/microsoft/TypeScript/issues/447 (2014!)
 //   https://stackoverflow.com/questions/30357634/how-do-i-use-namespaces-with-typescript-external-modules
+//   NOTE: Export here is treated differently by external modules (e.g., externally xxx.dxos, whereas inside this
+//   modules it's IS 'dxos').
+// import root from './gen/dxos';
+// export { root as protocol };
+// export * as protocol from './gen/dxos';
 export { dxos } from './gen/dxos';
