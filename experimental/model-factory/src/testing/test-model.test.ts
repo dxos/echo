@@ -3,7 +3,7 @@
 //
 
 import { createKeyPair, createId } from '@dxos/crypto';
-import { protocol_dxos } from '@dxos/experimental-echo-protocol';
+import { dxos as protocol } from '@dxos/experimental-echo-protocol';
 import { createTransform, latch } from '@dxos/experimental-util';
 
 import { ModelMessage } from '../types';
@@ -36,10 +36,10 @@ describe('test model', () => {
     // Create transform that connects model output to model input.
     let seq = 0;
     const transform = createTransform<
-      protocol_dxos.echo.testing.TestItemMutation, ModelMessage<protocol_dxos.echo.testing.TestItemMutation>
+      protocol.dxos.echo.testing.TestItemMutation, ModelMessage<protocol.dxos.echo.testing.TestItemMutation>
       >(
-        async (mutation: protocol_dxos.echo.testing.TestItemMutation) => {
-          const message: ModelMessage<protocol_dxos.echo.testing.TestItemMutation> = {
+        async (mutation: protocol.dxos.echo.testing.TestItemMutation) => {
+          const message: ModelMessage<protocol.dxos.echo.testing.TestItemMutation> = {
             meta: {
               feedKey,
               seq

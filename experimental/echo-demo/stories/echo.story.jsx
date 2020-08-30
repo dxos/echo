@@ -2,41 +2,32 @@
 // Copyright 2020 DXOS.org
 //
 
-// @ts-ignore
 import * as d3 from 'd3';
 import debug from 'debug';
-// @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
 
-// @ts-ignore
 import ram from 'random-access-memory';
 
-// @ts-ignore
 import useResizeAware from 'react-resize-aware';
 import { withKnobs, button } from '@storybook/addon-knobs';
 
-// @ts-ignore
 import {
   FullScreen,
   Grid,
   SVG,
   useGrid,
-// @ts-ignore
 } from '@dxos/gem-core';
 
 import {
   useDefaultStyles,
   createArrowMarkers
-// @ts-ignore
 } from '@dxos/gem-spore';
 
 import { FeedStore } from '@dxos/feed-store';
 import { codec, createReplicatorFactory, Database, PartyManager } from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
-// @ts-ignore
 import { randomBytes } from '@dxos/crypto';
-// @ts-ignore
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 
 import { EchoContext, EchoGraph } from '../src';
@@ -118,7 +109,7 @@ export const Test = ({ nodes }) => {
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
-  const markers = useRef<SVGGElement>(null);
+  const markers = useRef(null);
 
   // Arrows markers.
   useEffect(() => {

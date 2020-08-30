@@ -2,10 +2,11 @@
 // Copyright 2020 DXOS.org
 //
 
-import { protocol_dxos, ItemID } from '@dxos/experimental-echo-protocol';
+import { dxos as protocol, ItemID } from '@dxos/experimental-echo-protocol';
 
-export const createSetPropertyMutation =
-  (itemId: ItemID, key: string, value: string, timeframe?: protocol_dxos.echo.ITimeframe): protocol_dxos.IFeedMessage => ({
+export const createSetPropertyMutation = (
+  itemId: ItemID, key: string, value: string, timeframe?: protocol.dxos.echo.ITimeframe
+): protocol.dxos.IFeedMessage => ({
     echo: {
       timeframe,
       itemId,
