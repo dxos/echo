@@ -14,13 +14,16 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "ES2018",
+    "target": "ES2018"
   },
   "include": [
     "src",
     "src/**/*.js",
     "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.d.ts",
-    "src/**/*.json"
+    "src/**/*.json",
+    "stories",
+    "stories/**/*.tsx"
   ]
 }

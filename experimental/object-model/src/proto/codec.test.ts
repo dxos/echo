@@ -4,12 +4,11 @@
 
 import { createId } from '@dxos/crypto';
 import { Codec } from '@dxos/codec-protobuf';
-import { protocol_dxos, Schema } from '@dxos/experimental-echo-protocol';
+import { dxos as protocol, Schema } from '@dxos/experimental-echo-protocol';
 import { createAny } from '@dxos/experimental-util';
 
 import ObjectSchema from './gen/object.json';
-
-import { dxos as object_dxos } from './gen/object';
+import * as object from './gen/object';
 
 const codec = new Codec('dxos.FeedMessage')
   .addJson(Schema)
@@ -18,11 +17,11 @@ const codec = new Codec('dxos.FeedMessage')
 
 describe('Protobuf', () => {
   test('merge definitions', () => {
-    const message1: protocol_dxos.FeedMessage = {
+    const message1: protocol.dxos.FeedMessage = {
       echo: {
         itemId: createId(),
-        mutation: createAny<object_dxos.echo.object.IObjectMutation>({
-          operation: object_dxos.echo.object.ObjectMutation.Operation.SET,
+        mutation: createAny<object.dxos.echo.object.IObjectMutation>({
+          operation: object.dxos.echo.object.ObjectMutation.Operation.SET,
           key: 'title',
           value: {
             string: 'DXOS'

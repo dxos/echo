@@ -79,11 +79,15 @@ export class ReplicationAdapter implements IReplicationAdapter {
       streamOptions: {
         live: true
       },
+
       discoveryToPublicKey: (dk: any) => {
+        // TODO(burdon): Rename function (convertToDiscoveryKey).
         if (!discoveryKey(this.partyKey).equals(dk)) {
           return undefined;
         }
+
         // TODO(marik-d): Why does this do side effects.
+        // TODO(burdon): Remove need for external closure (i.e., pass object to this callback).
         protocol.setContext({ topic: keyToString(this.partyKey) });
         return this.partyKey;
       }
@@ -91,6 +95,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
       .setSession({ peerId: this.peerId })
       .setExtensions([replicator.createExtension()])
       .init(channel);
+
     return protocol;
   }
 

@@ -5,7 +5,7 @@
 import debug from 'debug';
 
 import { createId, createKeyPair } from '@dxos/crypto';
-import { protocol_dxos, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { dxos as protocol, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { ModelFactory, TestModel } from '@dxos/experimental-model-factory';
 import { createTransform, latch } from '@dxos/experimental-util';
 
@@ -26,8 +26,8 @@ describe('item demxuer', () => {
     //
     //
 
-    const writeStream = createTransform<protocol_dxos.echo.IEchoEnvelope, IEchoStream>(
-      async (message: protocol_dxos.echo.IEchoEnvelope): Promise<IEchoStream> => ({
+    const writeStream = createTransform<protocol.dxos.echo.IEchoEnvelope, IEchoStream>(
+      async (message: protocol.dxos.echo.IEchoEnvelope): Promise<IEchoStream> => ({
         meta: {
           feedKey,
           seq: 0
@@ -51,7 +51,7 @@ describe('item demxuer', () => {
     });
 
     const itemId = createId();
-    const message: protocol_dxos.echo.IEchoEnvelope = {
+    const message: protocol.dxos.echo.IEchoEnvelope = {
       itemId,
       genesis: {
         itemType: 'wrn://dxos.org/item/test',

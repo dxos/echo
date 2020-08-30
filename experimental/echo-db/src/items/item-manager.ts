@@ -8,7 +8,7 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { protocol_dxos, ItemID, ItemType, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { dxos as protocol, ItemID, ItemType, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/experimental-model-factory';
 import { checkType, createTransform } from '@dxos/experimental-util';
 
@@ -65,7 +65,7 @@ export class ItemManager {
 
     // Write Item Genesis block.
     log('Item Genesis:', itemId);
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol_dxos.echo.IEchoEnvelope>({
+    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol.dxos.echo.IEchoEnvelope>({
       itemId,
       genesis: {
         itemType,
@@ -113,8 +113,8 @@ export class ItemManager {
     //
     // Convert model-specific outbound mutation to outbound envelope message.
     //
-    const outboundTransform = createTransform<any, protocol_dxos.echo.IEchoEnvelope>(async (mutation) => {
-      const response: protocol_dxos.echo.IEchoEnvelope = {
+    const outboundTransform = createTransform<any, protocol.dxos.echo.IEchoEnvelope>(async (mutation) => {
+      const response: protocol.dxos.echo.IEchoEnvelope = {
         itemId,
         mutation
       };

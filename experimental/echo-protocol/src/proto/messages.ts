@@ -4,14 +4,14 @@
 
 import { createAny } from '@dxos/experimental-util';
 
-import { dxos as protocol_dxos } from './gen/dxos';
 import { ItemID, ItemType } from '../types';
+import { dxos } from './proto';
 
 //
 // ECHO generators.
 //
 
-export const createItemGenesis = (itemId: ItemID, itemType: ItemType): protocol_dxos.IFeedMessage => ({
+export const createItemGenesis = (itemId: ItemID, itemType: ItemType): dxos.IFeedMessage => ({
   echo: {
     genesis: {
       itemType
@@ -24,12 +24,12 @@ export const createItemGenesis = (itemId: ItemID, itemType: ItemType): protocol_
 //
 
 export const createTestItemMutation = (
-  itemId: ItemID, key: string, value: string, timeframe?: protocol_dxos.echo.ITimeframe
-): protocol_dxos.IFeedMessage => ({
+  itemId: ItemID, key: string, value: string, timeframe?: dxos.echo.ITimeframe
+): dxos.IFeedMessage => ({
   echo: {
     itemId,
     timeframe,
-    mutation: createAny<protocol_dxos.echo.testing.ITestItemMutation>({
+    mutation: createAny<dxos.echo.testing.ITestItemMutation>({
       key,
       value
     }, 'dxos.echo.testing.TestItemMutation')
