@@ -1,5 +1,5 @@
 //
-// Copyright 2020 protocol_dxos.org
+// Copyright 2020 protocol.dxos.org
 //
 
 import debug from 'debug';
@@ -10,7 +10,7 @@ import { FeedMeta } from '@dxos/experimental-echo-protocol';
 import { ModelMeta, Model } from '@dxos/experimental-model-factory';
 import { checkType, jsonReplacer } from '@dxos/experimental-util';
 
-import { dxos as protocol_dxos } from './proto';
+import { protocol } from './proto';
 import { MutationUtil, ValueUtil } from './mutation';
 
 const log = debug('dxos:echo:object-model');
@@ -18,10 +18,10 @@ const log = debug('dxos:echo:object-model');
 /**
  * Object mutation model.
  */
-export class ObjectModel extends Model<protocol_dxos.echo.object.IObjectMutationSet> {
+export class ObjectModel extends Model<protocol.dxos.echo.object.IObjectMutationSet> {
   static meta: ModelMeta = {
-    type: 'wrn://protocol_dxos.org/model/object',
-    mutation: 'protocol_dxos.echo.object.ObjectMutationSet'
+    type: 'wrn://protocol.dxos.org/model/object',
+    mutation: 'protocol.dxos.echo.object.ObjectMutationSet'
   };
 
   private _object = {};
@@ -45,11 +45,11 @@ export class ObjectModel extends Model<protocol_dxos.echo.object.IObjectMutation
 
   // TODO(burdon): Create builder pattern (replace static methods).
   async setProperty (key: string, value: any) {
-    await this.write(checkType<protocol_dxos.echo.object.IObjectMutationSet>({
+    await this.write(checkType<protocol.dxos.echo.object.IObjectMutationSet>({
       mutations: [
         {
           // TODO(burdon): Namespace conflict when imported into echo-db.
-          operation: 0, // _protocol_dxos.echo.object.ObjectMutation.Operation.SET,
+          operation: 0, // _protocol.dxos.echo.object.ObjectMutation.Operation.SET,
           key,
           value: ValueUtil.createMessage(value)
         }
@@ -57,7 +57,7 @@ export class ObjectModel extends Model<protocol_dxos.echo.object.IObjectMutation
     }));
   }
 
-  async _processMessage (meta: FeedMeta, messsage: protocol_dxos.echo.object.IObjectMutationSet) {
+  async _processMessage (meta: FeedMeta, messsage: protocol.dxos.echo.object.IObjectMutationSet) {
     log('processMessage', JSON.stringify({ meta, messsage }, jsonReplacer));
     MutationUtil.applyMutationSet(this._object, messsage);
     return true;

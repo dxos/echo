@@ -4,7 +4,7 @@
 
 import { dxos as halo_dxos } from '@dxos/credentials'; // TODO(burdon): Rename and export root (not dxos).
 
-import { dxos as protocol_dxos } from './proto';
+import { protocol } from './proto';
 
 //
 // Keys
@@ -49,7 +49,7 @@ export const createFeedMeta = (block: IFeedGenericBlock<any>): FeedMeta => ({
   seq: block.seq
 });
 
-export type FeedBlock = IFeedGenericBlock<protocol_dxos.FeedMessage>;
+export type FeedBlock = IFeedGenericBlock<protocol.dxos.FeedMessage>;
 
 export interface IHaloStream {
   meta: FeedMeta;
@@ -59,7 +59,7 @@ export interface IHaloStream {
 
 export interface IEchoStream {
   meta: FeedMeta;
-  data: protocol_dxos.echo.IEchoEnvelope;
+  data: protocol.dxos.echo.IEchoEnvelope;
 }
 
 //

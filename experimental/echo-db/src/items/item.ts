@@ -5,7 +5,7 @@
 import assert from 'assert';
 import pify from 'pify';
 
-import { dxos as protocol_dxos, ItemID, ItemType } from '@dxos/experimental-echo-protocol';
+import { protocol, ItemID, ItemType } from '@dxos/experimental-echo-protocol';
 import { Model } from '@dxos/experimental-model-factory';
 import { checkType } from '@dxos/experimental-util';
 
@@ -64,7 +64,7 @@ export class Item<M extends Model<any>> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol_dxos.echo.IEchoEnvelope>({
+    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol.dxos.echo.IEchoEnvelope>({
       itemId: this._itemId,
       childMutation: {
         itemId: item.id
@@ -77,23 +77,23 @@ export class Item<M extends Model<any>> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol_dxos.echo.IEchoEnvelope>({
+    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol.dxos.echo.IEchoEnvelope>({
       itemId: this._itemId,
       childMutation: {
-        operation: protocol_dxos.echo.ItemChildMutation.Operation.REMOVE,
+        operation: protocol.dxos.echo.ItemChildMutation.Operation.REMOVE,
         itemId
       }
     }));
   }
 
-  _processMutation (mutation: protocol_dxos.echo.ItemChildMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
+  _processMutation (mutation: protocol.dxos.echo.ItemChildMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
     const { operation, itemId } = mutation;
     assert(itemId);
 
-    // TODO(burdon): At runtime (in echo-demo) protocol_dxos.echo => object_dxos.echo
-    console.log(protocol_dxos);
+    // TODO(burdon): At runtime (in echo-demo) protocol.dxos.echo => object_dxos.echo
+    console.log(protocol.dxos);
     switch (operation) {
-      case protocol_dxos.echo.ItemChildMutation.Operation.REMOVE: {
+      case protocol.dxos.echo.ItemChildMutation.Operation.REMOVE: {
         this._children.forEach(child => {
           if (child.id === itemId) {
             this._children.delete(child);
@@ -102,7 +102,7 @@ export class Item<M extends Model<any>> {
         break;
       }
 
-      case protocol_dxos.echo.ItemChildMutation.Operation.ADD:
+      case protocol.dxos.echo.ItemChildMutation.Operation.ADD:
       default: {
         const child = getItem(itemId);
         assert(child);
