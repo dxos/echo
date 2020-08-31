@@ -73,11 +73,5 @@
     "typescript": "^3.9.3",
     "wait-for-expect": "^3.0.2"
   },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "extends": [
-      "plugin:jest/recommended",
-      "eslint-config-semistandard"
-    ]
-  }
+  "eslintIgnore": ["/src/proto/gen/*"]
 }
