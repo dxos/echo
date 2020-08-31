@@ -12,7 +12,7 @@
     "build:watch": "yarn run build --watch",
     "clean": "rm -rf dist",
     "dist": "babel ./src --out-dir ./dist --ignore \"**/*.test.js\"",
-    "lint": "eslint **/*.js --ignore-path ../../.eslintignore",
+    "lint": "semistandard 'src/**/*.js'",
     "package:linux-armv7": "rm -rf out/bin && npm run pkg:linux-armv7 && ./scripts/package.sh linux-armv7 linux-arm",
     "package:linux-arm64": "rm -rf out/bin && npm run pkg:linux-arm64 && ./scripts/package.sh linux-arm64",
     "package:linux-x64": "rm -rf out/bin && npm run pkg:linux-x64 && ./scripts/package.sh linux-x64",
@@ -42,6 +42,15 @@
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-watch": "7.0.0",
     "jest": "^25.1.0",
-    "pkg": "^4.4.3"
+    "pkg": "^4.4.3",
+    "semistandard": "14.2.0"
+  },
+  "semistandard": {
+    "parser": "babel-eslint",
+    "env": [
+      "jest",
+      "node",
+      "browser"
+    ]
   }
 }
