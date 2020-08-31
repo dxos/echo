@@ -60,6 +60,9 @@ typings/
 # next.js build output
 .next
 
+# DXOS
+service.yml
+
 .idea/workspace.xml
 
 gen/
@@ -70,4 +73,3 @@ public/
 .cache
 .temp/
 .DS_Store
-
