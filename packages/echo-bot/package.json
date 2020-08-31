@@ -1,0 +1,47 @@
+{
+  "name": "@dxos/echo-bot",
+  "version": "1.0.0-beta.28",
+  "private": true,
+  "description": "Echo Bot",
+  "keywords": [],
+  "license": "GPL-3.0",
+  "author": "DxOS.org",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run clean && npm run dist",
+    "build:watch": "yarn run build --watch",
+    "clean": "rm -rf dist",
+    "dist": "babel ./src --out-dir ./dist --ignore \"**/*.test.js\"",
+    "lint": "eslint **/*.js --ignore-path ../../.eslintignore",
+    "package:linux-armv7": "rm -rf out/bin && npm run pkg:linux-armv7 && ./scripts/package.sh linux-armv7 linux-arm",
+    "package:linux-arm64": "rm -rf out/bin && npm run pkg:linux-arm64 && ./scripts/package.sh linux-arm64",
+    "package:linux-x64": "rm -rf out/bin && npm run pkg:linux-x64 && ./scripts/package.sh linux-x64",
+    "package:macos-x64": "rm -rf out/bin && npm run pkg:macos-x64 && ./scripts/package.sh macos-x64",
+    "pkg:linux-arm64": "npm run build && NODE_OPTIONS='' && pkg --target node12-linux-arm64  dist/main.js -o ./out/bin/main-linux-arm64",
+    "pkg:linux-armv7": "npm run build && NODE_OPTIONS='' && pkg --target node12-linux-armv7  dist/main.js -o ./out/bin/main-linux-armv7",
+    "pkg:linux-x64": "npm run build && NODE_OPTIONS='' && pkg --target node12-linux-x64  dist/main.js -o ./out/bin/main-linux-x64",
+    "pkg:macos-x64": "npm run build && NODE_OPTIONS='' && pkg --target node12-macos-x64  dist/main.js -o ./out/bin/main-macos-x64",
+    "test": "jest --rootDir ./src --verbose --passWithNoTests"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "dependencies": {
+    "@dxos/botkit": "^1.1.0-beta.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-jest": "^25.1.0",
+    "babel-loader": "^8.0.0",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-watch": "7.0.0",
+    "jest": "^25.1.0",
+    "pkg": "^4.4.3"
+  }
+}
