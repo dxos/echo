@@ -57,6 +57,10 @@ export class ItemManager {
     assert(this._writeStream);
     assert(modelType);
 
+    if(!this._modelFactory.hasModel(modelType)) {
+      throw new Error(`Unknown model: ${modelType}`);
+    }
+
     // Pending until constructed (after genesis block is read from stream).
     const [waitForCreation, callback] = trigger();
 
