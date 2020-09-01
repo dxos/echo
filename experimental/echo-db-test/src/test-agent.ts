@@ -63,7 +63,7 @@ export default class TestAgent implements Agent {
         newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
       });
     } else {
-      this.party!.createItem('wrn://dxos.org/model/object');
+      this.party!.createItem(ObjectModel.meta.type);
     }
   }
 
