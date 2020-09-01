@@ -38,7 +38,6 @@ export default class TestAgent implements Agent {
 
       const items = await this.party.queryItems();
       items.subscribe(items => {
-        console.log('items', items)
         this.environment.metrics.set('itemCount', items.length);
       });
 
@@ -64,8 +63,7 @@ export default class TestAgent implements Agent {
         newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
       });
     } else {
-      console.log('create item')
-      this.party!.createItem('wrn://dxos.org/item/document');
+      this.party!.createItem('wrn://dxos.org/model/object');
     }
   }
 
