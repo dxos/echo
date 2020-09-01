@@ -1,19 +1,10 @@
-// TODO(marik-d): Move this file to gravity
-/* eslint-disable */
-// @ts-nocheck
-
 import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
-
-import { codec } from './codec';
-import { Database } from './database';
-import { Inviter } from './invitation';
-import { Party, PartyManager } from './parties';
-import { createReplicatorFactory } from './replication';
+import { codec, Database, Inviter, Party, PartyManager, createReplicatorFactory } from '@dxos/experimental-echo-db';
 
 export default class TestAgent implements Agent {
   private party?: Party;
@@ -47,13 +38,14 @@ export default class TestAgent implements Agent {
 
       const items = await this.party.queryItems();
       items.subscribe(items => {
+        console.log('items', items)
         this.environment.metrics.set('itemCount', items.length);
       });
 
       this.inviter = this.party.createInvitation();
       this.environment.log('invitation', {
         partyKey: keyToString(this.inviter.invitation.partyKey as any),
-        feeds: this.inviter.invitation.feeds.map(keyToString)
+        feeds: this.inviter.invitation.feeds.map(key => keyToString(Buffer.from(key)))
       });
     } else if (event.command === 'ACCEPT_INVITATION') {
       const { response, party } = await this.db.joinParty({
@@ -66,12 +58,13 @@ export default class TestAgent implements Agent {
         this.environment.metrics.set('itemCount', items.length);
       });
 
-      this.environment.log('invitationResponse', { newFeedKey: keyToString(response.newFeedKey) });
+      this.environment.log('invitationResponse', { newFeedKey: keyToString(Buffer.from(response.newFeedKey)) });
     } else if (event.command === 'FINALIZE_INVITATION') {
-      this.inviter?.finalize({
+      this.inviter!.finalize({
         newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
       });
     } else {
+      console.log('create item')
       this.party!.createItem('wrn://dxos.org/item/document');
     }
   }

@@ -2,12 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-// TODO(marik-d): Move this file to gravity
-/* eslint-disable */
-// @ts-nocheck
-
-// import { NodeOrchestrator, Platform, NodeHandle } from '@dxos/node-spawner';
-type NodeHandle = any;
+import { NodeOrchestrator, Platform, NodeHandle } from '@dxos/node-spawner';
 
 async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   inviter.sendEvent({
@@ -27,7 +22,7 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   });
 }
 
-test.skip('E2E Agent testing', async () => {
+test('E2E Agent testing', async () => {
   const orchestrator = new NodeOrchestrator();
 
   const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
@@ -41,6 +36,7 @@ test.skip('E2E Agent testing', async () => {
   });
 
   await invite(node1, node2);
+  console.log('invited')
 
   node1.sendEvent({});
 
