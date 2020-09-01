@@ -4,7 +4,7 @@
 
 import { humanize } from '@dxos/crypto';
 import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
+import { ModelFactory, ModelType, Model, ModelMeta } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import assert from 'assert';
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
@@ -17,6 +17,8 @@ export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
+
+type ModelContructor<T> = { meta: ModelMeta } & (new (...args: any) => T)
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -107,7 +109,7 @@ export class Party {
    */
   async setProperty (key: string, value: any): Promise<Party> {
     const item = await this._getPropertiestItem();
-    await (item.model as ObjectModel).setProperty(key, value);
+    await item.model.setProperty(key, value);
     return this;
   }
 
@@ -117,7 +119,7 @@ export class Party {
    */
   async getProperty (key: string): Promise<any> {
     const item = await this._getPropertiestItem();
-    return await (item.model as ObjectModel).getProperty(key);
+    return await item.model.getProperty(key);
   }
 
   /**
@@ -125,8 +127,16 @@ export class Party {
    * @param {ModelType} [modelType]
    * @param {ItemType} [itemType]
    */
-  async createItem (modelType: ModelType = ObjectModel.meta.type, itemType?: ItemType | undefined): Promise<Item<any>> {
+  async createItem (): Promise<Item<ObjectModel>>
+  async createItem (modelClass: undefined, itemType?: ItemType | undefined): Promise<Item<ObjectModel>>
+  async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>>
+  async createItem <M extends Model<any>>(modelClass: ModelContructor<M>, itemType?: ItemType | undefined): Promise<Item<M>>
+  async createItem (modelType: ModelContructor<Model<any>> | ModelType = ObjectModel.meta.type, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);
+    if (typeof modelType !== 'string') {
+      modelType = modelType.meta.type;
+    }
+
     return this._itemManager.createItem(modelType, itemType);
   }
 

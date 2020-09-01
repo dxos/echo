@@ -57,7 +57,7 @@ export class ItemManager {
     assert(this._writeStream);
     assert(modelType);
 
-    if(!this._modelFactory.hasModel(modelType)) {
+    if (!this._modelFactory.hasModel(modelType)) {
       throw new Error(`Unknown model: ${modelType}`);
     }
 
