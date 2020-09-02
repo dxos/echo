@@ -35,15 +35,11 @@ export class ReplicationAdapter implements IReplicationAdapter {
     private readonly peerId: Buffer,
     private readonly partyKey: PartyKey,
     private readonly activeFeeds: FeedSetProvider
-  ) {
-    console.log('Adapter created');
-  }
+  ) { }
 
   start (): void {
     if (this._started) throw new Error('Already started');
     this._started = true;
-
-    console.log('join', this.partyKey);
 
     this.networkManager.joinProtocolSwarm(
       this.partyKey,

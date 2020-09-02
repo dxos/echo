@@ -98,8 +98,6 @@ export class Pipeline {
    *         Feed
    */
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream?]> {
-    console.log('pipeline open');
-
     const { readLogger, writeLogger } = this._options;
 
     //
@@ -200,7 +198,6 @@ export class Pipeline {
    */
   // TODO(burdon): Create test that all streams are closed cleanly.
   async close () {
-    console.log('pipeline close');
     if (this._readStream) {
       this._readStream.destroy();
       this._readStream = undefined;

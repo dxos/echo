@@ -65,7 +65,6 @@ export class Party {
     if (this._itemManager) {
       return this;
     }
-    console.log('party open');
 
     // TODO(burdon): Support read-only parties.
     const [readStream, writeStream] = await this._pipeline.open();
