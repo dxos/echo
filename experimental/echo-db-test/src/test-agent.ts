@@ -28,7 +28,7 @@ export default class TestAgent implements Agent {
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes()),
       {
-        partyProcessorFactory: partyKey => new HaloPartyProcessor(partyKey),  
+        partyProcessorFactory: (partyKey, feedKeys) => new HaloPartyProcessor(partyKey, feedKeys),  
       }
     );
     this.db = new Database(partyManager);
@@ -40,6 +40,7 @@ export default class TestAgent implements Agent {
       this.party = await this.db.createParty();
 
       const items = await this.party.queryItems();
+      this.environment.metrics.set('itemCount', items.value.length);
       items.subscribe(items => {
         this.environment.metrics.set('itemCount', items.length);
       });

@@ -22,7 +22,7 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   });
 }
 
-test('E2E Agent testing', async () => {
+test('replciation', async () => {
   const orchestrator = new NodeOrchestrator();
 
   const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
@@ -49,3 +49,23 @@ test('E2E Agent testing', async () => {
 
   orchestrator.destroy();
 });
+
+test('create party', async () => {
+  const orchestrator = new NodeOrchestrator();
+
+  const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
+
+  node1.metrics.update.on(() => {
+    console.log('node1', node1.metrics.asObject());
+  });
+
+  node1.sendEvent({
+    command: 'CREATE_PARTY'
+  });
+
+  await node1.metrics.update.waitFor(() => !!node1.metrics.getNumber('itemCount') && node1.metrics.getNumber('itemCount')! > 0);
+  node1.snapshot();
+
+  orchestrator.destroy();
+});
+
