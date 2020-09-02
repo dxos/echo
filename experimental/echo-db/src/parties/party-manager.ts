@@ -20,13 +20,16 @@ import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
+import { InvitationResponder } from '../invitation';
+import { PartyProcessor } from './party-processor';
 
 const log = debug('dxos:echo:party-manager');
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
-  readOnly?: boolean
+  readOnly?: boolean;
+  partyProcessorFactory?: (partyKey: PartyKey, feedKeys: FeedKey[]) => PartyProcessor;
 }
 
 /**
@@ -145,8 +148,19 @@ export class PartyManager {
    * @param feeds Set of feeds belonging to that party
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
-    await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
-    return this._constructParty(partyKey, feeds);
+    const keyring = new Keyring();
+    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+    const feedKey = await keyring.addKeyRecord({
+      publicKey: feed.key,
+      secretKey: feed.secretKey,
+      type: KeyType.FEED
+    });
+    const party = await this._constructParty(partyKey, feeds);
+    return new InvitationResponder(
+      party,
+      keyring,
+      feedKey,
+    );
   }
 
   /**
@@ -193,7 +207,7 @@ export class PartyManager {
       // TODO(telackey): To use HaloPartyProcessor here we cannot keep passing FeedKey[] arrays around, instead
       // we need to use createFeedAdmitMessage to a write a properly signed message FeedAdmitMessage and write it,
       // like we do above for the PartyGenesis message.
-      const partyProcessor = new TestPartyProcessor(partyKey, [feed.key, ...feedKeys]);
+      const partyProcessor = (this._options.partyProcessorFactory ?? ((...args) => new TestPartyProcessor(...args)))(partyKey, [feed.key, ...feedKeys]);
       const feedReadStream = await createOrderedFeedStream(
         this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
       const feedWriteStream = createWritableFeedStream(feed);
@@ -201,6 +215,7 @@ export class PartyManager {
 
       // Create party.
       const party = new Party(this._modelFactory, pipeline, partyProcessor, feed.key);
+      assert(!this._parties.has(keyToString(party.key)));
       this._parties.set(keyToString(party.key), party);
 
       return party;

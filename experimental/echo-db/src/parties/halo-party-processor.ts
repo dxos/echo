@@ -20,6 +20,10 @@ export class HaloPartyProcessor extends PartyProcessor {
     this._forwardEvents();
   }
 
+  get keyring() {
+    return this._stateMachine.keyring;
+  }
+
   async _processMessage (message: IHaloStream): Promise<void> {
     const { data } = message;
     return this._stateMachine.processMessages([data]);
@@ -50,5 +54,9 @@ export class HaloPartyProcessor extends PartyProcessor {
     state.on('admit:key', (keyRecord: any) => {
       // this._keyAdded.emit(keyRecord.publicKey);
     });
+  }
+
+  async admitFeed (feedKey: FeedKey) {
+    // TODO(marik-d): Remove this method and make the class only do the processing
   }
 }

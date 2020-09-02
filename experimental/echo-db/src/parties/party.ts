@@ -65,6 +65,7 @@ export class Party {
     if (this._itemManager) {
       return this;
     }
+    console.log('party open')
 
     // TODO(burdon): Support read-only parties.
     const [readStream, writeStream] = await this._pipeline.open();
@@ -127,6 +128,7 @@ export class Party {
    * @param {ModelType} [modelType]
    * @param {ItemType} [itemType]
    */
+  // https://www.typescriptlang.org/docs/handbook/functions.html#overloads
   async createItem (): Promise<Item<ObjectModel>>
   async createItem (modelClass: undefined, itemType?: ItemType | undefined): Promise<Item<ObjectModel>>
   async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>>
@@ -166,6 +168,7 @@ export class Party {
       feeds: this._pipeline.memberFeeds
     };
 
-    return new Inviter(invitation, this._partyProcessor);
+    assert(this._pipeline.writeStream);
+    return new Inviter(invitation, this._partyProcessor, this._pipeline.writeStream);
   }
 }

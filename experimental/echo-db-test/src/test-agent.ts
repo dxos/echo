@@ -4,7 +4,7 @@ import { ObjectModel } from '@dxos/experimental-object-model';
 import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
-import { codec, Database, Inviter, Party, PartyManager, createReplicatorFactory } from '@dxos/experimental-echo-db';
+import { codec, Database, Inviter, Party, PartyManager, createReplicatorFactory, HaloPartyProcessor } from '@dxos/experimental-echo-db';
 
 export default class TestAgent implements Agent {
   private party?: Party;
@@ -26,7 +26,10 @@ export default class TestAgent implements Agent {
     const partyManager = new PartyManager(
       feedStore,
       modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes())
+      createReplicatorFactory(networkManager, feedStore, randomBytes()),
+      {
+        partyProcessorFactory: partyKey => new HaloPartyProcessor(partyKey),  
+      }
     );
     this.db = new Database(partyManager);
     await this.db.open();
@@ -60,10 +63,11 @@ export default class TestAgent implements Agent {
       this.environment.log('invitationResponse', { newFeedKey: keyToString(Buffer.from(response.newFeedKey)) });
     } else if (event.command === 'FINALIZE_INVITATION') {
       this.inviter!.finalize({
-        newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey)
+        newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey),
+        feedAdmitMessage: (event.invitationResponse as any).feedAdmitMessage,
       });
     } else {
-      this.party!.createItem(ObjectModel.meta.type);
+      this.party!.createItem(ObjectModel);
     }
   }
 
