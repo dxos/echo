@@ -20,11 +20,11 @@ export class HaloPartyProcessor extends PartyProcessor {
     this._forwardEvents();
   }
 
-  async init() {
-    await this._stateMachine.takeHints(this.feedKeyHints.map(publicKey => ({ publicKey, type: KeyType.FEED })))
+  async init () {
+    await this._stateMachine.takeHints(this.feedKeyHints.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }
 
-  get keyring() {
+  get keyring () {
     return this._stateMachine.keyring;
   }
 

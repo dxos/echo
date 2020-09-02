@@ -98,7 +98,7 @@ export class Pipeline {
    *         Feed
    */
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream?]> {
-    console.log('pipeline open')
+    console.log('pipeline open');
 
     const { readLogger, writeLogger } = this._options;
 
@@ -138,7 +138,7 @@ export class Pipeline {
         }
       }
 
-      if(!message.halo && !message.echo) {
+      if (!message.halo && !message.echo) {
         // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
         log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
       }
@@ -200,7 +200,7 @@ export class Pipeline {
    */
   // TODO(burdon): Create test that all streams are closed cleanly.
   async close () {
-    console.log('pipeline close')
+    console.log('pipeline close');
     if (this._readStream) {
       this._readStream.destroy();
       this._readStream = undefined;

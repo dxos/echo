@@ -85,7 +85,6 @@ describe('party-processor', () => {
     const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
     const feedKey = await keyring.createKeyRecord({ type: KeyType.FEED });
 
- 
     const partyProcessor = new HaloPartyProcessor(partyKey.publicKey, []);
     await partyProcessor.init();
     expect(partyProcessor.partyKey).toBeTruthy();

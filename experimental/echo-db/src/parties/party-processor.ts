@@ -40,7 +40,7 @@ export abstract class PartyProcessor {
     this._partyKey = partyKey;
   }
 
-  async init() { }
+  async init () { }
 
   get partyKey () {
     return this._partyKey;

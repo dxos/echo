@@ -71,7 +71,7 @@ export class TestPartyProcessor extends PartyProcessor {
         return;
       }
       case PartyCredential.Type.FEED_ADMIT:
-        throw new Error('Not implemented') // TODO(marik-d): Handle feed admit messages instead of having `admitFeed` method
+        throw new Error('Not implemented'); // TODO(marik-d): Handle feed admit messages instead of having `admitFeed` method
       default:
         throw new Error(`Invalid message: ${JSON.stringify(message, jsonReplacer)}`);
     }

@@ -1,7 +1,6 @@
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { PartyProcessor, Party } from './parties';
 import { createFeedAdmitMessage } from '@dxos/credentials';
-import { HaloPartyProcessor } from './parties/halo-party-processor';
 
 export interface Invitation {
   partyKey: PartyKey
@@ -17,7 +16,7 @@ export class Inviter {
   constructor (
     public readonly invitation: Invitation,
     private readonly _partyProcessor: PartyProcessor,
-    private readonly _writeStream: NodeJS.WritableStream,
+    private readonly _writeStream: NodeJS.WritableStream
   ) {}
 
   finalize (response: InvitationResponse) {
@@ -33,11 +32,11 @@ export class InvitationResponder {
   constructor (
     public readonly party: Party,
     keyring: any,
-    feedKeypair: any,
+    feedKeypair: any
   ) {
     this.response = {
       newFeedKey: feedKeypair.key,
-      feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeypair),
-    }
+      feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeypair)
+    };
   }
 }

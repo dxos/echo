@@ -36,14 +36,14 @@ export class ReplicationAdapter implements IReplicationAdapter {
     private readonly partyKey: PartyKey,
     private readonly activeFeeds: FeedSetProvider
   ) {
-    console.log('Adapter created')
+    console.log('Adapter created');
   }
 
   start (): void {
-    if(this._started) throw new Error('Already started');
+    if (this._started) throw new Error('Already started');
     this._started = true;
 
-    console.log('join', this.partyKey)
+    console.log('join', this.partyKey);
 
     this.networkManager.joinProtocolSwarm(
       this.partyKey,
@@ -98,7 +98,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
   }
 
   stop (): void {
-    if(!this._started) throw new Error('Not running');
+    if (!this._started) throw new Error('Not running');
     this._started = false;
     // TODO(marik-d): Not implmented
   }

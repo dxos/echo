@@ -7,7 +7,7 @@ import debug from 'debug';
 import hypercore from 'hypercore';
 import pify from 'pify';
 
-import { Event, waitForCondition, Lock } from '@dxos/async';
+import { Event, Lock } from '@dxos/async';
 import { createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { createOrderedFeedStream, FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
@@ -159,7 +159,7 @@ export class PartyManager {
     return new InvitationResponder(
       party,
       keyring,
-      feedKey,
+      feedKey
     );
   }
 
