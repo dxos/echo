@@ -131,7 +131,7 @@ export class PartyManager {
 
     // TODO(burdon): Call party processor to write genesis, etc.
     const message = createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey);
-    await pify(feed.append.bind(feed))(message);
+    await pify(feed.append.bind(feed))({ halo: message });
 
     // Connect the pipeline.
     await party.open();
