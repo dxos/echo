@@ -75,6 +75,9 @@
     "wait-for-expect": "^3.0.2"
   },
   "eslintConfig": {
-    "extends": "plugin:@dxos/recomended"
+    "extends": "plugin:@dxos/recomended",
+    "ignorePatterns": [
+      "src/proto/gen/*"
+    ]
   }
 }
