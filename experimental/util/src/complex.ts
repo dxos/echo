@@ -13,6 +13,12 @@ export type Primitive =
 
 export type PrimitiveProjection<T> = (value: T) => Primitive
 
+/**
+ * A set implementation that can hold complex values (like Buffer).
+ * 
+ * The user must provide a projection function which returns a primitive
+ * representation of the complex value. This function must be 1-to-1 mapping.
+ */
 export class ComplexSet<T> implements Set<T> {
   private readonly _values = new Map<Primitive, T>();
 
@@ -80,12 +86,21 @@ export class ComplexSet<T> implements Set<T> {
 
 export type ComplexSetConstructor<T> = new (values?: Iterable<T> | null) => ComplexSet<T>;
 
+/**
+ * Create a subclass of ComplexSet with predefined projection function.
+ */
 export const makeSet = <T>(projection: PrimitiveProjection<T>): ComplexSetConstructor<T> => class BoundComplexSet extends ComplexSet<T> {
   constructor (values?: Iterable<T> | null) {
     super(projection, values);
   }
 };
 
+/**
+ * A map implementation that can hold complex values (like Buffer) as keys.
+ * 
+ * The user must provide a projection function for map keys which returns a primitive
+ * representation of the complex value. This function must be 1-to-1 mapping.
+ */
 export class ComplexMap<K, V> implements Map<K, V> {
   private readonly _keys = new Map<Primitive, K>();
   private readonly _values = new Map<Primitive, V>();
@@ -169,6 +184,9 @@ export class ComplexMap<K, V> implements Map<K, V> {
 
 export type ComplexMapConstructor<K> = new <V>(entries?: readonly (readonly [K, V])[] | null) => ComplexMap<K, V>;
 
+/**
+ * Create a subclass of ComplexMap with predefined key projection function.
+ */
 export const makeMap = <K>(keyProjection: PrimitiveProjection<K>): ComplexMapConstructor<K> => class BoundComplexMap<V> extends ComplexMap<K, V> {
   constructor (entries?: readonly (readonly [K, V])[] | null) {
     super(keyProjection, entries);
