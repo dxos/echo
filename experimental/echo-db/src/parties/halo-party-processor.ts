@@ -20,7 +20,9 @@ export class HaloPartyProcessor extends PartyProcessor {
     this._forwardEvents();
   }
 
+  // TODO(marik-d): After the party manager is decomposed into halo and test variants, make this only a method of halo party processor.
   async init () {
+    // Gives state machine hints on initial feed set from where to read party genesis message.
     await this._stateMachine.takeHints(this.feedKeyHints.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }
 
