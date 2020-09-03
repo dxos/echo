@@ -20,7 +20,7 @@ export class Inviter {
   constructor (
     private readonly _partyProcessor: PartyProcessor,
     private readonly _writeStream: NodeJS.WritableStream,
-    public readonly invitation: Invitation,
+    public readonly invitation: Invitation
   ) {}
 
   finalize (response: InvitationResponse) {

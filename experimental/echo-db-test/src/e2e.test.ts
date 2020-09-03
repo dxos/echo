@@ -40,7 +40,7 @@ test.skip('replication', async () => {
   });
 
   await invite(node1, node2);
-  log('invited')
+  log('invited');
 
   node1.sendEvent({});
 
@@ -72,4 +72,3 @@ test('create party', async () => {
 
   orchestrator.destroy();
 });
-

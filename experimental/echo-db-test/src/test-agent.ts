@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
@@ -28,7 +32,7 @@ export default class TestAgent implements Agent {
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes()),
       {
-        partyProcessorFactory: (partyKey, feedKeys) => new HaloPartyProcessor(partyKey, feedKeys),  
+        partyProcessorFactory: (partyKey, feedKeys) => new HaloPartyProcessor(partyKey, feedKeys)
       }
     );
     this.db = new Database(partyManager);
@@ -65,7 +69,7 @@ export default class TestAgent implements Agent {
     } else if (event.command === 'FINALIZE_INVITATION') {
       this.inviter!.finalize({
         peerFeedKey: keyToBuffer((event.invitationResponse as any).peerFeedKey),
-        feedAdmitMessage: (event.invitationResponse as any).feedAdmitMessage,
+        feedAdmitMessage: (event.invitationResponse as any).feedAdmitMessage
       });
     } else {
       this.party!.createItem(ObjectModel);
