@@ -128,6 +128,7 @@ describe('api tests', () => {
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
 
+    // TODO(burdon): Child must be created with parent.
     const parent = await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
     const child = await party.createItem();
     await parent.addChild(child);

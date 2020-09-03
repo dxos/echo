@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import hypercore from 'hypercore';
+
 import { discoveryKey, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
@@ -10,7 +12,7 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedSetProvider } from './parties';
 
-// TODO(burdon): ???.
+// TODO(burdon): ???
 export interface IReplicationAdapter {
   start(): void
   stop(): void
@@ -31,6 +33,7 @@ export function createReplicatorFactory (networkManager: any, feedStore: FeedSto
 /**
  * Joins a network swarm with replication protocol. Coordinates opening new feeds in the feed store.
  */
+// TODO(burdon): Extend Protocol plugin mechanism?
 export class ReplicationAdapter implements IReplicationAdapter {
   constructor (
     private readonly networkManager: any,
@@ -44,16 +47,21 @@ export class ReplicationAdapter implements IReplicationAdapter {
     this.networkManager.joinProtocolSwarm(this.partyKey, ({ channel }: any) => this._createProtocol(channel));
   }
 
-  private _openFeed (key: FeedKey) {
+  private _openFeed (key: FeedKey): hypercore.Feed {
     const topic = keyToString(this.partyKey);
 
     // Get the feed if we have it already, else create it.
     // TODO(marik-d): Rethink FeedStore API: Remove openFeed.
-    return this.feedStore.getOpenFeed(desc => desc.feed.key.equals(key)) ||
-    this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, {
-      key: Buffer.from(key),
-      metadata: { partyKey: this.partyKey }
-    } as any);
+    let feed = this.feedStore.getOpenFeed(desc => desc.feed.key.equals(key));
+    if (!feed) {
+      // TODO(burdon): Change path.
+      feed = this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, {
+        key: Buffer.from(key),
+        metadata: { partyKey: this.partyKey }
+      } as any);
+    }
+
+    return feed;
   }
 
   private _createProtocol (channel: any) {
@@ -64,10 +72,12 @@ export class ReplicationAdapter implements IReplicationAdapter {
           return { discoveryKey: feed.discoveryKey };
         });
       },
+
       subscribe: (addFeedToReplicatedSet: (feed: any) => void) => this.activeFeeds.added.on(async (feedKey) => {
         const feed = await this._openFeed(feedKey);
         addFeedToReplicatedSet({ discoveryKey: feed.discoveryKey });
       }),
+
       replicate: async (remoteFeeds: any, info: any) => {
         // We can ignore remoteFeeds entirely, because the set of feeds we want to replicate is dictated by the Party.
         // TODO(telackey): why are we opening feeds? Necessary or belt/braces thinking, or because open party does it?

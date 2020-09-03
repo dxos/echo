@@ -11,6 +11,7 @@ import { checkType } from '@dxos/experimental-util';
 
 /**
  * Addressable data item.
+ * Items may have child items.
  */
 export class Item<M extends Model<any>> {
   private readonly _itemId: ItemID;
@@ -59,6 +60,7 @@ export class Item<M extends Model<any>> {
     return Array.from(this._children.values());
   }
 
+  // TODO(burdon): To ensure strong references (tree) must declare parent at time of construction.
   async addChild (item: Item<any>): Promise<void> {
     if (!this._writeStream) {
       throw new Error(`Read-only model: ${this._itemId}`);
@@ -90,8 +92,6 @@ export class Item<M extends Model<any>> {
     const { operation, itemId } = mutation;
     assert(itemId);
 
-    // TODO(burdon): At runtime (in echo-demo) protocol.dxos.echo => object_dxos.echo
-    console.log(protocol.dxos);
     switch (operation) {
       case protocol.dxos.echo.ItemChildMutation.Operation.REMOVE: {
         this._children.forEach(child => {

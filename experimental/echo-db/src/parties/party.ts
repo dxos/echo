@@ -127,6 +127,7 @@ export class Party {
    * @param {ModelType} [modelType]
    * @param {ItemType} [itemType]
    */
+  // TODO(burdon): Pass in { type, parent } as options.
   async createItem (modelType: ModelType = ObjectModel.meta.type, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);
     return this._itemManager.createItem(modelType, itemType);
