@@ -36,7 +36,7 @@ test('ComplexSet', () => {
   expect(Array.from(set.values())).toEqual([key2]);
 });
 
-const PulicKeyMap = makeMap<PublicKey>(keyToString);
+const PulicKeyMap = makeMap<Uint8Array>(keyToString);
 
 test('ComplexMap', () => {
   const key1 = randomBytes();
