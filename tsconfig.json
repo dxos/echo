@@ -9,7 +9,6 @@
     ],
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
