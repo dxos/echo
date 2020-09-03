@@ -80,7 +80,7 @@ export class ComplexSet<T> implements Set<T> {
 
 export type ComplexSetConstructor<T> = new (values?: Iterable<T> | null) => ComplexSet<T>;
 
-export const makeSet = <T>(projection: PrimitiveProjection<T>): ComplexSetConstructor<T> => class extends ComplexSet<T> {
+export const makeSet = <T>(projection: PrimitiveProjection<T>): ComplexSetConstructor<T> => class BoundComplexSet extends ComplexSet<T> {
   constructor (values?: Iterable<T> | null) {
     super(projection, values);
   }
@@ -169,7 +169,7 @@ export class ComplexMap<K, V> implements Map<K, V> {
 
 export type ComplexMapConstructor<K> = new <V>(entries?: readonly (readonly [K, V])[] | null) => ComplexMap<K, V>;
 
-export const makeMap = <K>(keyProjection: PrimitiveProjection<K>): ComplexMapConstructor<K> => class <V> extends ComplexMap<K, V> {
+export const makeMap = <K>(keyProjection: PrimitiveProjection<K>): ComplexMapConstructor<K> => class BoundComplexMap<V> extends ComplexMap<K, V> {
   constructor (entries?: readonly (readonly [K, V])[] | null) {
     super(keyProjection, entries);
   }
