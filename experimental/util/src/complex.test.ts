@@ -2,11 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
-import { PublicKey } from '@dxos/experimental-echo-protocol';
 import { randomBytes, keyToString } from '@dxos/crypto';
 import { makeSet, makeMap } from './complex';
 
-const PulicKeySet = makeSet<PublicKey>(keyToString);
+const PulicKeySet = makeSet<Uint8Array>(keyToString);
 
 test('ComplexSet', () => {
   const key1 = randomBytes();
