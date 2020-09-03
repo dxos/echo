@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 /**
  * Immediatelly throws an error passed as an argument.
  *
@@ -8,10 +12,6 @@
  * ```
  * @param error
  */
-//
-// Copyright 2020 DXOS.org
-//
-
 export const raise = (error: Error): never => {
   throw error;
 };
