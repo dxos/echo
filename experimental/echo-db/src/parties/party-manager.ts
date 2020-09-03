@@ -155,7 +155,9 @@ export class PartyManager {
       secretKey: feed.secretKey,
       type: KeyType.FEED
     });
+
     const party = await this._constructParty(partyKey, feeds);
+
     return new InvitationResponder(
       party,
       keyring,
@@ -204,7 +206,7 @@ export class PartyManager {
       // TODO(telackey): To use HaloPartyProcessor here we cannot keep passing FeedKey[] arrays around, instead
       // we need to use createFeedAdmitMessage to a write a properly signed message FeedAdmitMessage and write it,
       // like we do above for the PartyGenesis message.
-      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((...args) => new TestPartyProcessor(...args));
+      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((partyKey, feedKeys) => new TestPartyProcessor(partyKey, feedKeys));
       const partyProcessor = partyProcessorFactory(partyKey, [feed.key, ...feedKeys]);
       await partyProcessor.init();
       const feedReadStream = await createOrderedFeedStream(

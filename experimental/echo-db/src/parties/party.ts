@@ -168,6 +168,6 @@ export class Party {
     };
 
     assert(this._pipeline.writeStream);
-    return new Inviter(invitation, this._partyProcessor, this._pipeline.writeStream);
+    return new Inviter(this._partyProcessor, this._pipeline.writeStream, invitation);
   }
 }

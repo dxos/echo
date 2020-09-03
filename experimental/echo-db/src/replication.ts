@@ -38,7 +38,9 @@ export class ReplicationAdapter implements IReplicationAdapter {
   ) { }
 
   start (): void {
-    if (this._started) throw new Error('Already started');
+    if (this._started) {
+      return;
+    }
     this._started = true;
 
     this.networkManager.joinProtocolSwarm(
@@ -94,7 +96,9 @@ export class ReplicationAdapter implements IReplicationAdapter {
   }
 
   stop (): void {
-    if (!this._started) throw new Error('Not running');
+    if (!this._started) {
+      return;
+    }
     this._started = false;
     // TODO(marik-d): Not implmented
   }

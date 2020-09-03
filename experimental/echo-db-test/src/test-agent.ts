@@ -40,9 +40,9 @@ export default class TestAgent implements Agent {
       this.party = await this.db.createParty();
 
       const items = await this.party.queryItems();
-      this.environment.metrics.set('itemCount', items.value.length);
+      this.environment.metrics.set('item.count', items.value.length);
       items.subscribe(items => {
-        this.environment.metrics.set('itemCount', items.length);
+        this.environment.metrics.set('item.count', items.length);
       });
 
       this.inviter = this.party.createInvitation();
@@ -58,13 +58,13 @@ export default class TestAgent implements Agent {
       this.party = party;
       const items = await this.party.queryItems();
       items.subscribe(items => {
-        this.environment.metrics.set('itemCount', items.length);
+        this.environment.metrics.set('item.count', items.length);
       });
 
-      this.environment.log('invitationResponse', { newFeedKey: keyToString(Buffer.from(response.newFeedKey)) });
+      this.environment.log('invitationResponse', { peerFeedKey: keyToString(Buffer.from(response.peerFeedKey)) });
     } else if (event.command === 'FINALIZE_INVITATION') {
       this.inviter!.finalize({
-        newFeedKey: keyToBuffer((event.invitationResponse as any).newFeedKey),
+        peerFeedKey: keyToBuffer((event.invitationResponse as any).peerFeedKey),
         feedAdmitMessage: (event.invitationResponse as any).feedAdmitMessage,
       });
     } else {

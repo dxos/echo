@@ -8,19 +8,19 @@ export interface Invitation {
 }
 
 export interface InvitationResponse {
-  newFeedKey: FeedKey,
+  peerFeedKey: FeedKey,
   feedAdmitMessage: any,
 }
 
 export class Inviter {
   constructor (
-    public readonly invitation: Invitation,
     private readonly _partyProcessor: PartyProcessor,
-    private readonly _writeStream: NodeJS.WritableStream
+    private readonly _writeStream: NodeJS.WritableStream,
+    public readonly invitation: Invitation,
   ) {}
 
   finalize (response: InvitationResponse) {
-    this._partyProcessor.admitFeed(response.newFeedKey);
+    this._partyProcessor.admitFeed(response.peerFeedKey);
 
     this._writeStream.write(response.feedAdmitMessage);
   }
@@ -35,7 +35,7 @@ export class InvitationResponder {
     feedKeypair: any
   ) {
     this.response = {
-      newFeedKey: feedKeypair.key,
+      peerFeedKey: feedKeypair.key,
       feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeypair)
     };
   }
