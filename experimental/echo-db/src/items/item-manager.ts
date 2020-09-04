@@ -58,7 +58,7 @@ export class ItemManager {
     assert(modelType);
 
     // Pending until constructed (after genesis block is read from stream).
-    const [waitForCreation, callback] = trigger();
+    const [waitForCreation, callback] = trigger<Item<any>>();
 
     const itemId = createId();
     this._pendingItems.set(itemId, callback);
