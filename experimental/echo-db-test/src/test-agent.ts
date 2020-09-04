@@ -32,7 +32,7 @@ export default class TestAgent implements Agent {
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes()),
       {
-        partyProcessorFactory: (partyKey, feedKeys) => new HaloPartyProcessor(partyKey, feedKeys)
+        partyProcessorFactory: (partyKey) => new HaloPartyProcessor(partyKey)
       }
     );
     this.db = new Database(partyManager);
@@ -65,11 +65,14 @@ export default class TestAgent implements Agent {
         this.environment.metrics.set('item.count', items.length);
       });
 
-      this.environment.log('invitationResponse', { peerFeedKey: keyToString(Buffer.from(response.peerFeedKey)) });
+      this.environment.log('invitationResponse', {
+        peerFeedKey: keyToString(Buffer.from(response.peerFeedKey)),
+        feedAdmitMessage: codec.encode({ halo: response.feedAdmitMessage }).toString('hex')
+      });
     } else if (event.command === 'FINALIZE_INVITATION') {
       this.inviter!.finalize({
         peerFeedKey: keyToBuffer((event.invitationResponse as any).peerFeedKey),
-        feedAdmitMessage: (event.invitationResponse as any).feedAdmitMessage
+        feedAdmitMessage: codec.decode(Buffer.from((event.invitationResponse as any).feedAdmitMessage, 'hex')).halo,
       });
     } else {
       this.party!.createItem(ObjectModel);

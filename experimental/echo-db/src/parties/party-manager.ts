@@ -29,7 +29,7 @@ interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
   readOnly?: boolean;
-  partyProcessorFactory?: (partyKey: PartyKey, feedKeys: FeedKey[]) => PartyProcessor;
+  partyProcessorFactory?: (partyKey: PartyKey) => PartyProcessor;
 }
 
 /**
@@ -147,6 +147,7 @@ export class PartyManager {
    * @param feeds Set of feeds belonging to that party
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
+    log(`Add party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
     const keyring = new Keyring();
     const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
     const feedKey = await keyring.addKeyRecord({
@@ -169,8 +170,8 @@ export class PartyManager {
    * @param partyKey
    */
   async _getOrCreateParty (partyKey: PartyKey): Promise<Party> {
-    return this._parties.get(partyKey)
-      ?? await this._constructParty(partyKey);
+    return this._parties.get(partyKey) ??
+      await this._constructParty(partyKey);
   }
 
   /**
@@ -201,9 +202,9 @@ export class PartyManager {
       // TODO(telackey): To use HaloPartyProcessor here we cannot keep passing FeedKey[] arrays around, instead
       // we need to use createFeedAdmitMessage to a write a properly signed message FeedAdmitMessage and write it,
       // like we do above for the PartyGenesis message.
-      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((partyKey, feedKeys) => new TestPartyProcessor(partyKey, feedKeys));
-      const partyProcessor = partyProcessorFactory(partyKey, [feed.key, ...feedKeys]);
-      await partyProcessor.init();
+      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((partyKey) => new TestPartyProcessor(partyKey));
+      const partyProcessor = partyProcessorFactory(partyKey);
+      await partyProcessor.addHints([feed.key, ...feedKeys]);
       const feedReadStream = await createOrderedFeedStream(
         this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
       const feedWriteStream = createWritableFeedStream(feed);

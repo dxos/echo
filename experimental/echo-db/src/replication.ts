@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
 import { discoveryKey, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
@@ -9,6 +10,8 @@ import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedSetProvider } from './parties/party-processor';
+
+const log = debug('dxos:echo:replication-adapter');
 
 export interface IReplicationAdapter {
   start(): void
@@ -65,11 +68,13 @@ export class ReplicationAdapter implements IReplicationAdapter {
     const replicator = new Replicator({
       load: async () => {
         const partyFeeds = await Promise.all(this.activeFeeds.get().map(feedKey => this._openFeed(feedKey)));
+        log(`load feeds ${partyFeeds.map(feed => keyToString(Buffer.from(feed.key)))}`);
         return partyFeeds.map((feed) => {
           return { discoveryKey: feed.discoveryKey };
         });
       },
       subscribe: (addFeedToReplicatedSet: (feed: any) => void) => this.activeFeeds.added.on(async (feedKey) => {
+        log(`add feed ${keyToString(Buffer.from(feedKey))}`);
         const feed = await this._openFeed(feedKey);
         addFeedToReplicatedSet({ discoveryKey: feed.discoveryKey });
       }),

@@ -19,8 +19,7 @@ describe('party-processor', () => {
     const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
     const feedKey = await keyring.createKeyRecord({ type: KeyType.FEED });
 
-    const partyProcessor = new HaloPartyProcessor(partyKey.publicKey, []);
-    await partyProcessor.init();
+    const partyProcessor = new HaloPartyProcessor(partyKey.publicKey);
     expect(partyProcessor.partyKey).toBeTruthy();
 
     const genesisMessage = createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey);
@@ -52,7 +51,8 @@ describe('party-processor', () => {
     const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
     const feedKey = await keyring.createKeyRecord({ type: KeyType.FEED });
 
-    const partyProcessor = new TestPartyProcessor(partyKey.publicKey, [feedKey.publicKey]);
+    const partyProcessor = new TestPartyProcessor(partyKey.publicKey);
+    await partyProcessor.addHints([feedKey.publicKey]);
     expect(partyProcessor.partyKey).toBeTruthy();
 
     const genesisMessage = createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey);
@@ -85,8 +85,7 @@ describe('party-processor', () => {
     const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
     const feedKey = await keyring.createKeyRecord({ type: KeyType.FEED });
 
-    const partyProcessor = new HaloPartyProcessor(partyKey.publicKey, []);
-    await partyProcessor.init();
+    const partyProcessor = new HaloPartyProcessor(partyKey.publicKey);
     expect(partyProcessor.partyKey).toBeTruthy();
 
     const genesisMessage: IHaloStream = {

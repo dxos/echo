@@ -26,7 +26,7 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
 }
 
 // TODO(mairk-d): Skipped while the replication doesn't work with halo
-test.skip('replication', async () => {
+test('replication', async () => {
   const orchestrator = new NodeOrchestrator();
 
   const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);

@@ -48,9 +48,7 @@ export class TestPartyProcessor extends PartyProcessor {
   private _feedKeys = new KeySet();
   private _memberKeys = new KeySet();
 
-  // TODO(telackey): Remove feedKeys.
-  constructor (partyKey: PartyKey, feedKeys: FeedKey[]) {
-    super(partyKey);
+  async addHints (feedKeys: FeedKey[]) {
     for (const feedKey of feedKeys) {
       this._feedKeys.add(feedKey);
     }

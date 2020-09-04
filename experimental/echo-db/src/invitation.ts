@@ -26,7 +26,7 @@ export class Inviter {
   finalize (response: InvitationResponse) {
     this._partyProcessor.admitFeed(response.peerFeedKey);
 
-    this._writeStream.write(response.feedAdmitMessage);
+    this._writeStream.write({ halo: response.feedAdmitMessage } as any);
   }
 }
 
