@@ -10,10 +10,10 @@ import pify from 'pify';
 import { Event, Lock } from '@dxos/async';
 import { createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { createOrderedFeedStream, FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
+import { createOrderedFeedStream, FeedKey, PartyKey, PublicKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
-import { createWritableFeedStream } from '@dxos/experimental-util';
+import { createWritableFeedStream, ComplexMap } from '@dxos/experimental-util';
 import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
 
 import { ReplicatorFactory } from '../replication';
@@ -37,8 +37,7 @@ interface Options {
  */
 export class PartyManager {
   // Map of parties by party key.
-  // NOTE: Buffer equivalence doesn't work for map.
-  private readonly _parties = new Map<string, Party>();
+  private readonly _parties = new ComplexMap<PublicKey, Party>(keyToString);
 
   private readonly _feedStore: FeedStore;
   private readonly _modelFactory: ModelFactory;
@@ -93,7 +92,7 @@ export class PartyManager {
     for (const descriptor of this._feedStore.getDescriptors()) {
       const { metadata: { partyKey } } = descriptor;
       assert(partyKey);
-      if (!this._parties.has(keyToString(partyKey))) {
+      if (!this._parties.has(partyKey)) {
         await this._constructParty(partyKey);
       }
     }
@@ -170,12 +169,8 @@ export class PartyManager {
    * @param partyKey
    */
   async _getOrCreateParty (partyKey: PartyKey): Promise<Party> {
-    let party = this._parties.get(keyToString(partyKey));
-    if (!party) {
-      party = await this._constructParty(partyKey);
-    }
-
-    return party;
+    return this._parties.get(partyKey)
+      ?? await this._constructParty(partyKey);
   }
 
   /**
@@ -191,8 +186,8 @@ export class PartyManager {
     // has finished, this will result in _constructParty being called twice for the same party key.
     // For discussion: how to fix this race properly.
     return await this._lock.executeSynchronized(async () => {
-      if (this._parties.has(keyToString(partyKey))) {
-        return this._parties.get(keyToString(partyKey))!;
+      if (this._parties.has(partyKey)) {
+        return this._parties.get(partyKey)!;
       }
 
       // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
@@ -216,8 +211,8 @@ export class PartyManager {
 
       // Create party.
       const party = new Party(this._modelFactory, pipeline, partyProcessor, feed.key);
-      assert(!this._parties.has(keyToString(party.key)));
-      this._parties.set(keyToString(party.key), party);
+      assert(!this._parties.has(party.key));
+      this._parties.set(party.key, party);
 
       return party;
     });
