@@ -60,6 +60,7 @@
     "jest": "^26.0.0",
     "pumpify": "^2.0.1",
     "random-access-memory": "^3.1.1",
+    "semistandard": "^14.2.0",
     "stream-buffers": "^3.0.2",
     "through2": "^3.0.1",
     "ts-jest": "^26.1.0",
@@ -69,6 +70,9 @@
     "access": "public"
   },
   "eslintConfig": {
-    "extends": "plugin:@dxos/recomended"
+    "extends": "plugin:@dxos/recomended",
+    "ignorePatterns": [
+      "src/proto/gen/*"
+    ]
   }
 }

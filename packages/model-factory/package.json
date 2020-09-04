@@ -75,6 +75,11 @@
     "access": "public"
   },
   "eslintConfig": {
-    "extends": "plugin:@dxos/recomended"
+    "extends": "plugin:@dxos/recomended",
+    "rules": {
+      "jest/no-test-callback": "off",
+      "jest/expect-expect": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+    }
   }
 }

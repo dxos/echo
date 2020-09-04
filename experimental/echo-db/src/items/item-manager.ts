@@ -75,7 +75,8 @@ export class ItemManager {
 
     // Unlocked by construct.
     log('Pending Item:', itemId);
-    return await waitForCreation();
+    // TODO(burdon): Type trigger.
+    return await (waitForCreation as any)();
   }
 
   /**

@@ -54,6 +54,9 @@
     "access": "public"
   },
   "eslintConfig": {
-    "extends": "plugin:@dxos/recomended"
+    "extends": "plugin:@dxos/recomended",
+    "rules": {
+      "jest/no-disabled-tests": "off"
+    }
   }
 }
