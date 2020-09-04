@@ -6,11 +6,11 @@ import assert from 'assert';
 
 import { humanize } from '@dxos/crypto';
 import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
+import { Model, ModelConstructor, ModelFactory, ModelType } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
-import { Invitation } from '../invitation';
+import { Invitation, InvitationRequest } from '../invitation';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -27,7 +27,6 @@ export interface PartyFilter {}
 export class Party {
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
-
   private _unsubscribePipeline: (() => void) | undefined;
 
   /**
@@ -36,6 +35,7 @@ export class Party {
    * @param {Pipeline} pipeline
    */
   constructor (
+    // TODO(burdon): Do not inline.
     private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
     private readonly _partyProcessor: PartyProcessor,
@@ -128,8 +128,20 @@ export class Party {
    * @param {ItemType} [itemType]
    */
   // TODO(burdon): Pass in { type, parent } as options.
+  // TODO(burdon): Revert this!!!
+  // https://www.typescriptlang.org/docs/handbook/functions.html#overloads
+  async createItem (): Promise<Item<ObjectModel>>
+  async createItem (modelClass: undefined, itemType?: ItemType | undefined): Promise<Item<ObjectModel>>
+  async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>>
+  async createItem <M extends Model<any>>(modelClass: ModelConstructor<M>, itemType?: ItemType | undefined): Promise<Item<M>>
   async createItem (modelType: ModelType = ObjectModel.meta.type, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);
+
+    // TODO(burdon): Not type inference.
+    if (typeof modelType !== 'string') {
+      modelType = modelType.meta.type;
+    }
+
     return this._itemManager.createItem(modelType, itemType);
   }
 
@@ -146,7 +158,13 @@ export class Party {
    * Creates an invition for a remote peer.
    */
   createInvitation (): Invitation {
-    return new Invitation(this._partyProcessor, { partyKey: this.key, feeds: this._pipeline.memberFeeds });
+    const request: InvitationRequest = {
+      partyKey: this.key,
+      feeds: this._pipeline.memberFeeds
+    };
+
+    assert(this._pipeline.writeStream);
+    return new Invitation(this._partyProcessor, this._pipeline.writeStream, request);
   }
 
   /**

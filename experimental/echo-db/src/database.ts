@@ -36,7 +36,7 @@ export class Database {
   ) {}
 
   // TODO(burdon): Identifier?
-  toString() {
+  toString () {
     return `Database()`;
   }
 
@@ -78,20 +78,6 @@ export class Database {
   }
 
   /**
-   * Joins a party that was created by another peer and starts replicating with it.
-   * @param invitation
-   */
-  async joinParty (invitation: InvitationRequest): Promise<InvitationResponder> {
-    await this.open();
-
-    const { partyKey, feeds } = invitation;
-    const party = await this._partyManager.addParty(partyKey, feeds);
-    await party.open();
-
-    return new InvitationResponder(party, { newFeedKey: party.writeFeedKey });
-  }
-
-  /**
    * Returns an individual party by it's key.
    * @param {PartyKey} partyKey
    */
@@ -110,5 +96,13 @@ export class Database {
     await this.open();
 
     return new ResultSet<Party>(this._partyUpdate, () => this._partyManager.parties);
+  }
+
+  /**
+   * Joins a party that was created by another peer and starts replicating with it.
+   * @param invitation
+   */
+  async joinParty (invitation: InvitationRequest): Promise<InvitationResponder> {
+    return this._partyManager.addParty(invitation.partyKey, invitation.feeds);
   }
 }

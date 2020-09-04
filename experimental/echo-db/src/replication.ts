@@ -12,7 +12,7 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedSetProvider } from './parties';
 
-// TODO(burdon): ???
+// TODO(burdon): Comment.
 export interface IReplicationAdapter {
   start(): void
   stop(): void
@@ -33,9 +33,11 @@ export function createReplicatorFactory (networkManager: any, feedStore: FeedSto
 /**
  * Joins a network swarm with replication protocol. Coordinates opening new feeds in the feed store.
  */
-// TODO(burdon): Extend Protocol plugin mechanism?
 export class ReplicationAdapter implements IReplicationAdapter {
+  private _started = false;
+
   constructor (
+    // TODO(burdon): Underscores for private.
     private readonly networkManager: any,
     private readonly feedStore: FeedStore,
     private readonly peerId: Buffer,
@@ -44,6 +46,12 @@ export class ReplicationAdapter implements IReplicationAdapter {
   ) {}
 
   start (): void {
+    if (this._started) {
+      return;
+    }
+
+    this._started = true;
+
     this.networkManager.joinProtocolSwarm(this.partyKey, ({ channel }: any) => this._createProtocol(channel));
   }
 
@@ -91,7 +99,6 @@ export class ReplicationAdapter implements IReplicationAdapter {
       },
 
       discoveryToPublicKey: (dk: any) => {
-        // TODO(burdon): Rename function (convertToDiscoveryKey).
         if (!discoveryKey(this.partyKey).equals(dk)) {
           return undefined;
         }
@@ -105,11 +112,14 @@ export class ReplicationAdapter implements IReplicationAdapter {
       .setSession({ peerId: this.peerId })
       .setExtensions([replicator.createExtension()])
       .init(channel);
-
     return protocol;
   }
 
   stop (): void {
-    // TODO(marik-d): Not implmented.
+    if (!this._started) {
+      return;
+    }
+    this._started = false;
+    // TODO(marik-d): Not implmented
   }
 }

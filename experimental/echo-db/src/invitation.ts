@@ -3,6 +3,8 @@
 //
 
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
+import { createFeedAdmitMessage } from '@dxos/credentials';
+
 import { PartyProcessor, Party } from './parties';
 
 /**
@@ -17,7 +19,8 @@ export interface InvitationRequest {
  *
  */
 export interface InvitationResponse {
-  newFeedKey: FeedKey; // TODO(burdon): Rename peerFeedKey?
+  peerFeedKey: FeedKey,
+  feedAdmitMessage: any // TODO(burdon): HALO type?
 }
 
 /**
@@ -26,11 +29,13 @@ export interface InvitationResponse {
 export class Invitation {
   constructor (
     private readonly _partyProcessor: PartyProcessor,
-    public readonly request: InvitationRequest
+    private readonly _writeStream: NodeJS.WritableStream,
+    public readonly invitation: InvitationRequest
   ) {}
 
   async finalize (response: InvitationResponse) {
-    return this._partyProcessor.admitFeed(response.newFeedKey);
+    await this._partyProcessor.admitFeed(response.peerFeedKey);
+    this._writeStream.write(response.feedAdmitMessage);
   }
 }
 
@@ -38,8 +43,16 @@ export class Invitation {
  *
  */
 export class InvitationResponder {
+  public readonly response: InvitationResponse;
+
   constructor (
     public readonly party: Party,
-    public readonly response: InvitationResponse
-  ) {}
+    keyring: any,
+    feedKeypair: any
+  ) {
+    this.response = {
+      peerFeedKey: feedKeypair.key,
+      feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeypair)
+    };
+  }
 }

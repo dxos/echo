@@ -75,6 +75,7 @@ export type ItemType = string;
 // Party
 //
 
+// TODO(burdon): How does this map into IPLD? (https://ipld.io) and WRN?
 export type PartyKey = PublicKey;
 
 //

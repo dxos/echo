@@ -28,7 +28,7 @@ const error = debug('dxos:echo:pipeline:error');
  */
 export class Pipeline {
   private readonly _errors = new Event<Error>();
-  private readonly _partyProcessor: PartyProcessor;
+  private readonly _partyProcessor: PartyProcessor; // TODO(burdon): Remove.
   private readonly _feedReadStream: NodeJS.ReadableStream;
   private readonly _feedWriteStream?: NodeJS.WritableStream;
   private readonly _options: Options;
@@ -139,8 +139,10 @@ export class Pipeline {
         }
       }
 
-      // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
-      log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+      if (!message.halo && !message.echo) {
+        // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
+        log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+      }
     });
 
     pump([
