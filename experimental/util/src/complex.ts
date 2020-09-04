@@ -18,6 +18,8 @@ export type PrimitiveProjection<T> = (value: T) => Primitive
  * 
  * The user must provide a projection function which returns a primitive
  * representation of the complex value. This function must be 1-to-1 mapping.
+ * 
+ * Look at `../complex.test.ts` for usage examples.
  */
 export class ComplexSet<T> implements Set<T> {
   private readonly _values = new Map<Primitive, T>();
@@ -100,6 +102,8 @@ export const makeSet = <T>(projection: PrimitiveProjection<T>): ComplexSetConstr
  * 
  * The user must provide a projection function for map keys which returns a primitive
  * representation of the complex value. This function must be 1-to-1 mapping.
+ * 
+ * Look at `../complex.test.ts` for usage examples.
  */
 export class ComplexMap<K, V> implements Map<K, V> {
   private readonly _keys = new Map<Primitive, K>();
