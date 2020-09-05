@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import { humanize } from '@dxos/crypto';
 import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { Model, ModelConstructor, ModelFactory, ModelType } from '@dxos/experimental-model-factory';
+import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
@@ -124,24 +124,13 @@ export class Party {
 
   /**
    * Creates a new item with the given queryable type and model.
-   * @param {ModelType} [modelType]
+   * @param {ModelType} modelType
    * @param {ItemType} [itemType]
    */
   // TODO(burdon): Pass in { type, parent } as options.
-  // TODO(burdon): Revert this!!!
-  // https://www.typescriptlang.org/docs/handbook/functions.html#overloads
-  async createItem (): Promise<Item<ObjectModel>>
-  async createItem (modelClass: undefined, itemType?: ItemType | undefined): Promise<Item<ObjectModel>>
-  async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>>
-  async createItem <M extends Model<any>>(modelClass: ModelConstructor<M>, itemType?: ItemType | undefined): Promise<Item<M>>
-  async createItem (modelType: ModelType = ObjectModel.meta.type, itemType?: ItemType | undefined): Promise<Item<any>> {
+  async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);
-
-    // TODO(burdon): Not type inference.
-    if (typeof modelType !== 'string') {
-      modelType = modelType.meta.type;
-    }
-
+    assert(modelType);
     return this._itemManager.createItem(modelType, itemType);
   }
 

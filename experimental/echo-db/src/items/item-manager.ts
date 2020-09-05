@@ -32,7 +32,7 @@ export class ItemManager {
 
   // TODO(burdon): Lint issue: Unexpected whitespace between function name and paren
   // Map of item promises (waiting for item construction after genesis message has been written).
-  // eslint-disable-next-line
+  // eslint-disable-next-line func-call-spacing
   private _pendingItems = new Map<ItemID, (item: Item<any>) => void>();
 
   _modelFactory: ModelFactory;

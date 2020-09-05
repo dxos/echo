@@ -33,7 +33,8 @@ describe('item demxuer', () => {
           seq: 0
         },
         data: message
-      }));
+      })
+    );
 
     const itemManager = new ItemManager(modelFactory, writeStream);
     const itemDemuxer = createItemDemuxer(itemManager);

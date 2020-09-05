@@ -1,5 +1,5 @@
 //
-// Copyright 2020 protocol.dxos.org
+// Copyright 2020 DXOS.org
 //
 
 /* eslint-disable no-unused-vars */

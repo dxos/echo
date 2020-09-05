@@ -5,14 +5,12 @@
 import pify from 'pify';
 import ram from 'random-access-memory';
 
-import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
+import { FeedStore } from '@dxos/feed-store';
 
 import { protocol, codec } from '../proto';
 
 describe('Feed tests:', () => {
   test('codec', () => {
-    const feedDescriptor = new FeedDescriptor('test-feed');
-
     const message1: protocol.dxos.IFeedMessage = {
       halo: {}
     };

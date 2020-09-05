@@ -1,5 +1,5 @@
 //
-// Copyright 2020 protocol.dxos.org
+// Copyright 2020 DXOS.org
 //
 
 import debug from 'debug';
@@ -21,7 +21,7 @@ const log = debug('dxos:echo:object-model');
 export class ObjectModel extends Model<protocol.dxos.echo.object.IObjectMutationSet> {
   static meta: ModelMeta = {
     type: 'wrn://protocol.dxos.org/model/object',
-    mutation: 'protocol.dxos.echo.object.ObjectMutationSet'
+    mutation: 'dxos.echo.object.ObjectMutationSet'
   };
 
   private _object = {};

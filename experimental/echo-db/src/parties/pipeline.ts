@@ -171,7 +171,8 @@ export class Pipeline {
           };
 
           return data;
-        });
+        }
+      );
 
       pump([
         this._writeStream,

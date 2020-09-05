@@ -86,6 +86,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
         addFeedToReplicatedSet({ discoveryKey: feed.discoveryKey });
       }),
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       replicate: async (remoteFeeds: any, info: any) => {
         // We can ignore remoteFeeds entirely, because the set of feeds we want to replicate is dictated by the Party.
         // TODO(telackey): why are we opening feeds? Necessary or belt/braces thinking, or because open party does it?

@@ -2,7 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import { dxos as halo_dxos } from '@dxos/credentials'; // TODO(burdon): Rename and export root (not dxos).
+// eslint-disable-next-line camelcase
+import { dxos as halo_dxos } from '@dxos/credentials';
 
 import { protocol } from './proto';
 
@@ -54,6 +55,7 @@ export type FeedBlock = IFeedGenericBlock<protocol.dxos.FeedMessage>;
 export interface IHaloStream {
   meta: FeedMeta;
   // TODO(telackey): Rename dxos.halo.IHaloEnvelope
+  // eslint-disable-next-line camelcase
   data: halo_dxos.credentials.Message;
 }
 

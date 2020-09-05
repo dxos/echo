@@ -8,6 +8,7 @@ import { protocol, Schema } from '@dxos/experimental-echo-protocol';
 import { createAny } from '@dxos/experimental-util';
 
 import ObjectSchema from './gen/object.json';
+// eslint-disable-next-line camelcase
 import { dxos as object_dxos } from './gen/object';
 
 const codec = new Codec('dxos.FeedMessage')
@@ -20,6 +21,7 @@ describe('Protobuf', () => {
     const message1: protocol.dxos.FeedMessage = {
       echo: {
         itemId: createId(),
+        // eslint-disable-next-line camelcase
         mutation: createAny<object_dxos.echo.object.IObjectMutation>({
           operation: object_dxos.echo.object.ObjectMutation.Operation.SET,
           key: 'title',

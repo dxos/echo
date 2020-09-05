@@ -13,6 +13,8 @@ const error = debug('dxos:stream:error');
 //
 // Stream utils.
 // https://nodejs.org/api/stream.html
+// TODO(burdon): Determine what errors cause the following:
+// Error [ERR_MULTIPLE_CALLBACK]: Callback called multiple times
 //
 
 // TODO(burdon): Move to @dxos/codec.

@@ -5,7 +5,7 @@
 import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
 
-import { InvitationRequest, InvitationResponse, InvitationResponder } from './invitation';
+import { InvitationRequest, InvitationResponder } from './invitation';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
 
@@ -37,7 +37,7 @@ export class Database {
 
   // TODO(burdon): Identifier?
   toString () {
-    return `Database()`;
+    return 'Database()';
   }
 
   get readOnly () {
