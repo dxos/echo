@@ -11,9 +11,10 @@ import { protocol } from './proto';
 // Keys
 //
 
-// TODO(telackey): Removing the specific PartyKey/FeedKey/IdentityKey types is advisable. They are not different
-// types of things, only distinct uses, and the same key may be used in more than one way (eg, as both the IdentityKey
-// for the user and as the PartyKey for their HALO).
+// TODO(burdon): Move defs to @dxos/crypto. Define KeyPair.
+// TODO(telackey): Removing the specific PartyKey/FeedKey/IdentityKey types is advisable.
+//  They are not different types of things, only distinct uses, and the same key may be used in more than one way
+//  (e.g., as both the IdentityKey for the user and as the PartyKey for their HALO).
 
 export type PublicKey = Uint8Array;
 

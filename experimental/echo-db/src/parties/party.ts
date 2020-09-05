@@ -47,7 +47,7 @@ export class Party {
   }
 
   toString () {
-    return `Party(${JSON.stringify({ key: humanize(this.key) })})`;
+    return `Party(${JSON.stringify({ key: humanize(this.key), open: this.isOpen })})`;
   }
 
   get key (): PartyKey {
@@ -127,6 +127,7 @@ export class Party {
    * @param {ModelType} modelType
    * @param {ItemType} [itemType]
    */
+  // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   // TODO(burdon): Pass in { type, parent } as options.
   async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);

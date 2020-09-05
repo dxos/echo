@@ -47,7 +47,7 @@ describe('api tests', () => {
       expect(parties).toHaveLength(1);
       parties.map(async party => {
         const value = await party.getProperty('title');
-        // expect(value).toBe('DXOS');
+        expect(value).toBe('DXOS');
         onUpdate();
       });
     });

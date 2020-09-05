@@ -4,13 +4,8 @@
 
 // @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
-
-import {
-  convertTreeToGraph,
-  createTree,
-  useObjectMutator,
-// @ts-ignore
-} from '@dxos/gem-core';
+import { makeStyles } from '@material-ui/core/styles';
+import * as colors from '@material-ui/core/colors';
 
 import {
   createSimulationDrag,
@@ -22,6 +17,24 @@ import {
 // @ts-ignore
 } from '@dxos/gem-spore';
 
+import { ObjectModel } from '@dxos/experimental-object-model';
+
+import { useDatabase, useGraphData } from '../hooks';
+
+const useCustomStyles = makeStyles(() => ({
+  nodes: {
+    '& g.node.database circle': {
+      fill: colors['blue'][400]
+    },
+    '& g.node.party circle': {
+      fill: colors['red'][400]
+    },
+    '& g.node.item circle': {
+      fill: colors['grey'][400]
+    },
+  }
+}));
+
 /**
  * @param id
  * @param grid
@@ -29,11 +42,31 @@ import {
  * @constructor
  */
 const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
-  const guides = useRef();
   const classes = useGraphStyles();
+  const customClasses = useCustomStyles();
+  const guides = useRef();
+
+  // TODO(burdon): Resets on update (must preserve/merge data).
+  // TODO(burdon): Is the data updated and corrupted by node projector?
+  const database = useDatabase();
+  const data = useGraphData({ id });
+  // console.log('###', data);
 
   const [{ nodeProjector, linkProjector }] = useState({
-    nodeProjector: new NodeProjector({ node: { radius: 16, showLabels: false } }),
+    nodeProjector: new NodeProjector({
+      node: {
+        radius: 16,
+        showLabels: true,
+        propertyAdapter: ({ type  }) => ({
+          class: type,
+          radius: {
+            database: 25,
+            party: 20,
+            item: 10
+          }[type]
+        })
+      }
+    }),
     linkProjector: new LinkProjector({ nodeRadius: 16, showArrows: true })
   });
 
@@ -44,6 +77,8 @@ const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
   const [selected, setSelected] = useState();
   const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
   useEffect(() => {
+    // TODO(burdon): Click to open.
+    // TODO(burdon): Drag to invite?
     drag.on('click', ({ source: { id }}) => {
       setSelected(id);
     });
@@ -67,40 +102,41 @@ const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
         return;
       }
 
+      setImmediate(async () => {
+        switch (source.type) {
+          case 'database': {
+            await database.createParty();
+            break;
+          }
+
+          case 'party': {
+            const party = await database.getParty(source.partyKey);
+            await party.createItem(ObjectModel.meta.type);
+            break;
+          }
+
+          case 'item': {
+            console.log('### CHILD ITEM ###');
+            break;
+          }
+        }
+      });
+
       linkProjector.update(grid, {}, { group: guides.current });
     });
   }, [drag]);
 
-  // TODO(burdon): Create data on UX event (and protocol updates).
-  const [data, setData, getData, updateData] = useObjectMutator(convertTreeToGraph(createTree(4)));
-  // const [data] = useState({
-  //   nodes: [
-  //     {
-  //       id: `_node_${id}_`,
-  //       title: `Node-${id}`
-  //     },
-  //     {
-  //       id: `_xxx_`
-  //     },
-  //   ],
-  //   links: [
-  //     {
-  //       source: `_node_${id}_`,
-  //       target: '_xxx_'
-  //     }
-  //   ]
-  // });
-
-  console.log(data);
-
   return (
     <g>
-      <g ref={guides} className={classes.guides} />
+      <g ref={guides} className={classes.links} />
 
       <Graph
         grid={grid}
         data={data}
         layout={layout}
+        classes={{
+          nodes: customClasses.nodes
+        }}
         linkProjector={linkProjector}
         nodeProjector={nodeProjector}
         drag={drag}

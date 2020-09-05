@@ -157,12 +157,7 @@ export class PartyManager {
     });
 
     const party = await this._constructParty(partyKey, feeds);
-
-    return new InvitationResponder(
-      party,
-      keyring,
-      feedKey
-    );
+    return new InvitationResponder(keyring, party, feedKey);
   }
 
   /**

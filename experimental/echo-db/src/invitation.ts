@@ -2,10 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { createFeedAdmitMessage } from '@dxos/credentials';
 
 import { PartyProcessor, Party } from './parties';
+
+// TODO(burdon): Document these wrt credentials protocol buffer types. Move Request/Response to @dxos/credentials?
 
 /**
  *
@@ -34,6 +38,7 @@ export class Invitation {
   ) {}
 
   async finalize (response: InvitationResponse) {
+    assert(response);
     await this._partyProcessor.admitFeed(response.peerFeedKey);
     this._writeStream.write(response.feedAdmitMessage);
   }
@@ -44,15 +49,15 @@ export class Invitation {
  */
 export class InvitationResponder {
   public readonly response: InvitationResponse;
-
   constructor (
-    public readonly party: Party,
     keyring: any,
-    feedKeypair: any
+    public readonly party: Party,
+    feedKeyPair: any // TODO(burdon): Crypto Type def? See types.ts.
   ) {
     this.response = {
-      peerFeedKey: feedKeypair.key,
-      feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeypair)
+      peerFeedKey: feedKeyPair.publicKey,
+      // TODO(burdon): Why convert party.key?
+      feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair)
     };
   }
 }

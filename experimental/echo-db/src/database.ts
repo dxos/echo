@@ -103,6 +103,6 @@ export class Database {
    * @param invitation
    */
   async joinParty (invitation: InvitationRequest): Promise<InvitationResponder> {
-    return this._partyManager.addParty(invitation.partyKey, invitation.feeds);
+    return await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
   }
 }

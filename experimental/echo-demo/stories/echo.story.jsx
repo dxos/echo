@@ -2,10 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import * as d3 from 'd3';
 import debug from 'debug';
 import React, { useEffect, useRef, useState } from 'react';
-
 import ram from 'random-access-memory';
 
 import useResizeAware from 'react-resize-aware';
@@ -19,8 +17,7 @@ import {
 } from '@dxos/gem-core';
 
 import {
-  useDefaultStyles,
-  createArrowMarkers
+  Markers
 } from '@dxos/gem-spore';
 
 import { FeedStore } from '@dxos/feed-store';
@@ -81,18 +78,13 @@ export const withDatabase = () => {
       const responder = await db2.joinParty(invitation.request);
 
       // Response.
-      log('Invitation response:', invitation.request);
+      log('Invitation response:', responder.response);
       await invitation.finalize(responder.response);
 
       // Invited
       const party2 = responder.party;
+      await party2.open();
       log('Invited Party:', String(party2));
-
-      // Create items.
-      const item1 = await party1.createItem(ObjectModel.meta.type);
-      const item2 = await party1.createItem(ObjectModel.meta.type);
-      await item1.addChild(item2);
-      log('Created Item:', String(item1));
     });
   }, []);
 
@@ -105,28 +97,19 @@ export const withDatabase = () => {
 };
 
 export const Test = ({ nodes }) => {
-  const classes = useDefaultStyles();
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
-  const markers = useRef(null);
-
-  // Arrows markers.
-  useEffect(() => {
-    d3.select(markers.current)
-      .call(createArrowMarkers());
-  }, []);
 
   return (
     <FullScreen>
       {resizeListener}
       <SVG width={width} height={height}>
         <Grid grid={grid} />
-
-        <g ref={markers} className={classes.markers} />
+        <Markers />
 
         {nodes.map(({ id, database }, i) => (
-          <EchoContext.Provider key={id} value={database}>
+          <EchoContext.Provider key={id} value={{ database }}>
             <EchoGraph id={id} grid={grid} dx={-50 + (i * 100 / (nodes.length - 1))} />
           </EchoContext.Provider>
         ))}
