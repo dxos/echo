@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
+import { jsonReplacer } from '@dxos/experimental-util';
 
 import {
   createSimulationDrag,
@@ -39,29 +40,31 @@ const useCustomStyles = makeStyles(() => ({
  * @param id
  * @param grid
  * @param dx
+ * @param onSelect
  * @constructor
  */
-const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
+const EchoGraph = (
+  { id, grid, dx, onSelect }: { id: string, grid: any, dx: number, onSelect: Function }
+) => {
   const classes = useGraphStyles();
   const customClasses = useCustomStyles();
   const guides = useRef();
 
-  // TODO(burdon): Resets on update (must preserve/merge data).
-  // TODO(burdon): Is the data updated and corrupted by node projector?
   const database = useDatabase();
+
   const data = useGraphData({ id });
-  // console.log('###', data);
 
   const [{ nodeProjector, linkProjector }] = useState({
     nodeProjector: new NodeProjector({
       node: {
         radius: 16,
         showLabels: true,
+        // TODO(burdon): Properties on node directly (e.g., radius, class). Arrows use radius.
         propertyAdapter: ({ type  }) => ({
           class: type,
           radius: {
-            database: 25,
-            party: 20,
+            database: 20,
+            party: 15,
             item: 10
           }[type]
         })
@@ -71,7 +74,8 @@ const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
   });
 
   const [layout] = useState(new ForceLayout({
-    center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y })
+    center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y }),
+    force: { links: { distance: 80 }, radial: { radius: 250 } }
   }));
 
   const [selected, setSelected] = useState();
@@ -79,8 +83,9 @@ const EchoGraph = ({ id, grid, dx }: { id: string, grid: any, dx: number }) => {
   useEffect(() => {
     // TODO(burdon): Click to open.
     // TODO(burdon): Drag to invite?
-    drag.on('click', ({ source: { id }}) => {
-      setSelected(id);
+    drag.on('click', ({ source }) => {
+      setSelected(source.id);
+      onSelect && onSelect(source);
     });
 
     drag.on('drag', ({ source, position, linking }) => {

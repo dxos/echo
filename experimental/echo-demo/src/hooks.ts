@@ -106,7 +106,7 @@ const createGraphData = (
       data.nodes.push({
         id: partyKey,
         type: 'party',
-        title: `Party: ${humanize(party.key)}`,
+        title: `Party(${humanize(party.key)})`,
         partyKey: party.key
       });
 
@@ -121,7 +121,7 @@ const createGraphData = (
         data.nodes.push({
           id: item.id,
           type: 'item',
-          title: `Item: ${truncateString(item.id, 3)}`,
+          title: `Item(${truncateString(item.id, 3)})`,
           partyKey: party.key
         });
 
@@ -148,8 +148,7 @@ export const useGraphData = ({ id }) => {
 
   useEffect(() => {
     // Create party subscriptions.
-    // TODO(burdon): For open parties only.
-    // TODO(burdon): Remove deleted parties.
+    // TODO(burdon): For open parties only (remove deleted).
     parties.forEach(async party => {
       const partyKey = keyToString(party.key);
       if (!subscriptions.current.has(partyKey)) {
