@@ -205,6 +205,7 @@ export class PartyManager {
         this._options.partyProcessorFactory ?? ((partyKey, feedKeys) => new TestPartyProcessor(partyKey, feedKeys));
       const partyProcessor = partyProcessorFactory(partyKey, [feed.key, ...feedKeys]);
       await partyProcessor.init();
+
       const feedReadStream = await createOrderedFeedStream(
         this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
       const feedWriteStream = createWritableFeedStream(feed);

@@ -13,21 +13,33 @@ import { PartyProcessor } from './party-processor';
 export class HaloPartyProcessor extends PartyProcessor {
   private readonly _stateMachine: PartyStateMachine;
 
-  constructor (partyKey: PartyKey, private readonly feedKeyHints: FeedKey[]) {
+  constructor (
+    partyKey: PartyKey,
+    private readonly feedKeyHints: FeedKey[]
+  ) {
     super(partyKey);
 
     this._stateMachine = new PartyStateMachine(partyKey);
     this._forwardEvents();
   }
 
-  // TODO(marik-d): After the party manager is decomposed into halo and test variants, make this only a method of halo party processor.
+  get keyring () {
+    return this._stateMachine.keyring;
+  }
+
+  get feedKeys () {
+    return this._stateMachine.memberFeeds;
+  }
+
+  get memberKeys () {
+    return this._stateMachine.memberKeys;
+  }
+
+  // TODO(marik-d): After the party manager is decomposed into halo and test variants,
+  //   make this only a method of halo party processor.
   async init () {
     // Gives state machine hints on initial feed set from where to read party genesis message.
     await this._stateMachine.takeHints(this.feedKeyHints.map(publicKey => ({ publicKey, type: KeyType.FEED })));
-  }
-
-  get keyring () {
-    return this._stateMachine.keyring;
   }
 
   async _processMessage (message: IHaloStream): Promise<void> {
@@ -35,19 +47,12 @@ export class HaloPartyProcessor extends PartyProcessor {
     return this._stateMachine.processMessages([data]);
   }
 
-  public get feedKeys () {
-    return this._stateMachine.memberFeeds;
-  }
-
-  public get memberKeys () {
-    return this._stateMachine.memberKeys;
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected _addFeedKey (key: FeedKey) {
     throw new Error('Not implemented');
   }
 
+  // TODO(burdon): Move to constructor.
   private _forwardEvents () {
     // TODO(telackey) @dxos/credentials was only half converted to TS. In its current state, the KeyRecord type
     // is not exported, and the PartyStateMachine being used is not properly understood as an EventEmitter by TS.
