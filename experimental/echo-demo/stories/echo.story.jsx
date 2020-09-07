@@ -78,7 +78,7 @@ export const withDatabase = () => {
   )
 };
 
-export const Test = ({ peers }) => {
+const Test = ({ peers }) => {
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
