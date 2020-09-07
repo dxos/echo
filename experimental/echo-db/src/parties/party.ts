@@ -38,7 +38,7 @@ export class Party {
     // TODO(burdon): Do not inline.
     private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
-    private readonly _partyProcessor: PartyProcessor,
+    private readonly _partyProcessor: PartyProcessor
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
