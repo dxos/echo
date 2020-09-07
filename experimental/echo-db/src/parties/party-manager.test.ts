@@ -67,6 +67,8 @@ describe('Party manager', () => {
     const feedStream = createWritableFeedStream(feed);
     feedStream.write(createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey));
 
+    await partyManager.addParty(Buffer.from(partyKey.key, 'hex'), [feed.key]);
+
     await update;
   });
 

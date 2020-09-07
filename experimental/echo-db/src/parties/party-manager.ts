@@ -43,8 +43,6 @@ export class PartyManager {
   private readonly _modelFactory: ModelFactory;
   private readonly _options: Options;
 
-  private readonly _onFeed: (feed: hypercore.Feed, descriptor: FeedDescriptor) => void;
-
   // External event listener.
   // TODO(burdon): Wrap with subscribe.
   readonly update = new Event<Party>();
@@ -68,38 +66,23 @@ export class PartyManager {
     this._feedStore = feedStore;
     this._modelFactory = modelFactory;
     this._options = options || {};
-
-    // Listen for feed construction.
-    this._onFeed = async (feed: hypercore.Feed, descriptor: FeedDescriptor) => {
-      // NOTE: Party creation (below) creates a new feed which immediately triggers this event.
-      // We need to defer execution of the event processing until the Party object has been
-      // constructed and mapped -- otherwise we will inadvertantly cause a new instance to be created.
-      setImmediate(async () => {
-        const { metadata: { partyKey } } = descriptor;
-        assert(partyKey);
-        const party = await this._getOrCreateParty(partyKey);
-        await party.open();
-        this.update.emit(party);
-      });
-    };
   }
 
   async open () {
     await this._feedStore.open();
-    // (this._feedStore as any).on('feed', this._onFeed);
 
     // Iterate descriptors and pre-create Party objects.
     for (const descriptor of this._feedStore.getDescriptors()) {
       const { metadata: { partyKey } } = descriptor;
       assert(partyKey);
       if (!this._parties.has(partyKey)) {
-        await this._constructParty(partyKey);
+        const party = await this._constructParty(partyKey);
+        this.update.emit(party);
       }
     }
   }
 
   async close () {
-    (this._feedStore as any).off('feed', this._onFeed);
     await this._feedStore.close();
   }
 
@@ -138,6 +121,8 @@ export class PartyManager {
     // Create special properties item.
     await party.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
 
+    this.update.emit(party);
+
     return party;
   }
 
@@ -157,6 +142,8 @@ export class PartyManager {
     });
 
     const party = await this._constructParty(partyKey, feeds);
+    await party.open();
+    this.update.emit(party);
     return new InvitationResponder(keyring, party, feedKey);
   }
 
