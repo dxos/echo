@@ -193,7 +193,7 @@ export class PartyManager {
         new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
 
       // Create party.
-      const party = new Party(this._modelFactory, pipeline, partyProcessor, feed.key);
+      const party = new Party(this._modelFactory, pipeline, partyProcessor);
       assert(!this._parties.has(party.key));
       this._parties.set(party.key, party);
 

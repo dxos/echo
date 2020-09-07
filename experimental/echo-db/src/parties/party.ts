@@ -39,7 +39,6 @@ export class Party {
     private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
     private readonly _partyProcessor: PartyProcessor,
-    public readonly writeFeedKey: FeedKey
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
