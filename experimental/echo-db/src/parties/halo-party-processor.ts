@@ -2,10 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
 import { Party as PartyStateMachine, KeyType } from '@dxos/credentials';
 import { PartyKey, IHaloStream, FeedKey } from '@dxos/experimental-echo-protocol';
+import { keyToString } from '@dxos/crypto';
 
 import { PartyProcessor } from './party-processor';
+
+const log = debug('dxos:echo:halo-party-processor');
 
 /**
  * Party processor for testing.
@@ -22,6 +26,7 @@ export class HaloPartyProcessor extends PartyProcessor {
 
   // TODO(marik-d): After the party manager is decomposed into halo and test variants, make this only a method of halo party processor.
   async addHints (feedKeys: FeedKey[]) {
+    log(`addHints ${feedKeys.map(key => keyToString(Buffer.from(key)))}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
     await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }

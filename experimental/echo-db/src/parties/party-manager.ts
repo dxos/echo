@@ -86,7 +86,7 @@ export class PartyManager {
 
   async open () {
     await this._feedStore.open();
-    (this._feedStore as any).on('feed', this._onFeed);
+    // (this._feedStore as any).on('feed', this._onFeed);
 
     // Iterate descriptors and pre-create Party objects.
     for (const descriptor of this._feedStore.getDescriptors()) {
