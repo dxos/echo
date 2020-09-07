@@ -10,6 +10,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { createWritableFeedStream, latch } from '@dxos/experimental-util';
+import { keyToBuffer } from '@dxos/crypto';
 
 import { codec } from '../codec';
 import { PartyManager } from './party-manager';
@@ -67,7 +68,7 @@ describe('Party manager', () => {
     const feedStream = createWritableFeedStream(feed);
     feedStream.write(createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey));
 
-    await partyManager.addParty(Buffer.from(partyKey.key, 'hex'), [feed.key]);
+    await partyManager.addParty(keyToBuffer(partyKey.key), [feed.key]);
 
     await update;
   });

@@ -26,7 +26,7 @@ export class HaloPartyProcessor extends PartyProcessor {
 
   // TODO(marik-d): After the party manager is decomposed into halo and test variants, make this only a method of halo party processor.
   async addHints (feedKeys: FeedKey[]) {
-    log(`addHints ${feedKeys.map(key => keyToString(Buffer.from(key)))}`);
+    log(`addHints ${feedKeys.map(key => keyToString(key))}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
     await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }

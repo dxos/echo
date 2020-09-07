@@ -56,7 +56,7 @@ export default class TestAgent implements Agent {
       this.invitation = this.party.createInvitation();
       this.environment.log('invitation', {
         partyKey: keyToString(this.invitation.request.partyKey as any),
-        feeds: this.invitation.request.feeds.map(key => keyToString(Buffer.from(key)))
+        feeds: this.invitation.request.feeds.map(key => keyToString(key))
       });
     } else if (event.command === 'ACCEPT_INVITATION') { // TODO(burdon): "invitation.accept", etc.
       const { response, party } = await this.db.joinParty({
@@ -70,7 +70,7 @@ export default class TestAgent implements Agent {
       });
 
       this.environment.log('invitationResponse', {
-        peerFeedKey: keyToString(Buffer.from(response.peerFeedKey)),
+        peerFeedKey: keyToString(response.peerFeedKey),
         feedAdmitMessage: codec.encode({ halo: response.feedAdmitMessage }).toString('hex')
       });
     } else if (event.command === 'FINALIZE_INVITATION') {

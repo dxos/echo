@@ -67,7 +67,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
     if (!feed) {
       // TODO(burdon): Change path.
       feed = this.feedStore.openFeed(`/topic/${topic}/readable/${keyToString(key)}`, {
-        key: Buffer.from(key),
+        key,
         metadata: { partyKey: this.partyKey }
       } as any);
     }
@@ -79,14 +79,14 @@ export class ReplicationAdapter implements IReplicationAdapter {
     const replicator = new Replicator({
       load: async () => {
         const partyFeeds = await Promise.all(this.activeFeeds.get().map(feedKey => this._openFeed(feedKey)));
-        log(`load feeds ${partyFeeds.map(feed => keyToString(Buffer.from(feed.key)))}`);
+        log(`load feeds ${partyFeeds.map(feed => keyToString(feed.key))}`);
         return partyFeeds.map((feed) => {
           return { discoveryKey: feed.discoveryKey };
         });
       },
 
       subscribe: (addFeedToReplicatedSet: (feed: any) => void) => this.activeFeeds.added.on(async (feedKey) => {
-        log(`add feed ${keyToString(Buffer.from(feedKey))}`);
+        log(`add feed ${keyToString(feedKey)}`);
         const feed = await this._openFeed(feedKey);
         addFeedToReplicatedSet({ discoveryKey: feed.discoveryKey });
       }),
