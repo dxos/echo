@@ -154,7 +154,7 @@ export class Party {
     };
 
     assert(this._pipeline.writeStream);
-    return new Invitation(this._partyProcessor, this._pipeline.writeStream, request);
+    return new Invitation(this._pipeline.writeStream, request);
   }
 
   /**

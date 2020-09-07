@@ -68,9 +68,4 @@ export class HaloPartyProcessor extends PartyProcessor {
       // this._keyAdded.emit(keyRecord.publicKey);
     });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async admitFeed (feedKey: FeedKey) {
-    // TODO(marik-d): Remove this method and make the class only do the processing
-  }
 }
