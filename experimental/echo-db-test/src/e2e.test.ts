@@ -25,7 +25,6 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   });
 }
 
-// TODO(mairk-d): Skipped while the replication doesn't work with halo
 test('replication', async () => {
   const orchestrator = new NodeOrchestrator();
 
@@ -52,6 +51,7 @@ test('replication', async () => {
   log('node2 has items');
 
   node1.snapshot();
+  node2.snapshot();
 
   orchestrator.destroy();
 });
