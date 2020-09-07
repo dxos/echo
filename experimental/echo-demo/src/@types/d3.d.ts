@@ -2,4 +2,4 @@
 // Copyright 2020 DXOS.org
 //
 
-declare module '@dxos/async';
+declare module 'd3';

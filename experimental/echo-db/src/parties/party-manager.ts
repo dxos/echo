@@ -60,7 +60,7 @@ export class PartyManager {
   constructor (
     feedStore: FeedStore,
     modelFactory: ModelFactory,
-    private readonly replicatorFactory?: ReplicatorFactory,
+    private readonly replicatorFactory?: ReplicatorFactory, // TODO(burdon): Make consistent.
     options?: Options
   ) {
     assert(feedStore);
@@ -157,12 +157,7 @@ export class PartyManager {
     });
 
     const party = await this._constructParty(partyKey, feeds);
-
-    return new InvitationResponder(
-      party,
-      keyring,
-      feedKey
-    );
+    return new InvitationResponder(keyring, party, feedKey);
   }
 
   /**
@@ -208,7 +203,8 @@ export class PartyManager {
       const feedReadStream = await createOrderedFeedStream(
         this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
       const feedWriteStream = createWritableFeedStream(feed);
-      const pipeline = new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
+      const pipeline =
+        new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
 
       // Create party.
       const party = new Party(this._modelFactory, pipeline, partyProcessor, feed.key);

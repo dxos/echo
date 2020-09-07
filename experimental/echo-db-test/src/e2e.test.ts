@@ -44,9 +44,11 @@ test('replication', async () => {
 
   node1.sendEvent({});
 
-  await node1.metrics.update.waitFor(() => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
+  await node1.metrics.update.waitFor(
+    () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
   log('node1 has items');
-  await node2.metrics.update.waitFor(() => !!node2.metrics.getNumber('item.count') && node2.metrics.getNumber('item.count')! >= 2);
+  await node2.metrics.update.waitFor(
+    () => !!node2.metrics.getNumber('item.count') && node2.metrics.getNumber('item.count')! >= 2);
   log('node2 has items');
 
   node1.snapshot();
@@ -67,7 +69,8 @@ test('create party', async () => {
     command: 'CREATE_PARTY'
   });
 
-  await node1.metrics.update.waitFor(() => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! > 0);
+  await node1.metrics.update.waitFor(
+    () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! > 0);
   node1.snapshot();
 
   orchestrator.destroy();
