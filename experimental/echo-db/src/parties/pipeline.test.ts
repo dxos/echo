@@ -14,6 +14,7 @@ import { createSetPropertyMutation } from '@dxos/experimental-model-factory';
 
 import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
+import { HaloPartyProcessor } from './halo-party-processor';
 
 const log = debug('dxos:echo:pipeline:test');
 
@@ -29,7 +30,7 @@ describe('pipeline', () => {
     // Create pipeline.
     //
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new TestPartyProcessor(partyKey);
+    const partyProcessor = new HaloPartyProcessor(partyKey);
     await partyProcessor.addHints([feed.key]);
     const pipeline = new Pipeline(partyProcessor, feedReadStream);
     const [readStream] = await pipeline.open();

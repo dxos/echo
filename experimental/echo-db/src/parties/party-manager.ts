@@ -22,6 +22,7 @@ import { Pipeline } from './pipeline';
 import { TestPartyProcessor } from './test-party-processor';
 import { InvitationResponder } from '../invitation';
 import { PartyProcessor } from './party-processor';
+import { HaloPartyProcessor } from './halo-party-processor';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -184,7 +185,7 @@ export class PartyManager {
       // TODO(telackey): To use HaloPartyProcessor here we cannot keep passing FeedKey[] arrays around, instead
       // we need to use createFeedAdmitMessage to a write a properly signed message FeedAdmitMessage and write it,
       // like we do above for the PartyGenesis message.
-      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((partyKey) => new TestPartyProcessor(partyKey));
+      const partyProcessorFactory = this._options.partyProcessorFactory ?? ((partyKey) => new HaloPartyProcessor(partyKey));
       const partyProcessor = partyProcessorFactory(partyKey);
       await partyProcessor.addHints([feed.key, ...feedKeys]);
       const feedReadStream = await createOrderedFeedStream(
