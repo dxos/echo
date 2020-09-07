@@ -13,7 +13,6 @@ import { codec, createOrderedFeedStream, IEchoStream } from '@dxos/experimental-
 import { createSetPropertyMutation } from '@dxos/experimental-model-factory';
 
 import { Pipeline } from './pipeline';
-import { TestPartyProcessor } from './test-party-processor';
 import { HaloPartyProcessor } from './halo-party-processor';
 
 const log = debug('dxos:echo:pipeline:test');

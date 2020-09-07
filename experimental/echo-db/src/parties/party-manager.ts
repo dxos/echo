@@ -4,7 +4,6 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import hypercore from 'hypercore';
 import pify from 'pify';
 
 import { Event, Lock } from '@dxos/async';
@@ -14,12 +13,11 @@ import { createOrderedFeedStream, FeedKey, PartyKey, PublicKey } from '@dxos/exp
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream, ComplexMap } from '@dxos/experimental-util';
-import { FeedDescriptor, FeedStore } from '@dxos/feed-store';
+import { FeedStore } from '@dxos/feed-store';
 
 import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
-import { TestPartyProcessor } from './test-party-processor';
 import { InvitationResponder } from '../invitation';
 import { PartyProcessor } from './party-processor';
 import { HaloPartyProcessor } from './halo-party-processor';
