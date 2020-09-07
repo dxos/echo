@@ -2,10 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
 import { Party as PartyStateMachine, KeyType } from '@dxos/credentials';
 import { PartyKey, IHaloStream, FeedKey } from '@dxos/experimental-echo-protocol';
+import { keyToString } from '@dxos/crypto';
 
 import { PartyProcessor } from './party-processor';
+
+const log = debug('dxos:echo:halo-party-processor');
 
 /**
  * Party processor for testing.
@@ -13,10 +17,7 @@ import { PartyProcessor } from './party-processor';
 export class HaloPartyProcessor extends PartyProcessor {
   private readonly _stateMachine: PartyStateMachine;
 
-  constructor (
-    partyKey: PartyKey,
-    private readonly feedKeyHints: FeedKey[]
-  ) {
+  constructor (partyKey: PartyKey) {
     super(partyKey);
 
     this._stateMachine = new PartyStateMachine(partyKey);
@@ -35,16 +36,11 @@ export class HaloPartyProcessor extends PartyProcessor {
     return this._stateMachine.memberKeys;
   }
 
-  // TODO(marik-d): After the party manager is decomposed into halo and test variants,
-  //   make this only a method of halo party processor.
-  async init () {
+  // TODO(marik-d): After the party manager is decomposed into halo and test variants, make this only a method of halo party processor.
+  async addHints (feedKeys: FeedKey[]) {
+    log(`addHints ${feedKeys.map(key => keyToString(key))}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
-    await this._stateMachine.takeHints(this.feedKeyHints.map(publicKey => ({ publicKey, type: KeyType.FEED })));
-  }
-
-  async _processMessage (message: IHaloStream): Promise<void> {
-    const { data } = message;
-    return this._stateMachine.processMessages([data]);
+    await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -52,7 +48,11 @@ export class HaloPartyProcessor extends PartyProcessor {
     throw new Error('Not implemented');
   }
 
-  // TODO(burdon): Move to constructor.
+  async _processMessage (message: IHaloStream): Promise<void> {
+    const { data } = message;
+    return this._stateMachine.processMessages([data]);
+  }
+
   private _forwardEvents () {
     // TODO(telackey) @dxos/credentials was only half converted to TS. In its current state, the KeyRecord type
     // is not exported, and the PartyStateMachine being used is not properly understood as an EventEmitter by TS.
@@ -67,10 +67,5 @@ export class HaloPartyProcessor extends PartyProcessor {
     state.on('admit:key', (keyRecord: any) => {
       // this._keyAdded.emit(keyRecord.publicKey);
     });
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async admitFeed (feedKey: FeedKey) {
-    // TODO(marik-d): Remove this method and make the class only do the processing
   }
 }
