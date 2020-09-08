@@ -106,10 +106,10 @@ export class PartyManager {
     return this._lock.executeSynchronized(async () => {
       log(`Add party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
       assert(!this._parties.has(partyKey));
-      const { party, keyring, feedKey } = await this._partyFactory.addParty(partyKey, feeds);
+      const { party, feedKey } = await this._partyFactory.addParty(partyKey, feeds);
       this._parties.set(party.key, party);
       this.update.emit(party);
-      return new InvitationResponder(keyring, party, feedKey);
+      return new InvitationResponder(this._partyFactory.keyring, party, feedKey);
     });
   }
 }

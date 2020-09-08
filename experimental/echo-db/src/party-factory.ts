@@ -23,6 +23,8 @@ interface Options {
 }
 
 export class PartyFactory {
+  private readonly _keyring = new Keyring();
+
   constructor (
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _modelFactory: ModelFactory,
@@ -30,16 +32,17 @@ export class PartyFactory {
     private readonly _options: Options = {}
   ) { }
 
+  get keyring () { return this._keyring; }
+
   async createParty (): Promise<Party> {
     assert(!this._options.readOnly);
 
     // TODO(telackey): Proper identity and keyring management.
-    const keyring = new Keyring();
-    const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
-    const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
+    const partyKey = await this._keyring.createKeyRecord({ type: KeyType.PARTY });
+    const identityKey = await this._keyring.createKeyRecord({ type: KeyType.IDENTITY });
 
     const feed = await this._feedStore.openFeed(keyToBuffer(partyKey.key), partyKey.publicKey);
-    const feedKey = await keyring.addKeyRecord({
+    const feedKey = await this._keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
       type: KeyType.FEED
@@ -48,7 +51,7 @@ export class PartyFactory {
     const party = await this.constructParty(partyKey.publicKey, []);
 
     // TODO(burdon): Call party processor to write genesis, etc.
-    const message = createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey);
+    const message = createPartyGenesisMessage(this._keyring, partyKey, feedKey, identityKey);
     await pify(feed.append.bind(feed))({ halo: message });
 
     // Connect the pipeline.
@@ -60,10 +63,9 @@ export class PartyFactory {
     return party;
   }
 
-  async addParty (partyKey: PartyKey, feeds: FeedKey[]) { 
-    const keyring = new Keyring();
+  async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(partyKey, partyKey);
-    const feedKey = await keyring.addKeyRecord({
+    const feedKey = await this._keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
       type: KeyType.FEED
@@ -72,7 +74,7 @@ export class PartyFactory {
     const party = await this.constructParty(partyKey, feeds);
     await party.open();
     // TODO(marik-d): Refactor so it doesn't return a tuple
-    return { party, keyring, feedKey };
+    return { party, feedKey };
   }
 
   async constructParty (partyKey: PartyKey, feedKeys: FeedKey[]) {
