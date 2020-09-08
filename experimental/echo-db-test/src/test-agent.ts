@@ -9,7 +9,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
 import {
-  codec, Database, Invitation, Party, PartyManager, createReplicatorFactory, HaloPartyProcessor
+  codec, Database, Invitation, Party, PartyManager, createReplicatorFactory
 } from '@dxos/experimental-echo-db';
 
 export default class TestAgent implements Agent {
@@ -33,10 +33,6 @@ export default class TestAgent implements Agent {
       feedStore,
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes()),
-      // TODO(burdon): Remove as options.
-      {
-        partyProcessorFactory: (partyKey) => new HaloPartyProcessor(partyKey)
-      }
     );
     this.db = new Database(partyManager);
     await this.db.open();
