@@ -121,6 +121,7 @@ const EchoGraph = (
           }
 
           case 'item': {
+            // TODO(burdon): Change parent if target specified.
             const party = await database.getParty(source.partyKey);
             const child = await party.createItem(ObjectModel.meta.type);
             await child.setParent(source.id);

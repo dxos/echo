@@ -23,10 +23,6 @@ describe('item demxuer', () => {
     const modelFactory = new ModelFactory()
       .registerModel(TestModel.meta, TestModel);
 
-    //
-    //
-    //
-
     const writeStream = createTransform<protocol.dxos.echo.IEchoEnvelope, IEchoStream>(
       async (message: protocol.dxos.echo.IEchoEnvelope): Promise<IEchoStream> => ({
         meta: {

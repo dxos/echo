@@ -34,7 +34,7 @@ export class Item<M extends Model<any>> {
     assert(partyKey);
     assert(itemId);
     assert(model);
-    this._partyKey = partyKey
+    this._partyKey = partyKey;
     this._itemId = itemId;
     this._itemType = itemType;
     this._model = model;

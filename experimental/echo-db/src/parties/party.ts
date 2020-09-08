@@ -128,6 +128,7 @@ export class Party {
   async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>> {
     assert(this._itemManager);
     assert(modelType);
+
     return this._itemManager.createItem(modelType, itemType);
   }
 
@@ -137,6 +138,7 @@ export class Party {
    */
   async queryItems (filter?: ItemFilter): Promise<ResultSet<Item<any>>> {
     assert(this._itemManager);
+
     return this._itemManager.queryItems(filter);
   }
 
