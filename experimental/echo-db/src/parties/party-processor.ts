@@ -34,13 +34,20 @@ export class PartyProcessor {
   constructor (partyKey: PartyKey) {
     this._partyKey = partyKey;
     this._stateMachine = new PartyStateMachine(partyKey);
-    this._forwardEvents();
-  }
 
-  async addHints (feedKeys: FeedKey[]) {
-    log(`addHints ${feedKeys.map(key => keyToString(key))}`);
-    // Gives state machine hints on initial feed set from where to read party genesis message.
-    await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
+    // TODO(telackey) @dxos/credentials was only half converted to TS. In its current state, the KeyRecord type
+    // is not exported, and the PartyStateMachine being used is not properly understood as an EventEmitter by TS.
+    // Casting to 'any' is a workaround for the compiler, but the fix is fully to convert @dxos/credentials to TS.
+    const state = this._stateMachine as any;
+
+    state.on('admit:feed', (keyRecord: any) => {
+      this._feedAdded.emit(keyRecord.publicKey);
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    state.on('admit:key', (keyRecord: any) => {
+      // this._keyAdded.emit(keyRecord.publicKey);
+    });
   }
 
   get partyKey () {
@@ -53,11 +60,6 @@ export class PartyProcessor {
 
   get keyring () {
     return this._stateMachine.keyring;
-  }
-
-  async _processMessage (message: IHaloStream): Promise<void> {
-    const { data } = message;
-    return this._stateMachine.processMessages([data]);
   }
 
   public get feedKeys () {
@@ -78,9 +80,17 @@ export class PartyProcessor {
     return (candidates: FeedBlock[]) => 0;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected _addFeedKey (key: FeedKey) {
-    throw new Error('Not implemented');
+  getActiveFeedSet (): FeedSetProvider {
+    return {
+      get: () => this.feedKeys,
+      added: this._feedAdded
+    };
+  }
+
+  async addHints (feedKeys: FeedKey[]) {
+    log(`addHints ${feedKeys.map(key => keyToString(key))}`);
+    // Gives state machine hints on initial feed set from where to read party genesis message.
+    await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }
 
   updateTimeframe (key: FeedKey, seq: number) {
@@ -89,29 +99,7 @@ export class PartyProcessor {
 
   async processMessage (message: IHaloStream): Promise<void> {
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
-    return this._processMessage(message);
-  }
-
-  getActiveFeedSet (): FeedSetProvider {
-    return {
-      get: () => this.feedKeys,
-      added: this._feedAdded
-    };
-  }
-
-  private _forwardEvents () {
-    // TODO(telackey) @dxos/credentials was only half converted to TS. In its current state, the KeyRecord type
-    // is not exported, and the PartyStateMachine being used is not properly understood as an EventEmitter by TS.
-    // Casting to 'any' is a workaround for the compiler, but the fix is fully to convert @dxos/credentials to TS.
-    const state = this._stateMachine as any;
-
-    state.on('admit:feed', (keyRecord: any) => {
-      this._feedAdded.emit(keyRecord.publicKey);
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    state.on('admit:key', (keyRecord: any) => {
-      // this._keyAdded.emit(keyRecord.publicKey);
-    });
+    const { data } = message;
+    return this._stateMachine.processMessages([data]);
   }
 }
