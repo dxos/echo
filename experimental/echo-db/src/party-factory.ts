@@ -34,6 +34,9 @@ export class PartyFactory {
 
   get keyring () { return this._keyring; }
 
+  /**
+   * Create a new party with a new feed for it. Writes a party genensis message to this feed.
+   */
   async createParty (): Promise<Party> {
     assert(!this._options.readOnly);
 
@@ -63,6 +66,10 @@ export class PartyFactory {
     return party;
   }
 
+  /**
+   * Constructs a party object and creates a local write feed for it.
+   * @param feeds set of hints for existing feeds belonging to this party.
+   */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(partyKey, partyKey);
     const feedKey = await this._keyring.addKeyRecord({
@@ -77,6 +84,11 @@ export class PartyFactory {
     return { party, feedKey };
   }
 
+  /**
+   * Constructs a party object from an existing set of feeds.
+   * @param partyKey 
+   * @param feedKeys 
+   */
   async constructParty (partyKey: PartyKey, feedKeys: FeedKey[]) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
