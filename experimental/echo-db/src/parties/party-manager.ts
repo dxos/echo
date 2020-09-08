@@ -8,7 +8,7 @@ import pify from 'pify';
 
 import { Event, Lock } from '@dxos/async';
 import { createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
-import { keyToString } from '@dxos/crypto';
+import { keyToString, keyToBuffer } from '@dxos/crypto';
 import { createOrderedFeedStream, FeedKey, PartyKey, PublicKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
@@ -20,6 +20,7 @@ import { Party, PARTY_ITEM_TYPE } from './party';
 import { Pipeline } from './pipeline';
 import { InvitationResponder } from '../invitation';
 import { PartyProcessor } from './party-processor';
+import { FeedStoreAdapter } from '../feed-store-adapter';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -36,7 +37,7 @@ export class PartyManager {
   // Map of parties by party key.
   private readonly _parties = new ComplexMap<PublicKey, Party>(keyToString);
 
-  private readonly _feedStore: FeedStore;
+  private readonly _feedStore: FeedStoreAdapter;
   private readonly _modelFactory: ModelFactory;
   private readonly _options: Options;
 
@@ -60,7 +61,7 @@ export class PartyManager {
   ) {
     assert(feedStore);
     assert(modelFactory);
-    this._feedStore = feedStore;
+    this._feedStore = new FeedStoreAdapter(feedStore);
     this._modelFactory = modelFactory;
     this._options = options || {};
   }
@@ -69,9 +70,7 @@ export class PartyManager {
     await this._feedStore.open();
 
     // Iterate descriptors and pre-create Party objects.
-    for (const descriptor of this._feedStore.getDescriptors()) {
-      const { metadata: { partyKey } } = descriptor;
-      assert(partyKey);
+    for (const partyKey of this._feedStore.enumerateParties()) {
       if (!this._parties.has(partyKey)) {
         const party = await this._constructParty(partyKey);
         this.update.emit(party);
@@ -98,7 +97,7 @@ export class PartyManager {
     const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
     const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
 
-    const feed = await this._feedStore.openFeed(partyKey.key, { metadata: { partyKey: partyKey.publicKey } } as any);
+    const feed = await this._feedStore.openFeed(keyToBuffer(partyKey.key), partyKey.publicKey);
     const feedKey = await keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
@@ -131,7 +130,7 @@ export class PartyManager {
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     log(`Add party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
     const keyring = new Keyring();
-    const feed = await this._feedStore.openFeed(keyToString(partyKey), { metadata: { partyKey } } as any);
+    const feed = await this._feedStore.openFeed(partyKey, partyKey);
     const feedKey = await keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
@@ -173,9 +172,8 @@ export class PartyManager {
       // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
       //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
       //   In this case create pipeline in read-only mode.
-      const descriptor = this._feedStore.getDescriptors().find(descriptor => descriptor.path === keyToString(partyKey));
-      assert(descriptor, `Feed not found for party: ${keyToString(partyKey)}`);
-      const feed = descriptor.feed;
+      const feed = this._feedStore.getFeed(partyKey);
+      assert(feed, `Feed not found for party: ${keyToString(partyKey)}`);
 
       // Create pipeline.
       // TODO(telackey): To use HaloPartyProcessor here we cannot keep passing FeedKey[] arrays around, instead
@@ -184,7 +182,7 @@ export class PartyManager {
       const partyProcessor = new PartyProcessor(partyKey);
       await partyProcessor.addHints([feed.key, ...feedKeys]);
       const feedReadStream = await createOrderedFeedStream(
-        this._feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
+        this._feedStore.feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
       const feedWriteStream = createWritableFeedStream(feed);
       const pipeline =
         new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this.replicatorFactory, this._options);
