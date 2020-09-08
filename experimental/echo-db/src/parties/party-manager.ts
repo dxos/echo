@@ -75,7 +75,7 @@ export class PartyManager {
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     return this._lock.executeSynchronized(async () => {
-      log(`Add party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
+      log(`Adding party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
       assert(!this._parties.has(partyKey));
       const { party, feedKey } = await this._partyFactory.addParty(partyKey, feeds);
       this._parties.set(party.key, party);
