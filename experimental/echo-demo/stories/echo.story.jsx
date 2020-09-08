@@ -65,8 +65,8 @@ export const withDatabase = () => {
   useEffect(() => {
     setTimeout(async () => {
       // Create party and invite.
-      const party1 = await db1.createParty();
-      log('Created Party:', String(party1));
+      // const party1 = await db1.createParty();
+      // log('Created Party:', String(party1));
     }, 1000); // TODO(burdon): GEM bug if immediate.
   }, []);
 
@@ -78,7 +78,7 @@ export const withDatabase = () => {
   )
 };
 
-const Test = ({ peers }) => {
+const Test = ({ peers, showGrid = false }) => {
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
@@ -129,7 +129,9 @@ const Test = ({ peers }) => {
     <FullScreen>
       {resizeListener}
       <SVG width={width} height={height}>
-        <Grid grid={grid} />
+        {showGrid && (
+          <Grid grid={grid} />
+        )}
         <Markers />
 
         {peers.map((peer, i) => {

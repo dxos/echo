@@ -66,7 +66,7 @@ export class Party {
     const [readStream, writeStream] = await this._pipeline.open();
 
     // Connect to the downstream item demuxer.
-    this._itemManager = new ItemManager(this._modelFactory, writeStream);
+    this._itemManager = new ItemManager(this.key, this._modelFactory, writeStream);
     this._itemDemuxer = createItemDemuxer(this._itemManager);
     readStream.pipe(this._itemDemuxer);
 

@@ -26,7 +26,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
   // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
   return createWritable<IEchoStream>(async (message: IEchoStream) => {
     log('Reading:', JSON.stringify(message, jsonReplacer));
-    const { data: { itemId, genesis, childMutation } } = message;
+    const { data: { itemId, genesis, itemMutation } } = message;
     assert(itemId);
 
     //
@@ -51,13 +51,13 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
     //
 
     //
-    // Add/remove child item references.
+    // Set parent item references.
     //
-    if (childMutation) {
-      const parent = itemManager.getItem(itemId);
-      assert(parent);
+    if (itemMutation) {
+      const item = itemManager.getItem(itemId);
+      assert(item);
 
-      parent._processMutation(childMutation, itemId => itemManager.getItem(itemId));
+      item._processMutation(itemMutation, itemId => itemManager.getItem(itemId));
       return;
     }
 

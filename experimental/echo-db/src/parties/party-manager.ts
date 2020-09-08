@@ -141,6 +141,10 @@ export class PartyManager {
     });
 
     const party = await this._constructParty(partyKey, feeds);
+    await party.open();
+
+    this.update.emit(party);
+
     return new InvitationResponder(keyring, party, feedKey);
   }
 

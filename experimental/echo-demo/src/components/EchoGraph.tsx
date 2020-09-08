@@ -121,7 +121,9 @@ const EchoGraph = (
           }
 
           case 'item': {
-            console.log('### CHILD ITEM ###');
+            const party = await database.getParty(source.partyKey);
+            const child = await party.createItem(ObjectModel.meta.type);
+            await child.setParent(source.id);
             break;
           }
         }

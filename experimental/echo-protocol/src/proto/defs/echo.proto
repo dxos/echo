@@ -32,7 +32,7 @@ message EchoEnvelope {
 
   oneof action {
     ItemGenesis genesis = 10;
-    ItemChildMutation childMutation = 11;
+    ItemMutation itemMutation = 11;
 
     // TODO(burdon): Optimize with numeric type_url value? Separate types.
     google.protobuf.Any mutation = 20;
@@ -46,12 +46,6 @@ message ItemGenesis {
   string modelVersion = 3;
 }
 
-message ItemChildMutation {
-  enum Operation {
-    ADD = 0;
-    REMOVE = 1;
-  }
-
-  Operation operation = 1;
-  string itemId = 2;
+message ItemMutation {
+  string parentId = 1;
 }

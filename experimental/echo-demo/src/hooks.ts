@@ -116,7 +116,6 @@ const createGraphData = (
         target: partyKey
       });
 
-      // TODO(burdon): Hierarchical items.
       items.forEach(item => {
         data.nodes.push({
           id: item.id,
@@ -125,9 +124,10 @@ const createGraphData = (
           partyKey: party.key
         });
 
+        const id = item.parent ? item.parent.id : partyKey;
         data.links.push({
-          id: `${partyKey}-${item.id}`,
-          source: partyKey,
+          id: `${id}-${item.id}`,
+          source: id,
           target: item.id
         });
       });
