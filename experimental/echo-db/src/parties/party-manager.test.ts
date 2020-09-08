@@ -14,7 +14,7 @@ import { FeedStore } from '@dxos/feed-store';
 
 import { codec } from '../codec';
 import { FeedStoreAdapter } from '../feed-store-adapter';
-import { PartyFactory } from '../party-factory';
+import { PartyFactory } from './party-factory';
 import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:party-manager-test');

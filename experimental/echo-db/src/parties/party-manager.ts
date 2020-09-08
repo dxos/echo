@@ -12,7 +12,7 @@ import { ComplexMap } from '@dxos/experimental-util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationResponder } from '../invitation';
-import { PartyFactory } from '../party-factory';
+import { PartyFactory } from './party-factory';
 import { Party } from './party';
 
 const log = debug('dxos:echo:party-manager');

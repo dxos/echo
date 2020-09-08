@@ -163,8 +163,10 @@ export const useGraphData = ({ id }) => {
       }
     });
 
-    for (const unsubscribe of subscriptions.current.values()) {
-      unsubscribe();
+    return () => {
+      for (const unsubscribe of subscriptions.current.values()) {
+        unsubscribe();
+      }
     }
   }, [parties]);
 

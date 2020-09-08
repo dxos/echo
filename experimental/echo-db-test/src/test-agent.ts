@@ -4,9 +4,8 @@
 
 import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import {
-  codec, Database, Invitation, Party, PartyManager, createReplicatorFactory, FeedStoreAdapter
+  codec, Database, Invitation, Party, PartyManager, createReplicatorFactory, FeedStoreAdapter, PartyFactory
 } from '@dxos/experimental-echo-db';
-import { PartyFactory } from '@dxos/experimental-echo-db/dist/src/party-factory';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { FeedStore } from '@dxos/feed-store';

@@ -12,10 +12,10 @@ import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { FeedStoreAdapter } from './feed-store-adapter';
-import { PartyProcessor, Pipeline } from './parties';
-import { Party, PARTY_ITEM_TYPE } from './parties/party';
-import { ReplicatorFactory } from './replication';
+import { FeedStoreAdapter } from '../feed-store-adapter';
+import { PartyProcessor, Pipeline } from '.';
+import { Party, PARTY_ITEM_TYPE } from './party';
+import { ReplicatorFactory } from '../replication';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
