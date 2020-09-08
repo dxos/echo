@@ -5,24 +5,15 @@
 import { Event, Lock } from '@dxos/async';
 import { keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey, PublicKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ComplexMap } from '@dxos/experimental-util';
-import { FeedStore } from '@dxos/feed-store';
 import assert from 'assert';
 import debug from 'debug';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationResponder } from '../invitation';
 import { PartyFactory } from '../party-factory';
-import { ReplicatorFactory } from '../replication';
 import { Party } from './party';
 
 const log = debug('dxos:echo:party-manager');
-
-interface Options {
-  readLogger?: NodeJS.ReadWriteStream;
-  writeLogger?: NodeJS.ReadWriteStream;
-  readOnly?: boolean;
-}
 
 /**
  * Manages the life-cycle of parties.
@@ -31,16 +22,11 @@ export class PartyManager {
   // Map of parties by party key.
   private readonly _parties = new ComplexMap<PublicKey, Party>(keyToString);
 
-  private readonly _feedStore: FeedStoreAdapter;
-  private readonly _options: Options;
+  private readonly _lock = new Lock();
 
   // External event listener.
   // TODO(burdon): Wrap with subscribe.
   readonly update = new Event<Party>();
-
-  private readonly _lock = new Lock();
-
-  private readonly _partyFactory: PartyFactory;
 
   /**
    * @param feedStore
@@ -48,18 +34,9 @@ export class PartyManager {
    * @param options
    */
   constructor (
-    feedStore: FeedStore,
-    modelFactory: ModelFactory,
-    replicatorFactory?: ReplicatorFactory, // TODO(burdon): Make consistent.
-    options?: Options
-  ) {
-    assert(feedStore);
-    assert(modelFactory);
-    this._feedStore = new FeedStoreAdapter(feedStore);
-    this._options = options || {};
-
-    this._partyFactory = new PartyFactory(this._feedStore, modelFactory, replicatorFactory, options);
-  }
+    private readonly _feedStore: FeedStoreAdapter,
+    private readonly _partyFactory: PartyFactory
+  ) { }
 
   get parties (): Party[] {
     return Array.from(this._parties.values());
@@ -89,7 +66,6 @@ export class PartyManager {
    */
   async createParty (): Promise<Party> {
     return this._lock.executeSynchronized(async () => {
-      assert(!this._options.readOnly);
       const party = await this._partyFactory.createParty();
       this._parties.set(party.key, party);
       this.update.emit(party);

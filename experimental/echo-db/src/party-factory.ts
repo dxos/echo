@@ -86,8 +86,8 @@ export class PartyFactory {
 
   /**
    * Constructs a party object from an existing set of feeds.
-   * @param partyKey 
-   * @param feedKeys 
+   * @param partyKey
+   * @param feedKeys
    */
   async constructParty (partyKey: PartyKey, feedKeys: FeedKey[]) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
