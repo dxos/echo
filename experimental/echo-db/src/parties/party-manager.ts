@@ -28,11 +28,6 @@ export class PartyManager {
   // TODO(burdon): Wrap with subscribe.
   readonly update = new Event<Party>();
 
-  /**
-   * @param feedStore
-   * @param modelFactory
-   * @param options
-   */
   constructor (
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _partyFactory: PartyFactory
