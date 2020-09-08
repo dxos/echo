@@ -26,7 +26,27 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   });
 }
 
-test('replication', async () => {
+test('create party', async () => {
+  const orchestrator = new NodeOrchestrator();
+
+  const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
+
+  node1.metrics.update.on(() => {
+    log('node1', node1.metrics.asObject());
+  });
+
+  node1.sendEvent({
+    command: 'CREATE_PARTY'
+  });
+
+  await node1.metrics.update.waitFor(
+    () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! > 0);
+  node1.snapshot();
+
+  orchestrator.destroy();
+});
+
+test('replication from creator to invitee', async () => {
   const orchestrator = new NodeOrchestrator();
 
   const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
@@ -57,22 +77,33 @@ test('replication', async () => {
   orchestrator.destroy();
 });
 
-test('create party', async () => {
+test('replication from invitee to creator', async () => {
   const orchestrator = new NodeOrchestrator();
 
   const node1 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
+  const node2 = await orchestrator.createNode(require.resolve('./test-agent'), Platform.IN_PROCESS);
 
   node1.metrics.update.on(() => {
     log('node1', node1.metrics.asObject());
   });
-
-  node1.sendEvent({
-    command: 'CREATE_PARTY'
+  node2.metrics.update.on(() => {
+    log('node2', node2.metrics.asObject());
   });
 
+  await invite(node1, node2);
+  log('invited');
+
+  node2.sendEvent({});
+
+  await node2.metrics.update.waitFor(
+    () => !!node2.metrics.getNumber('item.count') && node2.metrics.getNumber('item.count')! >= 2);
+  log('node2 has items');
   await node1.metrics.update.waitFor(
-    () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! > 0);
+    () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
+  log('node1 has items');
+
   node1.snapshot();
+  node2.snapshot();
 
   orchestrator.destroy();
 });
