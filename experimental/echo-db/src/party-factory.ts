@@ -61,7 +61,7 @@ export class PartyFactory {
     await party.open();
 
     // Create special properties item.
-    await party.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
+    await party.createItem(ObjectModel, PARTY_ITEM_TYPE);
 
     return party;
   }

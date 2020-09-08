@@ -78,7 +78,7 @@ export default class TestAgent implements Agent {
         feedAdmitMessage: codec.decode(Buffer.from((event.invitationResponse as any).feedAdmitMessage, 'hex')).halo
       });
     } else {
-      this.party!.createItem(ObjectModel.meta.type);
+      this.party!.createItem(ObjectModel);
     }
   }
 
