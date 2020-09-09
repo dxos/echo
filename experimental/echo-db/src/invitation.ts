@@ -3,13 +3,13 @@
 //
 
 import assert from 'assert';
+import { Feed } from 'hypercore';
+import pify from 'pify';
 
 import { createFeedAdmitMessage, createKeyAdmitMessage, Keyring, createEnvelopeMessage } from '@dxos/credentials';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 
 import { PartyProcessor, Party } from './parties';
-import { Feed } from 'hypercore';
-import pify from 'pify';
 
 // TODO(burdon): Document these wrt credentials protocol buffer types. Move Request/Response to @dxos/credentials?
 
@@ -39,7 +39,7 @@ export class Invitation {
     public readonly request: InvitationRequest,
     private readonly _keyring: Keyring,
     private readonly _partyKey: PartyKey,
-    private readonly _identityKeypair: any,
+    private readonly _identityKeypair: any
   ) {}
 
   async finalize (response: InvitationResponse) {
@@ -47,7 +47,7 @@ export class Invitation {
 
     await pify(this._feed.append.bind(this._feed))({
       halo: createEnvelopeMessage(this._keyring, Buffer.from(this._partyKey), response.keyAdmitMessage, this._identityKeypair, null)
-    })
+    });
 
     await pify(this._feed.append.bind(this._feed))({ halo: response.feedAdmitMessage });
   }
@@ -62,7 +62,7 @@ export class InvitationResponder {
     keyring: any,
     public readonly party: Party,
     feedKeyPair: any, // TODO(burdon): Crypto Type def? See types.ts.
-    identityKeyPair: any, 
+    identityKeyPair: any
   ) {
     this.response = {
       peerFeedKey: feedKeyPair.publicKey,

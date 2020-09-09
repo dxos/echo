@@ -6,15 +6,15 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { Event, Lock } from '@dxos/async';
+import { KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey, PublicKey } from '@dxos/experimental-echo-protocol';
 import { ComplexMap } from '@dxos/experimental-util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationResponder } from '../invitation';
-import { PartyFactory } from './party-factory';
 import { Party } from './party';
-import { KeyType } from '@dxos/credentials';
+import { PartyFactory } from './party-factory';
 
 const log = debug('dxos:echo:party-manager');
 

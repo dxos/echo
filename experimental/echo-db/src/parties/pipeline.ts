@@ -144,8 +144,8 @@ export class Pipeline {
           // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
           log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
         }
-      } catch(err) {
-        log(`Error in message processing: ${err}`)
+      } catch (err) {
+        log(`Error in message processing: ${err}`);
       }
     });
 

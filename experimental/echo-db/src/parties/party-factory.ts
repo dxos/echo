@@ -12,10 +12,10 @@ import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { FeedStoreAdapter } from '../feed-store-adapter';
 import { PartyProcessor, Pipeline } from '.';
-import { Party, PARTY_ITEM_TYPE } from './party';
+import { FeedStoreAdapter } from '../feed-store-adapter';
 import { ReplicatorFactory } from '../replication';
+import { Party, PARTY_ITEM_TYPE } from './party';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
@@ -35,13 +35,13 @@ export class PartyFactory {
     private readonly _options: Options = {}
   ) { }
 
-  async initIdentity() {
+  async initIdentity () {
     this._identityKey = await this._keyring.createKeyRecord({ type: KeyType.IDENTITY });
   }
 
   get keyring () { return this._keyring; }
 
-  get identityKey() { return this._identityKey; }
+  get identityKey () { return this._identityKey; }
 
   /**
    * Create a new party with a new feed for it. Writes a party genensis message to this feed.
@@ -58,7 +58,6 @@ export class PartyFactory {
       secretKey: feed.secretKey,
       type: KeyType.FEED
     });
-
 
     const party = await this.constructParty(partyKey.publicKey, []);
 
@@ -112,7 +111,7 @@ export class PartyFactory {
     const partyProcessor = new PartyProcessor(partyKey);
     await partyProcessor.addHints([feed.key, ...feedKeys]);
     const feedReadStream = await createOrderedFeedStream(
-      this._feedStore.feedStore, partyProcessor.feedSelector, partyProcessor.messageSelector);
+      this._feedStore.feedStore, partyProcessor.getActiveFeedSet(), partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
     const pipeline =
       new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._replicatorFactory, this._options);

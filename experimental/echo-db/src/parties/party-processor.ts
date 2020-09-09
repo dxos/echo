@@ -6,10 +6,9 @@ import debug from 'debug';
 
 import { Event } from '@dxos/async';
 import { Party as PartyStateMachine, KeyType } from '@dxos/credentials';
-import { keyToString } from '@dxos/crypto';
-import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, FeedSelector, MessageSelector, FeedBlock } from '@dxos/experimental-echo-protocol';
+import { keyToString, keyToBuffer } from '@dxos/crypto';
+import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/experimental-echo-protocol';
 import { jsonReplacer } from '@dxos/experimental-util';
-import { keyToBuffer } from '@dxos/crypto';
 
 const log = debug('dxos:echo:halo-party-processor');
 
@@ -43,7 +42,7 @@ export class PartyProcessor {
     const state = this._stateMachine as any;
 
     state.on('admit:feed', (keyRecord: any) => {
-      log(`Feed key admitted ${keyToString(keyRecord.publicKey)}`)
+      log(`Feed key admitted ${keyToString(keyRecord.publicKey)}`);
       this._feedAdded.emit(keyRecord.publicKey);
     });
 
@@ -71,14 +70,6 @@ export class PartyProcessor {
 
   public get memberKeys () {
     return this._stateMachine.memberKeys;
-  }
-
-  get feedSelector (): FeedSelector {
-    return (feedKey: FeedKey) => {
-      const res = this.feedKeys.findIndex(k => Buffer.compare(k, feedKey) === 0) !== -1;
-      log(`Evaluate feed ${keyToString(feedKey)} - ${res}`)
-      return res
-    };
   }
 
   // TODO(burdon): Factor out from feed-store-iterator test.

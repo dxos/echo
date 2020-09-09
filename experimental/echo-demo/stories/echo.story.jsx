@@ -47,6 +47,7 @@ const createDatabase = () => {
 
     const networkManager = new NetworkManager(feedStore, new SwarmProvider());
     const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
+    partyFactory.initIdentity(); // TODO(marik-d): await this
     const partyManager = new PartyManager(
       feedStoreAdapter,
       partyFactory

@@ -93,13 +93,17 @@ test('replication from invitee to creator', async () => {
   await invite(node1, node2);
   log('invited');
 
-  node2.sendEvent({});
 
-  await node2.metrics.update.waitFor(
+  const p2 = node2.metrics.update.waitFor(
     () => !!node2.metrics.getNumber('item.count') && node2.metrics.getNumber('item.count')! >= 2);
-  log('node2 has items');
-  await node1.metrics.update.waitFor(
+  const p1 = node1.metrics.update.waitFor(
     () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
+
+  node2.sendEvent({}); // create item
+
+  await p2;
+  log('node2 has items');
+  await p1;
   log('node1 has items');
 
   node1.snapshot();

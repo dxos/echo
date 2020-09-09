@@ -2,13 +2,13 @@
 // Copyright 2020 DXOS.org
 //
 
+import { assert } from 'console';
 import debug from 'debug';
 
 import { Keyring, KeyType, createPartyGenesisMessage, createFeedAdmitMessage, createKeyAdmitMessage, createEnvelopeMessage } from '@dxos/credentials';
 import { IHaloStream } from '@dxos/experimental-echo-protocol';
 
 import { PartyProcessor } from './party-processor';
-import { assert } from 'console';
 
 const log = debug('dxos:echo:party-processor:test');
 
@@ -104,7 +104,7 @@ describe('party-processor', () => {
     };
     await partyProcessor.processMessage(genesisMessage);
 
-    const keyring2 = new Keyring()
+    const keyring2 = new Keyring();
     const identityKey2 = await keyring2.createKeyRecord({ type: KeyType.IDENTITY });
     const feedKey2 = await keyring2.createKeyRecord({ type: KeyType.FEED });
 
@@ -117,7 +117,7 @@ describe('party-processor', () => {
         createKeyAdmitMessage(keyring2, partyKey.publicKey, identityKey2),
         [identityKey], null
       )
-    }
+    };
 
     await partyProcessor.processMessage(keyAdmit);
 

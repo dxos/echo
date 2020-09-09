@@ -89,7 +89,8 @@ export default class TestAgent implements Agent {
     return {
       items: items?.value.map(item => ({
         id: item.id,
-        type: item.type
+        type: item.type,
+        model: item.model._meta.type
         // model: JSON.parse(JSON.stringify(item.model)), // TODO(marik-d): Use a generic way to serialize items.
       }))
     };
