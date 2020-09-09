@@ -36,21 +36,89 @@ const useCustomStyles = makeStyles(() => ({
   }
 }));
 
+const createLayout = ({ database, grid, guides, delta, linkProjector, handleSelect }) => {
+  const layout = new ForceLayout({
+    center: (grid: any) => ({
+      x: grid.center.x + delta.x,
+      y: grid.center.y + delta.y,
+    })
+  });
+
+  const drag = createSimulationDrag(layout.simulation, { link: 'metaKey' });
+
+  drag.on('click', ({ source }) => {
+    handleSelect(source);
+  });
+
+  drag.on('drag', ({ source, position, linking }) => {
+    if (!linking) {
+      return;
+    }
+
+    const data = {
+      links: [
+        { id: 'guide-link', source, target: { id: 'guide-link-target', ...position } },
+      ]
+    };
+
+    linkProjector.update(grid, data, { group: guides.current });
+  });
+
+  drag.on('end', ({ source, target, linking }) => {
+    if (!linking) {
+      return;
+    }
+
+    setImmediate(async () => {
+      switch (source.type) {
+        case 'database': {
+          await database.createParty();
+          break;
+        }
+
+        case 'party': {
+          const party = await database.getParty(source.partyKey);
+          await party.createItem(ObjectModel.meta.type);
+          break;
+        }
+
+        case 'item': {
+          // TODO(burdon): Change parent if target specified.
+          const party = await database.getParty(source.partyKey);
+          const child = await party.createItem(ObjectModel.meta.type);
+          await child.setParent(source.id);
+          break;
+        }
+      }
+    });
+
+    linkProjector.update(grid, {}, { group: guides.current });
+  });
+
+  return {
+    layout,
+    drag
+  }
+};
+
 /**
  * @param id
  * @param grid
  * @param dx
+ * @param radius
  * @param onSelect
  * @constructor
  */
 const EchoGraph = (
-  { id, grid, dx, onSelect }: { id: string, grid: any, dx: number, onSelect: Function }
+  {
+    id, grid, delta, radius = 250, onSelect
+  }: {
+    id: string, grid: any, delta: { x: number, y: number }, radius: number, onSelect: Function
+  }
 ) => {
   const classes = useGraphStyles();
   const customClasses = useCustomStyles();
   const guides = useRef();
-
-  const database = useDatabase();
 
   const data = useGraphData({ id });
 
@@ -73,66 +141,21 @@ const EchoGraph = (
     linkProjector: new LinkProjector({ nodeRadius: 16, showArrows: true })
   });
 
-  const [layout] = useState(new ForceLayout({
-    center: (grid: any) => ({ x: grid.center.x + grid.scaleX(dx), y: grid.center.y }),
-    force: { links: { distance: 80 }, radial: { radius: 250 } }
-  }));
+  const handleSelect = source => {
+    setSelected(source.id);
+    onSelect && onSelect(source);
+  };
 
+  const database = useDatabase();
   const [selected, setSelected] = useState();
-  const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
+  const [{ layout, drag }, setLayout] = useState(() => createLayout({
+    database, delta, guides: guides.current, grid, linkProjector, handleSelect
+  }));
   useEffect(() => {
-    // TODO(burdon): Click to open.
-    // TODO(burdon): Drag to invite?
-    drag.on('click', ({ source }) => {
-      setSelected(source.id);
-      onSelect && onSelect(source);
-    });
-
-    drag.on('drag', ({ source, position, linking }) => {
-      if (!linking) {
-        return;
-      }
-
-      const data = {
-        links: [
-          { id: 'guide-link', source, target: { id: 'guide-link-target', ...position } },
-        ]
-      };
-
-      linkProjector.update(grid, data, { group: guides.current });
-    });
-
-    drag.on('end', ({ source, target, linking }) => {
-      if (!linking) {
-        return;
-      }
-
-      setImmediate(async () => {
-        switch (source.type) {
-          case 'database': {
-            await database.createParty();
-            break;
-          }
-
-          case 'party': {
-            const party = await database.getParty(source.partyKey);
-            await party.createItem(ObjectModel.meta.type);
-            break;
-          }
-
-          case 'item': {
-            // TODO(burdon): Change parent if target specified.
-            const party = await database.getParty(source.partyKey);
-            const child = await party.createItem(ObjectModel.meta.type);
-            await child.setParent(source.id);
-            break;
-          }
-        }
-      });
-
-      linkProjector.update(grid, {}, { group: guides.current });
-    });
-  }, [drag]);
+    setLayout(createLayout({
+      database, delta, grid, guides: guides.current, linkProjector, handleSelect
+    }));
+  }, [delta]);
 
   return (
     <g>
@@ -142,12 +165,12 @@ const EchoGraph = (
         grid={grid}
         data={data}
         layout={layout}
+        drag={drag}
         classes={{
           nodes: customClasses.nodes
         }}
         linkProjector={linkProjector}
         nodeProjector={nodeProjector}
-        drag={drag}
       />
     </g>
   );

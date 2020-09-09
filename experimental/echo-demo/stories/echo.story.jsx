@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ram from 'random-access-memory';
 
 import useResizeAware from 'react-resize-aware';
-import { withKnobs, button } from '@storybook/addon-knobs';
+import { withKnobs, button, number } from '@storybook/addon-knobs';
 
 import {
   FullScreen,
@@ -38,47 +38,41 @@ export default {
 };
 
 const createDatabase = () => {
-  const [database] = useState(() => {
-    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
 
-    const modelFactory = new ModelFactory()
-      .registerModel(ObjectModel.meta, ObjectModel);
+  const modelFactory = new ModelFactory()
+    .registerModel(ObjectModel.meta, ObjectModel);
 
-    const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-    const partyManager = new PartyManager(
-      feedStore,
-      modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes())
-    );
+  const networkManager = new NetworkManager(feedStore, new SwarmProvider());
+  const partyManager = new PartyManager(
+    feedStore,
+    modelFactory,
+    createReplicatorFactory(networkManager, feedStore, randomBytes())
+  );
 
-    return new Database(partyManager);
-  });
-
-  log('Created:', String(database));
-  return database;
+  return new Database(partyManager);
 };
 
 export const withDatabase = () => {
-  const db1 = createDatabase();
-  const db2 = createDatabase();
+  const n = number('Datatbases', 2, { min: 1, max: 8 });
 
+  const [peers, setPeers] = useState([]);
   useEffect(() => {
-    setTimeout(async () => {
-      // Create party and invite.
-      // const party1 = await db1.createParty();
-      // log('Created Party:', String(party1));
-    }, 1000); // TODO(burdon): GEM bug if immediate.
-  }, []);
+    // TODO(burdon): Reuse existing.
+    const peers = [...new Array(n)].map((_, i) => ({
+      id: `${i + 1}`,
+      database: createDatabase()
+    }));
+
+    setPeers(peers);
+  }, [n]);
 
   return (
-    <Test peers={[
-      { id: 'A', database: db1 },
-      { id: 'B', database: db2 }
-    ]} />
-  )
+    <Test peers={peers} radius={200} />
+  );
 };
 
-const Test = ({ peers, showGrid = false }) => {
+const Test = ({ peers, showGrid = true }) => {
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
@@ -125,6 +119,10 @@ const Test = ({ peers, showGrid = false }) => {
     }));
   };
 
+  const radius = Math.min(grid.size.width, grid.size.height) / 3;
+  const scale = { x: grid.size.width / 4, y: grid.size.height / 3 };
+  const da = (Math.PI * 2) / (peers.length);
+
   return (
     <FullScreen>
       {resizeListener}
@@ -132,20 +130,28 @@ const Test = ({ peers, showGrid = false }) => {
         {showGrid && (
           <Grid grid={grid} />
         )}
+
         <Markers />
 
         {peers.map((peer, i) => {
           const { id, database } = peer;
+          const delta = (peers.length === 1) ? { x: 0, y: 0 } : {
+            x: Math.sin(i * da + da / 2) * scale.x,
+            y: Math.cos(i * da + da / 2) * scale.y
+          };
+
           return (
             <EchoContext.Provider key={id} value={{ database }}>
               <EchoGraph
                 id={id}
                 grid={grid}
-                dx={-50 + (i * 100 / (peers.length - 1))}
+                delta={delta}
+                radius={radius}
                 onSelect={node => node.type === 'party' && handleInvite(peer, node)}
               />
+              <div>INFO</div>
             </EchoContext.Provider>
-          )
+          );
         })}
       </SVG>
     </FullScreen>
