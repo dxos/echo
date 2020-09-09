@@ -14,6 +14,7 @@ import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { Keyring } from '@dxos/credentials';
 
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
@@ -38,7 +39,10 @@ export class Party {
     // TODO(burdon): Do not inline.
     private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
-    private readonly _partyProcessor: PartyProcessor
+    private readonly _partyProcessor: PartyProcessor,
+    private readonly _keyring: Keyring,
+    private readonly _identityKeypair: any,
+    private readonly _feed: any,
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
@@ -153,7 +157,7 @@ export class Party {
     };
 
     assert(this._pipeline.writeStream);
-    return new Invitation(this._pipeline.writeStream, request);
+    return new Invitation(this._feed, request, this._keyring, this.key, this._identityKeypair);
   }
 
   /**

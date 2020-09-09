@@ -35,6 +35,7 @@ export default class TestAgent implements Agent {
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes())
     );
+    await partyFactory.initIdentity()
     const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
     this.db = new Database(partyManager);
     await this.db.open();
@@ -69,11 +70,13 @@ export default class TestAgent implements Agent {
 
       this.environment.log('invitationResponse', {
         peerFeedKey: keyToString(response.peerFeedKey),
+        keyAdmitMessage: codec.encode({ halo: response.keyAdmitMessage }).toString('hex'),
         feedAdmitMessage: codec.encode({ halo: response.feedAdmitMessage }).toString('hex')
       });
     } else if (event.command === 'FINALIZE_INVITATION') {
       this.invitation!.finalize({
         peerFeedKey: keyToBuffer((event.invitationResponse as any).peerFeedKey),
+        keyAdmitMessage: codec.decode(Buffer.from((event.invitationResponse as any).keyAdmitMessage, 'hex')).halo,
         feedAdmitMessage: codec.decode(Buffer.from((event.invitationResponse as any).feedAdmitMessage, 'hex')).halo
       });
     } else {

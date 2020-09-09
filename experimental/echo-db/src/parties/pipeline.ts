@@ -107,41 +107,45 @@ export class Pipeline {
     // Processes inbound messages (piped from feed store).
     //
     this._readStream = createTransform<FeedBlock, IEchoStream>(async (block: FeedBlock) => {
-      const { data: message } = block;
+      try {
+        const { data: message } = block;
 
-      //
-      // HALO
-      //
-      if (message.halo) {
-        await this._partyProcessor.processMessage({
-          meta: createFeedMeta(block),
-          data: message.halo
-        });
-      }
-
-      // Update timeframe.
-      // NOTE: It is OK to update here even though the message may not have been processed,
-      // since any paused dependent message must be intended for this stream.
-      const { key, seq } = block;
-      this._partyProcessor.updateTimeframe(key, seq);
-
-      //
-      // ECHO
-      //
-      if (message.echo) {
-        // Validate messge.
-        const { itemId } = message.echo;
-        if (itemId) {
-          return {
+        //
+        // HALO
+        //
+        if (message.halo) {
+          await this._partyProcessor.processMessage({
             meta: createFeedMeta(block),
-            data: message.echo
-          };
+            data: message.halo
+          });
         }
-      }
 
-      if (!message.halo && !message.echo) {
-        // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
-        log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+        // Update timeframe.
+        // NOTE: It is OK to update here even though the message may not have been processed,
+        // since any paused dependent message must be intended for this stream.
+        const { key, seq } = block;
+        this._partyProcessor.updateTimeframe(key, seq);
+
+        //
+        // ECHO
+        //
+        if (message.echo) {
+          // Validate messge.
+          const { itemId } = message.echo;
+          if (itemId) {
+            return {
+              meta: createFeedMeta(block),
+              data: message.echo
+            };
+          }
+        }
+
+        if (!message.halo && !message.echo) {
+          // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
+          log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+        }
+      } catch(err) {
+        log(`Error in message processing: ${err}`)
       }
     });
 
