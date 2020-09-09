@@ -41,8 +41,7 @@ export class Party {
     private readonly _pipeline: Pipeline,
     private readonly _partyProcessor: PartyProcessor,
     private readonly _keyring: Keyring,
-    private readonly _identityKeypair: any,
-    private readonly _feed: any
+    private readonly _identityKeypair: any
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
@@ -156,8 +155,8 @@ export class Party {
       feeds: this._pipeline.memberFeeds
     };
 
-    assert(this._pipeline.writeStream);
-    return new Invitation(this._feed, request, this._keyring, this.key, this._identityKeypair);
+    assert(this._pipeline.haloWriteStream);
+    return new Invitation(this._pipeline.haloWriteStream, request, this._keyring, this.key, this._identityKeypair);
   }
 
   /**

@@ -117,7 +117,7 @@ export class PartyFactory {
       new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._replicatorFactory, this._options);
 
     // Create party.
-    const party = new Party(this._modelFactory, pipeline, partyProcessor, this._keyring, this._identityKey, feed);
+    const party = new Party(this._modelFactory, pipeline, partyProcessor, this._keyring, this._identityKey);
 
     return party;
   }

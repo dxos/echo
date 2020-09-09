@@ -35,7 +35,7 @@ export interface InvitationResponse {
  */
 export class Invitation {
   constructor (
-    private readonly _feed: Feed,
+    private readonly _writeStream: NodeJS.WritableStream,
     public readonly request: InvitationRequest,
     private readonly _keyring: Keyring,
     private readonly _partyKey: PartyKey,
@@ -45,11 +45,9 @@ export class Invitation {
   async finalize (response: InvitationResponse) {
     assert(response);
 
-    await pify(this._feed.append.bind(this._feed))({
-      halo: createEnvelopeMessage(this._keyring, Buffer.from(this._partyKey), response.keyAdmitMessage, this._identityKeypair, null)
-    });
+    this._writeStream.write(createEnvelopeMessage(this._keyring, Buffer.from(this._partyKey), response.keyAdmitMessage, this._identityKeypair, null) as any);
 
-    await pify(this._feed.append.bind(this._feed))({ halo: response.feedAdmitMessage });
+    this._writeStream.write(response.feedAdmitMessage as any);
   }
 }
 

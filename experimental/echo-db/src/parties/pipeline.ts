@@ -9,7 +9,7 @@ import pump from 'pump';
 import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
-import { protocol, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { protocol, createFeedMeta, FeedBlock, IEchoStream, IHaloStream } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
 import { ReplicatorFactory, IReplicationAdapter } from '../replication';
@@ -38,6 +38,9 @@ export class Pipeline {
 
   // Messages to write into pipeline (e.g., mutations from model).
   private _writeStream: Writable | undefined;
+
+  // Halo messages to write into pipeline.
+  private _haloWriteStream: Writable | undefined;
 
   private _replicationAdapter?: IReplicationAdapter;
 
@@ -80,6 +83,10 @@ export class Pipeline {
 
   get writeStream () {
     return this._writeStream;
+  }
+
+  get haloWriteStream () {
+    return this._haloWriteStream;
   }
 
   get errors () {
@@ -180,6 +187,29 @@ export class Pipeline {
 
       pump([
         this._writeStream,
+        writeLogger,
+        this._feedWriteStream
+      ].filter(Boolean) as any[], (err: Error | undefined) => {
+        // TODO(burdon): Handle error.
+        error('Outbound pipeline:', err || 'closed');
+        if (err) {
+          this._errors.emit(err);
+        }
+      });
+
+      this._haloWriteStream = createTransform<any, protocol.dxos.IFeedMessage>(
+        async (message: any) => {
+          const data: protocol.dxos.IFeedMessage = {
+            halo: message
+          };
+
+          return data;
+        }
+      );
+
+      // TODO(marik-d): Code duplication
+      pump([
+        this._haloWriteStream,
         writeLogger,
         this._feedWriteStream
       ].filter(Boolean) as any[], (err: Error | undefined) => {
