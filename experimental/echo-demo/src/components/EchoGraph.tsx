@@ -6,7 +6,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
-import { jsonReplacer } from '@dxos/experimental-util';
 
 import {
   createSimulationDrag,
@@ -38,10 +37,24 @@ const useCustomStyles = makeStyles(() => ({
 
 const createLayout = ({ database, grid, guides, delta, linkProjector, handleSelect }) => {
   const layout = new ForceLayout({
-    center: (grid: any) => ({
+    center: {
       x: grid.center.x + delta.x,
       y: grid.center.y + delta.y,
-    })
+    },
+    force: {
+      links: {
+        distance: 60
+      }
+    },
+    initializer: (d, center) => {
+      const { type } = d;
+      if (type === 'database') {
+        return {
+          fx: center.x,
+          fy: center.y
+        }
+      }
+    }
   });
 
   const drag = createSimulationDrag(layout.simulation, { link: 'metaKey' });
@@ -61,7 +74,7 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
       ]
     };
 
-    linkProjector.update(grid, data, { group: guides.current });
+    linkProjector.update(grid, data, { group: guides });
   });
 
   drag.on('end', ({ source, target, linking }) => {
@@ -69,6 +82,7 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
       return;
     }
 
+    console.log({ source, target });
     setImmediate(async () => {
       switch (source.type) {
         case 'database': {
@@ -92,7 +106,7 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
       }
     });
 
-    linkProjector.update(grid, {}, { group: guides.current });
+    linkProjector.update(grid, {}, { group: guides });
   });
 
   return {
@@ -149,14 +163,17 @@ const EchoGraph = (
   const database = useDatabase();
   const [selected, setSelected] = useState();
   const [{ layout, drag }, setLayout] = useState(() => createLayout({
-    database, delta, guides: guides.current, grid, linkProjector, handleSelect
+    database, delta, grid, guides: guides.current, linkProjector, handleSelect
   }));
+
   useEffect(() => {
     setLayout(createLayout({
       database, delta, grid, guides: guides.current, linkProjector, handleSelect
     }));
   }, [delta]);
 
+  // TODO(burdon): Data is stale (same as previous party before databases are re-created).
+  // console.log(id, '====', JSON.stringify(data, jsonReplacer, 2));
   return (
     <g>
       <g ref={guides} className={classes.links} />
@@ -166,11 +183,11 @@ const EchoGraph = (
         data={data}
         layout={layout}
         drag={drag}
+        linkProjector={linkProjector}
+        nodeProjector={nodeProjector}
         classes={{
           nodes: customClasses.nodes
         }}
-        linkProjector={linkProjector}
-        nodeProjector={nodeProjector}
       />
     </g>
   );

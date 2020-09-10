@@ -36,7 +36,7 @@ export const useParties = (): Party[] => {
   useEffect(() => {
     let unsubscribe;
     setImmediate(async () => {
-      // TODO(burdon): Make synchronous.
+      // TODO(burdon): Make synchronous?
       const result = await database.queryParties();
       unsubscribe = result.subscribe(() => {
         setParties(result.value);
@@ -45,10 +45,12 @@ export const useParties = (): Party[] => {
       setParties(result.value);
     });
 
-    if (unsubscribe) {
-      unsubscribe();
-    }
-  }, []);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [database.id]);
 
   return parties;
 };
@@ -69,9 +71,11 @@ export const useItems = ({ partyKey }): Item<any>[] => {
       setItems(result.value);
     });
 
-    if (unsubscribe) {
-      unsubscribe();
-    }
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   return items;
@@ -92,7 +96,7 @@ const createGraphData = (
       {
         id: rootId,
         type: 'database',
-        title: `Database ${id}`,
+        title: `ECHO(${id})`,
         partyKey: null
       }
     ],
@@ -163,9 +167,11 @@ export const useGraphData = ({ id }) => {
       }
     });
 
-    for (const unsubscribe of subscriptions.current.values()) {
-      unsubscribe();
-    }
+    return () => {
+      for (const unsubscribe of subscriptions.current.values()) {
+        unsubscribe();
+      }
+    };
   }, [parties]);
 
   return data;
