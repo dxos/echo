@@ -65,6 +65,8 @@ const useStyles = makeStyles(() => ({
       padding: 8,
       margin: 8,
       wordBreak: 'break-all',
+      fontFamily: 'sans-serif',
+      fontWeight: 100,
       backgroundColor: blueGrey[50],
       border: `1px solid ${blueGrey[200]}`,
       borderRadius: 4

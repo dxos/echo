@@ -21,6 +21,7 @@ import { ObjectModel } from '@dxos/experimental-object-model';
 
 import { useDatabase, useGraphData } from '../hooks';
 
+// TODO(burdon): Merge styles.
 const useCustomStyles = makeStyles(() => ({
   nodes: {
     '& g.node.database circle': {
@@ -31,6 +32,10 @@ const useCustomStyles = makeStyles(() => ({
     },
     '& g.node.item circle': {
       fill: colors['grey'][400]
+    },
+    '& g.node text': {
+      fontFamily: 'sans-serif',
+      fontWeight: 100
     },
   }
 }));
@@ -118,7 +123,7 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
 /**
  * @param id
  * @param grid
- * @param dx
+ * @param delta
  * @param radius
  * @param onSelect
  * @constructor
@@ -172,8 +177,6 @@ const EchoGraph = (
     }));
   }, [delta]);
 
-  // TODO(burdon): Data is stale (same as previous party before databases are re-created).
-  // console.log(id, '====', JSON.stringify(data, jsonReplacer, 2));
   return (
     <g>
       <g ref={guides} className={classes.links} />

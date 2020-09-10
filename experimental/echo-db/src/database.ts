@@ -31,9 +31,6 @@ export interface Options {
 export class Database {
   private readonly _partyUpdate = new Event<Party>();
 
-  // TODO(burdon): Remove.
-  private readonly _id = createId();
-
   constructor (
     private readonly _partyManager: PartyManager,
     private readonly _options: Options = {}
@@ -41,13 +38,8 @@ export class Database {
 
   toString () {
     return `Database(${JSON.stringify({ 
-      id: this.id, parties: this._partyManager.parties.length, options: this._options 
+      parties: this._partyManager.parties.length, options: this._options 
     })})`;
-  }
-
-  // TODO(burdon): Identifier?
-  get id () {
-    return this._id;
   }
 
   get readOnly () {

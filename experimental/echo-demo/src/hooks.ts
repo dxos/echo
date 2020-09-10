@@ -50,7 +50,7 @@ export const useParties = (): Party[] => {
         unsubscribe();
       }
     };
-  }, [database.id]);
+  }, [database]);
 
   return parties;
 };
@@ -150,9 +150,20 @@ export const useGraphData = ({ id }) => {
   const [data, setData] = useState<GraphData>(createGraphData(id));
   const parties = useParties();
 
+  // TODO(burdon): For open parties only.
   useEffect(() => {
+
+    // Remove obsolete parties.
+    partyMap.current.forEach(({ party }) => {
+      if (!parties.find(p => Buffer.compare(p.key, party.key) !== 0)) {
+        const partyKey = keyToString(party.key);
+        subscriptions.current.get(partyKey)();
+        subscriptions.current.delete(partyKey);
+        partyMap.current.delete(partyKey);
+      }
+    });
+
     // Create party subscriptions.
-    // TODO(burdon): For open parties only (remove deleted).
     parties.forEach(async party => {
       const partyKey = keyToString(party.key);
       if (!subscriptions.current.has(partyKey)) {
@@ -166,6 +177,9 @@ export const useGraphData = ({ id }) => {
         updateParty();
       }
     });
+
+    // Update.
+    setData(createGraphData(id, partyMap.current));
 
     return () => {
       for (const unsubscribe of subscriptions.current.values()) {
