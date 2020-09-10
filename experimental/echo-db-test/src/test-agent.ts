@@ -35,7 +35,7 @@ export default class TestAgent implements Agent {
       modelFactory,
       createReplicatorFactory(networkManager, feedStore, randomBytes())
     );
-    await partyFactory.initIdentity()
+    await partyFactory.initIdentity();
     const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
     this.db = new Database(partyManager);
     await this.db.open();
