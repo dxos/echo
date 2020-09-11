@@ -23,7 +23,7 @@ import {
 
 import { randomBytes } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
-import { codec, createReplicatorFactory, Database, PartyManager } from '@dxos/experimental-echo-db';
+import { codec, createReplicatorFactory, Database, PartyManager, PartyFactory, FeedStoreAdapter } from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -38,6 +38,7 @@ export default {
   decorators: [withKnobs]
 };
 
+<<<<<<< HEAD
 const createDatabase = (options) => {
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
 
@@ -95,6 +96,67 @@ export const withDatabase = () => {
   );
 };
 
+=======
+const createDatabase = () => {
+  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+  const feedStoreAdapter = new FeedStoreAdapter(feedStore);
+
+  const modelFactory = new ModelFactory()
+    .registerModel(ObjectModel.meta, ObjectModel);
+
+  const networkManager = new NetworkManager(feedStore, new SwarmProvider());
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
+  partyFactory.initIdentity(); // TODO(marik-d): await this
+  const partyManager = new PartyManager(
+    feedStoreAdapter,
+    partyFactory
+  );
+
+  return new Database(partyManager);
+}
+
+const useStyles = makeStyles(() => ({
+  info: {
+    position: 'absolute',
+    display: 'flex',
+    flexDirection: 'column',
+    '& > div': {
+      width: 300,
+      overflow: 'hidden',
+      padding: 8,
+      margin: 8,
+      wordBreak: 'break-all',
+      fontFamily: 'sans-serif',
+      fontWeight: 100,
+      backgroundColor: blueGrey[50],
+      border: `1px solid ${blueGrey[200]}`,
+      borderRadius: 4
+    }
+  }
+}));
+
+export const withDatabase = () => {
+  const n = number('Datatbases', 1, { min: 1, max: 8 });
+
+  const [peers, setPeers] = useState([]);
+  useEffect(() => {
+    // TODO(burdon): Reuse existing.
+    const peers = [...new Array(n)].map((_, i) => {
+      const id = `db-${i + 1}`;
+      const database = createDatabase({ id, ts: Date.now() });
+      console.log('Created:', String(database));
+      return { id, database };
+    });
+
+    setPeers(peers);
+  }, [n]);
+
+  return (
+    <Test peers={peers} radius={200} />
+  );
+};
+
+>>>>>>> master
 const Info = () => {
   // TODO(burdon): Subscribe to events.
   const database = useDatabase();

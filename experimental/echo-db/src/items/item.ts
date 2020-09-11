@@ -24,6 +24,7 @@ export class Item<M extends Model<any>> {
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
   private readonly _children = new Set<Item<any>>();
+  private _parent: Item<any> | undefined;
 
   /**
    * Items are constructed by a `Party` object.
@@ -52,6 +53,10 @@ export class Item<M extends Model<any>> {
     return this._partyKey;
   }
 
+  get partyKey (): PartyKey {
+    return this._partyKey;
+  }
+
   get id (): ItemID {
     return this._itemId;
   }
@@ -72,8 +77,13 @@ export class Item<M extends Model<any>> {
     return this._parent;
   }
 
+<<<<<<< HEAD
   get children (): Item<any>[] {
     return Array.from(this._children.values());
+=======
+  get parent (): Item<any> | undefined {
+    return this._parent;
+>>>>>>> master
   }
 
   async setParent (parentId: ItemID): Promise<void> {
@@ -97,11 +107,19 @@ export class Item<M extends Model<any>> {
     }
 
     if (parentId) {
+<<<<<<< HEAD
       this._parent = getItem(parentId) || null;
       assert(this._parent);
       this._parent._children.add(this);
     } else {
       this._parent = null;
+=======
+      this._parent = getItem(parentId);
+      assert(this._parent);
+      this._parent._children.add(this);
+    } else {
+      this._parent = undefined;
+>>>>>>> master
     }
   }
 }

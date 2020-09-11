@@ -4,13 +4,14 @@
 
 import assert from 'assert';
 
+import { Keyring } from '@dxos/credentials';
 import { humanize } from '@dxos/crypto';
 import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory, ModelType } from '@dxos/experimental-model-factory';
+import { ModelFactory, ModelType, ModelConstructor, Model } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 
-import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { Invitation, InvitationRequest } from '../invitation';
+import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -35,7 +36,9 @@ export class Party {
   constructor (
     private readonly _modelFactory: ModelFactory,
     private readonly _pipeline: Pipeline,
-    private readonly _partyProcessor: PartyProcessor
+    private readonly _partyProcessor: PartyProcessor,
+    private readonly _keyring: Keyring,
+    private readonly _identityKeypair: any
   ) {
     assert(this._modelFactory);
     assert(this._pipeline);
@@ -120,16 +123,21 @@ export class Party {
 
   /**
    * Creates a new item with the given queryable type and model.
-   * @param {ModelType} modelType
+   * @param {ModelType} model
    * @param {ItemType} [itemType]
    */
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   // TODO(burdon): Pass in { type, parent } as options.
-  async createItem (modelType: ModelType, itemType?: ItemType | undefined): Promise<Item<any>> {
+  async createItem <M extends Model<any>> (model: ModelConstructor<M>, itemType?: ItemType | undefined): Promise<Item<M>> {
     assert(this._itemManager);
+<<<<<<< HEAD
     assert(modelType);
 
     return this._itemManager.createItem(modelType, itemType);
+=======
+    assert(model?.meta?.type);
+    return this._itemManager.createItem(model.meta.type, itemType);
+>>>>>>> master
   }
 
   /**
@@ -151,8 +159,8 @@ export class Party {
       feeds: this._pipeline.memberFeeds
     };
 
-    assert(this._pipeline.writeStream);
-    return new Invitation(this._pipeline.writeStream, request);
+    assert(this._pipeline.haloWriteStream);
+    return new Invitation(this._pipeline.haloWriteStream, request, this._keyring, this.key, this._identityKeypair);
   }
 
   /**
