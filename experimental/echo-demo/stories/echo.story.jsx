@@ -54,15 +54,16 @@ const createDatabase = () => {
       partyFactory
     );
 
-  const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-  const partyManager = new PartyManager(
-    feedStore,
-    modelFactory,
-    createReplicatorFactory(networkManager, feedStore, randomBytes())
-  );
+    const networkManager = new NetworkManager(feedStore, new SwarmProvider());
+    const partyManager = new PartyManager(
+      feedStore,
+      modelFactory,
+      createReplicatorFactory(networkManager, feedStore, randomBytes())
+    );
 
-  return new Database(partyManager, options);
-};
+    return new Database(partyManager, options);
+  })
+}
 
 const useStyles = makeStyles(() => ({
   info: {
