@@ -39,30 +39,21 @@ export default {
 };
 
 const createDatabase = () => {
-  const [database] = useState(() => {
-    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    const feedStoreAdapter = new FeedStoreAdapter(feedStore);
+  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+  const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
-    const modelFactory = new ModelFactory()
-      .registerModel(ObjectModel.meta, ObjectModel);
+  const modelFactory = new ModelFactory()
+    .registerModel(ObjectModel.meta, ObjectModel);
 
-    const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-    const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
-    partyFactory.initIdentity(); // TODO(marik-d): await this
-    const partyManager = new PartyManager(
-      feedStoreAdapter,
-      partyFactory
-    );
+  const networkManager = new NetworkManager(feedStore, new SwarmProvider());
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
+  partyFactory.initIdentity(); // TODO(marik-d): await this
+  const partyManager = new PartyManager(
+    feedStoreAdapter,
+    partyFactory
+  );
 
-    const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-    const partyManager = new PartyManager(
-      feedStore,
-      modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes())
-    );
-
-    return new Database(partyManager, options);
-  })
+  return new Database(partyManager);
 }
 
 const useStyles = makeStyles(() => ({

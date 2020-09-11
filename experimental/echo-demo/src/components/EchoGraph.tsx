@@ -97,14 +97,14 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
 
         case 'party': {
           const party = await database.getParty(source.partyKey);
-          await party.createItem(ObjectModel.meta.type);
+          await party.createItem(ObjectModel);
           break;
         }
 
         case 'item': {
           // TODO(burdon): Change parent if target specified.
           const party = await database.getParty(source.partyKey);
-          const child = await party.createItem(ObjectModel.meta.type);
+          const child = await party.createItem(ObjectModel);
           await child.setParent(source.id);
           break;
         }
