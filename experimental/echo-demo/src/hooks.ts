@@ -152,7 +152,6 @@ export const useGraphData = ({ id }) => {
 
   // TODO(burdon): For open parties only.
   useEffect(() => {
-
     // Remove obsolete parties.
     partyMap.current.forEach(({ party }) => {
       if (!parties.find(p => Buffer.compare(p.key, party.key) !== 0)) {
