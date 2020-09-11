@@ -1355,9 +1355,9 @@
     mississippi "^4.0.0"
 
 "@dxos/protocol-network-generator@^1.1.0-beta.2":
-  version "1.1.0-beta.15"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fprotocol-network-generator/-/protocol-network-generator-1.1.0-beta.15.tgz#1c64c85b28c4ea3d71a17a358de8c29234050c9d"
-  integrity sha512-uLVXo0uWbJcNWoRZ8apUNVMoApWYHRcVA85iP3Gz02lsi/I8GDDlFZd3r4dyhaWbqby2Zmujp4GMyHlhwlVh0w==
+  version "1.1.0-beta.17"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-network-generator/-/protocol-network-generator-1.1.0-beta.17.tgz#715aff985112c130a650c5022c493dd30dc9b05b"
+  integrity sha512-Oqo9ijkqaBTXxSytbAEC6s3y6CKBroNgDEfuoJFF8xIgg2iT1SnrACx98+KVWg0/EQZN9U8THHbbjUPxmJFOtQ==
   dependencies:
     "@dxos/network-generator" "^1.0.0-beta.1"
     debug "^4.1.1"
