@@ -6,19 +6,22 @@ import debug from 'debug';
 import ram from 'random-access-memory';
 
 import { humanize } from '@dxos/crypto';
-import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-util';
+import { FeedStore } from '@dxos/feed-store';
 
 import { codec } from './codec';
 import { Database } from './database';
+import { FeedStoreAdapter } from './feed-store-adapter';
 import { Party, PartyManager } from './parties';
+import { PartyFactory } from './parties/party-factory';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
-const createDatabase = (verbose = true) => {
+const createDatabase = async (verbose = true) => {
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+  const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
   const modelFactory = new ModelFactory()
     .registerModel(ObjectModel.meta, ObjectModel);
@@ -28,13 +31,15 @@ const createDatabase = (verbose = true) => {
     writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
   } : undefined;
 
-  const partyManager = new PartyManager(feedStore, modelFactory);
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined);
+  await partyFactory.initIdentity();
+  const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
   return new Database(partyManager, options);
 };
 
 describe('api tests', () => {
   test('create party and update properties.', async () => {
-    const db = createDatabase();
+    const db = await createDatabase();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -61,7 +66,7 @@ describe('api tests', () => {
   });
 
   test('create party and items.', async () => {
-    const db = createDatabase();
+    const db = await createDatabase();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -91,16 +96,16 @@ describe('api tests', () => {
     expect(party.isOpen).toBeTruthy();
 
     // TODO(burdon): Test item mutations.
-    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
-    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
-    await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/kanban');
+    await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    await party.createItem(ObjectModel, 'wrn://dxos.org/item/kanban');
 
     await updated;
     unsubscribe();
   });
 
   test('create party and item with child item.', async () => {
-    const db = createDatabase();
+    const db = await createDatabase();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -129,8 +134,8 @@ describe('api tests', () => {
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const parent = await party.createItem(ObjectModel.meta.type, 'wrn://dxos.org/item/document');
-    const child = await party.createItem(ObjectModel.meta.type);
+    const parent = await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    const child = await party.createItem(ObjectModel);
     await child.setParent(parent.id);
 
     await updated;

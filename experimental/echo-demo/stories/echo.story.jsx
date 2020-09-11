@@ -23,7 +23,7 @@ import {
 
 import { randomBytes } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
-import { codec, createReplicatorFactory, Database, PartyManager } from '@dxos/experimental-echo-db';
+import { codec, createReplicatorFactory, Database, PartyManager, PartyFactory, FeedStoreAdapter } from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -38,11 +38,21 @@ export default {
   decorators: [withKnobs]
 };
 
-const createDatabase = (options) => {
-  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+const createDatabase = () => {
+  const [database] = useState(() => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
-  const modelFactory = new ModelFactory()
-    .registerModel(ObjectModel.meta, ObjectModel);
+    const modelFactory = new ModelFactory()
+      .registerModel(ObjectModel.meta, ObjectModel);
+
+    const networkManager = new NetworkManager(feedStore, new SwarmProvider());
+    const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
+    partyFactory.initIdentity(); // TODO(marik-d): await this
+    const partyManager = new PartyManager(
+      feedStoreAdapter,
+      partyFactory
+    );
 
   const networkManager = new NetworkManager(feedStore, new SwarmProvider());
   const partyManager = new PartyManager(
