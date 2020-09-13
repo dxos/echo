@@ -49,7 +49,7 @@ const createDatabase = async (options) => {
     partyFactory
   );
 
-  return new Database(partyManager, options);
+  return new Database(partyManager);
 };
 
 const useStyles = makeStyles(() => ({

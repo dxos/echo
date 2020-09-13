@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 import pify from 'pify';
 
 import { Keyring, KeyType, createPartyGenesisMessage } from '@dxos/credentials';
@@ -12,16 +13,19 @@ import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { PartyProcessor, Pipeline } from '.';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
+import { PartyProcessor } from './party-processor';
+import { Pipeline } from './pipeline';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
   writeLogger?: NodeJS.ReadWriteStream;
   readOnly?: boolean;
 }
+
+const log = debug('dxos:echo:party-factory');
 
 export class PartyFactory {
   private readonly _keyring = new Keyring();
@@ -35,13 +39,18 @@ export class PartyFactory {
     private readonly _options: Options = {}
   ) { }
 
+  get keyring () {
+    return this._keyring;
+  }
+
+  get identityKey () {
+    return this._identityKey;
+  }
+
+  // TODO(burdon): Remove? Keyring should be complete when passed in?
   async initIdentity () {
     this._identityKey = await this._keyring.createKeyRecord({ type: KeyType.IDENTITY });
   }
-
-  get keyring () { return this._keyring; }
-
-  get identityKey () { return this._identityKey; }
 
   /**
    * Create a new party with a new feed for it. Writes a party genensis message to this feed.
@@ -76,7 +85,8 @@ export class PartyFactory {
 
   /**
    * Constructs a party object and creates a local write feed for it.
-   * @param feeds set of hints for existing feeds belonging to this party.
+   * @param partyKey
+   * @param feeds - set of hints for existing feeds belonging to this party.
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(partyKey, partyKey);
@@ -118,6 +128,7 @@ export class PartyFactory {
 
     // Create party.
     const party = new Party(this._modelFactory, pipeline, partyProcessor, this._keyring, this._identityKey);
+    log(`Constructed: ${party}`);
 
     return party;
   }
