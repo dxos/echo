@@ -38,7 +38,8 @@ export class Database {
 
   toString () {
     return `Database(${JSON.stringify({
-      parties: this._partyManager.parties.length, options: this._options
+      parties: this._partyManager.parties.length, 
+      options: Object.keys(this._options).length ? this._options: undefined
     })})`;
   }
 
