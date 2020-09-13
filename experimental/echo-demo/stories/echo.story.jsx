@@ -31,7 +31,7 @@ export default {
   decorators: [withKnobs]
 };
 
-const createDatabase = async () => {
+const createDatabase = async (options) => {
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
   const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
@@ -42,14 +42,14 @@ const createDatabase = async () => {
 
   const partyFactory = new PartyFactory(
     feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
-  await partyFactory.initIdentity();
 
+  await partyFactory.initIdentity();
   const partyManager = new PartyManager(
     feedStoreAdapter,
     partyFactory
   );
 
-  return new Database(partyManager);
+  return new Database(partyManager, options);
 };
 
 const useStyles = makeStyles(() => ({
