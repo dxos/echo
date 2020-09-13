@@ -3,10 +3,10 @@
 //
 
 import debug from 'debug';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ram from 'random-access-memory';
 import useResizeAware from 'react-resize-aware';
-import { withKnobs, button, number } from '@storybook/addon-knobs';
+import { withKnobs, number } from '@storybook/addon-knobs';
 import { makeStyles } from '@material-ui/core/styles';
 import { blueGrey } from '@material-ui/core/colors';
 
@@ -23,7 +23,9 @@ import {
 
 import { randomBytes } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
-import { codec, createReplicatorFactory, Database, PartyManager, PartyFactory, FeedStoreAdapter } from '@dxos/experimental-echo-db';
+import {
+  codec, createReplicatorFactory, Database, PartyManager, PartyFactory, FeedStoreAdapter
+} from '@dxos/experimental-echo-db';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -105,6 +107,7 @@ const Info = () => {
   // TODO(burdon): Subscribe to events.
   const database = useDatabase();
   const [info, setInfo] = useState(String(database));
+
   useEffect(() => {
     let unsubscribe;
     setImmediate(async () => {
