@@ -148,6 +148,7 @@ export class GreetingInitiator {
     const feedKey = await this.initFeed(partyKey);
 
     const credentialMessages = [];
+    // TODO(telackey): Restore HALO functionality.
     // if (this._partyManager.isHalo(partyKey)) {
     //   // For the Halo, add the DEVICE directly.
     //   credentialMessages.push(
@@ -195,7 +196,7 @@ export class GreetingInitiator {
     return {
       partyKey,
       hints: notarizeResponse.hints.map((hint: any) => hint.publicKey) // TODO(marik-d): Take full hint object here
-    }; 
+    };
   }
 
   async disconnect () {
