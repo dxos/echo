@@ -22,6 +22,7 @@ import { InvitationDescriptorType, InvitationDescriptor } from './invitation-des
 import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { SecretProvider } from './common';
 import { PartyFactory, PartyManager } from '../parties';
+import { PartyKey } from '@dxos/experimental-echo-protocol';
 
 const log = debug('dxos:party-manager:greeting-initiator');
 
@@ -49,7 +50,7 @@ export class GreetingInitiator {
     keyring: Keyring,
     networkManager: any,
     private identityKeypair: any,
-    private partyFactory: PartyFactory,
+    private initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>,
   ) {
     assert(keyring);
     assert(networkManager);
@@ -144,8 +145,7 @@ export class GreetingInitiator {
     // The result will include the partyKey and a nonce used when signing the response.
     const { nonce, partyKey } = handshakeResponse;
 
-    const writeFeed = await this.partyFactory.initWritableFeed(partyKey);
-    const feedKey = await this._keyring.getKey(writeFeed.key);
+    const feedKey = await this.initFeed(partyKey);
 
     const credentialMessages = [];
     // if (this._partyManager.isHalo(partyKey)) {

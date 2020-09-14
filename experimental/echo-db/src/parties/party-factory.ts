@@ -141,7 +141,16 @@ export class PartyFactory {
   }
 
   async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
-    const initiator = new GreetingInitiator(invitationDescriptor, this._keyring, this._networkManager, this._identityKey, this);
+    const initiator = new GreetingInitiator(
+      invitationDescriptor,
+      this._keyring,
+      this._networkManager,
+      this._identityKey,
+      async partyKey => {
+        const feed = await this.initWritableFeed(partyKey);
+        return this._keyring.getKey(feed.key);
+      }
+    );
 
     await initiator.connect();
 
