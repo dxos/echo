@@ -121,4 +121,9 @@ export class PartyFactory {
 
     return party;
   }
+
+  // TODO(marik-d): Refactor this
+  async initWritableFeed(partyKey: PartyKey) {
+    return this._feedStore.openFeed(partyKey, partyKey);
+  }
 }

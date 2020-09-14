@@ -12,13 +12,13 @@ import {
   Keyring,
   KeyType,
   admitsKeys,
-  createEnvelopeMessage
+  createEnvelopeMessage,
 } from '@dxos/credentials';
 import { randomBytes, keyToString, keyToBuffer } from '@dxos/crypto';
 
 import { greetingProtocolProvider } from './greeting-protocol-provider';
-import { Party } from '../parties';
-import { SecretProvider } from './common';
+import { Party, PartyFactory, Pipeline } from '../parties';
+import { SecretProvider, SecretValidator } from './common';
 import { InvitationDescriptor } from './invitation-descriptor';
 
 const log = debug('dxos:party-manager:greeting-responder');
@@ -67,7 +67,14 @@ export class GreetingResponder {
    * @param {Keyring} keyring
    * @param {NetworkManager} networkManager
    */
-  constructor (party: Party, keyring: Keyring, networkManager: any) {
+  constructor (
+    party: Party,
+    keyring: Keyring,
+    networkManager: any,
+    private partyFactory: PartyFactory,
+    private pipeline: Pipeline,
+    private identityKeypair: any,
+  ) {
     assert(party);
     assert(keyring);
     assert(networkManager);
@@ -200,34 +207,30 @@ export class GreetingResponder {
       }
     }
 
-    const deviceKey = this._keyring.findKey(Keyring.signingFilter({ type: KeyType.DEVICE }));
-    const deviceKeyChain = Keyring.buildKeyChain(deviceKey.publicKey,
-      this._partyManager.identityManager.halo.memberCredentials,
-      this._partyManager.identityManager.halo.memberFeeds);
-
-    const writeFeed = await this._partyManager.getWritableFeed(this._party.publicKey);
+    const writeFeed = await this.partyFactory.initWritableFeed(this._party.key);
 
     // Place the self-signed messages inside an Envelope, sign then write the signed Envelope to the Party.
     const envelopes = [];
-    for await (const message of messages) {
-      const myAdmits = admitsKeys(message);
-      const partyMessageWaiter = waitForEvent(this._partyManager, 'party:update',
-        (eventPartyKey) => {
-          let matchCount = 0;
-          if (eventPartyKey.equals(this._party.publicKey)) {
-            for (const key of myAdmits) {
-              if (this._party.isMemberKey(key) || this._party.isMemberFeed(key)) {
-                matchCount++;
-              }
-            }
-          }
-          return matchCount === myAdmits.length;
-        });
+    for (const message of messages) {
+      // wait for keys to be admitted
+      // const myAdmits = admitsKeys(message);
+      // const partyMessageWaiter = waitForEvent(this._partyManager, 'party:update',
+      //   (eventPartyKey) => {
+      //     let matchCount = 0;
+      //     if (eventPartyKey.equals(this._party.publicKey)) {
+      //       for (const key of myAdmits) {
+      //         if (this._party.isMemberKey(key) || this._party.isMemberFeed(key)) {
+      //           matchCount++;
+      //         }
+      //       }
+      //     }
+      //     return matchCount === myAdmits.length;
+      //   });
 
-      const envelope = createEnvelopeMessage(this._keyring, this._party.publicKey, message, deviceKeyChain);
-      writeFeed.append(envelope);
+      const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this.identityKeypair, null);
+      writeFeed.append(envelope as any, () => { /** TODO(marik-d): await callback */}); 
 
-      await partyMessageWaiter;
+      // await partyMessageWaiter;
       envelopes.push(envelope);
     }
     this._state = GreetingState.SUCCEEDED;
@@ -245,20 +248,20 @@ export class GreetingResponder {
   _gatherHints () {
     assert(this._state === GreetingState.SUCCEEDED);
 
-    const memberKeys = this._party.memberKeys.map(publicKey => {
-      return {
-        publicKey,
-        type: this._party.keyring.getKey(publicKey).type
-      };
-    });
+    // const memberKeys = this._party.memberKeys.map(publicKey => {
+    //   return {
+    //     publicKey,
+    //     type: this._party.keyring.getKey(publicKey).type
+    //   };
+    // });
 
-    const memberFeeds = this._party.memberFeeds.map(publicKey => {
+    const memberFeeds = this.pipeline.memberFeeds.map(publicKey => {
       return {
         publicKey,
         type: KeyType.FEED
       };
     });
 
-    return [...memberKeys, ...memberFeeds];
+    return [/*...memberKeys,*/ ...memberFeeds];
   }
 }

@@ -20,6 +20,8 @@ import { NetworkManager } from '@dxos/network-manager';
 import { GreetingState } from './greeting-responder';
 import { InvitationDescriptorType, InvitationDescriptor } from './invitation-descriptor';
 import { greetingProtocolProvider } from './greeting-protocol-provider';
+import { SecretProvider } from './common';
+import { PartyFactory, PartyManager } from '../parties';
 
 const log = debug('dxos:party-manager:greeting-initiator');
 
@@ -42,7 +44,13 @@ export class GreetingInitiator {
   // TODO(dboreham): can we use the same states as the responder? */
   _state: GreetingState;
 
-  constructor (invitationDescriptor: InvitationDescriptor, keyring: Keyring, networkManager: any) {
+  constructor (
+    invitationDescriptor: InvitationDescriptor,
+    keyring: Keyring,
+    networkManager: any,
+    private partyFactory: PartyFactory,
+    private partyManager: PartyManager,
+  ) {
     assert(keyring);
     assert(networkManager);
     assert(invitationDescriptor);
@@ -136,7 +144,7 @@ export class GreetingInitiator {
     // The result will include the partyKey and a nonce used when signing the response.
     const { nonce, partyKey } = handshakeResponse;
 
-    const writeFeed = await this._partyManager.initWritableFeed(partyKey);
+    const writeFeed = await this.partyFactory.initWritableFeed(partyKey);
     const feedKey = await this._keyring.getKey(writeFeed.key);
 
     const credentialMessages = [];
@@ -157,35 +165,29 @@ export class GreetingInitiator {
     //   );
     // } else {
       // For any other Party, add the IDENTITY, signed by the DEVICE keychain, which links back to that IDENTITY.
+
+      //keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
+      //feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
       credentialMessages.push(
-        createEnvelopeMessage(this._keyring, partyKey,
-          this._partyManager.identityManager.identityGenesisMessage,
-          this._partyManager.identityManager.deviceManager.keyChain,
-          nonce)
-      );
+        createKeyAdmitMessage(this._keyring, partyKey, this.partyFactory.identityKey, nonce)
+      )
       // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
       credentialMessages.push(
-        createFeedAdmitMessage(this._keyring, partyKey,
-          feedKey,
-          this._partyManager.identityManager.deviceManager.keyChain,
-          nonce)
-      );
+        createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.partyFactory.identityKey, nonce)
+      )
     // }
 
     // Send the signed payload to the greeting responder.
     const notarizeResponse = await this._greeterPlugin.send(responderPeerId,
-      createGreetingNotarizeMessage(secret, credentialMessages));
+      createGreetingNotarizeMessage(secret, credentialMessages) as any) as any;
 
     //
     // We will receive back a collection of 'hints' of the keys and feeds that make up the Party.
     // Without these 'hints' we would have no way to begin replicating, because we would not know whom to trust.
     //
 
-    const party = await this._partyManager.initParty(partyKey);
-    if (notarizeResponse.hints) {
-      await party.takeHints(notarizeResponse.hints);
-    }
-    await this._partyManager.openParty(partyKey);
+    console.log({ hints: notarizeResponse.hints })
+    const party = await this.partyManager.addParty(partyKey, notarizeResponse.hints.map((hint: any) => hint.publicKey)); // TODO(marik-d): Take full hint object here
 
     // Tell the Greeter that we are done.
     await this._greeterPlugin.send(responderPeerId, createGreetingFinishMessage(secret) as any);
