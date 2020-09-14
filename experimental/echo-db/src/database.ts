@@ -3,15 +3,12 @@
 //
 
 import { Event } from '@dxos/async';
-import { createId } from '@dxos/crypto';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
-
-import { InvitationRequest, InvitationResponder } from './invitation';
 import { SecretProvider } from './invitations/common';
-import { GreetingInitiator } from './invitations/greeting-initiator';
 import { InvitationDescriptor } from './invitations/invitation-descriptor';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
+
 
 export interface Options {
   readOnly?: false;

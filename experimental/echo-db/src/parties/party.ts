@@ -10,7 +10,6 @@ import { FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 import { ModelFactory, ModelType, ModelConstructor, Model } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 
-import { Invitation, InvitationRequest } from '../invitation';
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
 import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
