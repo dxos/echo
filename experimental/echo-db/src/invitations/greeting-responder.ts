@@ -55,7 +55,7 @@ export class GreetingResponder {
   _greeterPlugin: GreetingCommandPlugin;
 
   _swarmKey: Buffer;
-  
+
   /**
    * Param: Invitation id
    */
@@ -134,8 +134,13 @@ export class GreetingResponder {
       timeoutTimer = setTimeout(cleanup, expiration - Date.now());
     }
 
-    const invitation = this._greeter.createInvitation(this._party.key, secretValidator,
-      secretProvider, cleanup, expiration);
+    const invitation = this._greeter.createInvitation(
+      this._party.key,
+      secretValidator,
+      secretProvider,
+      cleanup,
+      expiration
+    );
 
     // TODO(dboreham): Add tests for idempotence and transactional integrity over the greet flow.
     (this._greeterPlugin as any).once('peer:joined', (joinedPeerId: Buffer) => {
@@ -226,7 +231,7 @@ export class GreetingResponder {
       //   });
 
       const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this.identityKeypair, null);
-      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */}); 
+      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */});
 
       // await partyMessageWaiter;
       envelopes.push(envelope);
