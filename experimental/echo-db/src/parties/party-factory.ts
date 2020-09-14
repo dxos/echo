@@ -56,7 +56,7 @@ export class PartyFactory {
     // TODO(telackey): Proper identity and keyring management.
     const partyKey = await this._keyring.createKeyRecord({ type: KeyType.PARTY });
 
-    const feed = await this._feedStore.openFeed(keyToBuffer(partyKey.key), partyKey.publicKey);
+    const feed = await this._feedStore.createWritableFeed(partyKey.key);
     const feedKey = await this._keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
@@ -83,7 +83,7 @@ export class PartyFactory {
    * @param feeds set of hints for existing feeds belonging to this party.
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
-    const feed = await this._feedStore.openFeed(partyKey, partyKey);
+    const feed = await this._feedStore.createWritableFeed(partyKey);
     const feedKey = await this._keyring.getKey(feed.key) ??
       await this._keyring.addKeyRecord({
         publicKey: feed.key,
@@ -106,7 +106,7 @@ export class PartyFactory {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
-    const feed = this._feedStore.getFeed(partyKey);
+    const feed = this._feedStore.queryWritableFeed(partyKey);
     assert(feed, `Feed not found for party: ${keyToString(partyKey)}`);
 
     // Create pipeline.
@@ -129,7 +129,9 @@ export class PartyFactory {
 
   // TODO(marik-d): Refactor this
   async initWritableFeed(partyKey: PartyKey) {
-    const feed = await this._feedStore.openFeed(partyKey, partyKey);
+    const feed = await this._feedStore.queryWritableFeed(partyKey) ??
+      await this._feedStore.createWritableFeed(partyKey);
+
     if(!this._keyring.hasKey(feed.key)) {
       await this._keyring.addKeyRecord({
         publicKey: feed.key,

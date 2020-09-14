@@ -12,6 +12,7 @@ import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedSetProvider } from './parties';
+import { FeedStoreAdapter } from './feed-store-adapter';
 
 const log = debug('dxos:echo:replication-adapter');
 
@@ -26,7 +27,7 @@ export type ReplicatorFactory = (partyKey: PartyKey, activeFeeds: FeedSetProvide
 export function createReplicatorFactory (networkManager: any, feedStore: FeedStore, peerId: Buffer) {
   return (partyKey: PartyKey, activeFeeds: FeedSetProvider) => new ReplicationAdapter(
     networkManager,
-    feedStore,
+    new FeedStoreAdapter(feedStore),
     peerId,
     partyKey,
     activeFeeds
@@ -42,7 +43,7 @@ export class ReplicationAdapter implements IReplicationAdapter {
   constructor (
     // TODO(burdon): Underscores for private.
     private readonly networkManager: any,
-    private readonly feedStore: FeedStore,
+    private readonly feedStore: FeedStoreAdapter,
     private readonly peerId: Buffer,
     private readonly partyKey: PartyKey,
     private readonly activeFeeds: FeedSetProvider
@@ -58,21 +59,9 @@ export class ReplicationAdapter implements IReplicationAdapter {
     this.networkManager.joinProtocolSwarm(this.partyKey, ({ channel }: any) => this._createProtocol(channel));
   }
 
-  private _openFeed (key: FeedKey): hypercore.Feed {
-    const topic = keyToString(this.partyKey);
-
-    // Get the feed if we have it already, else create it.
-    // TODO(marik-d): Rethink FeedStore API: Remove openFeed.
-    let feed = this.feedStore.getOpenFeed(desc => desc.feed.key.equals(key));
-    if (!feed) {
-      // TODO(burdon): Change path.
-      feed = this.feedStore.openFeed(keyToString(key), {
-        key,
-        metadata: { partyKey: this.partyKey }
-      } as any);
-    }
-
-    return feed;
+  private async _openFeed (key: FeedKey): Promise<hypercore.Feed> {
+    return this.feedStore.getFeed(key) ??
+      await this.feedStore.createReadOnlyFeed(key, this.partyKey);
   }
 
   private _createProtocol (channel: any) {
