@@ -12,13 +12,14 @@ import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
-import { PartyProcessor, Pipeline } from '.';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { SecretProvider } from '../invitations/common';
 import { GreetingInitiator } from '../invitations/greeting-initiator';
+import { PartyProcessor } from './party-processor';
+import { Pipeline } from './pipeline';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
@@ -152,11 +153,11 @@ export class PartyFactory {
     await initiator.connect();
 
     const { partyKey, hints } = await initiator.redeemInvitation(secretProvider);
-    
+
     const { party } = await this.addParty(partyKey, hints);
 
     await initiator.destroy();
 
     return party;
-  } 
+  }
 }
