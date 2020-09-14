@@ -48,6 +48,7 @@ export class GreetingInitiator {
     invitationDescriptor: InvitationDescriptor,
     keyring: Keyring,
     networkManager: any,
+    private identityKeypair: any,
     private partyFactory: PartyFactory,
   ) {
     assert(keyring);
@@ -168,11 +169,11 @@ export class GreetingInitiator {
       //keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
       //feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
       credentialMessages.push(
-        createKeyAdmitMessage(this._keyring, partyKey, this.partyFactory.identityKey, [], nonce)
+        createKeyAdmitMessage(this._keyring, partyKey, this.identityKeypair, [], nonce)
       )
       // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
       credentialMessages.push(
-        createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.partyFactory.identityKey, nonce)
+        createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.identityKeypair, nonce)
       )
     // }
 
