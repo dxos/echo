@@ -31,7 +31,7 @@ const createDatabase = async (verbose = true) => {
     writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
   } : undefined;
 
-  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined);
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined, undefined);
   await partyFactory.initIdentity();
   const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
   return new Database(partyManager, options);

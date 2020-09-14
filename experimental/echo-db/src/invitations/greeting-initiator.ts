@@ -49,7 +49,6 @@ export class GreetingInitiator {
     keyring: Keyring,
     networkManager: any,
     private partyFactory: PartyFactory,
-    private partyManager: PartyManager,
   ) {
     assert(keyring);
     assert(networkManager);
@@ -186,16 +185,16 @@ export class GreetingInitiator {
     // Without these 'hints' we would have no way to begin replicating, because we would not know whom to trust.
     //
 
-    console.log({ hints: notarizeResponse.hints })
-    const party = await this.partyManager.addParty(partyKey, notarizeResponse.hints.map((hint: any) => hint.publicKey)); // TODO(marik-d): Take full hint object here
-
     // Tell the Greeter that we are done.
     await this._greeterPlugin.send(responderPeerId, createGreetingFinishMessage(secret) as any);
 
     await this.disconnect();
 
     this._state = GreetingState.SUCCEEDED;
-    return party;
+    return {
+      partyKey,
+      hints: notarizeResponse.hints.map((hint: any) => hint.publicKey) // TODO(marik-d): Take full hint object here
+    }; 
   }
 
   async disconnect () {

@@ -16,6 +16,9 @@ import { PartyProcessor, Pipeline } from '.';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
+import { InvitationDescriptor } from '../invitations/invitation-descriptor';
+import { SecretProvider } from '../invitations/common';
+import { GreetingInitiator } from '../invitations/greeting-initiator';
 
 interface Options {
   readLogger?: NodeJS.ReadWriteStream;
@@ -31,7 +34,8 @@ export class PartyFactory {
   constructor (
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _modelFactory: ModelFactory,
-    private readonly _replicatorFactory: ReplicatorFactory | undefined,
+    private readonly _replicatorFactory: ReplicatorFactory | undefined, // TODO(marik-d): Refactor so party factory only takes a network manager and creates a replicator itself
+    private readonly _networkManager: any | undefined,
     private readonly _options: Options = {}
   ) { }
 
@@ -117,7 +121,7 @@ export class PartyFactory {
       new Pipeline(partyProcessor, feedReadStream, feedWriteStream, this._replicatorFactory, this._options);
 
     // Create party.
-    const party = new Party(this._modelFactory, pipeline, partyProcessor, this._keyring, this._identityKey);
+    const party = new Party(this._modelFactory, pipeline, partyProcessor, this._keyring, this._identityKey, this._networkManager);
 
     return party;
   }
@@ -126,4 +130,18 @@ export class PartyFactory {
   async initWritableFeed(partyKey: PartyKey) {
     return this._feedStore.openFeed(partyKey, partyKey);
   }
+
+  async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+    const initiator = new GreetingInitiator(invitationDescriptor, this._keyring, this._networkManager, this);
+
+    await initiator.connect();
+
+    const { partyKey, hints } = await initiator.redeemInvitation(secretProvider);
+    
+    const { party } = await this.addParty(partyKey, hints);
+
+    await initiator.destroy();
+
+    return party;
+  } 
 }

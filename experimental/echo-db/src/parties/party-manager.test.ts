@@ -24,7 +24,7 @@ describe('Party manager', () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const feedStoreAdapter = new FeedStoreAdapter(feedStore);
     const modelFactory = new ModelFactory().registerModel(ObjectModel.meta, ObjectModel);
-    const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined);
+    const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined, undefined);
     await partyFactory.initIdentity();
     const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
     return { feedStore, partyManager };

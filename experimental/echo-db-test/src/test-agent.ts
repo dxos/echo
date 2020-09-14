@@ -33,7 +33,8 @@ export default class TestAgent implements Agent {
     const partyFactory = new PartyFactory(
       feedStoreAdapter,
       modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes())
+      createReplicatorFactory(networkManager, feedStore, randomBytes()),
+      networkManager,
     );
     await partyFactory.initIdentity();
     const partyManager = new PartyManager(feedStoreAdapter, partyFactory);

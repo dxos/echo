@@ -15,6 +15,9 @@ import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationResponder } from '../invitation';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
+import { InvitationDescriptor } from '../invitations/invitation-descriptor';
+import { SecretProvider } from '../invitations/common';
+import { GreetingInitiator } from '../invitations/greeting-initiator';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -84,6 +87,15 @@ export class PartyManager {
       this._parties.set(party.key, party);
       this.update.emit(party);
       return new InvitationResponder(this._partyFactory.keyring, party, feedKey, this._partyFactory.identityKey);
+    });
+  }
+
+  async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
+    return this._lock.executeSynchronized(async () => {
+      const party = await this._partyFactory.joinParty(invitationDescriptor, secretProvider);
+      this._parties.set(party.key, party);
+      this.update.emit(party);
+      return party;
     });
   }
 }

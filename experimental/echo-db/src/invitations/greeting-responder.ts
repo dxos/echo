@@ -71,7 +71,7 @@ export class GreetingResponder {
     party: Party,
     keyring: Keyring,
     networkManager: any,
-    private partyFactory: PartyFactory,
+    private writeStream: NodeJS.WritableStream,
     private pipeline: Pipeline,
     private identityKeypair: any,
   ) {
@@ -110,7 +110,7 @@ export class GreetingResponder {
    * @returns {InvitationDescriptor}
    */
   // TODO(telackey): Change to nounVerb form.
-  async invite (secretValidator: SecretValidator, secretProvider?: SecretProvider, onFinish?: Function, expiration?: number): Promise<InvitationDescriptor> {
+  async invite (secretValidator: SecretValidator, secretProvider?: SecretProvider, onFinish?: Function, expiration?: number): Promise<Buffer> {
     assert(secretValidator);
     assert(this._state === GreetingState.LISTENING);
 
@@ -207,8 +207,6 @@ export class GreetingResponder {
       }
     }
 
-    const writeFeed = await this.partyFactory.initWritableFeed(this._party.key);
-
     // Place the self-signed messages inside an Envelope, sign then write the signed Envelope to the Party.
     const envelopes = [];
     for (const message of messages) {
@@ -228,7 +226,7 @@ export class GreetingResponder {
       //   });
 
       const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this.identityKeypair, null);
-      writeFeed.append(envelope as any, () => { /** TODO(marik-d): await callback */}); 
+      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */}); 
 
       // await partyMessageWaiter;
       envelopes.push(envelope);
