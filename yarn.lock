@@ -1284,10 +1284,10 @@
     source-map-support "^0.5.12"
     through2 "^3.0.1"
 
-"@dxos/gem-core@^1.0.0-beta.16", "@dxos/gem-core@^1.0.0-beta.21":
-  version "1.0.0-beta.21"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fgem-core/-/gem-core-1.0.0-beta.21.tgz#0284009d2376f08b10330459d583e3369f2a37b9"
-  integrity sha512-vVqZVRKsSSB9cJPDDDuOsXi5Wz9C36aKC/TA1yRVQcv65B1vVYbCRmoFOgAQd7fyfrr7G/r6YhNpQk7/vtgdiQ==
+"@dxos/gem-core@^1.0.0-beta.16", "@dxos/gem-core@^1.0.0-beta.22":
+  version "1.0.0-beta.22"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fgem-core/-/gem-core-1.0.0-beta.22.tgz#93efab37aa7ca3ae54be002091587dfd31daee0f"
+  integrity sha512-BXUDV3hD6SqL84H4vO8FqlncH9X9gLshPyptoxMhdkYIxd6sRYAk0oxzYgRmN1bqU6sTsAWo55XTcvKCAfPIFw==
   dependencies:
     "@material-ui/core" "^4.9.10"
     clsx "^1.1.0"
@@ -1300,11 +1300,11 @@
     react-resize-aware "^3.0.0"
 
 "@dxos/gem-spore@^1.0.0-beta.16":
-  version "1.0.0-beta.21"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fgem-spore/-/gem-spore-1.0.0-beta.21.tgz#6ee834c9b13a15ba35812cb26ed7e08beba0972f"
-  integrity sha512-0Sf5ccpoYN6jzkjRXJThmsuHp/EM0S/2fSpEMSTqcEw479hkqdaqg76LhG939BCsdvg2h1P4c+FOxLDETRKoTw==
+  version "1.0.0-beta.22"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fgem-spore/-/gem-spore-1.0.0-beta.22.tgz#5c6b02d05debdd53643da8a311ea4cfc96f78f2b"
+  integrity sha512-Iwt2j5YC2CQzdNJqhOwMcUefAWhajA3UZAfBavRhUOPkopYxBudUTAbnas9kCIw0IeAmRVyfvKFrM6na1v+NyA==
   dependencies:
-    "@dxos/gem-core" "^1.0.0-beta.21"
+    "@dxos/gem-core" "^1.0.0-beta.22"
     "@material-ui/core" "^4.9.10"
     clsx "^1.1.0"
     d3 "^6.1.1"
@@ -8175,9 +8175,9 @@ es6-symbol@^3.1.1, es6-symbol@~3.1.3:
     ext "^1.1.2"
 
 escalade@^3.0.2:
-  version "3.0.2"
-  resolved "http://npm.dev.dxos.network:5736/escalade/-/escalade-3.0.2.tgz#6a580d70edb87880f22b4c91d0d56078df6962c4"
-  integrity sha512-gPYAU37hYCUhW5euPeR+Y74F7BL+IBsV93j5cvGriSaD1aG6MGsqsV1yamRdrWrb2j3aiZvb0X+UBOWpx3JWtQ==
+  version "3.1.0"
+  resolved "http://npm.dev.dxos.network:5736/escalade/-/escalade-3.1.0.tgz#e8e2d7c7a8b76f6ee64c2181d6b8151441602d4e"
+  integrity sha512-mAk+hPSO8fLDkhV7V0dXazH5pDc6MrjBTPyD3VeKzxnVFjH1MIxbCdqGZB9O8+EwWakZs3ZCbDS4IpRt79V1ig==
 
 escape-html@^1.0.3, escape-html@~1.0.3:
   version "1.0.3"
