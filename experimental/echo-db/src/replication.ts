@@ -11,8 +11,8 @@ import { FeedStore } from '@dxos/feed-store';
 import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
-import { FeedSetProvider } from './parties';
 import { FeedStoreAdapter } from './feed-store-adapter';
+import { FeedSetProvider } from './parties';
 
 const log = debug('dxos:echo:replication-adapter');
 

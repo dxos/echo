@@ -3,10 +3,11 @@
 //
 
 import assert from 'assert';
-import stableStringify from 'json-stable-stringify';
 import CryptoJS from 'crypto-js';
+import stableStringify from 'json-stable-stringify';
 
 import { keyToBuffer, keyToString } from '@dxos/crypto';
+import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
 export enum InvitationDescriptorType {
   INTERACTIVE = '1',
@@ -51,7 +52,7 @@ export class InvitationDescriptor {
 
   identityKey?: Buffer;
 
-  constructor (type: InvitationDescriptorType, swarmKey: Buffer, invitation: Buffer, identityKey?: Buffer) {
+  constructor (type: InvitationDescriptorType, swarmKey: SwarmKey, invitation: Buffer, identityKey?: Buffer) {
     assert(type);
     assert(Buffer.isBuffer(swarmKey));
     assert(Buffer.isBuffer(invitation));

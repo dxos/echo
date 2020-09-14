@@ -15,6 +15,7 @@ import {
   createEnvelopeMessage
 } from '@dxos/credentials';
 import { randomBytes, keyToString, keyToBuffer } from '@dxos/crypto';
+import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
 import { Party, PartyFactory, Pipeline } from '../parties';
 import { SecretProvider, SecretValidator } from './common';
@@ -48,7 +49,7 @@ export class GreetingResponder {
   _state: GreetingState;
   _greeter: Greeter;
   _greeterPlugin: GreetingCommandPlugin;
-  _swarmKey: Buffer;
+  _swarmKey: SwarmKey;
 
   /**
    * Param: Invitation id

@@ -4,11 +4,11 @@
 
 import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
+
 import { SecretProvider } from './invitations/common';
 import { InvitationDescriptor } from './invitations/invitation-descriptor';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
-
 
 export interface Options {
   readOnly?: false;

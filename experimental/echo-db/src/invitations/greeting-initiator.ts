@@ -15,14 +15,14 @@ import {
   Keyring
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
+import { PartyKey } from '@dxos/experimental-echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 
+import { PartyFactory, PartyManager } from '../parties';
+import { SecretProvider } from './common';
+import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { GreetingState } from './greeting-responder';
 import { InvitationDescriptorType, InvitationDescriptor } from './invitation-descriptor';
-import { greetingProtocolProvider } from './greeting-protocol-provider';
-import { SecretProvider } from './common';
-import { PartyFactory, PartyManager } from '../parties';
-import { PartyKey } from '@dxos/experimental-echo-protocol';
 
 const log = debug('dxos:party-manager:greeting-initiator');
 
@@ -50,7 +50,7 @@ export class GreetingInitiator {
     keyring: Keyring,
     networkManager: any,
     private identityKeypair: any,
-    private initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>,
+    private initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>
   ) {
     assert(keyring);
     assert(networkManager);
@@ -165,17 +165,17 @@ export class GreetingInitiator {
     //       nonce)
     //   );
     // } else {
-      // For any other Party, add the IDENTITY, signed by the DEVICE keychain, which links back to that IDENTITY.
+    // For any other Party, add the IDENTITY, signed by the DEVICE keychain, which links back to that IDENTITY.
 
-      //keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
-      //feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
-      credentialMessages.push(
-        createKeyAdmitMessage(this._keyring, partyKey, this.identityKeypair, [], nonce)
-      )
-      // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
-      credentialMessages.push(
-        createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.identityKeypair, nonce)
-      )
+    // keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
+    // feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
+    credentialMessages.push(
+      createKeyAdmitMessage(this._keyring, partyKey, this.identityKeypair, [], nonce)
+    );
+    // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
+    credentialMessages.push(
+      createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.identityKeypair, nonce)
+    );
     // }
 
     // Send the signed payload to the greeting responder.
