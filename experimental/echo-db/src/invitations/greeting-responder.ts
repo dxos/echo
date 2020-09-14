@@ -12,13 +12,13 @@ import {
   Keyring,
   KeyType,
   admitsKeys,
-  createEnvelopeMessage,
+  createEnvelopeMessage
 } from '@dxos/credentials';
 import { randomBytes, keyToString, keyToBuffer } from '@dxos/crypto';
 
-import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { Party, PartyFactory, Pipeline } from '../parties';
 import { SecretProvider, SecretValidator } from './common';
+import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { InvitationDescriptor } from './invitation-descriptor';
 
 const log = debug('dxos:party-manager:greeting-responder');
@@ -43,17 +43,11 @@ export enum GreetingState {
  */
 export class GreetingResponder {
   _party: Party;
-
   _keyring: Keyring;
-
   _networkManager: any;
-
   _state: GreetingState;
-
   _greeter: Greeter;
-
   _greeterPlugin: GreetingCommandPlugin;
-
   _swarmKey: Buffer;
 
   /**
@@ -73,7 +67,7 @@ export class GreetingResponder {
     networkManager: any,
     private writeStream: NodeJS.WritableStream,
     private pipeline: Pipeline,
-    private identityKeypair: any,
+    private identityKeypair: any
   ) {
     assert(party);
     assert(keyring);
@@ -231,7 +225,7 @@ export class GreetingResponder {
       //   });
 
       const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this.identityKeypair, null);
-      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */});
+      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */ });
 
       // await partyMessageWaiter;
       envelopes.push(envelope);
@@ -265,6 +259,7 @@ export class GreetingResponder {
       };
     });
 
-    return [/*...memberKeys,*/ ...memberFeeds];
+    // TODO: include memberKeys
+    return [...memberFeeds];
   }
 }
