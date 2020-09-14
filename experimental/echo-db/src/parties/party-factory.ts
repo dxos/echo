@@ -56,7 +56,7 @@ export class PartyFactory {
     // TODO(telackey): Proper identity and keyring management.
     const partyKey = await this._keyring.createKeyRecord({ type: KeyType.PARTY });
 
-    const feed = await this._feedStore.createWritableFeed(partyKey.key);
+    const feed = await this._feedStore.createWritableFeed(partyKey.publicKey);
     const feedKey = await this._keyring.addKeyRecord({
       publicKey: feed.key,
       secretKey: feed.secretKey,
@@ -83,13 +83,8 @@ export class PartyFactory {
    * @param feeds set of hints for existing feeds belonging to this party.
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
-    const feed = await this._feedStore.createWritableFeed(partyKey);
-    const feedKey = await this._keyring.getKey(feed.key) ??
-      await this._keyring.addKeyRecord({
-        publicKey: feed.key,
-        secretKey: feed.secretKey,
-        type: KeyType.FEED
-      });
+    const feed = await this._initWritableFeed(partyKey);
+    const feedKey = await this._keyring.getKey(feed.key);
 
     const party = await this.constructParty(partyKey, feeds);
     await party.open();
@@ -128,7 +123,7 @@ export class PartyFactory {
   }
 
   // TODO(marik-d): Refactor this
-  async initWritableFeed(partyKey: PartyKey) {
+  private async _initWritableFeed(partyKey: PartyKey) {
     const feed = await this._feedStore.queryWritableFeed(partyKey) ??
       await this._feedStore.createWritableFeed(partyKey);
 
@@ -149,7 +144,7 @@ export class PartyFactory {
       this._networkManager,
       this._identityKey,
       async partyKey => {
-        const feed = await this.initWritableFeed(partyKey);
+        const feed = await this._initWritableFeed(partyKey);
         return this._keyring.getKey(feed.key);
       }
     );

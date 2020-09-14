@@ -8,7 +8,7 @@ import { keyToBuffer, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { randomBytes } from '@dxos/crypto';
-import { assert } from 'console';
+import assert from 'assert';
 
 export class FeedStoreAdapter {
   constructor (
@@ -33,15 +33,15 @@ export class FeedStoreAdapter {
   }
 
   queryWritableFeed(partyKey: PartyKey): Feed | undefined {
-    const descriptor = this._feedStore.getDescriptors().find(descriptor =>
-      keyToBuffer(descriptor.metadata.partyKey).equals(partyKey) &&
-      descriptor.metadata.writable
+    const descriptor = this._feedStore.getDescriptors().find(descriptor => 
+      descriptor.metadata.partyKey.equals(partyKey) &&
+        descriptor.metadata.writable
     );
     return descriptor?.feed;
   }
 
   createWritableFeed(partyKey: PartyKey): Promise<Feed> {
-    assert(partyKey instanceof Uint8Array);
+    assert(partyKey instanceof Uint8Array || Buffer.isBuffer(partyKey)); // TODO(marik-d): Something wrong here, Buffer should be a subclass of Uint8Array but it isn't here
     assert(!this.queryWritableFeed(partyKey), 'Writable feed already exists');
     return this._feedStore.openFeed(
       keyToString(randomBytes()),
@@ -50,10 +50,10 @@ export class FeedStoreAdapter {
   }
 
   createReadOnlyFeed(feedKey: FeedKey, partyKey: PartyKey): Promise<Feed> {
-    assert(partyKey instanceof Uint8Array);
+    assert(partyKey instanceof Uint8Array || Buffer.isBuffer(partyKey));
     return this._feedStore.openFeed(
       keyToString(randomBytes()),
-      { key: Buffer.from(feedKey), metadata: { partyKey, writable: true } } as any,
+      { key: Buffer.from(feedKey), metadata: { partyKey } } as any,
     );
   }
 
