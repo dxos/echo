@@ -13,11 +13,11 @@ import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
-import { ReplicatorFactory } from '../replication';
-import { Party, PARTY_ITEM_TYPE } from './party';
-import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { SecretProvider } from '../invitations/common';
 import { GreetingInitiator } from '../invitations/greeting-initiator';
+import { InvitationDescriptor } from '../invitations/invitation-descriptor';
+import { ReplicatorFactory } from '../replication';
+import { Party, PARTY_ITEM_TYPE } from './party';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
@@ -38,7 +38,7 @@ export class PartyFactory {
     private readonly _replicatorFactory: ReplicatorFactory | undefined, // TODO(marik-d): Refactor so party factory only takes a network manager and creates a replicator itself
     private readonly _networkManager: any | undefined,
     private readonly _options: Options = {}
-  ) { }
+  ) {}
 
   async initIdentity () {
     this._identityKey = await this._keyring.createKeyRecord({ type: KeyType.IDENTITY });
@@ -124,11 +124,11 @@ export class PartyFactory {
   }
 
   // TODO(marik-d): Refactor this
-  private async _initWritableFeed(partyKey: PartyKey) {
+  private async _initWritableFeed (partyKey: PartyKey) {
     const feed = await this._feedStore.queryWritableFeed(partyKey) ??
       await this._feedStore.createWritableFeed(partyKey);
 
-    if(!this._keyring.hasKey(feed.key)) {
+    if (!this._keyring.hasKey(feed.key)) {
       await this._keyring.addKeyRecord({
         publicKey: feed.key,
         secretKey: feed.secretKey,
@@ -138,7 +138,7 @@ export class PartyFactory {
     return feed;
   }
 
-  async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
     const initiator = new GreetingInitiator(
       invitationDescriptor,
       this._keyring,
