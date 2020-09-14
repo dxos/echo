@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { InvitationDescriptor } from "./invitation-descriptor";
 
 export type SecretProvider = (info: any) => Promise<Buffer>;

@@ -12,7 +12,7 @@ async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   inviter.sendEvent({
     command: 'CREATE_PARTY'
   });
-  await inviter.log.waitFor(data => data.name === 'party')
+  await inviter.log.waitFor(data => data.name === 'party');
   inviter.sendEvent({
     command: 'CREATE_INVITATION'
   });
@@ -58,8 +58,8 @@ test('replication from creator to invitee', async () => {
     log('node2 UPDATE:', node2.metrics.asObject());
   });
 
-  node1.log.on(data => log('node1', data))
-  node2.log.on(data => log('node2', data))
+  node1.log.on(data => log('node1', data));
+  node2.log.on(data => log('node2', data));
 
   await invite(node1, node2);
   log('invited');

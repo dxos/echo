@@ -1,3 +1,7 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import { protocolFactory } from '@dxos/network-manager';
 
 /**
