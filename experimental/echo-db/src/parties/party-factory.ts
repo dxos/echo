@@ -84,11 +84,12 @@ export class PartyFactory {
    */
   async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
     const feed = await this._feedStore.openFeed(partyKey, partyKey);
-    const feedKey = await this._keyring.addKeyRecord({
-      publicKey: feed.key,
-      secretKey: feed.secretKey,
-      type: KeyType.FEED
-    });
+    const feedKey = await this._keyring.getKey(feed.key) ??
+      await this._keyring.addKeyRecord({
+        publicKey: feed.key,
+        secretKey: feed.secretKey,
+        type: KeyType.FEED
+      });
 
     const party = await this.constructParty(partyKey, feeds);
     await party.open();
@@ -128,7 +129,15 @@ export class PartyFactory {
 
   // TODO(marik-d): Refactor this
   async initWritableFeed(partyKey: PartyKey) {
-    return this._feedStore.openFeed(partyKey, partyKey);
+    const feed = await this._feedStore.openFeed(partyKey, partyKey);
+    if(!this._keyring.hasKey(feed.key)) {
+      await this._keyring.addKeyRecord({
+        publicKey: feed.key,
+        secretKey: feed.secretKey,
+        type: KeyType.FEED
+      });
+    }
+    return feed;
   }
 
   async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {

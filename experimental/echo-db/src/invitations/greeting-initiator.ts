@@ -168,7 +168,7 @@ export class GreetingInitiator {
       //keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
       //feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
       credentialMessages.push(
-        createKeyAdmitMessage(this._keyring, partyKey, this.partyFactory.identityKey, nonce)
+        createKeyAdmitMessage(this._keyring, partyKey, this.partyFactory.identityKey, [], nonce)
       )
       // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
       credentialMessages.push(
