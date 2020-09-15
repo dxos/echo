@@ -8,6 +8,13 @@ import stableStringify from 'json-stable-stringify';
 import { keyToBuffer, keyToString, ripemd160 } from '@dxos/crypto';
 import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
+/**
+ * Defines an invitation type.
+ * 
+ * Interactive invitation is when both peers are online at the same time.
+ * 
+ * Offline is when only a single peer needs to be online at the time.
+ */
 export enum InvitationDescriptorType {
   INTERACTIVE = '1',
   OFFLINE_KEY = '2',
