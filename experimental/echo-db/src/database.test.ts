@@ -14,8 +14,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { codec } from './codec';
 import { Database } from './database';
 import { FeedStoreAdapter } from './feed-store-adapter';
-import { Party, PartyManager } from './parties';
-import { PartyFactory } from './parties/party-factory';
+import { Party, PartyFactory, PartyManager } from './parties';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

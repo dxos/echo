@@ -3,10 +3,9 @@
 //
 
 import { Event } from '@dxos/async';
-import { createId } from '@dxos/crypto';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
 
-import { InvitationRequest, InvitationResponder } from './invitation';
+import { InvitationDescriptor, SecretProvider } from './invitations';
 import { Party, PartyFilter, PartyManager } from './parties';
 import { ResultSet } from './result';
 
@@ -38,8 +37,8 @@ export class Database {
 
   toString () {
     return `Database(${JSON.stringify({
-      parties: this._partyManager.parties.length, 
-      options: Object.keys(this._options).length ? this._options: undefined
+      parties: this._partyManager.parties.length,
+      options: Object.keys(this._options).length ? this._options : undefined
     })})`;
   }
 
@@ -103,14 +102,10 @@ export class Database {
 
   /**
    * Joins a party that was created by another peer and starts replicating with it.
-   * @param invitation
+   * @param invitationDescriptor
+   * @param secretProvider
    */
-  async joinParty (invitation: InvitationRequest): Promise<InvitationResponder> {
-    const response = await this._partyManager.addParty(invitation.partyKey, invitation.feeds);
-    await response.party.open();
-
-    this._partyUpdate.emit(response.party);
-
-    return response;
+  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+    return this._partyManager.joinParty(invitationDescriptor, secretProvider);
   }
 }

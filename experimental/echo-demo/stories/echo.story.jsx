@@ -39,11 +39,9 @@ const createDatabase = async (options) => {
     .registerModel(ObjectModel.meta, ObjectModel);
 
   const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-
-  const partyFactory = new PartyFactory(
-    feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()));
-
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, networkManager);
   await partyFactory.initIdentity();
+
   const partyManager = new PartyManager(
     feedStoreAdapter,
     partyFactory
@@ -137,16 +135,13 @@ const Test = ({ peers, showGrid = false }) => {
         log(`Inviting ${peer.id} => ${p.id} [${String(party)}]`);
 
         // Invite party.
-        const invitation = party.createInvitation();
-        log('Invitation request:', invitation.request);
+        const invitation = await party.createInvitation({
+          secretProvider: () => Buffer.from('0000'),
+          secretValidator: () => true,
+        });
+        log('Invitation request:', invitation);
 
-        // Response.
-        const responder = await p.database.joinParty(invitation.request);
-        log('Invitation response:', responder.response);
-        await invitation.finalize(responder.response);
-
-        // Invited
-        const remoteParty = responder.party;
+        const remoteParty = await p.database.joinParty(invitation, () => Buffer.from('0000'));
         await remoteParty.open();
         log('Invited Party:', String(remoteParty));
 
