@@ -24,10 +24,10 @@ export interface IReplicationAdapter {
 
 export type ReplicatorFactory = (partyKey: PartyKey, activeFeeds: FeedSetProvider) => IReplicationAdapter;
 
-export function createReplicatorFactory (networkManager: any, feedStore: FeedStore, peerId: Buffer) {
+export function createReplicatorFactory (networkManager: any, feedStore: FeedStoreAdapter, peerId: Buffer) {
   return (partyKey: PartyKey, activeFeeds: FeedSetProvider) => new ReplicationAdapter(
     networkManager,
-    new FeedStoreAdapter(feedStore),
+    feedStore,
     peerId,
     partyKey,
     activeFeeds

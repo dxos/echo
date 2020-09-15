@@ -2,9 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import { keyToString, randomBytes } from '@dxos/crypto';
+import { keyToString } from '@dxos/crypto';
 import {
-  codec, createReplicatorFactory, Database, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager
+  codec, Database, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager
 } from '@dxos/experimental-echo-db';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
@@ -33,7 +33,6 @@ export default class TestAgent implements Agent {
     const partyFactory = new PartyFactory(
       feedStoreAdapter,
       modelFactory,
-      createReplicatorFactory(networkManager, feedStore, randomBytes()),
       networkManager,
     );
     await partyFactory.initIdentity();

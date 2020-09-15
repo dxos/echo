@@ -5,7 +5,7 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { humanize } from '@dxos/crypto';
+import { humanize, randomBytes } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-util';
@@ -31,7 +31,7 @@ const createDatabase = async (verbose = true) => {
     writeLogger: createLoggingTransform((message: any) => { log('<<<', JSON.stringify(message, jsonReplacer, 2)); })
   } : undefined;
 
-  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined, undefined);
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, undefined);
   await partyFactory.initIdentity();
   const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
   return new Database(partyManager, options);

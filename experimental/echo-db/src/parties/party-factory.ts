@@ -6,7 +6,7 @@ import assert from 'assert';
 import pify from 'pify';
 
 import { Keyring, KeyType, createPartyGenesisMessage } from '@dxos/credentials';
-import { keyToString, keyToBuffer } from '@dxos/crypto';
+import { keyToString, keyToBuffer, randomBytes } from '@dxos/crypto';
 import { FeedKey, PartyKey, createOrderedFeedStream } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
@@ -16,7 +16,7 @@ import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { GreetingInitiator } from '../invitations/greeting-initiator';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
-import { ReplicatorFactory } from '../replication';
+import { createReplicatorFactory, ReplicatorFactory } from '../replication';
 import { Party, PARTY_ITEM_TYPE } from './party';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -32,13 +32,17 @@ export class PartyFactory {
 
   private _identityKey: any;
 
+  private _replicatorFactory: ReplicatorFactory | undefined;
+
   constructor (
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _modelFactory: ModelFactory,
-    private readonly _replicatorFactory: ReplicatorFactory | undefined, // TODO(marik-d): Refactor so party factory only takes a network manager and creates a replicator itself
     private readonly _networkManager: any | undefined,
+    peerId: Buffer = randomBytes(),
     private readonly _options: Options = {}
-  ) {}
+  ) {
+    this._replicatorFactory = _networkManager && createReplicatorFactory(this._networkManager, this._feedStore, peerId)
+  }
 
   async initIdentity () {
     this._identityKey = await this._keyring.createKeyRecord({ type: KeyType.IDENTITY });

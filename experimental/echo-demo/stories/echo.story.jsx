@@ -46,8 +46,7 @@ const createDatabase = async (options) => {
     .registerModel(ObjectModel.meta, ObjectModel);
 
   const networkManager = new NetworkManager(feedStore, new SwarmProvider());
-  const partyFactory = new PartyFactory(
-    feedStoreAdapter, modelFactory, createReplicatorFactory(networkManager, feedStore, randomBytes()), networkManager);
+  const partyFactory = new PartyFactory(feedStoreAdapter, modelFactory, networkManager);
 
   await partyFactory.initIdentity();
   const partyManager = new PartyManager(
