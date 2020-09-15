@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+
 import { keyToString } from '@dxos/crypto';
 import {
   codec, Database, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager
@@ -11,7 +13,6 @@ import { ObjectModel } from '@dxos/experimental-object-model';
 import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
-import assert from 'assert';
 
 export default class TestAgent implements Agent {
   private party?: Party;
@@ -33,7 +34,7 @@ export default class TestAgent implements Agent {
     const partyFactory = new PartyFactory(
       feedStoreAdapter,
       modelFactory,
-      networkManager,
+      networkManager
     );
     await partyFactory.initIdentity();
     const partyManager = new PartyManager(feedStoreAdapter, partyFactory);
@@ -42,7 +43,7 @@ export default class TestAgent implements Agent {
   }
 
   async onEvent (event: JsonObject) {
-    this.environment.logMessage('onEvent', JSON.stringify(event))
+    this.environment.logMessage('onEvent', JSON.stringify(event));
     // TODO(burdon): Switch command (not if).
     if (event.command === 'CREATE_PARTY') {
       this.party = await this.db.createParty();
@@ -55,18 +56,18 @@ export default class TestAgent implements Agent {
       this.environment.log('party', {
         partyKey: keyToString(this.party.key)
       });
-    } else if(event.command === 'CREATE_INVITATION') {
-      assert(this.party)
+    } else if (event.command === 'CREATE_INVITATION') {
+      assert(this.party);
       const invitation = await this.party.createInvitation({
         secretProvider: async () => Buffer.from('0000'),
-        secretValidator: async () => true,
+        secretValidator: async () => true
       });
       this.environment.log('invitation', {
-        invitation: invitation.toQueryParameters() as any,
+        invitation: invitation.toQueryParameters() as any
       });
     } else if (event.command === 'ACCEPT_INVITATION') { // TODO(burdon): "invitation.accept", etc.
-      const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any)
-      this.party = await this.db.joinParty(invitation, async () => Buffer.from('0000'))
+      const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any);
+      this.party = await this.db.joinParty(invitation, async () => Buffer.from('0000'));
       const items = await this.party.queryItems();
       items.subscribe(items => {
         this.environment.metrics.set('item.count', items.length);

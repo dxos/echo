@@ -41,7 +41,7 @@ export class PartyFactory {
     peerId: Buffer = randomBytes(),
     private readonly _options: Options = {}
   ) {
-    this._replicatorFactory = _networkManager && createReplicatorFactory(this._networkManager, this._feedStore, peerId)
+    this._replicatorFactory = _networkManager && createReplicatorFactory(this._networkManager, this._feedStore, peerId);
   }
 
   async initIdentity () {
