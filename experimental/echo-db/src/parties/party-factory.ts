@@ -127,6 +127,24 @@ export class PartyFactory {
     return party;
   }
 
+  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+    const initiator = new GreetingInitiator(
+      this._networkManager,
+      this._keyring,
+      async partyKey => {
+        const feed = await this._initWritableFeed(partyKey);
+        return this._keyring.getKey(feed.key);
+      },
+      this._identityKey,
+      invitationDescriptor
+    );
+    await initiator.connect();
+    const { partyKey, hints } = await initiator.redeemInvitation(secretProvider);
+    const { party } = await this.addParty(partyKey, hints);
+    await initiator.destroy();
+    return party;
+  }
+
   // TODO(marik-d): Refactor this
   private async _initWritableFeed (partyKey: PartyKey) {
     const feed = await this._feedStore.queryWritableFeed(partyKey) ??
@@ -140,28 +158,5 @@ export class PartyFactory {
       });
     }
     return feed;
-  }
-
-  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
-    const initiator = new GreetingInitiator(
-      invitationDescriptor,
-      this._keyring,
-      this._networkManager,
-      this._identityKey,
-      async partyKey => {
-        const feed = await this._initWritableFeed(partyKey);
-        return this._keyring.getKey(feed.key);
-      }
-    );
-
-    await initiator.connect();
-
-    const { partyKey, hints } = await initiator.redeemInvitation(secretProvider);
-
-    const { party } = await this.addParty(partyKey, hints);
-
-    await initiator.destroy();
-
-    return party;
   }
 }

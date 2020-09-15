@@ -4,22 +4,23 @@
 
 import debug from 'debug';
 
+import { Command } from '@dxos/echo-db-test/src/test-agent';
 import { NodeOrchestrator, Platform, NodeHandle } from '@dxos/node-spawner';
 
 const log = debug('dxos:echo:e2e:test');
 
 async function invite (inviter: NodeHandle, invitee: NodeHandle) {
   inviter.sendEvent({
-    command: 'CREATE_PARTY'
+    command: Command.CREATE_PARTY
   });
   await inviter.log.waitFor(data => data.name === 'party');
   inviter.sendEvent({
-    command: 'CREATE_INVITATION'
+    command: Command.CREATE_INVITATION
   });
   const { details: { invitation } } = await inviter.log.waitFor(data => data.name === 'invitation');
   log({ invitation });
   invitee.sendEvent({
-    command: 'ACCEPT_INVITATION',
+    command: Command.JOIN_PARTY,
     invitation
   });
   await invitee.log.waitFor(data => data.name === 'joinParty');
@@ -35,7 +36,7 @@ test('create party', async () => {
   });
 
   node1.sendEvent({
-    command: 'CREATE_PARTY'
+    command: Command.CREATE_PARTY
   });
 
   await node1.metrics.update.waitFor(
@@ -64,7 +65,7 @@ test('replication from creator to invitee', async () => {
   await invite(node1, node2);
   log('invited');
 
-  node1.sendEvent({});
+  node1.sendEvent({ command: Command.CREATE_ITEM });
 
   await node1.metrics.update.waitFor(
     () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
@@ -100,7 +101,7 @@ test('replication from invitee to creator', async () => {
   const p1 = node1.metrics.update.waitFor(
     () => !!node1.metrics.getNumber('item.count') && node1.metrics.getNumber('item.count')! >= 2);
 
-  node2.sendEvent({}); // create item
+  node2.sendEvent({ command: Command.CREATE_ITEM });
 
   await p2;
   log('node2 OK:', node2.metrics.asObject());

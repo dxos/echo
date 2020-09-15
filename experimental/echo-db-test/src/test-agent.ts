@@ -14,6 +14,13 @@ import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
 
+export enum Command {
+  CREATE_PARTY = 'CREATE_PARTY',
+  CREATE_INVITATION = 'CREATE_INVITATION',
+  JOIN_PARTY = 'JOIN_PARTY',
+  CREATE_ITEM = 'CREATE_ITEM',
+}
+
 export default class TestAgent implements Agent {
   private party?: Party;
   private db!: Database;
@@ -44,39 +51,47 @@ export default class TestAgent implements Agent {
 
   async onEvent (event: JsonObject) {
     this.environment.logMessage('onEvent', JSON.stringify(event));
-    // TODO(burdon): Switch command (not if).
-    if (event.command === 'CREATE_PARTY') {
-      this.party = await this.db.createParty();
 
-      const items = await this.party.queryItems();
-      this.environment.metrics.set('item.count', items.value.length);
-      items.subscribe(items => {
-        this.environment.metrics.set('item.count', items.length);
-      });
-      this.environment.log('party', {
-        partyKey: keyToString(this.party.key)
-      });
-    } else if (event.command === 'CREATE_INVITATION') {
-      assert(this.party);
-      const invitation = await this.party.createInvitation({
-        secretProvider: async () => Buffer.from('0000'),
-        secretValidator: async () => true
-      });
-      this.environment.log('invitation', {
-        invitation: invitation.toQueryParameters() as any
-      });
-    } else if (event.command === 'ACCEPT_INVITATION') { // TODO(burdon): "invitation.accept", etc.
-      const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any);
-      this.party = await this.db.joinParty(invitation, async () => Buffer.from('0000'));
-      const items = await this.party.queryItems();
-      items.subscribe(items => {
-        this.environment.metrics.set('item.count', items.length);
-      });
-      this.environment.log('joinParty', {
-        partyKey: keyToString(this.party.key)
-      });
-    } else {
-      this.party!.createItem(ObjectModel);
+    switch (event.command) {
+      case Command.CREATE_PARTY: {
+        this.party = await this.db.createParty();
+
+        const items = await this.party.queryItems();
+        this.environment.metrics.set('item.count', items.value.length);
+        items.subscribe(items => {
+          this.environment.metrics.set('item.count', items.length);
+        });
+        this.environment.log('party', {
+          partyKey: keyToString(this.party.key)
+        });
+      } break;
+      case Command.CREATE_INVITATION: {
+        assert(this.party);
+        const invitation = await this.party.createInvitation({
+          secretProvider: async () => Buffer.from('0000'),
+          secretValidator: async () => true
+        });
+        this.environment.log('invitation', {
+          invitation: invitation.toQueryParameters() as any
+        });
+      } break;
+      case Command.JOIN_PARTY: {
+        const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any);
+        this.party = await this.db.joinParty(invitation, async () => Buffer.from('0000'));
+        const items = await this.party.queryItems();
+        items.subscribe(items => {
+          this.environment.metrics.set('item.count', items.length);
+        });
+        this.environment.log('joinParty', {
+          partyKey: keyToString(this.party.key)
+        });
+      } break;
+      case Command.CREATE_ITEM:
+        this.party!.createItem(ObjectModel);
+        break;
+      default: {
+        throw new Error('Invalid command');
+      }
     }
   }
 

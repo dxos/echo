@@ -10,7 +10,7 @@ import { PublicKey, FeedKey, ItemType, PartyKey } from '@dxos/experimental-echo-
 import { ModelFactory, ModelType, ModelConstructor, Model } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 
-import { InviteDetails } from '../invitations/common';
+import { InvitationDetails } from '../invitations/common';
 import { GreetingResponder } from '../invitations/greeting-responder';
 import { InvitationDescriptor, InvitationDescriptorType } from '../invitations/invitation-descriptor';
 import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
@@ -150,15 +150,15 @@ export class Party {
   /**
    * Creates an invition for a remote peer.
    */
-  async createInvitation (inviteDetails: InviteDetails) {
+  async createInvitation (inviteDetails: InvitationDetails) {
     assert(this._pipeline.haloWriteStream);
     assert(this._networkManager);
     const responder = new GreetingResponder(
-      this,
+      this.key,
       this._keyring,
       this._networkManager,
       this._pipeline.haloWriteStream,
-      this._pipeline,
+      () => this._pipeline.memberFeeds,
       this._identityKeypair
     );
 

@@ -3,10 +3,9 @@
 //
 
 import assert from 'assert';
-import CryptoJS from 'crypto-js';
 import stableStringify from 'json-stable-stringify';
 
-import { keyToBuffer, keyToString } from '@dxos/crypto';
+import { keyToBuffer, keyToString, ripemd160 } from '@dxos/crypto';
 import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
 export enum InvitationDescriptorType {
@@ -14,7 +13,10 @@ export enum InvitationDescriptorType {
   OFFLINE_KEY = '2',
 }
 
-interface QueryParameters {
+/**
+ * A serialized version of InvitationDescriptor that's sutable to be encoded as an URL query string.
+ */
+export interface InvitationQueryParameters {
   hash: string
   swarmKey: string
   invitation: string
@@ -30,7 +32,7 @@ interface QueryParameters {
  * Description of what this class is for goes here.
  */
 export class InvitationDescriptor {
-  static fromQueryParameters (queryParameters: QueryParameters): InvitationDescriptor {
+  static fromQueryParameters (queryParameters: InvitationQueryParameters): InvitationDescriptor {
     const { hash, swarmKey, invitation, identityKey, type } = queryParameters;
 
     const descriptor = new InvitationDescriptor(type as InvitationDescriptorType, keyToBuffer(swarmKey),
@@ -71,8 +73,8 @@ export class InvitationDescriptor {
   /**
    * Exports an InvitationDescriptor to an object suitable for use as query parameters.
    */
-  toQueryParameters (): QueryParameters {
-    const query: Partial<QueryParameters> = {
+  toQueryParameters (): InvitationQueryParameters {
+    const query: Partial<InvitationQueryParameters> = {
       swarmKey: keyToString(this.swarmKey),
       invitation: keyToString(this.invitation),
       type: this.type
@@ -84,12 +86,6 @@ export class InvitationDescriptor {
 
     query.hash = ripemd160(stableStringify(query));
 
-    return query as QueryParameters;
+    return query as InvitationQueryParameters;
   }
 }
-
-const ripemd160 = (plaintext: string) => {
-  assert(typeof plaintext === 'string');
-
-  return CryptoJS.RIPEMD160(plaintext).toString();
-};

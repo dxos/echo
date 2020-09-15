@@ -36,15 +36,18 @@ const DEFAULT_TIMEOUT = 30000;
 export class GreetingInitiator {
   private _greeterPlugin?: GreetingCommandPlugin;
 
-  // TODO(dboreham): can we use the same states as the responder? */
+  // TODO(dboreham): can we use the same states as the responder?
   private _state: GreetingState = GreetingState.INITIALIZED;
 
+  /**
+   * @param _feedInitializer Callback to open or create a write feed for this party and return it's keypair
+   */
   constructor (
-    private readonly _invitationDescriptor: InvitationDescriptor,
-    private readonly _keyring: Keyring,
     private readonly _networkManager: any,
+    private readonly _keyring: Keyring,
+    private readonly _feedInitializer: (partyKey: PartyKey) => Promise<any /* Keypair */>,
     private readonly _identityKeypair: any,
-    private readonly _initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>
+    private readonly _invitationDescriptor: InvitationDescriptor
   ) {
     assert(InvitationDescriptorType.INTERACTIVE === this._invitationDescriptor.type);
   }
@@ -77,7 +80,6 @@ export class GreetingInitiator {
     // TODO(dboreham): invitation is actually invitationId.
     const localPeerId = invitation;
     log('Local PeerId:', keyToString(localPeerId));
-
     this._greeterPlugin = new GreetingCommandPlugin(localPeerId, (new Greeter()).createMessageHandler());
 
     log('Connecting');
@@ -106,7 +108,7 @@ export class GreetingInitiator {
     // starting the redemption of the Invitation.
     //
 
-    assert(this._greeterPlugin);
+    assert(this._greeterPlugin); // Neded because typechecker complains that `_greeterPlugin` can possibly be undefined.
     const { info } = await this._greeterPlugin.send(Buffer.from(responderPeerId), createGreetingBeginMessage() as any) as any;
 
     //
@@ -131,7 +133,7 @@ export class GreetingInitiator {
     // The result will include the partyKey and a nonce used when signing the response.
     const { nonce, partyKey } = handshakeResponse;
 
-    const feedKey = await this._initFeed(partyKey);
+    const feedKey = await this._feedInitializer(partyKey);
 
     const credentialMessages = [];
     // TODO(telackey): Restore HALO functionality.
