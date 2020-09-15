@@ -10,9 +10,9 @@ import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
 /**
  * Defines an invitation type.
- * 
+ *
  * Interactive invitation is when both peers are online at the same time.
- * 
+ *
  * Offline is when only a single peer needs to be online at the time.
  */
 export enum InvitationDescriptorType {
