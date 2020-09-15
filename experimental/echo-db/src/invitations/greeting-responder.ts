@@ -5,28 +5,24 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { waitForEvent, Event } from '@dxos/async';
+import { Event } from '@dxos/async';
 import {
-  Greeter,
+  createEnvelopeMessage, Greeter,
   GreetingCommandPlugin,
   Keyring,
-  KeyType,
-  admitsKeys,
-  createEnvelopeMessage
+  KeyType
 } from '@dxos/credentials';
-import { randomBytes, keyToString, keyToBuffer } from '@dxos/crypto';
+import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
 import { SwarmKey } from '@dxos/experimental-echo-protocol';
 
-import { Party, PartyFactory, Pipeline } from '../parties';
+import { Party, Pipeline } from '../parties';
 import { SecretProvider, SecretValidator } from './common';
 import { greetingProtocolProvider } from './greeting-protocol-provider';
-import { InvitationDescriptor } from './invitation-descriptor';
 
 const log = debug('dxos:party-manager:greeting-responder');
 
 /**
  * GreetingResponder transitions through the following states:
- * @type {GreetingState}
  */
 export enum GreetingState {
   INITIALIZED = 'INITIALIZED', // Initial state.
@@ -43,13 +39,13 @@ export enum GreetingState {
  * Upon successful greeting, the peer is admitted into the Party specified in the invitation descriptor.
  */
 export class GreetingResponder {
-  _party: Party;
-  _keyring: Keyring;
-  _networkManager: any;
-  _state: GreetingState;
-  _greeter: Greeter;
-  _greeterPlugin: GreetingCommandPlugin;
-  _swarmKey: SwarmKey;
+  private _state: GreetingState;
+
+  private readonly _greeter: Greeter;
+
+  private readonly _greeterPlugin: GreetingCommandPlugin;
+
+  private readonly _swarmKey: SwarmKey = randomBytes(32);
 
   /**
    * Param: Invitation id
@@ -63,24 +59,15 @@ export class GreetingResponder {
    * @param {NetworkManager} networkManager
    */
   constructor (
-    party: Party,
-    keyring: Keyring,
-    networkManager: any,
-    private writeStream: NodeJS.WritableStream,
-    private pipeline: Pipeline,
-    private identityKeypair: any
+    private readonly _party: Party,
+    private readonly _keyring: Keyring,
+    private readonly _networkManager: any,
+    private readonly _writeStream: NodeJS.WritableStream,
+    private readonly _pipeline: Pipeline,
+    private readonly _identityKeypair: any // TODO(marik-d): Use proper type once @dxos/credentials exports them
   ) {
-    assert(party);
-    assert(keyring);
-    assert(networkManager);
-
-    this._party = party;
-    this._keyring = keyring;
-    this._networkManager = networkManager;
-
-    this._swarmKey = randomBytes(32);
     this._greeter = new Greeter(
-      Buffer.from(party.key),
+      Buffer.from(this._party.key),
       async (messages: any) => this._writeCredentialsToParty(messages),
       async () => this._gatherHints()
     );
@@ -102,7 +89,6 @@ export class GreetingResponder {
    * Listen for connections from invitee peers.
    * @param {function} [onFinish] A function to be called when the invitation is closed (successfully or not).
    * @param {int} [expiration] Date.now()-style timestamp of when this invitation should expire.
-   * @returns {InvitationDescriptor}
    */
   // TODO(telackey): Change to nounVerb form.
   async invite (secretValidator: SecretValidator, secretProvider?: SecretProvider, onFinish?: Function, expiration?: number): Promise<Buffer> {
@@ -225,8 +211,8 @@ export class GreetingResponder {
       //     return matchCount === myAdmits.length;
       //   });
 
-      const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this.identityKeypair, null);
-      this.writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */ });
+      const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._party.key), message, this._identityKeypair, null);
+      this._writeStream.write(envelope as any, () => { /** TODO(marik-d): await callback */ });
 
       // await partyMessageWaiter;
       envelopes.push(envelope);
@@ -253,7 +239,7 @@ export class GreetingResponder {
     //   };
     // });
 
-    const memberFeeds = this.pipeline.memberFeeds.map(publicKey => {
+    const memberFeeds = this._pipeline.memberFeeds.map(publicKey => {
       return {
         publicKey,
         type: KeyType.FEED

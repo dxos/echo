@@ -43,16 +43,13 @@ export class InvitationDescriptor {
     return descriptor;
   }
 
-  type: InvitationDescriptorType;
-
   // TODO(dboreham): Switch back to private member variables since we have encapsulated this class everywhere.
-  swarmKey: Buffer;
-
-  invitation: Buffer;
-
-  identityKey?: Buffer;
-
-  constructor (type: InvitationDescriptorType, swarmKey: SwarmKey, invitation: Buffer, identityKey?: Buffer) {
+  constructor (
+    public readonly type: InvitationDescriptorType,
+    public readonly swarmKey: SwarmKey,
+    public readonly invitation: Buffer,
+    public readonly identityKey?: Buffer
+  ) {
     assert(type);
     assert(Buffer.isBuffer(swarmKey));
     assert(Buffer.isBuffer(invitation));

@@ -7,22 +7,23 @@ import debug from 'debug';
 
 import { waitForEvent } from '@dxos/async';
 import {
-  Greeter, GreetingCommandPlugin, createEnvelopeMessage,
-  createFeedAdmitMessage, createKeyAdmitMessage,
-  createGreetingBeginMessage, createGreetingFinishMessage,
+  createFeedAdmitMessage,
+  createGreetingBeginMessage,
+  createGreetingFinishMessage,
   createGreetingHandshakeMessage,
   createGreetingNotarizeMessage,
+  createKeyAdmitMessage,
+  Greeter,
+  GreetingCommandPlugin,
   Keyring
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { PartyKey } from '@dxos/experimental-echo-protocol';
-import { NetworkManager } from '@dxos/network-manager';
 
-import { PartyFactory, PartyManager } from '../parties';
 import { SecretProvider } from './common';
 import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { GreetingState } from './greeting-responder';
-import { InvitationDescriptorType, InvitationDescriptor } from './invitation-descriptor';
+import { InvitationDescriptor, InvitationDescriptorType } from './invitation-descriptor';
 
 const log = debug('dxos:party-manager:greeting-initiator');
 
@@ -33,34 +34,19 @@ const DEFAULT_TIMEOUT = 30000;
  * authentication check, in order to be admitted to a Party.
  */
 export class GreetingInitiator {
-  // TODO(dboreham): can this be the same type as for the greeter? */
-  _invitationDescriptor: InvitationDescriptor;
-
-  _keyring: Keyring;
-
-  _networkManager: any;
-
-  _greeterPlugin?: GreetingCommandPlugin;
+  private _greeterPlugin?: GreetingCommandPlugin;
 
   // TODO(dboreham): can we use the same states as the responder? */
-  _state: GreetingState;
+  private _state: GreetingState = GreetingState.INITIALIZED;
 
   constructor (
-    invitationDescriptor: InvitationDescriptor,
-    keyring: Keyring,
-    networkManager: any,
-    private identityKeypair: any,
-    private initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>
+    private readonly _invitationDescriptor: InvitationDescriptor,
+    private readonly _keyring: Keyring,
+    private readonly _networkManager: any,
+    private readonly _identityKeypair: any,
+    private readonly _initFeed: (partyKey: PartyKey) => Promise<any /* Keypair */>
   ) {
-    assert(keyring);
-    assert(networkManager);
-    assert(invitationDescriptor);
-    assert(InvitationDescriptorType.INTERACTIVE === invitationDescriptor.type);
-
-    this._invitationDescriptor = invitationDescriptor;
-    this._keyring = keyring;
-    this._networkManager = networkManager;
-    this._state = GreetingState.INITIALIZED;
+    assert(InvitationDescriptorType.INTERACTIVE === this._invitationDescriptor.type);
   }
 
   get state () {
@@ -96,7 +82,7 @@ export class GreetingInitiator {
 
     log('Connecting');
     const peerJoinedWaiter = waitForEvent(this._greeterPlugin, 'peer:joined',
-      (remotePeerId: any) => remotePeerId && responderPeerId.equals(remotePeerId), timeout);
+      (remotePeerId: any) => remotePeerId && Buffer.from(responderPeerId).equals(remotePeerId), timeout);
 
     await this._networkManager.joinProtocolSwarm(swarmKey,
       greetingProtocolProvider(swarmKey, localPeerId, [this._greeterPlugin]));
@@ -121,7 +107,7 @@ export class GreetingInitiator {
     //
 
     assert(this._greeterPlugin);
-    const { info } = await this._greeterPlugin.send(responderPeerId, createGreetingBeginMessage() as any) as any;
+    const { info } = await this._greeterPlugin.send(Buffer.from(responderPeerId), createGreetingBeginMessage() as any) as any;
 
     //
     // The next step is the HANDSHAKE command, which allow us to exchange additional
@@ -134,7 +120,7 @@ export class GreetingInitiator {
     const secret = await secretProvider(info);
     log('Received secret');
 
-    const handshakeResponse = await this._greeterPlugin.send(responderPeerId, createGreetingHandshakeMessage(secret) as any) as any;
+    const handshakeResponse = await this._greeterPlugin.send(Buffer.from(responderPeerId), createGreetingHandshakeMessage(secret) as any) as any;
 
     //
     // The last step is the NOTARIZE command, where we submit our signed credentials to the Greeter.
@@ -145,7 +131,7 @@ export class GreetingInitiator {
     // The result will include the partyKey and a nonce used when signing the response.
     const { nonce, partyKey } = handshakeResponse;
 
-    const feedKey = await this.initFeed(partyKey);
+    const feedKey = await this._initFeed(partyKey);
 
     const credentialMessages = [];
     // TODO(telackey): Restore HALO functionality.
@@ -170,16 +156,16 @@ export class GreetingInitiator {
     // keyAdmitMessage: createKeyAdmitMessage(keyring, Buffer.from(party.key), identityKeyPair),
     // feedAdmitMessage: createFeedAdmitMessage(keyring, Buffer.from(party.key), feedKeyPair, identityKeyPair)
     credentialMessages.push(
-      createKeyAdmitMessage(this._keyring, partyKey, this.identityKeypair, [], nonce)
+      createKeyAdmitMessage(this._keyring, partyKey, this._identityKeypair, [], nonce)
     );
     // And the Feed, signed for by the FEED and by the DEVICE keychain, as above.
     credentialMessages.push(
-      createFeedAdmitMessage(this._keyring, partyKey, feedKey, this.identityKeypair, nonce)
+      createFeedAdmitMessage(this._keyring, partyKey, feedKey, this._identityKeypair, nonce)
     );
     // }
 
     // Send the signed payload to the greeting responder.
-    const notarizeResponse = await this._greeterPlugin.send(responderPeerId,
+    const notarizeResponse = await this._greeterPlugin.send(Buffer.from(responderPeerId),
       createGreetingNotarizeMessage(secret, credentialMessages) as any) as any;
 
     //
@@ -188,7 +174,7 @@ export class GreetingInitiator {
     //
 
     // Tell the Greeter that we are done.
-    await this._greeterPlugin.send(responderPeerId, createGreetingFinishMessage(secret) as any);
+    await this._greeterPlugin.send(Buffer.from(responderPeerId), createGreetingFinishMessage(secret) as any);
 
     await this.disconnect();
 
