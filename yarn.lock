@@ -1147,6 +1147,18 @@
     through2 "^3.0.1"
     wrtc "^0.4.3"
 
+"@dxos/codec-experimental-compiler@^1.0.0":
+  version "1.0.0"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-compiler/-/codec-experimental-compiler-1.0.0.tgz#0943d2516c8a0a498bb0ce34eb53a3fa45b9ec40"
+  integrity sha512-jIb2JV2q8PTapXZDx2eSjF4pyNl5EJC1eOODriu4uiAl3MtQMNq99VQ6/Ng2GwOG2+LwzNXPFt0v6Jns8E82uQ==
+
+"@dxos/codec-experimental-runtime@^1.0.0":
+  version "1.0.0"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-runtime/-/codec-experimental-runtime-1.0.0.tgz#053f58a0e696ce896da0ec5566ee2e978fd2e95a"
+  integrity sha512-14Bd87KCIMOi8pl31YzMYEaZdDRHTSyLzxbw91sD0PmXAzZNUMVKDk8ZXWST+gu5OX3RDULlch2794M55Bu4Lg==
+  dependencies:
+    protobufjs "^6.10.1"
+
 "@dxos/codec-protobuf@^1.1.0-beta.0", "@dxos/codec-protobuf@^1.1.0-beta.10", "@dxos/codec-protobuf@^1.1.0-beta.11", "@dxos/codec-protobuf@^1.1.0-beta.9":
   version "1.1.0-beta.11"
   resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-protobuf/-/codec-protobuf-1.1.0-beta.11.tgz#2325420040ce97a450390e097ae60f525a62b80c"
@@ -14809,7 +14821,7 @@ proto-list@~1.2.1:
   resolved "http://npm.dev.dxos.network:5736/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
   integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
 
-protobufjs@^6.9.0:
+protobufjs@^6.10.1, protobufjs@^6.9.0:
   version "6.10.1"
   resolved "http://npm.dev.dxos.network:5736/protobufjs/-/protobufjs-6.10.1.tgz#e6a484dd8f04b29629e9053344e3970cccf13cd2"
   integrity sha512-pb8kTchL+1Ceg4lFd5XUpK8PdWacbvV5SK2ULH2ebrYtl4GjJmS24m6CKME67jzV53tbJxHlnNOSqQHbTsR9JQ==
@@ -17603,6 +17615,11 @@ typescript@^3.9.3:
   version "3.9.7"
   resolved "http://npm.dev.dxos.network:5736/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
   integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
+
+typescript@^4.0.2:
+  version "4.0.3"
+  resolved "http://npm.dev.dxos.network:5736/typescript/-/typescript-4.0.3.tgz#153bbd468ef07725c1df9c77e8b453f8d36abba5"
+  integrity sha512-tEu6DGxGgRJPb/mVPIZ48e69xCn2yRmCgYmDugAVwmJ6o+0u1RI18eO7E7WBTLYLaEVVOhwQmcdhQHweux/WPg==
 
 uglify-js@^3.1.4:
   version "3.10.4"

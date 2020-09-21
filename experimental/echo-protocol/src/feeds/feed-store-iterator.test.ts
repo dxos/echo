@@ -14,7 +14,8 @@ import { createId, keyToString } from '@dxos/crypto';
 import { createWritable, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
 
-import { protocol, codec, createTestItemMutation } from '../proto';
+import { codec, createTestItemMutation } from '../proto';
+import { schema, TestItemMutation } from '../proto/gen/schema';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { FeedBlock } from '../types';
 import { createOrderedFeedStream, FeedSetProvider } from './feed-store-iterator';
@@ -128,7 +129,7 @@ describe('feed store iterator', () => {
       assert(itemId);
       assert(timeframe);
       assert(mutation);
-      const { key, value: word } = (mutation as protocol.dxos.echo.testing.ITestItemMutation);
+      const { key, value: word } = schema.getCodecForType('dxos.echo.testing.TestItemMutation').decode(mutation);
       const i = parseInt(key!);
       log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
 

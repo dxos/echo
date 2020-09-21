@@ -3,5 +3,5 @@
 //
 
 export * from './codec';
+export * from './gen/schema';
 export * from './messages';
-export * from './proto';

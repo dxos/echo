@@ -5,7 +5,7 @@
 // eslint-disable-next-line camelcase
 import { dxos as halo_dxos } from '@dxos/credentials';
 
-import { protocol } from './proto';
+import { EchoEnvelope, FeedMessage } from './proto/gen/schema';
 
 //
 // Keys
@@ -53,7 +53,7 @@ export const createFeedMeta = (block: IFeedGenericBlock<any>): FeedMeta => ({
   seq: block.seq
 });
 
-export type FeedBlock = IFeedGenericBlock<protocol.dxos.FeedMessage>;
+export type FeedBlock = IFeedGenericBlock<FeedMessage>;
 
 export interface IHaloStream {
   meta: FeedMeta;
@@ -64,7 +64,7 @@ export interface IHaloStream {
 
 export interface IEchoStream {
   meta: FeedMeta;
-  data: protocol.dxos.echo.IEchoEnvelope;
+  data: EchoEnvelope;
 }
 
 //

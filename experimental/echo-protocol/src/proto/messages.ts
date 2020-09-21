@@ -2,16 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
-import { createAny } from '@dxos/experimental-util';
-
 import { ItemID, ItemType } from '../types';
-import { protocol } from './proto';
+import { FeedMessage, schema, Timeframe } from './gen/schema';
 
 //
 // ECHO generators.
 //
 
-export const createItemGenesis = (itemId: ItemID, itemType: ItemType): protocol.dxos.IFeedMessage => ({
+export const createItemGenesis = (itemId: ItemID, itemType: ItemType): FeedMessage => ({
   echo: {
     genesis: {
       itemType
@@ -24,14 +22,14 @@ export const createItemGenesis = (itemId: ItemID, itemType: ItemType): protocol.
 //
 
 export const createTestItemMutation = (
-  itemId: ItemID, key: string, value: string, timeframe?: protocol.dxos.echo.ITimeframe
-): protocol.dxos.IFeedMessage => ({
+  itemId: ItemID, key: string, value: string, timeframe?: Timeframe
+): FeedMessage => ({
   echo: {
     itemId,
     timeframe,
-    mutation: createAny<protocol.dxos.echo.testing.ITestItemMutation>({
+    mutation: schema.getCodecForType('dxos.echo.testing.TestItemMutation').encode({
       key,
       value
-    }, 'dxos.echo.testing.TestItemMutation')
+    })
   }
 });
