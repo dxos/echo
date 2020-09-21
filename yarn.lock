@@ -17186,11 +17186,12 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-tempy@^0.6.0:
-  version "0.6.0"
-  resolved "http://npm.dev.dxos.network:5736/tempy/-/tempy-0.6.0.tgz#65e2c35abc06f1124a97f387b08303442bde59f3"
-  integrity sha512-G13vtMYPT/J8A4X2SjdtBTphZlrp1gKv6hZiOjw14RCWg6GbHuQBGtjlx75xLbYV/wEc0D7G5K4rxKP/cXk8Bw==
+tempy@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/tempy/-/tempy-0.7.0.tgz#8249c76a38bd104733a5491410aa84b508e8b503"
+  integrity sha512-YcFJbGum4B10jqKroKsci0kE5eEzRCMCTCa0ATtRC6zApBboaOnug1igqAbRC9SCvyqTRI9Xt8NYVggQr4k9hw==
   dependencies:
+    del "^5.1.0"
     is-stream "^2.0.0"
     temp-dir "^2.0.0"
     type-fest "^0.16.0"
