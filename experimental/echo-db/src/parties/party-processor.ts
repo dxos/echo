@@ -5,7 +5,7 @@
 import debug from 'debug';
 
 import { Event } from '@dxos/async';
-import { Party as PartyStateMachine, KeyType } from '@dxos/credentials';
+import { Party as PartyStateMachine, KeyType, PartyCredential, getPartyCredentialMessageType } from '@dxos/credentials';
 import { keyToString, keyToBuffer } from '@dxos/crypto';
 import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/experimental-echo-protocol';
 import { jsonReplacer } from '@dxos/experimental-util';
@@ -69,10 +69,25 @@ export class PartyProcessor {
     return this._stateMachine.memberKeys;
   }
 
-  // TODO(burdon): Factor out from feed-store-iterator test.
   get messageSelector (): MessageSelector {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return (candidates: FeedBlock[]) => 0;
+    return (candidates: FeedBlock[]) => {
+      for (let i = 0; i < candidates.length; i++) {
+        const { key: feedKey, data: { halo: haloMessage } } = candidates[i];
+        if (this._stateMachine.isMemberFeed(feedKey)) {
+          // Accept if this Feed is already known to the Party.
+          return i;
+        } else if (!this.feedKeys.length && haloMessage) {
+          // Accept if it is the PartyGenesis message.
+          // TODO(telackey): Add check it is for the right party.
+          const messageType = getPartyCredentialMessageType(haloMessage);
+          if (PartyCredential.Type.PARTY_GENESIS === messageType) {
+            return i;
+          }
+        }
+      }
+      // Else keep waiting.
+      return undefined;
+    };
   }
 
   // TODO(burdon): Rename xxxProvider.
@@ -86,6 +101,9 @@ export class PartyProcessor {
   async addHints (feedKeys: FeedKey[]) {
     log(`addHints ${feedKeys.map(key => keyToString(key))}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
+    // TODO(telackey): Hints were not intended to provide a feed set for PartyGenesis messages. They are about
+    // what feeds and keys to trust immediately after Greeting, before we have had the opportunity to replicate the
+    // credential messages for ourselves.
     await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
   }
 

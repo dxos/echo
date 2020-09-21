@@ -6,12 +6,14 @@ import assert from 'assert';
 import debug from 'debug';
 import pify from 'pify';
 
+import { Event } from '@dxos/async';
 import { Keyring, KeyType, createPartyGenesisMessage, createKeyAdmitMessage, Filter } from '@dxos/credentials';
 import { keyToString, keyToBuffer, randomBytes } from '@dxos/crypto';
 import { FeedKey, PartyKey, createOrderedFeedStream } from '@dxos/experimental-echo-protocol';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream } from '@dxos/experimental-util';
+import { FeedDescriptor } from '@dxos/feed-store';
 import { NetworkManager } from '@dxos/network-manager';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
@@ -50,12 +52,9 @@ export class PartyFactory {
   async createParty (): Promise<Party> {
     assert(!this._options.readOnly);
 
-    // TODO(telackey): Proper identity and keyring management.
     const partyKey = await this._keyring.createKeyRecord({ type: KeyType.PARTY });
-
     const { feedKey } = await this._initWritableFeed(partyKey.publicKey);
-
-    const { party, pipeline } = await this.constructParty(partyKey.publicKey, []);
+    const { party, pipeline } = await this.constructParty(partyKey.publicKey);
 
     // Connect the pipeline.
     await party.open();
@@ -104,10 +103,24 @@ export class PartyFactory {
     //
 
     const partyProcessor = new PartyProcessor(partyKey);
-    await partyProcessor.addHints([feed.key, ...feedKeys]);
+    const feedAdded = new Event<FeedKey>();
+    (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
+      if (descriptor.metadata.partyKey.equals(partyKey)) {
+        feedAdded.emit(descriptor.key);
+      }
+    });
+
+    const partyFeedSetProvider = {
+      get: () => {
+        return this._feedStore.feedStore.getDescriptors()
+          .filter(descriptor => descriptor.metadata.partyKey.equals(partyKey))
+          .map(descriptor => descriptor.key);
+      },
+      added: feedAdded
+    };
 
     const feedReadStream = await createOrderedFeedStream(
-      this._feedStore.feedStore, partyProcessor.getActiveFeedSet(), partyProcessor.messageSelector);
+      this._feedStore.feedStore, partyFeedSetProvider, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
 
     const pipeline = new Pipeline(

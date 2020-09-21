@@ -32,7 +32,7 @@ export type MessageSelector = (candidates: FeedBlock[]) => number | undefined;
  * Creates an ordered stream.
  *
  * @param feedStore
- * @param [feedSelector] - Returns true if the feed should be considered.
+ * @param [feedSetProvider] - Obtain a list of feeds.
  * @param [messageSelector] - Returns the index of the selected message candidate (or undefined).
  * @readonly {NodeJS.ReadableStream} readStream stream.
  */
@@ -251,6 +251,18 @@ class FeedStoreIterator implements AsyncIterable<FeedBlock> {
         const message = this._popSendQueue();
         if (message === undefined) {
           log('Paused...');
+
+          // TODO(telackey): Hack to prevent stalling unless new messages are constantly being written.
+          // A messageSelector may have rejected one of our already queued messages because it wasn't ready
+          // to process it but it is ready now.
+          for (const [_, feed] of this._openFeeds) {
+            if (feed.sendQueue.length !== 0) {
+              setTimeout(() => {
+                this._trigger.wake();
+              }, 50);
+              break;
+            }
+          }
           break;
         }
 
