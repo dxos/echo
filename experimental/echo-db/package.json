@@ -54,7 +54,7 @@
     "@types/stream-buffers": "^3.0.2",
     "crypto-js": "^4.0.0",
     "debug": "^4.1.1",
-    "hypercore": "^7.7.1",
+    "hypercore": "^9.5.4",
     "js-data-structs": "^1.1.2",
     "json-stable-stringify": "^1.0.1",
     "lodash.merge": "^4.6.2",
