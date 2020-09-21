@@ -8,7 +8,7 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { protocol, ItemID, ItemType, IEchoStream, PartyKey } from '@dxos/experimental-echo-protocol';
+import { ItemID, ItemType, IEchoStream, PartyKey, EchoEnvelope } from '@dxos/experimental-echo-protocol';
 import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/experimental-model-factory';
 import { checkType, createTransform } from '@dxos/experimental-util';
 
@@ -77,7 +77,7 @@ export class ItemManager {
 
     // Write Item Genesis block.
     log('Item Genesis:', itemId);
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol.dxos.echo.IEchoEnvelope>({
+    await pify(this._writeStream.write.bind(this._writeStream))(checkType<EchoEnvelope>({
       itemId,
       genesis: {
         itemType,
@@ -98,7 +98,7 @@ export class ItemManager {
    * @param itemType
    * @param readStream - Inbound mutation stream (from multiplexer).
    */
-  async constructItem (itemId: ItemID, modelType: ModelType, itemType: ItemType, readStream: NodeJS.ReadableStream) {
+  async constructItem (itemId: ItemID, modelType: ModelType, itemType: ItemType | undefined, readStream: NodeJS.ReadableStream) {
     assert(this._writeStream);
     assert(itemId);
     assert(modelType);
@@ -126,8 +126,8 @@ export class ItemManager {
     //
     // Convert model-specific outbound mutation to outbound envelope message.
     //
-    const outboundTransform = createTransform<any, protocol.dxos.echo.IEchoEnvelope>(async (mutation) => {
-      const response: protocol.dxos.echo.IEchoEnvelope = {
+    const outboundTransform = createTransform<any, EchoEnvelope>(async (mutation) => {
+      const response: EchoEnvelope = {
         itemId,
         mutation
       };

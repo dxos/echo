@@ -5,7 +5,7 @@
 import assert from 'assert';
 import pify from 'pify';
 
-import { protocol, ItemID, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
+import { EchoEnvelope, ItemID, ItemMutation, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 import { Model } from '@dxos/experimental-model-factory';
 import { checkType } from '@dxos/experimental-util';
 
@@ -33,7 +33,7 @@ export class Item<M extends Model<any>> {
    * @param {Model} model - Data model (provided by `ModelFactory`).
    * @param [writeStream] - Write stream if not read-only.
    */
-  constructor (partyKey: PartyKey, itemId: ItemID, itemType: ItemType, model: M, writeStream?: NodeJS.WritableStream) {
+  constructor (partyKey: PartyKey, itemId: ItemID, itemType: ItemType | undefined, model: M, writeStream?: NodeJS.WritableStream) {
     assert(partyKey);
     assert(itemId);
     assert(model);
@@ -81,7 +81,7 @@ export class Item<M extends Model<any>> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<protocol.dxos.echo.IEchoEnvelope>({
+    await pify(this._writeStream.write.bind(this._writeStream))(checkType<EchoEnvelope>({
       itemId: this._itemId,
       itemMutation: {
         parentId
@@ -89,7 +89,7 @@ export class Item<M extends Model<any>> {
     }));
   }
 
-  _processMutation (mutation: protocol.dxos.echo.ItemMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
+  _processMutation (mutation: ItemMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
     const { parentId } = mutation;
 
     if (this._parent) {

@@ -12,8 +12,8 @@ import { ObjectModel } from '@dxos/experimental-object-model';
 import { createWritableFeedStream, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
+import { codec } from '@dxos/experimental-echo-protocol';
 
-import { codec } from '../codec';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { IdentityManager } from './identity-manager';
 import { PartyFactory } from './party-factory';

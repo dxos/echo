@@ -9,7 +9,7 @@ import pump from 'pump';
 import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
-import { protocol, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage, IEchoStream } from '@dxos/experimental-echo-protocol';
 import { createTransform, jsonReplacer } from '@dxos/experimental-util';
 
 import { PartyProcessor } from './party-processor';
@@ -177,9 +177,9 @@ export class Pipeline {
     // Sets the current timeframe.
     //
     if (this._feedWriteStream) {
-      this._writeStream = createTransform<protocol.dxos.echo.IEchoEnvelope, protocol.dxos.IFeedMessage>(
-        async (message: protocol.dxos.echo.IEchoEnvelope) => {
-          const data: protocol.dxos.IFeedMessage = {
+      this._writeStream = createTransform<EchoEnvelope, FeedMessage>(
+        async (message: EchoEnvelope) => {
+          const data: FeedMessage = {
             echo: merge({
               timeframe: this._partyProcessor.timeframe
             }, message)
@@ -201,8 +201,8 @@ export class Pipeline {
         }
       });
 
-      this._haloWriteStream = createTransform<any, protocol.dxos.IFeedMessage>(
-        async (message: any): Promise<protocol.dxos.IFeedMessage> => ({ halo: message })
+      this._haloWriteStream = createTransform<any, FeedMessage>(
+        async (message: any): Promise<FeedMessage> => ({ halo: message })
       );
 
       pump([
