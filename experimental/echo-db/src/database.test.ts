@@ -5,8 +5,8 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { Keyring, KeyType } from '@dxos/credentials';
-import { humanize } from '@dxos/crypto';
+import { createFeedAdmitMessage, createKeyAdmitMessage, createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
+import { createId, humanize } from '@dxos/crypto';
 import { ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-util';
@@ -18,6 +18,9 @@ import { Database } from './database';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { IdentityManager, Party, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
+import pify from 'pify';
+import { waitForCondition } from '@dxos/async';
+import assert from 'assert'
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
@@ -153,4 +156,60 @@ describe('api tests', () => {
     await updated;
     unsubscribe();
   });
+
+  it('cold start from replicated party', async () => {
+    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+    const feedStoreAdapter = new FeedStoreAdapter(feedStore);
+
+    feedStoreAdapter.open()
+
+    const keyring = new Keyring();
+    const identityKey = await keyring.createKeyRecord({ type: KeyType.IDENTITY });
+    const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
+
+    const writableFeed = await feedStoreAdapter.createWritableFeed(partyKey.publicKey);
+    const writableFeedKey = await keyring.addKeyRecord({
+      publicKey: writableFeed.key,
+      secretKey: writableFeed.secretKey,
+      type: KeyType.FEED
+    })
+    const genesisFeed = await feedStore.openFeed(createId(), { metadata: { partyKey: partyKey.publicKey } } as any);
+    const genesisFeedKey = await keyring.addKeyRecord({
+      publicKey: genesisFeed.key,
+      secretKey: genesisFeed.secretKey, // needed for party genesis message
+      type: KeyType.FEED
+    })
+
+    const writeToGenesisFeed = pify(genesisFeed.append.bind(genesisFeed));
+
+    writeToGenesisFeed({ halo: createPartyGenesisMessage(keyring, partyKey, genesisFeedKey, identityKey) });
+    writeToGenesisFeed({ halo: createFeedAdmitMessage(keyring, partyKey.publicKey, writableFeedKey, [identityKey]) });
+    writeToGenesisFeed({ echo: {
+      itemId: createId(),
+      genesis: {
+        modelType: ObjectModel.meta.type,
+      }
+    }})
+    
+    log('Initializing database')
+    const modelFactory = new ModelFactory()
+      .registerModel(ObjectModel.meta, ObjectModel);
+
+    const identityManager = new IdentityManager(keyring)
+    const partyFactory = new PartyFactory(identityManager.keyring, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()));
+    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory);
+
+    await partyManager.open();
+    await partyManager.createHalo();
+
+    const database = new Database(partyManager);
+
+    await waitForCondition(async () => !!(await database.getParty(partyKey.publicKey)));
+    const party = await database.getParty(partyKey.publicKey);
+    assert(party)
+    log('Initialized party')
+    
+    const items = await party.queryItems()
+    await waitForCondition(() => items.value.length > 0)
+  })
 });
