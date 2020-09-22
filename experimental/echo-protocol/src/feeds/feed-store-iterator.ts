@@ -28,6 +28,7 @@ export interface FeedSetProvider {
 }
 
 export type MessageSelector = (candidates: FeedBlock[]) => number | undefined;
+export type FeedSelector = (descriptor: FeedDescriptor) => boolean;
 
 /**
  * Creates an ordered stream.
@@ -39,7 +40,7 @@ export type MessageSelector = (candidates: FeedBlock[]) => number | undefined;
  */
 export async function createOrderedFeedStream (
   feedStore: FeedStore,
-  feedSetProvider: FeedSetProvider,
+  feedSelector: FeedSelector,
   messageSelector: MessageSelector = () => 0
 ): Promise<AsyncIterable<FeedBlock>> {
   assert(!feedStore.closing && !feedStore.closed);
@@ -48,7 +49,7 @@ export async function createOrderedFeedStream (
     await feedStore.ready();
   }
 
-  const iterator = new FeedStoreIterator(feedSetProvider, messageSelector);
+  const iterator = new FeedStoreIterator(feedSelector, messageSelector);
 
   // TODO(burdon): Only add feeds that belong to party (or use feedSelector).
   const initialDescriptors = feedStore.getDescriptors().filter(descriptor => descriptor.opened);
@@ -84,24 +85,17 @@ class FeedStoreIterator implements AsyncIterable<FeedBlock> {
   private readonly _trigger = new Trigger();
   private readonly _generatorInstance = this._generator();
 
-  private readonly _feedSetProvider: FeedSetProvider;
-  private readonly _messageSelector: MessageSelector;
-
   // Needed for round-robin ordering.
   private _messageCount = 0;
 
   private _destroyed = false;
 
   constructor (
-    feedSetProvider: FeedSetProvider,
-    messageSelector: MessageSelector
+    private readonly _feedSelector: FeedSelector,
+    private readonly _messageSelector: MessageSelector
   ) {
-    assert(feedSetProvider);
-    assert(messageSelector);
-    this._feedSetProvider = feedSetProvider;
-    this._messageSelector = messageSelector;
-
-    feedSetProvider.added.on(() => this._trigger.wake());
+    assert(_feedSelector);
+    assert(_messageSelector);
   }
 
   /**
@@ -137,17 +131,16 @@ class FeedStoreIterator implements AsyncIterable<FeedBlock> {
    */
   // TODO(burdon): Comment.
   private async _reevaluateFeeds () {
-    const feeds = new ComplexSet(keyToString, this._feedSetProvider.get());
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [keyHex, feed] of this._openFeeds) {
-      if (!feeds.has(feed.descriptor.key)) {
+      if (!this._feedSelector(feed.descriptor)) {
         feed.frozen = true;
       }
     }
 
     // Get candidate snapshot since we will be mutating the collection.
     for (const descriptor of Array.from(this._candidateFeeds.values())) {
-      if (feeds.has(descriptor.key)) {
+      if (this._feedSelector(descriptor)) {
         const stream = new Readable({ objectMode: true })
           .wrap(createBatchStream(descriptor.feed, { live: true }));
 

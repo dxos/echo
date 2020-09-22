@@ -73,11 +73,10 @@ export class PartyProcessor {
     return (candidates: FeedBlock[]) => {
       for (let i = 0; i < candidates.length; i++) {
         const { key: feedKey, data: { halo: haloMessage } } = candidates[i];
-        // TODO(telackey): Hints shouldn't be used for ordering. We should probably add an explicit helper function
-        // for such tests, but we can approximate it by checking not only for trust but also for a message.
-        // A fully processed FeedAdmit will have a credential message, while a hint will not.
+        // TODO(telackey): We check memberCredentials because we want to rely only on FeedAdmit messages that have been fully
+        // processed. Hinted keys, while trusted, should not be used for ordering purposes.
         if (this._stateMachine.isMemberFeed(feedKey) && this._stateMachine.memberCredentials.has(keyToString(feedKey))) {
-          // Accept if this Feed is already known to the Party.
+          // Accept if this Feed has already had its admission to the Party procesed.
           return i;
         } else if (!this._stateMachine.memberCredentials.size && haloMessage) {
           // Accept if it is the PartyGenesis message.

@@ -72,12 +72,12 @@ export class PartyFactory {
   /**
    * Constructs a party object and creates a local write feed for it.
    * @param partyKey
-   * @param feeds - set of hints for existing feeds belonging to this party.
+   * @param feedKeyHints - set of hints for existing feeds belonging to this party.
    */
-  async addParty (partyKey: PartyKey, feeds: FeedKey[] = []) {
+  async addParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
     const { feed, feedKey } = await this._initWritableFeed(partyKey);
 
-    const { party } = await this.constructParty(partyKey, [feedKey.publicKey, ...feeds]);
+    const { party } = await this.constructParty(partyKey, feedKeyHints);
     await party.open();
 
     // TODO(marik-d): Refactor so it doesn't return a tuple
@@ -87,9 +87,9 @@ export class PartyFactory {
   /**
    * Constructs a party object from an existing set of feeds.
    * @param partyKey
-   * @param feedKeys
+   * @param feedKeyHints
    */
-  async constructParty (partyKey: PartyKey, feedKeys: FeedKey[] = []) {
+  async constructParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -104,12 +104,13 @@ export class PartyFactory {
     //
 
     const partyProcessor = new PartyProcessor(partyKey);
-    if (feedKeys.length) {
-      await partyProcessor.addHints(feedKeys);
+    if (feedKeyHints.length) {
+      await partyProcessor.addHints(feedKeyHints);
     }
 
-    const feedReadStream = await createOrderedFeedStream(
-      this._feedStore.feedStore, this._storedFeedSet(partyKey), partyProcessor.messageSelector);
+    const feedSelector = (descriptor: FeedDescriptor) => descriptor.metadata.partyKey.equals(partyKey);
+
+    const feedReadStream = await createOrderedFeedStream(this._feedStore.feedStore, feedSelector, partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
 
     const pipeline = new Pipeline(
@@ -202,28 +203,5 @@ export class PartyFactory {
   // either to PartyFactory or as a param to the create/add methods.
   private _getIdentityKey () {
     return this._keyring.findKey(Filter.matches({ type: KeyType.IDENTITY, own: true, trusted: true }));
-  }
-
-  /**
-   * Return a FeedSetProvider informed by the FeedStore's metadata about Party affiliation.
-   * @param partyKey
-   * @private
-   */
-  private _storedFeedSet (partyKey: PartyKey) {
-    const feedAdded = new Event<FeedKey>();
-    (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
-      if (descriptor.metadata.partyKey.equals(partyKey)) {
-        feedAdded.emit(descriptor.key);
-      }
-    });
-
-    return {
-      get: () => {
-        return this._feedStore.feedStore.getDescriptors()
-          .filter(descriptor => descriptor.metadata.partyKey.equals(partyKey))
-          .map(descriptor => descriptor.key);
-      },
-      added: feedAdded
-    };
   }
 }

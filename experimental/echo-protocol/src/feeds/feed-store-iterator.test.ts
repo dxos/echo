@@ -11,13 +11,13 @@ import ram from 'random-access-memory';
 
 import { Event } from '@dxos/async';
 import { createId, keyToString } from '@dxos/crypto';
-import { createWritable, latch } from '@dxos/experimental-util';
+import { ComplexMap, createWritable, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
 
 import { protocol, codec, createTestItemMutation } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
-import { FeedBlock } from '../types';
-import { createOrderedFeedStream, FeedSetProvider } from './feed-store-iterator';
+import { FeedBlock, FeedKey } from '../types';
+import { createOrderedFeedStream, FeedSelector, FeedSetProvider } from './feed-store-iterator';
 
 const chance = new Chance(999);
 
@@ -72,17 +72,14 @@ describe('feed store iterator', () => {
       return next[0]?.i;
     };
 
-    const feedSetProvider: FeedSetProvider = {
-      get: () => Array.from(feeds.keys()) as any,
-      added: new Event()
-    };
-    const readStream = await createOrderedFeedStream(feedStore, feedSetProvider, messageSelector);
+    const feedSelector: FeedSelector = descriptor => feeds.has(descriptor.key);
+    const readStream = await createOrderedFeedStream(feedStore, feedSelector, messageSelector);
 
     //
     // Create feeds.
     //
 
-    const feeds = new Map<string, hypercore.Feed>();
+    const feeds = new ComplexMap<FeedKey, hypercore.Feed>(keyToString);
     for await (const i of Array.from({ length: config.numFeeds }, (_, i) => i + 1)) {
       const feed = await feedStore.openFeed(`feed-${i}`);
       feeds.set(feed.key, feed);
