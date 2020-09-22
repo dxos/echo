@@ -208,7 +208,7 @@ export class PartyFactory {
    * @param partyKey
    * @private
    */
-  private _storedFeedSet(partyKey: PartyKey) {
+  private _storedFeedSet (partyKey: PartyKey) {
     const feedAdded = new Event<FeedKey>();
     (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
       if (descriptor.metadata.partyKey.equals(partyKey)) {
