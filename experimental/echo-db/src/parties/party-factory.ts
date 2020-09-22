@@ -60,6 +60,7 @@ export class PartyFactory {
     await party.open();
 
     // TODO(burdon): Call party processor to write genesis, etc.
+    // TODO(marik-d): Wait for this message to be processed first
     pipeline.haloWriteStream!.write(createPartyGenesisMessage(this._keyring, partyKey, feedKey, this._getIdentityKey()));
 
     // Create special properties item.

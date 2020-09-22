@@ -33,7 +33,7 @@ export class ResultSet<T> {
   }
 
   get value (): T[] {
-    return this._value;
+    return this._getter(); // TODO(marik-d): Clean this up or discuss optimization
   }
 
   get first (): T {

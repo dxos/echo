@@ -10,7 +10,7 @@ import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
 import { protocol, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
-import { createTransform, jsonReplacer } from '@dxos/experimental-util';
+import { createReadable, createTransform, jsonReplacer } from '@dxos/experimental-util';
 
 import { PartyProcessor } from './party-processor';
 
@@ -33,7 +33,7 @@ export class Pipeline {
   private readonly _partyProcessor: PartyProcessor;
 
   //
-  private readonly _feedReadStream: NodeJS.ReadableStream;
+  private readonly _feedReadStream: AsyncIterable<FeedBlock>;
 
   //
   private readonly _feedWriteStream?: NodeJS.WritableStream;
@@ -61,7 +61,7 @@ export class Pipeline {
    */
   constructor (
     partyProcessor: PartyProcessor,
-    feedReadStream: NodeJS.ReadableStream,
+    feedReadStream: AsyncIterable<FeedBlock>,
     feedWriteStream?: NodeJS.WritableStream,
     options?: Options
   ) {
@@ -114,61 +114,55 @@ export class Pipeline {
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream?]> {
     const { readLogger, writeLogger } = this._options;
 
-    //
-    // Processes inbound messages (piped from feed store).
-    //
-    this._readStream = createTransform<FeedBlock, IEchoStream>(async (block: FeedBlock) => {
-      try {
-        const { data: message } = block;
+    this._readStream = createReadable();
 
-        //
-        // HALO
-        //
-        if (message.halo) {
-          await this._partyProcessor.processMessage({
-            meta: createFeedMeta(block),
-            data: message.halo
-          });
+    setImmediate(async () => {
+      for await (const block of this._feedReadStream) {
+        if (readLogger) {
+          readLogger.write(block as any);
         }
 
-        // Update timeframe.
-        // NOTE: It is OK to update here even though the message may not have been processed,
-        // since any paused dependent message must be intended for this stream.
-        const { key, seq } = block;
-        this._partyProcessor.updateTimeframe(key, seq);
+        try {
+          const { data: message } = block;
 
-        //
-        // ECHO
-        //
-        if (message.echo) {
-          // Validate messge.
-          const { itemId } = message.echo;
-          if (itemId) {
-            return {
+          //
+          // HALO
+          //
+          if (message.halo) {
+            await this._partyProcessor.processMessage({
               meta: createFeedMeta(block),
-              data: message.echo
-            };
+              data: message.halo
+            });
           }
-        }
 
-        if (!message.halo && !message.echo) {
-          // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
-          log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
-        }
-      } catch (err) {
-        log(`Error in message processing: ${err}`);
-      }
-    });
+          // Update timeframe.
+          // NOTE: It is OK to update here even though the message may not have been processed,
+          // since any paused dependent message must be intended for this stream.
+          const { key, seq } = block;
+          this._partyProcessor.updateTimeframe(key, seq);
 
-    pump([
-      this._feedReadStream,
-      readLogger,
-      this._readStream
-    ].filter(Boolean) as any[], (err: Error | undefined) => {
-      // TODO(burdon): Handle error.
-      error('Inbound pipieline:', err || 'closed');
-      if (err) {
-        this._errors.emit(err);
+          //
+          // ECHO
+          //
+          if (message.echo) {
+            // Validate messge.
+            const { itemId } = message.echo;
+            if (itemId) {
+              assert(this._readStream);
+              this._readStream.push({
+                meta: createFeedMeta(block),
+                data: message.echo
+              });
+            }
+          }
+
+          if (!message.halo && !message.echo) {
+            // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?
+            log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
+          }
+        } catch (err) {
+          log(`Error in message processing: ${err}`);
+        }
       }
     });
 

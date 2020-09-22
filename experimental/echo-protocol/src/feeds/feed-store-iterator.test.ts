@@ -121,28 +121,28 @@ describe('feed store iterator', () => {
     //
     let j = 0;
     const [counter, updateCounter] = latch(config.numMessages);
-    const writeStream = createWritable<FeedBlock>(async message => {
-      assert(message.data?.echo?.mutation);
+    setImmediate(async () => {
+      for await (const message of readStream) {
+        assert(message.data?.echo?.mutation);
 
-      const { key: feedKey, seq, data: { echo: { itemId, timeframe, mutation } } } = message;
-      assert(itemId);
-      assert(timeframe);
-      assert(mutation);
-      const { key, value: word } = (mutation as protocol.dxos.echo.testing.ITestItemMutation);
-      const i = parseInt(key!);
-      log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
+        const { key: feedKey, seq, data: { echo: { itemId, timeframe, mutation } } } = message;
+        assert(itemId);
+        assert(timeframe);
+        assert(mutation);
+        const { key, value: word } = (mutation as protocol.dxos.echo.testing.ITestItemMutation);
+        const i = parseInt(key!);
+        log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
 
-      // Check order.
-      expect(i).toBe(j);
+        // Check order.
+        expect(i).toBe(j);
 
-      // Update timeframe for node.
-      currentTimeframe = spacetime.merge(currentTimeframe, spacetime.createTimeframe([[feedKey, seq]]));
+        // Update timeframe for node.
+        currentTimeframe = spacetime.merge(currentTimeframe, spacetime.createTimeframe([[feedKey, seq]]));
 
-      updateCounter();
-      j++;
+        updateCounter();
+        j++;
+      }
     });
-
-    readStream.pipe(writeStream);
 
     //
     // Tests

@@ -4,6 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import { nextTick } from 'process';
 import { Readable } from 'readable-stream';
 
 import { Event } from '@dxos/async';
@@ -40,7 +41,7 @@ export async function createOrderedFeedStream (
   feedStore: FeedStore,
   feedSetProvider: FeedSetProvider,
   messageSelector: MessageSelector = () => 0
-): Promise<NodeJS.ReadableStream> {
+): Promise<AsyncIterable<FeedBlock>> {
   assert(!feedStore.closing && !feedStore.closed);
   if (!feedStore.opened) {
     await feedStore.open();
@@ -60,17 +61,7 @@ export async function createOrderedFeedStream (
     iterator.addFeedDescriptor(descriptor);
   });
 
-  // Create stream from iterator.
-  // TODO(burdon): What happens to iterator when the stream is closed?
-  // TODO(burdon): Is there a way to avoid setImmediate. Separate function to creast stream?
-  const readStream = createReadable<FeedBlock>();
-  setImmediate(async () => {
-    for await (const message of iterator) {
-      readStream.push(message);
-    }
-  });
-
-  return readStream;
+  return iterator;
 }
 
 /**
@@ -251,18 +242,6 @@ class FeedStoreIterator implements AsyncIterable<FeedBlock> {
         const message = this._popSendQueue();
         if (message === undefined) {
           log('Paused...');
-
-          // TODO(telackey): Hack to prevent stalling unless new messages are constantly being written.
-          // A messageSelector may have rejected one of our already queued messages because it wasn't ready
-          // to process it but it is ready now.
-          for (const [_, feed] of this._openFeeds) {
-            if (feed.sendQueue.length !== 0) {
-              setTimeout(() => {
-                this._trigger.wake();
-              }, 50);
-              break;
-            }
-          }
           break;
         }
 
