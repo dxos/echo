@@ -103,29 +103,12 @@ export class PartyFactory {
     //
 
     const partyProcessor = new PartyProcessor(partyKey);
-
-    const feedAdded = new Event<FeedKey>();
-    (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
-      if (descriptor.metadata.partyKey.equals(partyKey)) {
-        feedAdded.emit(descriptor.key);
-      }
-    });
-
-    const partyFeedSetProvider = {
-      get: () => {
-        return this._feedStore.feedStore.getDescriptors()
-          .filter(descriptor => descriptor.metadata.partyKey.equals(partyKey))
-          .map(descriptor => descriptor.key);
-      },
-      added: feedAdded
-    };
-
     if (feedKeys.length) {
       await partyProcessor.addHints(feedKeys);
     }
 
     const feedReadStream = await createOrderedFeedStream(
-      this._feedStore.feedStore, partyFeedSetProvider, partyProcessor.messageSelector);
+      this._feedStore.feedStore, this._storedFeedSet(partyKey), partyProcessor.messageSelector);
     const feedWriteStream = createWritableFeedStream(feed);
 
     const pipeline = new Pipeline(
@@ -218,5 +201,28 @@ export class PartyFactory {
   // either to PartyFactory or as a param to the create/add methods.
   private _getIdentityKey () {
     return this._keyring.findKey(Filter.matches({ type: KeyType.IDENTITY, own: true, trusted: true }));
+  }
+
+  /**
+   * Return a FeedSetProvider informed by the FeedStore's metadata about Party affiliation.
+   * @param partyKey
+   * @private
+   */
+  private _storedFeedSet(partyKey: PartyKey) {
+    const feedAdded = new Event<FeedKey>();
+    (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
+      if (descriptor.metadata.partyKey.equals(partyKey)) {
+        feedAdded.emit(descriptor.key);
+      }
+    });
+
+    return {
+      get: () => {
+        return this._feedStore.feedStore.getDescriptors()
+          .filter(descriptor => descriptor.metadata.partyKey.equals(partyKey))
+          .map(descriptor => descriptor.key);
+      },
+      added: feedAdded
+    };
   }
 }
