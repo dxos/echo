@@ -103,13 +103,9 @@ test('replication from invitee to creator', async () => {
 
   node2.sendEvent({ command: Command.CREATE_ITEM });
 
-  console.warn('before p2');
   await p2;
-  console.warn('after p2');
   log('node2 OK:', node2.metrics.asObject());
-  console.warn('before p1');
   await p1;
-  console.warn('after p1');
   log('node1 OK:', node1.metrics.asObject());
 
   node1.snapshot();
