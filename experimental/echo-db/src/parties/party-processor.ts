@@ -83,10 +83,10 @@ export class PartyProcessor {
           // Accept this candidate if this Feed has already had its admission processed.
           return i;
         } else if (!this._stateMachine.memberCredentials.size && haloMessage) {
-          // Accept this candidate if it is the PartyGenesis message.
-          // TODO(telackey): Add check that this is for the right Party.
           const messageType = getPartyCredentialMessageType(haloMessage);
+          // TODO(telackey): Add check that this is for the right Party.
           if (PartyCredential.Type.PARTY_GENESIS === messageType) {
+            // Accept this candidate if it is the PartyGenesis message.
             return i;
           }
         }
