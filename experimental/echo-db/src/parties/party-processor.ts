@@ -70,24 +70,28 @@ export class PartyProcessor {
   }
 
   get messageSelector (): MessageSelector {
+    // TODO(telackey): Add KeyAdmit checks.
+    // The MessageSelector makes sure that we read in a trusted order. The first message we wish to process is
+    // the PartyGenesis, which will admit a Feed. As we encounter and process FeedAdmit messages those are added
+    // to the Party's trust, and we begin processing messages from them as well.
     return (candidates: FeedBlock[]) => {
       for (let i = 0; i < candidates.length; i++) {
         const { key: feedKey, data: { halo: haloMessage } } = candidates[i];
-        // TODO(telackey): We check memberCredentials because we want to rely only on FeedAdmit messages that have been fully
-        // processed. Hinted keys, while trusted, should not be used for ordering purposes.
+        // We check `memberCredentials` because we want to rely on FeedAdmit messages, not on hints.
+        // Hinted keys, while trusted, are not useful for determining processing order.
         if (this._stateMachine.isMemberFeed(feedKey) && this._stateMachine.memberCredentials.has(keyToString(feedKey))) {
-          // Accept if this Feed has already had its admission to the Party procesed.
+          // Accept this candidate if this Feed has already had its admission processed.
           return i;
         } else if (!this._stateMachine.memberCredentials.size && haloMessage) {
-          // Accept if it is the PartyGenesis message.
-          // TODO(telackey): Add check it is for the right party.
+          // Accept this candidate if it is the PartyGenesis message.
+          // TODO(telackey): Add check that this is for the right Party.
           const messageType = getPartyCredentialMessageType(haloMessage);
           if (PartyCredential.Type.PARTY_GENESIS === messageType) {
             return i;
           }
         }
       }
-      // Else keep waiting.
+      // Not ready for this message yet.
       return undefined;
     };
   }
