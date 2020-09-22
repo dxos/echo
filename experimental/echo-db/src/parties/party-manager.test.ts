@@ -63,7 +63,7 @@ describe('Party manager', () => {
     await update;
   });
 
-  test.skip('Created via sync', async () => {
+  test('Created via sync', async () => {
     const { feedStore, partyManager } = await setup();
     await partyManager.open();
 
@@ -96,7 +96,7 @@ describe('Party manager', () => {
     await update;
   });
 
-  test.skip('Create from cold start', async () => {
+  test('Create from cold start', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
