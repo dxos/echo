@@ -7,7 +7,7 @@ import { Feed } from 'hypercore';
 
 import { createId } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
-import { FeedStore, FeedDescriptor } from '@dxos/feed-store';
+import { FeedStore } from '@dxos/feed-store';
 
 /**
  * An adapter class to better define the API surface of FeedStore we use.
@@ -46,6 +46,15 @@ export class FeedStoreAdapter {
     return Array.from(new Set(
       this._feedStore.getDescriptors()
         .map(descriptor => descriptor.metadata.partyKey)
+        .filter(Boolean)
+    ).values());
+  }
+
+  queryFeedsByParty (partyKey: PartyKey): FeedKey[] {
+    return Array.from(new Set(
+      this._feedStore.getDescriptors()
+        .filter(descriptor => descriptor.metadata.partyKey.equals(partyKey))
+        .map(descriptor => descriptor.key)
         .filter(Boolean)
     ).values());
   }

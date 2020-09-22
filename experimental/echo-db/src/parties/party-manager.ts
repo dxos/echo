@@ -67,7 +67,8 @@ export class PartyManager {
       // Iterate descriptors and pre-create Party objects.
       for (const partyKey of this._feedStore.getPartyKeys()) {
         if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
-          const { party } = await this._partyFactory.constructParty(partyKey);
+          const feedKeys = this._feedStore.queryFeedsByParty(partyKey);
+          const { party } = await this._partyFactory.constructParty(partyKey, feedKeys);
           // TODO(telackey): Should parties be auto-opened?
           await party.open();
           this._parties.set(party.key, party);
