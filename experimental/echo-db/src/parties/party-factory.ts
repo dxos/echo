@@ -73,10 +73,10 @@ export class PartyFactory {
    * @param partyKey
    * @param feeds - set of hints for existing feeds belonging to this party.
    */
-  async addParty (partyKey: PartyKey, feeds: FeedKey[]) {
+  async addParty (partyKey: PartyKey, feeds: FeedKey[] = []) {
     const { feed, feedKey } = await this._initWritableFeed(partyKey);
 
-    const { party } = await this.constructParty(partyKey, feeds);
+    const { party } = await this.constructParty(partyKey, [feedKey.publicKey, ...feeds]);
     await party.open();
 
     // TODO(marik-d): Refactor so it doesn't return a tuple
@@ -103,9 +103,6 @@ export class PartyFactory {
     //
 
     const partyProcessor = new PartyProcessor(partyKey);
-    if (feedKeys.length) {
-      partyProcessor.addHints(feedKeys);
-    }
 
     const feedAdded = new Event<FeedKey>();
     (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
@@ -122,6 +119,10 @@ export class PartyFactory {
       },
       added: feedAdded
     };
+
+    if (feedKeys.length) {
+      await partyProcessor.addHints(feedKeys);
+    }
 
     const feedReadStream = await createOrderedFeedStream(
       this._feedStore.feedStore, partyFeedSetProvider, partyProcessor.messageSelector);
