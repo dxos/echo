@@ -6,7 +6,7 @@ import debug from 'debug';
 
 import { Event } from '@dxos/async';
 import { Party as PartyStateMachine, KeyType, PartyCredential, getPartyCredentialMessageType } from '@dxos/credentials';
-import { keyToString, keyToBuffer } from '@dxos/crypto';
+import { keyToString } from '@dxos/crypto';
 import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/experimental-echo-protocol';
 import { jsonReplacer } from '@dxos/experimental-util';
 
@@ -73,7 +73,10 @@ export class PartyProcessor {
     return (candidates: FeedBlock[]) => {
       for (let i = 0; i < candidates.length; i++) {
         const { key: feedKey, data: { halo: haloMessage } } = candidates[i];
-        if (this._stateMachine.isMemberFeed(feedKey)) {
+        // TODO(telackey): Hints shouldn't be used for ordering. We should probably add an explicit helper function
+        // for such tests, but we can approximate it by checking not only for trust but also for a message.
+        // A fully processed FeedAdmit will have a credential message, while a hint will not.
+        if (this._stateMachine.isMemberFeed(feedKey) && this._stateMachine.memberCredentials.has(keyToString(feedKey))) {
           // Accept if this Feed is already known to the Party.
           return i;
         } else if (!this.feedKeys.length && haloMessage) {
