@@ -79,7 +79,7 @@ export class PartyProcessor {
         if (this._stateMachine.isMemberFeed(feedKey) && this._stateMachine.memberCredentials.has(keyToString(feedKey))) {
           // Accept if this Feed is already known to the Party.
           return i;
-        } else if (!this.feedKeys.length && haloMessage) {
+        } else if (!this._stateMachine.memberCredentials.size && haloMessage) {
           // Accept if it is the PartyGenesis message.
           // TODO(telackey): Add check it is for the right party.
           const messageType = getPartyCredentialMessageType(haloMessage);
