@@ -103,6 +103,10 @@ export class PartyFactory {
     //
 
     const partyProcessor = new PartyProcessor(partyKey);
+    if (feedKeys.length) {
+      partyProcessor.addHints(feedKeys);
+    }
+
     const feedAdded = new Event<FeedKey>();
     (this._feedStore.feedStore as any).on('feed', (_: never, descriptor: FeedDescriptor) => {
       if (descriptor.metadata.partyKey.equals(partyKey)) {
@@ -189,7 +193,7 @@ export class PartyFactory {
     // 1. Create a feed for the HALO.
     // TODO(telackey): Just create the FeedKey and then let other code create the feed with the correct key.
     const { feedKey } = await this._initWritableFeed(identityKey.publicKey);
-    const { party: halo, pipeline } = await this.constructParty(identityKey.publicKey, [feedKey.publicKey]);
+    const { party: halo, pipeline } = await this.constructParty(identityKey.publicKey);
     // Connect the pipeline.
     await halo.open();
 
