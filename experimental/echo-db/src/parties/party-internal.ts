@@ -29,7 +29,7 @@ export interface PartyFilter {}
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
  * of mutations.
  */
-export class PartyImplementation {
+export class PartyInternal {
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
   private _unsubscribePipelineErrors: (() => void) | undefined;

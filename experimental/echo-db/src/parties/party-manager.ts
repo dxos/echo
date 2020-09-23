@@ -15,7 +15,7 @@ import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { IdentityManager } from './identity-manager';
 import { PartyFactory } from './party-factory';
-import { PartyImplementation } from './party-implementation';
+import { PartyInternal } from './party-internal';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -27,13 +27,13 @@ export class PartyManager {
   private _opened = false;
 
   // Map of parties by party key.
-  private readonly _parties = new ComplexMap<PublicKey, PartyImplementation>(keyToString);
+  private readonly _parties = new ComplexMap<PublicKey, PartyInternal>(keyToString);
 
   private readonly _lock = new Lock();
 
   // External event listener.
   // TODO(burdon): Wrap with subscribe.
-  readonly update = new Event<PartyImplementation>();
+  readonly update = new Event<PartyInternal>();
 
   constructor (
     private readonly _identityManager: IdentityManager,
@@ -41,7 +41,7 @@ export class PartyManager {
     private readonly _partyFactory: PartyFactory
   ) { }
 
-  get parties (): PartyImplementation[] {
+  get parties (): PartyInternal[] {
     return Array.from(this._parties.values());
   }
 
@@ -89,7 +89,7 @@ export class PartyManager {
   /**
    * Creates a new party, writing its genesis block to the stream.
    */
-  async createHalo (): Promise<PartyImplementation> {
+  async createHalo (): Promise<PartyInternal> {
     assert(this._opened, 'PartyManager is not open.');
     assert(!this._identityManager.halo, 'HALO already exists.');
 
@@ -103,7 +103,7 @@ export class PartyManager {
   /**
    * Creates a new party, writing its genesis block to the stream.
    */
-  async createParty (): Promise<PartyImplementation> {
+  async createParty (): Promise<PartyInternal> {
     assert(this._opened, 'PartyManager is not open.');
     assert(this._identityManager.initialized, 'IdentityManager has not been initialized with the HALO.');
 

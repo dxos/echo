@@ -9,7 +9,7 @@ import { Model, ModelConstructor } from '@dxos/experimental-model-factory';
 import { InvitationDetails } from '../invitations';
 import { Item, ItemFilter } from '../items';
 import { ResultSet } from '../result';
-import { PartyImplementation } from './party-implementation';
+import { PartyInternal } from './party-internal';
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -17,7 +17,7 @@ import { PartyImplementation } from './party-implementation';
  */
 export class Party {
   constructor (
-    private readonly _impl: PartyImplementation
+    private readonly _impl: PartyInternal
   ) {}
 
   toString () {

@@ -3,7 +3,7 @@
 //
 
 export * from './identity-manager';
-export * from './party-implementation';
+export * from './party-internal';
 export * from './party-manager';
 export * from './party-processor';
 export * from './pipeline';
