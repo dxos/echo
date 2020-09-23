@@ -38,17 +38,16 @@ export type FeedSelector = (descriptor: FeedDescriptor) => boolean;
  * @param [messageSelector] - Returns the index of the selected message candidate (or undefined).
  * @readonly {NodeJS.ReadableStream} readStream stream.
  */
-export async function createOrderedFeedStream (
+export async function createIterator (
   feedStore: FeedStore,
   feedSelector: FeedSelector = () => true,
   messageSelector: MessageSelector = () => 0
-): Promise<AsyncIterable<FeedBlock>> {
+): Promise<FeedStoreIterator> {
   assert(!feedStore.closing && !feedStore.closed);
   if (!feedStore.opened) {
     await feedStore.open();
     await feedStore.ready();
   }
-
   const iterator = new FeedStoreIterator(feedSelector, messageSelector);
 
   // TODO(burdon): Only add feeds that belong to party (or use feedSelector).
@@ -70,7 +69,8 @@ export async function createOrderedFeedStream (
  * data is read. This allows the consumer (e.g., PartyProcessor) to control the order in which data is generated.
  * (Streams would not be suitable since NodeJS streams have intenal buffer that the system tends to eagerly fill.)
  */
-class FeedStoreIterator implements AsyncIterable<FeedBlock> {
+// TODO(marik-d): Add stop method.
+export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
   /** Curent set of active feeds. */
   private readonly _candidateFeeds = new Set<FeedDescriptor>();
 

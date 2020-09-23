@@ -157,10 +157,9 @@ describe('api tests', () => {
     unsubscribe();
   });
 
-  it('cold start from replicated party', async () => {
+  test('cold start from replicated party', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const feedStoreAdapter = new FeedStoreAdapter(feedStore);
-
     await feedStoreAdapter.open();
 
     const keyring = new Keyring();
@@ -182,9 +181,9 @@ describe('api tests', () => {
 
     const writeToGenesisFeed = pify(genesisFeed.append.bind(genesisFeed));
 
-    writeToGenesisFeed({ halo: createPartyGenesisMessage(keyring, partyKey, genesisFeedKey, identityKey) });
-    writeToGenesisFeed({ halo: createFeedAdmitMessage(keyring, partyKey.publicKey, writableFeedKey, [identityKey]) });
-    writeToGenesisFeed({
+    await writeToGenesisFeed({ halo: createPartyGenesisMessage(keyring, partyKey, genesisFeedKey, identityKey) });
+    await writeToGenesisFeed({ halo: createFeedAdmitMessage(keyring, partyKey.publicKey, writableFeedKey, [identityKey]) });
+    await writeToGenesisFeed({
       echo: {
         itemId: createId(),
         genesis: {
@@ -203,10 +202,11 @@ describe('api tests', () => {
 
     await partyManager.open();
     await partyManager.createHalo();
+    expect(identityManager.halo).toBeTruthy();
 
     const database = new Database(partyManager);
 
-    await waitForCondition(async () => !!(await database.getParty(partyKey.publicKey)));
+    await waitForCondition(async () => (await database.getParty(partyKey.publicKey)) !== undefined);
     const party = await database.getParty(partyKey.publicKey);
     assert(party);
     log('Initialized party');

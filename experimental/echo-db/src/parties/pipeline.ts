@@ -9,7 +9,7 @@ import pump from 'pump';
 import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
-import { protocol, createFeedMeta, FeedBlock, IEchoStream } from '@dxos/experimental-echo-protocol';
+import { protocol, createFeedMeta, FeedBlock } from '@dxos/experimental-echo-protocol';
 import { createReadable, createTransform, jsonReplacer } from '@dxos/experimental-util';
 
 import { PartyProcessor } from './party-processor';
@@ -32,25 +32,33 @@ export class Pipeline {
   // TODO(burdon): Split (e.g., pass in Timeline and stream)?
   private readonly _partyProcessor: PartyProcessor;
 
-  //
-  private readonly _feedReadStream: AsyncIterable<FeedBlock>;
+  /**
+   * Iterator for messages comming from feeds.
+   */
+  private readonly _messageIterator: AsyncIterable<FeedBlock>;
 
-  //
+  /**
+   * Stream for writing messages to this peer's writable feed.
+   */
   private readonly _feedWriteStream?: NodeJS.WritableStream;
 
-  //
   private readonly _options: Options;
 
-  // TODO(burdon): Rename streams.
-  // Messages to be consumed from the pipeline (e.g., mutations to model).
-  private _readStream: Readable | undefined;
+  /**
+   * Messages to be consumed from the pipeline (e.g., mutations to model).
+   */
+  private _inboundEchoStream: Readable | undefined;
 
-  // Messages to write into pipeline (e.g., mutations from model).
-  private _writeStream: Writable | undefined;
+  /**
+   * Messages to write into pipeline (e.g., mutations from model).
+   */
+  private _outboundEchoStream: Writable | undefined;
 
   // TODO(burdon): Pair with PartyProcessor.
-  // Halo messages to write into pipeline.
-  private _haloWriteStream: Writable | undefined;
+  /**
+   * Halo message stream to write into pipeline.
+   */
+  private _outboundHaloStream: Writable | undefined;
 
   /**
    * @param {PartyProcessor} partyProcessor - Processes HALO messages to update party state.
@@ -68,7 +76,7 @@ export class Pipeline {
     assert(partyProcessor);
     assert(feedReadStream);
     this._partyProcessor = partyProcessor;
-    this._feedReadStream = feedReadStream;
+    this._messageIterator = feedReadStream;
     this._feedWriteStream = feedWriteStream;
     this._options = options || {};
   }
@@ -78,23 +86,23 @@ export class Pipeline {
   }
 
   get isOpen () {
-    return this._readStream !== undefined;
+    return this._inboundEchoStream !== undefined;
   }
 
   get readOnly () {
-    return this._writeStream === undefined;
+    return this._outboundEchoStream === undefined;
   }
 
-  get readStream () {
-    return this._readStream;
+  get inboundEchoStream () {
+    return this._inboundEchoStream;
   }
 
-  get writeStream () {
-    return this._writeStream;
+  get outboundEchoStream () {
+    return this._outboundEchoStream;
   }
 
-  get haloWriteStream () {
-    return this._haloWriteStream;
+  get outboundHaloStream () {
+    return this._outboundHaloStream;
   }
 
   get errors () {
@@ -114,10 +122,10 @@ export class Pipeline {
   async open (): Promise<[NodeJS.ReadableStream, NodeJS.WritableStream?]> {
     const { readLogger, writeLogger } = this._options;
 
-    this._readStream = createReadable();
+    this._inboundEchoStream = createReadable();
 
     setImmediate(async () => {
-      for await (const block of this._feedReadStream) {
+      for await (const block of this._messageIterator) {
         if (readLogger) {
           readLogger.write(block as any);
         }
@@ -148,8 +156,8 @@ export class Pipeline {
             // Validate messge.
             const { itemId } = message.echo;
             if (itemId) {
-              assert(this._readStream);
-              this._readStream.push({
+              assert(this._inboundEchoStream);
+              this._inboundEchoStream.push({
                 meta: createFeedMeta(block),
                 data: message.echo
               });
@@ -171,7 +179,7 @@ export class Pipeline {
     // Sets the current timeframe.
     //
     if (this._feedWriteStream) {
-      this._writeStream = createTransform<protocol.dxos.echo.IEchoEnvelope, protocol.dxos.IFeedMessage>(
+      this._outboundEchoStream = createTransform<protocol.dxos.echo.IEchoEnvelope, protocol.dxos.IFeedMessage>(
         async (message: protocol.dxos.echo.IEchoEnvelope) => {
           const data: protocol.dxos.IFeedMessage = {
             echo: merge({
@@ -184,7 +192,7 @@ export class Pipeline {
       );
 
       pump([
-        this._writeStream,
+        this._outboundEchoStream,
         writeLogger,
         this._feedWriteStream
       ].filter(Boolean) as any[], (err: Error | undefined) => {
@@ -195,12 +203,12 @@ export class Pipeline {
         }
       });
 
-      this._haloWriteStream = createTransform<any, protocol.dxos.IFeedMessage>(
+      this._outboundHaloStream = createTransform<any, protocol.dxos.IFeedMessage>(
         async (message: any): Promise<protocol.dxos.IFeedMessage> => ({ halo: message })
       );
 
       pump([
-        this._haloWriteStream,
+        this._outboundHaloStream,
         writeLogger,
         this._feedWriteStream
       ].filter(Boolean) as any[], (err: Error | undefined) => {
@@ -213,8 +221,8 @@ export class Pipeline {
     }
 
     return [
-      this._readStream,
-      this._writeStream
+      this._inboundEchoStream,
+      this._outboundEchoStream
     ];
   }
 
@@ -223,14 +231,16 @@ export class Pipeline {
    */
   // TODO(burdon): Create test that all streams are closed cleanly.
   async close () {
-    if (this._readStream) {
-      this._readStream.destroy();
-      this._readStream = undefined;
+    // TODO(marik-d): Add functinality to stop FeedStoreIterator.
+
+    if (this._inboundEchoStream) {
+      this._inboundEchoStream.destroy();
+      this._inboundEchoStream = undefined;
     }
 
-    if (this._writeStream) {
-      this._writeStream.destroy();
-      this._writeStream = undefined;
+    if (this._outboundEchoStream) {
+      this._outboundEchoStream.destroy();
+      this._outboundEchoStream = undefined;
     }
   }
 }

@@ -17,7 +17,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { protocol, codec, createTestItemMutation } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
-import { createOrderedFeedStream, FeedSelector, FeedSetProvider } from './feed-store-iterator';
+import { createIterator, FeedSelector, FeedSetProvider } from './feed-store-iterator';
 
 const chance = new Chance(999);
 
@@ -73,7 +73,7 @@ describe('feed store iterator', () => {
     };
 
     const feedSelector: FeedSelector = descriptor => feeds.has(descriptor.key);
-    const readStream = await createOrderedFeedStream(feedStore, feedSelector, messageSelector);
+    const readStream = await createIterator(feedStore, feedSelector, messageSelector);
 
     //
     // Create feeds.
@@ -126,6 +126,7 @@ describe('feed store iterator', () => {
         assert(itemId);
         assert(timeframe);
         assert(mutation);
+        
         const { key, value: word } = (mutation as protocol.dxos.echo.testing.ITestItemMutation);
         const i = parseInt(key!);
         log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));

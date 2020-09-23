@@ -102,13 +102,14 @@ export class PartyProcessor {
         } else if (genesisRequired && halo) {
           const messageType = getPartyCredentialMessageType(halo);
           // TODO(telackey): Add check that this is for the right Party.
-          if (PartyCredential.Type.PARTY_GENESIS === messageType) {
+          if (messageType === PartyCredential.Type.PARTY_GENESIS) {
             return i;
           }
         }
       }
 
       // Not ready for this message yet.
+
       return undefined;
     };
   }
@@ -121,7 +122,7 @@ export class PartyProcessor {
     };
   }
 
-  async addHints (feedKeys: FeedKey[]) {
+  async takeHints (feedKeys: FeedKey[]) {
     log(`addHints ${feedKeys.map(key => keyToString(key))}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
     // TODO(telackey): Hints were not intended to provide a feed set for PartyGenesis messages. They are about
