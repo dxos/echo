@@ -99,7 +99,7 @@ export class PartyProcessor {
                   `gap: ${spacetime.stringify(gaps)}`);
             }
           }
-        } else if (genesisRequired) {
+        } else if (genesisRequired && halo) {
           const messageType = getPartyCredentialMessageType(halo);
           // TODO(telackey): Add check that this is for the right Party.
           if (PartyCredential.Type.PARTY_GENESIS === messageType) {
