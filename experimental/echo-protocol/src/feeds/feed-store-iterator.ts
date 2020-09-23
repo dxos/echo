@@ -34,13 +34,13 @@ export type FeedSelector = (descriptor: FeedDescriptor) => boolean;
  * Creates an ordered stream.
  *
  * @param feedStore
- * @param [feedSetProvider] - Obtain a list of feeds.
+ * @param [feedSelector] - Filter for desired feeds.
  * @param [messageSelector] - Returns the index of the selected message candidate (or undefined).
  * @readonly {NodeJS.ReadableStream} readStream stream.
  */
 export async function createOrderedFeedStream (
   feedStore: FeedStore,
-  feedSelector: FeedSelector,
+  feedSelector: FeedSelector = () => true,
   messageSelector: MessageSelector = () => 0
 ): Promise<AsyncIterable<FeedBlock>> {
   assert(!feedStore.closing && !feedStore.closed);

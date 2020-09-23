@@ -76,21 +76,38 @@ export class PartyProcessor {
     // to the Party's trust, and we begin processing messages from them as well.
     return (candidates: FeedBlock[]) => {
       for (let i = 0; i < candidates.length; i++) {
-        const { key: feedKey, data: { halo: haloMessage } } = candidates[i];
-        // We check `memberCredentials` because we want to rely on FeedAdmit messages, not on hints.
-        // Hinted keys, while trusted, are not useful for determining processing order.
-        if (this._stateMachine.isMemberFeed(feedKey) && this._stateMachine.memberCredentials.has(keyToString(feedKey))) {
-          // Accept this candidate if this Feed has already had its admission processed.
+        const { key: feedKey, data: { halo, echo } } = candidates[i];
+
+        const feedAdmitted = this._stateMachine.memberCredentials.has(keyToString(feedKey));
+        const genesisRequired = !this._stateMachine.memberCredentials.size;
+
+        if (feedAdmitted && halo) {
+          // Accept this candidate if this Feed has already been admitted to the Party.
           return i;
-        } else if (!this._stateMachine.memberCredentials.size && haloMessage) {
-          const messageType = getPartyCredentialMessageType(haloMessage);
+        } else if (feedAdmitted && echo) {
+          // ItemZero has no timeframe.
+          // TODO(telackey): Is this a bug?
+          if (echo.genesis && !Object.keys({}).length) {
+            return i;
+          } else {
+            const gaps = spacetime.dependencies(echo.timeframe, this._timeframe);
+            if (gaps.frames.length === 0) {
+              return i;
+            } else {
+              log(`this._timeframe: ${spacetime.stringify(this._timeframe)}; ` +
+                  `echoMsg: ${spacetime.stringify(echo.timeframe)}; ` +
+                  `gap: ${spacetime.stringify(gaps)}`);
+            }
+          }
+        } else if (genesisRequired && halo) {
+          const messageType = getPartyCredentialMessageType(halo);
           // TODO(telackey): Add check that this is for the right Party.
           if (PartyCredential.Type.PARTY_GENESIS === messageType) {
-            // Accept this candidate if it is the PartyGenesis message.
             return i;
           }
         }
       }
+
       // Not ready for this message yet.
       return undefined;
     };
