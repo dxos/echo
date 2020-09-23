@@ -134,7 +134,7 @@ export class PartyManager {
     return this._lock.executeSynchronized(async () => {
       log(`Adding party partyKey=${keyToString(partyKey)} feeds=${feeds.map(keyToString)}`);
       assert(!this._parties.has(partyKey));
-      const { party } = await this._partyFactory.addParty(partyKey, feeds);
+      const party = await this._partyFactory.addParty(partyKey, feeds);
 
       if (this._parties.has(party.key)) {
         await party.close();

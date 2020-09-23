@@ -81,7 +81,7 @@ export class PartyFactory {
     await party.open();
 
     // TODO(marik-d): Refactor so it doesn't return a tuple
-    return { party, feedKey };
+    return party;
   }
 
   /**
@@ -145,7 +145,7 @@ export class PartyFactory {
 
     await initiator.connect();
     const { partyKey, hints } = await initiator.redeemInvitation(secretProvider);
-    const { party } = await this.addParty(partyKey, hints);
+    const party = await this.addParty(partyKey, hints);
     await initiator.destroy();
     return party;
   }
