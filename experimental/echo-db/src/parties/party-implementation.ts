@@ -5,7 +5,6 @@
 import assert from 'assert';
 
 import { KeyRecord, Keyring } from '@dxos/credentials';
-import { humanize } from '@dxos/crypto';
 import { ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
 import { Model, ModelConstructor, ModelFactory } from '@dxos/experimental-model-factory';
 import { ObjectModel } from '@dxos/experimental-object-model';

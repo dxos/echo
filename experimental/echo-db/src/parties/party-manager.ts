@@ -14,8 +14,8 @@ import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { IdentityManager } from './identity-manager';
-import { PartyImplementation } from './party-implementation';
 import { PartyFactory } from './party-factory';
+import { PartyImplementation } from './party-implementation';
 
 const log = debug('dxos:echo:party-manager');
 

@@ -1,18 +1,23 @@
-import { humanize } from "@dxos/crypto";
-import { ItemType, PartyKey } from "@dxos/experimental-echo-protocol";
-import { Model, ModelConstructor } from "@dxos/experimental-model-factory";
-import { InvitationDetails } from "../invitations";
-import { Item, ItemFilter } from "../items";
-import { ResultSet } from "../result";
-import { PartyImplementation } from "./party-implementation";
+//
+// Copyright 2020 DXOS.org
+//
+
+import { humanize } from '@dxos/crypto';
+import { ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
+import { Model, ModelConstructor } from '@dxos/experimental-model-factory';
+
+import { InvitationDetails } from '../invitations';
+import { Item, ItemFilter } from '../items';
+import { ResultSet } from '../result';
+import { PartyImplementation } from './party-implementation';
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
  * of mutations.
  */
 export class Party {
-  constructor(
-    private readonly _impl: PartyImplementation,
+  constructor (
+    private readonly _impl: PartyImplementation
   ) {}
 
   toString () {
@@ -39,7 +44,7 @@ export class Party {
    * Closes the pipeline and streams.
    */
   async close () {
-    await this._impl.close();    
+    await this._impl.close();
 
     return this;
   }
