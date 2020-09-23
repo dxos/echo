@@ -78,11 +78,11 @@ export class FeedStoreAdapter {
     return this._feedStore.openFeed(createId(), { key: Buffer.from(feedKey), metadata: { partyKey } } as any);
   }
 
-  createIterator(partyKey: PartyKey, messageSelector: MessageSelector): Promise<FeedStoreIterator> {
+  createIterator (partyKey: PartyKey, messageSelector: MessageSelector): Promise<FeedStoreIterator> {
     return createIterator(
       this._feedStore,
       descriptor => descriptor.metadata.partyKey.equals(partyKey),
-      messageSelector,
+      messageSelector
     );
   }
 }

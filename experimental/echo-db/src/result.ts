@@ -34,7 +34,7 @@ export class ResultSet<T> {
 
   get value (): T[] {
     // TODO(marik-d): Clean this up or discuss optimization. The behavior of only updating the value on subscribe is very unintuitive.
-    return this._getter(); 
+    return this._getter();
   }
 
   get first (): T {

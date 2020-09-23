@@ -126,7 +126,7 @@ describe('feed store iterator', () => {
         assert(itemId);
         assert(timeframe);
         assert(mutation);
-        
+
         const { key, value: word } = (mutation as protocol.dxos.echo.testing.ITestItemMutation);
         const i = parseInt(key!);
         log('Read:', j, { i, word }, i === j, spacetime.stringify(timeframe));
