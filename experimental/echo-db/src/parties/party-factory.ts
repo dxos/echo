@@ -16,7 +16,7 @@ import { NetworkManager } from '@dxos/network-manager';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';
 import { ReplicationAdapter } from '../replication';
-import { Party, PARTY_ITEM_TYPE } from './party';
+import { PartyImplementation, PARTY_ITEM_TYPE } from './party-implementation';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
@@ -46,7 +46,7 @@ export class PartyFactory {
   /**
    * Create a new party with a new feed for it. Writes a party genensis message to this feed.
    */
-  async createParty (): Promise<Party> {
+  async createParty (): Promise<PartyImplementation> {
     assert(!this._options.readOnly);
 
     const partyKey = await this._keyring.createKeyRecord({ type: KeyType.PARTY });
@@ -125,13 +125,13 @@ export class PartyFactory {
     //
     // Create the party.
     //
-    const party = new Party(
+    const party = new PartyImplementation(
       this._modelFactory, partyProcessor, pipeline, this._keyring, this._getIdentityKey(), this._networkManager, replicator);
     log(`Constructed: ${party}`);
     return { party, pipeline };
   }
 
-  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<PartyImplementation> {
     const initiator = new GreetingInitiator(
       this._networkManager,
       this._keyring,
@@ -166,7 +166,7 @@ export class PartyFactory {
   }
 
   // TODO(telackey): Combine with createParty?
-  async createHalo (): Promise<Party> {
+  async createHalo (): Promise<PartyImplementation> {
     const identityKey = this._keyring.findKey(Keyring.signingFilter({ type: KeyType.IDENTITY }));
     assert(identityKey, 'Identity key required.');
     let deviceKey = this._keyring.findKey(Keyring.signingFilter({ type: KeyType.DEVICE }));
