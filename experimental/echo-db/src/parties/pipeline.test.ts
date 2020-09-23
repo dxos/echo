@@ -5,7 +5,6 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { Event } from '@dxos/async';
 import { createId, createKeyPair } from '@dxos/crypto';
 import { codec, createIterator, IEchoStream, FeedSelector } from '@dxos/experimental-echo-protocol';
 import { createSetPropertyMutation } from '@dxos/experimental-model-factory';

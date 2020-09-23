@@ -4,15 +4,14 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import { nextTick } from 'process';
 import { Readable } from 'readable-stream';
 
 import { Event } from '@dxos/async';
 import { keyToString } from '@dxos/crypto';
-import { createReadable, Trigger, ComplexSet } from '@dxos/experimental-util';
-import { FeedStore, FeedDescriptor, createBatchStream } from '@dxos/feed-store';
+import { Trigger } from '@dxos/experimental-util';
+import { createBatchStream, FeedDescriptor, FeedStore } from '@dxos/feed-store';
 
-import { FeedKey, FeedBlock } from '../types';
+import { FeedBlock, FeedKey } from '../types';
 
 const log = debug('dxos:echo:feed-store-iterator');
 

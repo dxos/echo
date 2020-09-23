@@ -9,15 +9,14 @@ import hypercore from 'hypercore';
 import pify from 'pify';
 import ram from 'random-access-memory';
 
-import { Event } from '@dxos/async';
 import { createId, keyToString } from '@dxos/crypto';
-import { ComplexMap, createWritable, latch } from '@dxos/experimental-util';
+import { ComplexMap, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
 
-import { protocol, codec, createTestItemMutation } from '../proto';
+import { codec, createTestItemMutation, protocol } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
-import { createIterator, FeedSelector, FeedSetProvider } from './feed-store-iterator';
+import { createIterator, FeedSelector } from './feed-store-iterator';
 
 const chance = new Chance(999);
 
