@@ -4,7 +4,6 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import pify from 'pify';
 
 import { Keyring, KeyType, createPartyGenesisMessage, createKeyAdmitMessage, Filter } from '@dxos/credentials';
 import { keyToString, randomBytes } from '@dxos/crypto';
@@ -74,7 +73,7 @@ export class PartyFactory {
    */
   // TODO(marik-d): Expand this API to accept any type of hint.
   async addParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
-    const { feed, feedKey } = await this._initWritableFeed(partyKey);
+    const { feedKey } = await this._initWritableFeed(partyKey);
 
     // TODO(telackey): We shouldn't have to add our key here, it should be in the hints, but our hint
     // mechanism is broken by not waiting on the messages to be processed before returning.

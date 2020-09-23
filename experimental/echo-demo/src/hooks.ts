@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { createContext, useEffect, useContext, useState, useRef } from 'react';
+import { createContext, useEffect, useContext, useState } from 'react';
 
 import { humanize, keyToString } from '@dxos/crypto';
 import { truncateString } from '@dxos/debug';
@@ -146,7 +146,7 @@ export const useGraphData = ({ id }) => {
     const partyMap = new ComplexMap<PartyKey, { party: Party, items: Item<any>[] }>(keyToString);
 
     for (const party of parties) {
-      console.log(party, party.key);
+      // console.log(party, party.key);
       partyMap.set(party.key, { party, items: [] });
     }
     setData(createGraphData(id, partyMap));
