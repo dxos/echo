@@ -1,6 +1,6 @@
 {
   "name": "@dxos/experimental-object-model",
-  "version": "1.0.0-beta.29",
+  "version": "1.0.0-beta.30",
   "description": "ECHO object model.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
