@@ -15,8 +15,9 @@ import { Markers } from '@dxos/gem-spore';
 import { createId } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import {
-  codec, Database, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
+  Database, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
 } from '@dxos/experimental-echo-db';
+import { codec } from '@dxos/experimental-echo-protocol';
 import { Keyring, KeyType } from '@dxos/credentials';
 import { ObjectModel } from '@dxos/experimental-object-model';
 import { ModelFactory } from '@dxos/experimental-model-factory';
