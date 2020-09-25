@@ -29,7 +29,7 @@ export class Party {
   }
 
   get isOpen (): boolean {
-    return !!this._impl.isOpen;
+    return this._impl.isOpen;
   }
 
   /**
@@ -73,11 +73,14 @@ export class Party {
    * Creates a new item with the given queryable type and model.
    * @param {ModelType} model
    * @param {ItemType} [itemType]
+   * @param {ItemID} [parentId]
    */
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   // TODO(burdon): Pass in { type, parent } as options.
-  async createItem <M extends Model<any>> (model: ModelConstructor<M>, itemType?: ItemType | undefined): Promise<Item<M>> {
-    return this._impl.createItem(model, itemType);
+  async createItem <M extends Model<any>> (model: ModelConstructor<M>,
+    itemType?: ItemType | undefined,
+    parentId?: ItemID | undefined): Promise<Item<M>> {
+    return this._impl.createItem(model, itemType, parentId);
   }
 
   /**
