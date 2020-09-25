@@ -3,6 +3,7 @@
 //
 
 import { PartyKey } from '@dxos/experimental-echo-protocol';
+import assert from 'assert'
 
 import { InvitationDescriptor, SecretProvider } from './invitations';
 import { PartyFilter, PartyManager, Party } from './parties';
@@ -78,6 +79,8 @@ export class Database {
    * @param {PartyKey} partyKey
    */
   getParty (partyKey: PartyKey): Party | undefined {
+    assert(this._partyManager.opened, "Database not open.")
+
     const impl = this._partyManager.parties.find(party => Buffer.compare(party.key, partyKey) === 0);
     return impl && new Party(impl);
   }
@@ -88,6 +91,8 @@ export class Database {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   queryParties (filter?: PartyFilter): ResultSet<Party> {
+    assert(this._partyManager.opened, "Database not open.")
+    
     return new ResultSet(this._partyManager.update.discardParameter(), () => this._partyManager.parties.map(impl => new Party(impl)));
   }
 
@@ -97,6 +102,8 @@ export class Database {
    * @param secretProvider
    */
   async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
+    assert(this._partyManager.opened, "Database not open.")
+    
     const impl = await this._partyManager.joinParty(invitationDescriptor, secretProvider);
     return new Party(impl);
   }
