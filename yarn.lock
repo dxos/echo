@@ -1217,10 +1217,19 @@
     stream-to-array "^2.3.0"
     uuid "^3.3.2"
 
-"@dxos/crypto@^1.0.0-beta.1", "@dxos/crypto@^1.0.0-beta.2", "@dxos/crypto@^1.0.0-beta.4":
+"@dxos/crypto@^1.0.0-beta.1", "@dxos/crypto@^1.0.0-beta.2":
   version "1.0.0-beta.6"
   resolved "http://npm.dev.dxos.network:5736/@dxos%2fcrypto/-/crypto-1.0.0-beta.6.tgz#e743fe634b5abb3bd9b52518a26f6941b03232ea"
   integrity sha512-mUkhkYHqVjKWHK6g4wGlOb63wCXQVyis6KWToKdF+jjj1ltCtjyKFdlj4upzcrokYwCVR1IePOsN8AmgLLYZNw==
+  dependencies:
+    crypto-js "^3.1.9-1"
+    humanhash "^1.0.4"
+    hypercore-crypto "^1.0.0"
+
+"@dxos/crypto@^1.0.0-beta.7":
+  version "1.0.0-beta.7"
+  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.0-beta.7.tgz#8296516dbaeb6119be10c78be4c6c34ca226ff52"
+  integrity sha512-aRKEYLmHMGEAQbY58rl1flgY/8GwhD4aJB0kkr2EWRFuHzphgH6wVhyNG33eHhVIjin6zpUYrJ2AX4SKwGBAnQ==
   dependencies:
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"
