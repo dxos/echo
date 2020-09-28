@@ -1,6 +1,6 @@
 {
   "name": "@dxos/util",
-  "version": "1.0.0-beta.33",
+  "version": "1.0.0-alpha.33",
   "description": "Utilities to be moved to other repos.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -36,7 +36,7 @@
   "dependencies": {
     "@dxos/async": "^1.0.0-beta.8",
     "@dxos/codec-protobuf": "^1.1.0-beta.0",
-    "@dxos/crypto": "^1.0.0-beta.4",
+    "@dxos/crypto": "^1.0.0-beta.7",
     "@types/debug": "^4.1.1",
     "@types/end-of-stream": "^1.4.0",
     "@types/lodash": "^4.14.159",

@@ -2,6 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
-import { schema } from './gen/schema';
+import { Codec } from '@dxos/codec-protobuf';
 
-export const codec = schema.getCodecForType('dxos.FeedMessage');
+import Schema from './gen/dxos.json';
+
+export const codec = new Codec('dxos.FeedMessage')
+  .addJson(Schema)
+  .build();
