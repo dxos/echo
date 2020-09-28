@@ -5,9 +5,9 @@
 import ram from 'random-access-memory';
 
 import { createKeyPair } from '@dxos/crypto';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { createWritableFeedStream } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/model-factory';
+import { createWritableFeedStream } from '@dxos/util';
 
 import { ItemManager } from './item-manager';
 

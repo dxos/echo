@@ -5,12 +5,11 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { Event } from '@dxos/async';
 import { createId, createKeyPair } from '@dxos/crypto';
-import { codec, createOrderedFeedStream, IEchoStream, FeedSetProvider } from '@dxos/experimental-echo-protocol';
-import { createSetPropertyMutation } from '@dxos/experimental-model-factory';
-import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/experimental-util';
+import { codec, createIterator, IEchoStream, FeedSelector } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
+import { createSetPropertyMutation } from '@dxos/model-factory';
+import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/util';
 
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -22,11 +21,8 @@ describe('pipeline', () => {
   test('streams', async () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
     const feedKeys: Uint8Array[] = [];
-    const feedSetProvider: FeedSetProvider = {
-      get: () => feedKeys,
-      added: new Event()
-    };
-    const feedReadStream = await createOrderedFeedStream(feedStore, feedSetProvider);
+    const feedSelector: FeedSelector = descriptor => !!feedKeys.find(key => descriptor.key.equals(key));
+    const feedReadStream = await createIterator(feedStore, feedSelector);
     const feed = await feedStore.openFeed('test-feed');
     feedKeys.push(feed.key);
     const writeStream = createWritableFeedStream(feed);
@@ -36,7 +32,7 @@ describe('pipeline', () => {
     //
     const { publicKey: partyKey } = createKeyPair();
     const partyProcessor = new PartyProcessor(partyKey);
-    await partyProcessor.addHints([feed.key]);
+    await partyProcessor.takeHints([feed.key]);
     const pipeline = new Pipeline(partyProcessor, feedReadStream);
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();

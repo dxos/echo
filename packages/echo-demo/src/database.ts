@@ -7,11 +7,11 @@ import ram from 'random-access-memory';
 import { Keyring, KeyType, KeyStore } from '@dxos/credentials';
 import {
   codec, Database, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
-} from '@dxos/experimental-echo-db';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
+} from '@dxos/echo-db';
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
+import { ObjectModel } from '@dxos/object-model';
 
 export const createDatabase = async ({
   storage = ram, keyStorage = undefined, swarmProvider = new SwarmProvider()

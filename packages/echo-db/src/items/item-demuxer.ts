@@ -6,8 +6,8 @@ import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
 
-import { EchoEnvelope, IEchoStream, ItemID } from '@dxos/experimental-echo-protocol';
-import { createReadable, createWritable, jsonReplacer } from '@dxos/experimental-util';
+import { protocol, IEchoStream, ItemID } from '@dxos/echo-protocol';
+import { createReadable, createWritable, jsonReplacer } from '@dxos/util';
 
 import { ItemManager } from './item-manager';
 
@@ -33,15 +33,15 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
     // New item.
     //
     if (genesis) {
-      const { itemType, modelType } = genesis;
+      const { itemType, modelType, parentId } = genesis;
       assert(modelType);
 
       // Create inbound stream for item.
-      const itemStream = createReadable<EchoEnvelope>();
+      const itemStream = createReadable<protocol.dxos.echo.IEchoEnvelope>();
       itemStreams.set(itemId, itemStream);
 
       // Create item.
-      const item = await itemManager.constructItem(itemId, modelType, itemType, itemStream);
+      const item = await itemManager.constructItem(itemId, modelType, itemType, itemStream, parentId);
       assert(item.id === itemId);
     }
 

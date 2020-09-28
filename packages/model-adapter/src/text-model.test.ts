@@ -4,8 +4,8 @@
 
 import { waitForCondition } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
-import { WritableArray } from '@dxos/experimental-util';
 import { TextModel, TYPE_TEXT_MODEL_UPDATE } from '@dxos/text-model';
+import { WritableArray } from '@dxos/util';
 
 import { createModelAdapter } from './adapter';
 import { protocol } from './proto';

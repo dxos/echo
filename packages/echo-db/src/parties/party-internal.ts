@@ -5,10 +5,10 @@
 import assert from 'assert';
 
 import { KeyRecord, Keyring } from '@dxos/credentials';
-import { ItemID, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { Model, ModelConstructor, ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
+import { ItemID, ItemType, PartyKey } from '@dxos/echo-protocol';
+import { Model, ModelConstructor, ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
+import { ObjectModel } from '@dxos/object-model';
 
 import {
   GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationDetails

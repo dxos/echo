@@ -3,8 +3,8 @@
 //
 
 import { createKeyPair, createId } from '@dxos/crypto';
-import { TestItemMutation } from '@dxos/experimental-echo-protocol';
-import { createTransform, latch } from '@dxos/experimental-util';
+import { protocol } from '@dxos/echo-protocol';
+import { createTransform, latch } from '@dxos/util';
 
 import { ModelMessage } from '../types';
 import { TestModel } from './test-model';
@@ -35,19 +35,21 @@ describe('test model', () => {
 
     // Create transform that connects model output to model input.
     let seq = 0;
-    const transform = createTransform<TestItemMutation, ModelMessage<TestItemMutation>>(
-      async (mutation: TestItemMutation) => {
-        const message: ModelMessage<TestItemMutation> = {
-          meta: {
-            feedKey,
-            seq
-          },
-          mutation
-        };
+    const transform = createTransform<
+      protocol.dxos.echo.testing.TestItemMutation, ModelMessage<protocol.dxos.echo.testing.TestItemMutation>
+      >(
+        async (mutation: protocol.dxos.echo.testing.TestItemMutation) => {
+          const message: ModelMessage<protocol.dxos.echo.testing.TestItemMutation> = {
+            meta: {
+              feedKey,
+              seq
+            },
+            mutation
+          };
 
-        seq++;
-        return message;
-      });
+          seq++;
+          return message;
+        });
 
     // Create a writeStream model.
     const model = new TestModel(TestModel.meta, itemId, transform);

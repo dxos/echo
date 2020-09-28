@@ -10,8 +10,8 @@ import { Writable } from 'stream';
 import tempy from 'tempy';
 
 import { createId, keyToString } from '@dxos/crypto';
-import { createWritableFeedStream, latch, sink } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
+import { createWritableFeedStream, latch, sink } from '@dxos/util';
 
 import { codec, createTestItemMutation } from '../proto';
 import { FeedBlock } from '../types';

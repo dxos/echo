@@ -7,13 +7,13 @@ import ram from 'random-access-memory';
 
 import { createPartyGenesisMessage, KeyType, Keyring } from '@dxos/credentials';
 import { keyToBuffer } from '@dxos/crypto';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
-import { createWritableFeedStream, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
-import { codec } from '@dxos/experimental-echo-protocol';
+import { ObjectModel } from '@dxos/object-model';
+import { createWritableFeedStream, latch } from '@dxos/util';
 
+import { codec } from '../codec';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { IdentityManager } from './identity-manager';
 import { PartyFactory } from './party-factory';
@@ -42,11 +42,11 @@ describe('Party manager', () => {
       await partyManager.createHalo();
     }
 
-    return { feedStore, partyManager };
+    return { feedStore, partyManager, identityManager };
   };
 
   test('Created locally', async () => {
-    const { partyManager } = await setup();
+    const { partyManager, identityManager } = await setup();
     await partyManager.open();
 
     const [update, setUpdated] = latch();
@@ -59,6 +59,11 @@ describe('Party manager', () => {
     const party = await partyManager.createParty();
     await party.open();
     expect(party.isOpen).toBeTruthy();
+
+    // The Party key is an inception key, so its secret should be destroyed immediately after use.
+    const partyKey = identityManager.keyring.getKey(party.key);
+    expect(partyKey).toBeDefined();
+    expect(identityManager.keyring.hasSecretKey(partyKey)).toBe(false);
 
     await update;
   });

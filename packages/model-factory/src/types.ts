@@ -3,7 +3,7 @@ import { Codec } from '@dxos/codec-experimental-runtime';
 // Copyright 2020 DXOS.org
 //
 
-import { FeedMeta, ItemID } from '@dxos/experimental-echo-protocol';
+import { FeedMeta, ItemID } from '@dxos/echo-protocol';
 
 //
 // Types

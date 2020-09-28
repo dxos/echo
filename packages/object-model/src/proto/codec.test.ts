@@ -4,8 +4,8 @@
 
 import { Codec } from '@dxos/codec-protobuf';
 import { createId } from '@dxos/crypto';
-import { protocol, Schema } from '@dxos/experimental-echo-protocol';
-import { createAny } from '@dxos/experimental-util';
+import { protocol, Schema } from '@dxos/echo-protocol';
+import { createAny } from '@dxos/util';
 
 // eslint-disable-next-line camelcase
 import { dxos as object_dxos } from './gen/object';

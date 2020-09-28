@@ -2,11 +2,12 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Event } from '@dxos/async';
-import { PartyKey } from '@dxos/experimental-echo-protocol';
+import assert from 'assert';
+
+import { PartyKey } from '@dxos/echo-protocol';
 
 import { InvitationDescriptor, SecretProvider } from './invitations';
-import { Party, PartyFilter, PartyManager } from './parties';
+import { PartyFilter, PartyManager, Party } from './parties';
 import { ResultSet } from './result';
 
 export interface Options {
@@ -68,20 +69,21 @@ export class Database {
 
     await this.open();
 
-    const party = await this._partyManager.createParty();
-    await party.open();
+    const impl = await this._partyManager.createParty();
+    await impl.open();
 
-    return party;
+    return new Party(impl);
   }
 
   /**
    * Returns an individual party by it's key.
    * @param {PartyKey} partyKey
    */
-  async getParty (partyKey: PartyKey): Promise<Party | undefined> {
-    await this.open();
+  getParty (partyKey: PartyKey): Party | undefined {
+    assert(this._partyManager.opened, 'Database not open.');
 
-    return this._partyManager.parties.find(party => Buffer.compare(party.key, partyKey) === 0);
+    const impl = this._partyManager.parties.find(party => Buffer.compare(party.key, partyKey) === 0);
+    return impl && new Party(impl);
   }
 
   /**
@@ -89,10 +91,10 @@ export class Database {
    * @param {PartyFilter} filter
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async queryParties (filter?: PartyFilter): Promise<ResultSet<Party>> {
-    await this.open();
+  queryParties (filter?: PartyFilter): ResultSet<Party> {
+    assert(this._partyManager.opened, 'Database not open.');
 
-    return new ResultSet<Party>(this._partyManager.update, () => this._partyManager.parties);
+    return new ResultSet(this._partyManager.update.discardParameter(), () => this._partyManager.parties.map(impl => new Party(impl)));
   }
 
   /**
@@ -101,6 +103,9 @@ export class Database {
    * @param secretProvider
    */
   async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<Party> {
-    return this._partyManager.joinParty(invitationDescriptor, secretProvider);
+    assert(this._partyManager.opened, 'Database not open.');
+
+    const impl = await this._partyManager.joinParty(invitationDescriptor, secretProvider);
+    return new Party(impl);
   }
 }

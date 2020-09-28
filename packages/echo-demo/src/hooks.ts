@@ -6,8 +6,8 @@ import { createContext, useEffect, useContext, useState, useRef } from 'react';
 
 import { humanize, keyToString } from '@dxos/crypto';
 import { truncateString } from '@dxos/debug';
-import { Database, Party, Item } from '@dxos/experimental-echo-db';
-import { PartyKey } from '@dxos/experimental-echo-protocol';
+import { Database, Party, Item } from '@dxos/echo-db';
+import { PartyKey } from '@dxos/echo-protocol';
 
 import { ComplexMap } from '../../util/dist/src';
 

@@ -17,7 +17,7 @@ import {
 // @ts-ignore
 } from '@dxos/gem-spore';
 
-import { ObjectModel } from '@dxos/experimental-object-model';
+import { ObjectModel } from '@dxos/object-model';
 
 import { useDatabase, useGraphData } from '../hooks';
 

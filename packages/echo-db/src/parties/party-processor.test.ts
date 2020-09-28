@@ -7,7 +7,7 @@ import debug from 'debug';
 import {
   Keyring, KeyType, createPartyGenesisMessage, createFeedAdmitMessage, createKeyAdmitMessage, createEnvelopeMessage
 } from '@dxos/credentials';
-import { IHaloStream } from '@dxos/experimental-echo-protocol';
+import { IHaloStream } from '@dxos/echo-protocol';
 
 import { PartyProcessor } from './party-processor';
 

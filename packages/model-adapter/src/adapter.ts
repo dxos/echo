@@ -2,10 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
-import { FeedMeta, ItemID } from '@dxos/experimental-echo-protocol';
-import { Model, ModelConstructor, ModelMeta } from '@dxos/experimental-model-factory';
+import { FeedMeta, ItemID } from '@dxos/echo-protocol';
+import { Model, ModelConstructor, ModelMeta } from '@dxos/model-factory';
 
-import { protocol } from './proto/';
+import { protocol } from './proto';
 
 export interface ClassicModel {
 

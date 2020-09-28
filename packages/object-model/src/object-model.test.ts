@@ -6,7 +6,7 @@ import debug from 'debug';
 
 import { expectToThrow } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
-import { WritableArray } from '@dxos/experimental-util';
+import { WritableArray } from '@dxos/util';
 
 import { ValueUtil } from './mutation';
 import { ObjectModel } from './object-model';
