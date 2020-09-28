@@ -1,6 +1,6 @@
 {
   "name": "@dxos/model-adapter",
-  "version": "1.0.0-beta.33",
+  "version": "1.0.0-alpha.33",
   "description": "Adapter to use models with the original API in ECHO 2",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -45,9 +45,9 @@
     "@dxos/async": "^1.0.0-beta.8",
     "@dxos/codec-protobuf": "^1.1.0-beta.0",
     "@dxos/crypto": "^1.0.0-beta.7",
-    "@dxos/echo-protocol": "^1.0.0-beta.28",
-    "@dxos/model-factory": "^1.0.0-beta.28",
-    "@dxos/util": "^1.0.0-beta.28",
+    "@dxos/echo-protocol": "^1.0.0-alpha.28",
+    "@dxos/model-factory": "^1.0.0-alpha.28",
+    "@dxos/util": "^1.0.0-alpha.28",
     "@dxos/feed-store": "^1.2.0-beta.30",
     "@types/debug": "^4.1.1",
     "@types/end-of-stream": "^1.4.0",
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@dxos/eslint-plugin": "^1.0.5",
-    "@dxos/text-model": "^1.0.0-beta.28",
+    "@dxos/text-model": "1.0.0-beta.28",
     "@types/jest": "^25.2.3",
     "chance": "^1.1.6",
     "del-cli": "^3.0.0",
