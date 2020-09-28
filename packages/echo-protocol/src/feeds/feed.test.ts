@@ -7,8 +7,7 @@ import ram from 'random-access-memory';
 
 import { FeedStore } from '@dxos/feed-store';
 
-import { codec } from '../proto';
-import { FeedMessage } from '../proto/gen/schema';
+import { codec, FeedMessage } from '../proto';
 
 describe('Feed tests:', () => {
   test('codec', () => {

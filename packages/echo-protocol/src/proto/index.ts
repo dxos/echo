@@ -2,6 +2,12 @@
 // Copyright 2020 DXOS.org
 //
 
-export * from './codec';
-export * from './gen/schema';
+import { schema } from './gen';
+
+export * from './gen';
+export * from './gen/dxos';
+export * from './gen/dxos/echo';
+export * from './gen/dxos/echo/testing';
 export * from './messages';
+
+export const codec = schema.getCodecForType('dxos.FeedMessage');

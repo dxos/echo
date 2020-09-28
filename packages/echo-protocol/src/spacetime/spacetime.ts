@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import { keyToString } from '@dxos/crypto';
 
-import { Timeframe } from '../proto/gen/schema';
+import { Timeframe } from '../proto';
 import { FeedKey } from '../types';
 
 // Required to access property by variable.

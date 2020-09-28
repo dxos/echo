@@ -1131,15 +1131,15 @@
     through2 "^3.0.1"
     wrtc "^0.4.3"
 
-"@dxos/codec-experimental-compiler@^1.0.0":
-  version "1.0.0"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-compiler/-/codec-experimental-compiler-1.0.0.tgz#0943d2516c8a0a498bb0ce34eb53a3fa45b9ec40"
-  integrity sha512-jIb2JV2q8PTapXZDx2eSjF4pyNl5EJC1eOODriu4uiAl3MtQMNq99VQ6/Ng2GwOG2+LwzNXPFt0v6Jns8E82uQ==
+"@dxos/codec-experimental-compiler@^1.0.2":
+  version "1.0.2"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-compiler/-/codec-experimental-compiler-1.0.2.tgz#0db3e2bc2f00d79dcf0a73f603463657a3ef80a1"
+  integrity sha512-p58fQ6iS/PS2rV7nNkBw1tKU5XtyTxY8cfbeZz4/kMoHRqJPtm4lHHjgr/WhNshno/uxFedzAZY0FTQ1vHlyCQ==
 
-"@dxos/codec-experimental-runtime@^1.0.0":
-  version "1.0.0"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-runtime/-/codec-experimental-runtime-1.0.0.tgz#053f58a0e696ce896da0ec5566ee2e978fd2e95a"
-  integrity sha512-14Bd87KCIMOi8pl31YzMYEaZdDRHTSyLzxbw91sD0PmXAzZNUMVKDk8ZXWST+gu5OX3RDULlch2794M55Bu4Lg==
+"@dxos/codec-experimental-runtime@^1.0.2":
+  version "1.0.2"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-runtime/-/codec-experimental-runtime-1.0.2.tgz#fc9a9d287926e2764c7e1d77406ffc0a7d01967e"
+  integrity sha512-nMzLTJJICfm2RIUtt54P2SH9aw/3J0FuojwSUVfcNisgrV9oQQ6gWSjJwC1o0pIBGzzOrxHrTEHyQCRwyy6rTQ==
   dependencies:
     protobufjs "^6.10.1"
 
@@ -16724,11 +16724,6 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "http://npm.dev.dxos.network:5736/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
-
-typescript@^3.9.3:
-  version "3.9.7"
-  resolved "http://npm.dev.dxos.network:5736/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
-  integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
 
 typescript@^4.0.2:
   version "4.0.3"
