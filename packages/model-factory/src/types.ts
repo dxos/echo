@@ -1,8 +1,8 @@
-import { Codec } from '@dxos/codec-experimental-runtime';
 //
 // Copyright 2020 DXOS.org
 //
 
+import { Codec } from '@dxos/codec-experimental-runtime';
 import { FeedMeta, ItemID } from '@dxos/echo-protocol';
 
 //

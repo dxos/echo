@@ -10,7 +10,6 @@ import { WritableArray } from '@dxos/util';
 
 import { ValueUtil } from './mutation';
 import { ObjectModel } from './object-model';
-import { ObjectMutation, ObjectMutationSet } from './proto';
 
 const log = debug('dxos:echo:object-model:testing');
 debug.enable('dxos:echo:*');
