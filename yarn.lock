@@ -1179,7 +1179,45 @@
     stream-to-array "^2.3.0"
     uuid "^3.3.2"
 
-"@dxos/credentials@^1.0.1-beta.47", "@dxos/credentials@^1.0.1-canary.5+999327e":
+"@dxos/credentials@^1.0.1-beta.48":
+  version "1.0.1-beta.48"
+  resolved "https://registry.npmjs.org/@dxos/credentials/-/credentials-1.0.1-beta.48.tgz#dcc1b9605f72f5f8a47ef710b360332c4be88acb"
+  integrity sha512-mfutT9XRIuDSW/BT5SUK4fjaups7efuLVVhjLZ3goHD4Nh+1YouyBGwTNlNaE3ziY8jvE8ZQOAs+BsOtNjyicQ==
+  dependencies:
+    "@dxos/codec-protobuf" "^1.1.0-beta.10"
+    "@dxos/crypto" "^1.0.0-beta.1"
+    "@dxos/feed-store" "^1.2.0-beta.23"
+    "@dxos/protocol" "^1.1.0-beta.1"
+    "@types/pify" "^3.0.2"
+    "@types/pump" "^1.1.0"
+    bip39 "^3.0.2"
+    buffer-json-encoding "^1.0.2"
+    crypto-js "^3.1.9-1"
+    debug "^4.1.1"
+    encoding-down "^6.3.0"
+    end-of-stream "^1.4.1"
+    hypercore-crypto "^1.0.0"
+    hypercore-protocol "^6.11.1"
+    hypertrie "^3.8.0"
+    json-stable-stringify "^1.0.1"
+    leveldown "^5.4.1"
+    levelup "^4.3.2"
+    lodash.defaultsdeep "^4.6.1"
+    lodash.get "^4.4.2"
+    lodash.isobject "^3.0.2"
+    lodash.isplainobject "^4.0.6"
+    lodash.mapvalues "^4.6.0"
+    lodash.matches "^4.6.0"
+    memdown "^5.1.0"
+    moment "^2.24.0"
+    ngraph.graph "^18.0.1"
+    pump "^3.0.0"
+    queue-microtask "^1.1.2"
+    source-map-support "^0.5.12"
+    stream-to-array "^2.3.0"
+    uuid "^3.3.2"
+
+"@dxos/credentials@^1.0.1-canary.5+999327e":
   version "1.0.1-canary.5"
   resolved "http://npm.dev.dxos.network:5736/@dxos%2fcredentials/-/credentials-1.0.1-canary.5.tgz#3eb7f36ae53b73cfc2dd31ca293b2820903e21e9"
   integrity sha512-+LWi7K+s7MUVBNfcWx9MJF5MaPUXhtRlLTExyKeU4fFu5h5m93xX7HAuNS05bZDWlRP6mx/xV+qggdHFRcqxiQ==
