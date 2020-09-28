@@ -7,11 +7,11 @@ import debug from 'debug';
 
 import { Keyring, KeyType, createPartyGenesisMessage, createKeyAdmitMessage, Filter } from '@dxos/credentials';
 import { keyToString, randomBytes } from '@dxos/crypto';
-import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
-import { createWritableFeedStream } from '@dxos/experimental-util';
+import { FeedKey, PartyKey } from '@dxos/echo-protocol';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
+import { ObjectModel } from '@dxos/object-model';
+import { createWritableFeedStream } from '@dxos/util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';

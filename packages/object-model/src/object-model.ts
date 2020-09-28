@@ -6,9 +6,9 @@ import debug from 'debug';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
-import { FeedMeta } from '@dxos/experimental-echo-protocol';
-import { ModelMeta, Model } from '@dxos/experimental-model-factory';
-import { checkType, jsonReplacer } from '@dxos/experimental-util';
+import { FeedMeta } from '@dxos/echo-protocol';
+import { ModelMeta, Model } from '@dxos/model-factory';
+import { checkType, jsonReplacer } from '@dxos/util';
 
 import { MutationUtil, ValueUtil } from './mutation';
 import { protocol } from './proto';

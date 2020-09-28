@@ -3,8 +3,8 @@
 //
 
 import { createKeyPair, createId } from '@dxos/crypto';
-import { protocol } from '@dxos/experimental-echo-protocol';
-import { createTransform, latch } from '@dxos/experimental-util';
+import { protocol } from '@dxos/echo-protocol';
+import { createTransform, latch } from '@dxos/util';
 
 import { ModelMessage } from '../types';
 import { TestModel } from './test-model';

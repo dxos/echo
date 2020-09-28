@@ -3,8 +3,8 @@
 //
 
 import { humanize } from '@dxos/crypto';
-import { ItemID, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { Model, ModelConstructor } from '@dxos/experimental-model-factory';
+import { ItemID, ItemType, PartyKey } from '@dxos/echo-protocol';
+import { Model, ModelConstructor } from '@dxos/model-factory';
 
 import { InvitationDetails } from '../invitations';
 import { Item, ItemFilter } from '../items';

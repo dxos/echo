@@ -6,7 +6,7 @@ import debug from 'debug';
 import hypercore from 'hypercore';
 
 import { discoveryKey, keyToString } from '@dxos/crypto';
-import { FeedKey, PartyKey } from '@dxos/experimental-echo-protocol';
+import { FeedKey, PartyKey } from '@dxos/echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';

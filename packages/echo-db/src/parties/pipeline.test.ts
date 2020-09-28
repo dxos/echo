@@ -6,10 +6,10 @@ import debug from 'debug';
 import ram from 'random-access-memory';
 
 import { createId, createKeyPair } from '@dxos/crypto';
-import { codec, createIterator, IEchoStream, FeedSelector } from '@dxos/experimental-echo-protocol';
-import { createSetPropertyMutation } from '@dxos/experimental-model-factory';
-import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/experimental-util';
+import { codec, createIterator, IEchoStream, FeedSelector } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
+import { createSetPropertyMutation } from '@dxos/model-factory';
+import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/util';
 
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';

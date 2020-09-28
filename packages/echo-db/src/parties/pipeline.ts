@@ -9,8 +9,8 @@ import pump from 'pump';
 import { Readable, Writable } from 'stream';
 
 import { Event } from '@dxos/async';
-import { protocol, createFeedMeta, FeedBlock } from '@dxos/experimental-echo-protocol';
-import { createReadable, createTransform, jsonReplacer } from '@dxos/experimental-util';
+import { protocol, createFeedMeta, FeedBlock } from '@dxos/echo-protocol';
+import { createReadable, createTransform, jsonReplacer } from '@dxos/util';
 
 import { PartyProcessor } from './party-processor';
 

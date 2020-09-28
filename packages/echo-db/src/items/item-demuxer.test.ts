@@ -5,9 +5,9 @@
 import debug from 'debug';
 
 import { createId, createKeyPair } from '@dxos/crypto';
-import { protocol, IEchoStream } from '@dxos/experimental-echo-protocol';
-import { ModelFactory, TestModel } from '@dxos/experimental-model-factory';
-import { createTransform, latch } from '@dxos/experimental-util';
+import { protocol, IEchoStream } from '@dxos/echo-protocol';
+import { ModelFactory, TestModel } from '@dxos/model-factory';
+import { createTransform, latch } from '@dxos/util';
 
 import { Item } from './item';
 import { createItemDemuxer } from './item-demuxer';

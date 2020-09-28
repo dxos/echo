@@ -6,9 +6,9 @@ import assert from 'assert';
 import pify from 'pify';
 
 import { Event } from '@dxos/async';
-import { protocol, ItemID, ItemType, PartyKey } from '@dxos/experimental-echo-protocol';
-import { Model } from '@dxos/experimental-model-factory';
-import { checkType } from '@dxos/experimental-util';
+import { protocol, ItemID, ItemType, PartyKey } from '@dxos/echo-protocol';
+import { Model } from '@dxos/model-factory';
+import { checkType } from '@dxos/util';
 
 /**
  * A globally addressable data item.

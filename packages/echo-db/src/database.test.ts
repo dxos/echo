@@ -10,11 +10,11 @@ import ram from 'random-access-memory';
 import { waitForCondition } from '@dxos/async';
 import { createFeedAdmitMessage, createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
 import { createId, humanize } from '@dxos/crypto';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
-import { createLoggingTransform, latch, jsonReplacer } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
+import { ObjectModel } from '@dxos/object-model';
+import { createLoggingTransform, latch, jsonReplacer } from '@dxos/util';
 
 import { codec } from './codec';
 import { Database } from './database';

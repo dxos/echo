@@ -19,7 +19,7 @@ import {
   Keyring
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey } from '@dxos/experimental-echo-protocol';
+import { PartyKey } from '@dxos/echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 
 import { SecretProvider } from './common';

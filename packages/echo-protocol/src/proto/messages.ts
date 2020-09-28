@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { createAny } from '@dxos/experimental-util';
+import { createAny } from '@dxos/util';
 
 import { ItemID, ItemType } from '../types';
 import { protocol } from './proto';

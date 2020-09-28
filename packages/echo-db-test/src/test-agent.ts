@@ -8,12 +8,12 @@ import { Keyring, KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import {
   codec, Database, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager, IdentityManager
-} from '@dxos/experimental-echo-db';
-import { ModelFactory } from '@dxos/experimental-model-factory';
-import { ObjectModel } from '@dxos/experimental-object-model';
+} from '@dxos/echo-db';
 import { FeedStore } from '@dxos/feed-store';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { Agent, Environment, JsonObject } from '@dxos/node-spawner';
+import { ObjectModel } from '@dxos/object-model';
 
 export enum Command {
   CREATE_PARTY = 'CREATE_PARTY',

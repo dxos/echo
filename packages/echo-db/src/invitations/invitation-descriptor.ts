@@ -6,7 +6,7 @@ import assert from 'assert';
 import stableStringify from 'json-stable-stringify';
 
 import { keyToBuffer, keyToString, ripemd160 } from '@dxos/crypto';
-import { SwarmKey } from '@dxos/experimental-echo-protocol';
+import { SwarmKey } from '@dxos/echo-protocol';
 
 /**
  * Defines an invitation type.

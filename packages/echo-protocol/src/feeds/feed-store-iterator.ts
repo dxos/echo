@@ -8,8 +8,8 @@ import { Readable } from 'readable-stream';
 
 import { Event } from '@dxos/async';
 import { keyToString } from '@dxos/crypto';
-import { Trigger } from '@dxos/experimental-util';
 import { createBatchStream, FeedDescriptor, FeedStore } from '@dxos/feed-store';
+import { Trigger } from '@dxos/util';
 
 import { FeedBlock, FeedKey } from '../types';
 

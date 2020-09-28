@@ -8,9 +8,9 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { protocol, ItemID, ItemType, IEchoStream, PartyKey } from '@dxos/experimental-echo-protocol';
-import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/experimental-model-factory';
-import { checkType, createTransform } from '@dxos/experimental-util';
+import { protocol, ItemID, ItemType, IEchoStream, PartyKey } from '@dxos/echo-protocol';
+import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/model-factory';
+import { checkType, createTransform } from '@dxos/util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';

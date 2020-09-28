@@ -14,7 +14,7 @@ import {
   KeyType
 } from '@dxos/credentials';
 import { keyToBuffer, keyToString, randomBytes } from '@dxos/crypto';
-import { FeedKey, PartyKey, SwarmKey } from '@dxos/experimental-echo-protocol';
+import { FeedKey, PartyKey, SwarmKey } from '@dxos/echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 
 import { SecretProvider, SecretValidator } from './common';

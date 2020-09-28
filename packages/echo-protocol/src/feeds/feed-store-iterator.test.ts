@@ -10,8 +10,8 @@ import pify from 'pify';
 import ram from 'random-access-memory';
 
 import { createId, keyToString } from '@dxos/crypto';
-import { ComplexMap, latch } from '@dxos/experimental-util';
 import { FeedStore } from '@dxos/feed-store';
+import { ComplexMap, latch } from '@dxos/util';
 
 import { codec, createTestItemMutation, protocol } from '../proto';
 import { FeedKeyMapper, Spacetime } from '../spacetime';

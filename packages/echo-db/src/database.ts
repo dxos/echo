@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-import { PartyKey } from '@dxos/experimental-echo-protocol';
+import { PartyKey } from '@dxos/echo-protocol';
 
 import { InvitationDescriptor, SecretProvider } from './invitations';
 import { PartyFilter, PartyManager, Party } from './parties';

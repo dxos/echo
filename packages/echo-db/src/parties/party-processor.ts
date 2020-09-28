@@ -7,8 +7,8 @@ import debug from 'debug';
 import { Event } from '@dxos/async';
 import { Party as PartyStateMachine, KeyType, PartyCredential, getPartyCredentialMessageType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/experimental-echo-protocol';
-import { jsonReplacer } from '@dxos/experimental-util';
+import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/echo-protocol';
+import { jsonReplacer } from '@dxos/util';
 
 const log = debug('dxos:echo:halo-party-processor');
 

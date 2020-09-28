@@ -6,8 +6,8 @@ import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
 
-import { protocol, IEchoStream, ItemID } from '@dxos/experimental-echo-protocol';
-import { createReadable, createWritable, jsonReplacer } from '@dxos/experimental-util';
+import { protocol, IEchoStream, ItemID } from '@dxos/echo-protocol';
+import { createReadable, createWritable, jsonReplacer } from '@dxos/util';
 
 import { ItemManager } from './item-manager';
 

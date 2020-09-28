@@ -2,8 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import { protocol, FeedMeta } from '@dxos/experimental-echo-protocol';
-import { checkType } from '@dxos/experimental-util';
+import { protocol, FeedMeta } from '@dxos/echo-protocol';
+import { checkType } from '@dxos/util';
 
 import { Model } from '../model';
 import { ModelMeta } from '../types';

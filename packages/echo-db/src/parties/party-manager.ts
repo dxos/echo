@@ -7,8 +7,8 @@ import debug from 'debug';
 
 import { Event, Lock } from '@dxos/async';
 import { keyToString } from '@dxos/crypto';
-import { FeedKey, PartyKey, PublicKey } from '@dxos/experimental-echo-protocol';
-import { ComplexMap } from '@dxos/experimental-util';
+import { FeedKey, PartyKey, PublicKey } from '@dxos/echo-protocol';
+import { ComplexMap } from '@dxos/util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';

@@ -1,5 +1,5 @@
 {
-  "name": "@dxos/experimental-util",
+  "name": "@dxos/util",
   "version": "1.0.0-beta.33",
   "description": "Utilities to be moved to other repos.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
