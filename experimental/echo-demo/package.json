@@ -77,7 +77,7 @@
     "eslint-plugin-jest": "^24.0.2",
     "jest": "^26.2.2",
     "react-docgen-typescript-loader": "^3.7.2",
-    "tempy": "^0.6.0",
+    "tempy": "^0.7.1",
     "ts-jest": "^26.1.4",
     "typescript": "^3.9.3"
   },
