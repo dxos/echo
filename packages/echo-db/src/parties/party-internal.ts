@@ -5,17 +5,16 @@
 import assert from 'assert';
 
 import { KeyRecord, Keyring } from '@dxos/credentials';
-import { ItemID, ItemType, PartyKey } from '@dxos/echo-protocol';
-import { Model, ModelConstructor, ModelFactory } from '@dxos/model-factory';
+import { PartyKey } from '@dxos/echo-protocol';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 
 import {
   GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationDetails
 } from '../invitations';
-import { createItemDemuxer, Item, ItemFilter, ItemManager } from '../items';
+import { createItemDemuxer, Item, ItemManager } from '../items';
 import { ReplicationAdapter } from '../replication';
-import { ResultSet } from '../result';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 

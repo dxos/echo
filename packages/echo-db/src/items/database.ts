@@ -44,10 +44,10 @@ export class Database {
    * @param itemType
    * @param parentId
    */
-  createItemByType(
+  createItemByType (
     modelType: ModelType,
     itemType?: ItemType,
-    parentId?: ItemID,
+    parentId?: ItemID
   ): Promise<Item<Model<unknown>>> {
     return this._getItemManager().createItem(modelType, itemType, parentId);
   }
@@ -68,9 +68,9 @@ export class Database {
     return this._getItemManager().getItem(itemId);
   }
 
-  private _getItemManager() {
+  private _getItemManager () {
     const itemManager = this._itemManagerProvider();
     assert(itemManager, 'Database not open.');
-    return itemManager
+    return itemManager;
   }
 }
