@@ -2,7 +2,6 @@
 // Copyright 2020 DXOS.org
 //
 
-export * from './codec';
 export * from './echo';
 export * from './items';
 export * from './parties';

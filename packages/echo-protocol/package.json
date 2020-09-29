@@ -21,7 +21,7 @@
   "scripts": {
     "build": "npm run clean && npm run build:protobuf && npm run build:ts",
     "build:ts": "tsc",
-    "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/defs/dxos.proto src/proto/substitutions.ts src/proto/gen",
+    "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/defs/dxos.proto -s src/proto/substitutions.ts -o src/proto/gen",
     "clean": "del-cli dist src/proto/gen",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --verbose src",
