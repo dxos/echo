@@ -13,7 +13,7 @@ import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
 import { createId } from '@dxos/crypto';
 
-import { createDatabase, EchoContext, EchoGraph, useDatabase } from '../src';
+import { createECHO, EchoContext, EchoGraph, useDatabase } from '../src';
 
 const log = debug('dxos:echo:demo');
 debug.enable('dxos:echo:demo, dxos:*:error');
@@ -52,9 +52,9 @@ export const withDatabase = () => {
       setImmediate(async () => {
         const newPeers = await Promise.all([...new Array(n - peers.length)].map(async (_, i) => {
           const id = createId();
-          const { database } = await createDatabase();
-          console.log('Created:', String(database));
-          return { id, database };
+          const { echo } = await createECHO();
+          console.log('Created:', String(echo));
+          return { id, database: echo };
         }));
 
         setPeers([...peers, ...newPeers]);

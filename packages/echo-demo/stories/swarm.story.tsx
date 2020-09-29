@@ -17,7 +17,7 @@ import { createStorage } from '@dxos/random-access-multi-storage';
 import { SwarmProvider } from '@dxos/network-manager'
 import { Keyring } from '@dxos/credentials';
 
-import { createDatabase, EchoContext, EchoGraph } from '../src';
+import { createECHO, EchoContext, EchoGraph } from '../src';
 
 const log = debug('dxos:echo:demo');
 debug.enable('dxos:*');
@@ -35,7 +35,7 @@ export const withSwarm = () => {
 
   useEffect(() => {
     setImmediate(async () => {
-      const { database, keyring } = await createDatabase({
+      const { echo: database, keyring } = await createECHO({
         storage,
         keyStorage: leveljs('dxos/echo-demo/keystore'),
         // TODO(burdon): Move const to config.
