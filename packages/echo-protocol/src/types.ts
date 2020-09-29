@@ -55,11 +55,13 @@ export const createFeedMeta = (block: IFeedGenericBlock<any>): FeedMeta => ({
 
 export type FeedBlock = IFeedGenericBlock<FeedMessage>;
 
+export type HaloMessage = unknown;
+
 export interface IHaloStream {
   meta: FeedMeta;
   // TODO(telackey): Rename dxos.halo.IHaloEnvelope
   // eslint-disable-next-line camelcase
-  data: halo_dxos.credentials.Message;
+  data: HaloMessage;
 }
 
 export interface IEchoStream {

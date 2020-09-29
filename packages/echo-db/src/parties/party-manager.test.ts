@@ -5,7 +5,7 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { createPartyGenesisMessage, KeyType, Keyring } from '@dxos/credentials';
+import { createPartyGenesisMessage, KeyType, Keyring, codec } from '@dxos/credentials';
 import { keyToBuffer } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
@@ -13,7 +13,6 @@ import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { createWritableFeedStream, latch } from '@dxos/util';
 
-import { codec } from '../codec';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { IdentityManager } from './identity-manager';
 import { PartyFactory } from './party-factory';

@@ -16,11 +16,11 @@ import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { createLoggingTransform, latch, jsonReplacer } from '@dxos/util';
 
-import { codec } from './codec';
 import { Database } from './database';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { IdentityManager, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
+import { codec } from '@dxos/echo-protocol';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

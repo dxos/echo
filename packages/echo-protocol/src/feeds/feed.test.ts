@@ -11,9 +11,7 @@ import { codec, FeedMessage } from '../proto';
 
 describe('Feed tests:', () => {
   test('codec', () => {
-    const message1: FeedMessage = {
-      halo: {}
-    };
+    const message1: FeedMessage = {};
 
     const buffer = codec.encode(message1);
 
@@ -29,9 +27,7 @@ describe('Feed tests:', () => {
     const feed = await feedStore.openFeed('test-feed');
     expect(feed.length).toBe(0);
 
-    const data: FeedMessage = {
-      halo: {}
-    };
+    const data: FeedMessage = {};
 
     await pify(feed.append.bind(feed))(data);
 

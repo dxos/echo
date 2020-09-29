@@ -1131,10 +1131,12 @@
     through2 "^3.0.1"
     wrtc "^0.4.3"
 
-"@dxos/codec-experimental-compiler@^1.0.2":
-  version "1.0.2"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-compiler/-/codec-experimental-compiler-1.0.2.tgz#0db3e2bc2f00d79dcf0a73f603463657a3ef80a1"
-  integrity sha512-p58fQ6iS/PS2rV7nNkBw1tKU5XtyTxY8cfbeZz4/kMoHRqJPtm4lHHjgr/WhNshno/uxFedzAZY0FTQ1vHlyCQ==
+"@dxos/codec-experimental-compiler@^1.0.3":
+  version "1.0.3"
+  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcodec-experimental-compiler/-/codec-experimental-compiler-1.0.3.tgz#581e7bff8b3230fd0f24bb1397e6d8db9cf9b932"
+  integrity sha512-6ns7Le5ORZzyTQS7x/Cz3eWUGdxQLTh7B45SGnNOj7yP0Hh6y323VXTD6WR0LeDzCakN5Fns7OndK4oKhiGTuw==
+  dependencies:
+    chalk "^4.1.0"
 
 "@dxos/codec-experimental-runtime@^1.0.2":
   version "1.0.2"
