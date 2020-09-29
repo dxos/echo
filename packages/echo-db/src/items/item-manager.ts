@@ -104,7 +104,7 @@ export class ItemManager {
   async constructItem (
     itemId: ItemID,
     modelType: ModelType,
-    itemType: ItemType,
+    itemType: ItemType | undefined,
     readStream: NodeJS.ReadableStream,
     parentId?: ItemID
   ) {

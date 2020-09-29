@@ -11,7 +11,6 @@ import { Readable, Writable } from 'stream';
 import { Event } from '@dxos/async';
 import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage } from '@dxos/echo-protocol';
 import { createReadable, createTransform, jsonReplacer } from '@dxos/util';
-import { codec as haloCodec } from '@dxos/credentials'
 
 import { PartyProcessor } from './party-processor';
 

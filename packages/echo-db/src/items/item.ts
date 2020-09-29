@@ -39,7 +39,7 @@ export class Item<M extends Model<any>> {
   constructor (
     partyKey: PartyKey,
     itemId: ItemID,
-    itemType: ItemType,
+    itemType: ItemType | undefined,
     model: M,
     writeStream?: NodeJS.WritableStream,
     parent?: Item<any> | null

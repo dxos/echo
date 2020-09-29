@@ -5,7 +5,8 @@
 import debug from 'debug';
 import ram from 'random-access-memory';
 
-import { createPartyGenesisMessage, KeyType, Keyring, codec } from '@dxos/credentials';
+import { createPartyGenesisMessage, KeyType, Keyring } from '@dxos/credentials';
+import { codec } from '@dxos/echo-protocol'
 import { keyToBuffer } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
