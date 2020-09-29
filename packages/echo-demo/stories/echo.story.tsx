@@ -52,7 +52,7 @@ export const withDatabase = () => {
       setImmediate(async () => {
         const newPeers = await Promise.all([...new Array(n - peers.length)].map(async (_, i) => {
           const id = createId();
-          const { database } = await createDatabase({ id });
+          const { database } = await createDatabase();
           console.log('Created:', String(database));
           return { id, database };
         }));
@@ -67,7 +67,7 @@ export const withDatabase = () => {
   }, [n]);
 
   return (
-    <Test peers={peers} radius={200} />
+    <Test peers={peers} />
   );
 };
 
@@ -154,7 +154,7 @@ const Test = ({ peers }) => {
 
           // TODO(burdon): Does context change?
           return (
-            <EchoContext.Provider key={id} value={{ id, database }}>
+            <EchoContext.Provider key={id} value={{ database }}>
               <EchoGraph
                 id={id}
                 grid={grid}
@@ -171,7 +171,7 @@ const Test = ({ peers }) => {
         {peers.map((peer, i) => {
           const { id, database } = peer;
           return (
-            <EchoContext.Provider key={id} value={{ id, database }}>
+            <EchoContext.Provider key={id} value={{ database }}>
               <Info />
             </EchoContext.Provider>
           );

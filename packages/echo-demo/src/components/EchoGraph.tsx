@@ -2,7 +2,6 @@
 // Copyright 2020 DXOS.org
 //
 
-// @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
@@ -14,7 +13,6 @@ import {
   ForceLayout,
   LinkProjector,
   NodeProjector,
-// @ts-ignore
 } from '@dxos/gem-spore';
 
 import { ObjectModel } from '@dxos/object-model';
