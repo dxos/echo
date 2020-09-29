@@ -10,7 +10,7 @@ import useResizeAware from 'react-resize-aware';
 import { Button, TextField, Toolbar } from '@material-ui/core';
 
 import { createId } from '@dxos/crypto';
-import { Database, InvitationDescriptor } from '@dxos/echo-db';
+import { ECHO, InvitationDescriptor } from '@dxos/echo-db';
 import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
 import { createStorage } from '@dxos/random-access-multi-storage';
@@ -29,7 +29,7 @@ export default {
 
 export const withSwarm = () => {
   const [id] = useState(createId());
-  const [database, setDatabase] = useState<Database>();
+  const [database, setDatabase] = useState<ECHO>();
   const [keyring, setKeyring] = useState<Keyring>();
   const [storage] = useState(() => createStorage('dxos/echo-demo'));
 

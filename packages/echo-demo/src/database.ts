@@ -6,7 +6,7 @@ import ram from 'random-access-memory';
 
 import { Keyring, KeyType, KeyStore } from '@dxos/credentials';
 import {
-  codec, Database, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
+  codec, ECHO, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
 } from '@dxos/echo-db';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
@@ -38,7 +38,7 @@ export const createDatabase = async ({
     await partyManager.createHalo();
   }
 
-  const database = new Database(partyManager);
+  const database = new ECHO(partyManager);
 
   return { database, keyring };
 };

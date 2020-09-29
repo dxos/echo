@@ -17,14 +17,14 @@ import { ObjectModel } from '@dxos/object-model';
 import { createLoggingTransform, latch, jsonReplacer } from '@dxos/util';
 
 import { codec } from './codec';
-import { Database } from './database';
+import { ECHO } from './echo';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { IdentityManager, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
-const createDatabase = async (verbose = true) => {
+const createECHO = async (verbose = true) => {
   const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
   const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
@@ -49,12 +49,12 @@ const createDatabase = async (verbose = true) => {
   await partyManager.open();
   await partyManager.createHalo();
 
-  return new Database(partyManager, options);
+  return new ECHO(partyManager, options);
 };
 
 describe('api tests', () => {
   test('create party and update properties.', async () => {
-    const db = await createDatabase();
+    const db = await createECHO();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -81,7 +81,7 @@ describe('api tests', () => {
   });
 
   test('create party and items.', async () => {
-    const db = await createDatabase();
+    const db = await createECHO();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -120,7 +120,7 @@ describe('api tests', () => {
   });
 
   test('create party and item with child item.', async () => {
-    const db = await createDatabase();
+    const db = await createECHO();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -157,7 +157,7 @@ describe('api tests', () => {
   });
 
   test('create party, two items with child items, and then move child.', async () => {
-    const db = await createDatabase();
+    const db = await createECHO();
     await db.open();
 
     const parties = await db.queryParties({ open: true });
@@ -231,7 +231,7 @@ describe('api tests', () => {
     await partyManager.createHalo();
     expect(identityManager.halo).toBeTruthy();
 
-    const database = new Database(partyManager);
+    const database = new ECHO(partyManager);
 
     await waitForCondition(async () => (await database.getParty(partyKey.publicKey)) !== undefined);
     const party = await database.getParty(partyKey.publicKey);

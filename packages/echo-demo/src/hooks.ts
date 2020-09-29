@@ -6,7 +6,7 @@ import { createContext, useEffect, useContext, useState } from 'react';
 
 import { humanize, keyToString } from '@dxos/crypto';
 import { truncateString } from '@dxos/debug';
-import { Database, Party, Item } from '@dxos/echo-db';
+import { ECHO, Party, Item } from '@dxos/echo-db';
 import { PartyKey } from '@dxos/echo-protocol';
 
 import { ComplexMap } from '../../util/dist/src';
@@ -16,7 +16,7 @@ import { ComplexMap } from '../../util/dist/src';
 //
 
 interface Context {
-  database: Database
+  database: ECHO
 }
 
 export const EchoContext = createContext<Context>(null);
@@ -24,7 +24,7 @@ export const EchoContext = createContext<Context>(null);
 /**
  * Get database.
  */
-export const useDatabase = (): Database => {
+export const useDatabase = (): ECHO => {
   const { database } = useContext(EchoContext);
   return database;
 };
