@@ -5,8 +5,7 @@
 import ram from 'random-access-memory';
 
 import { Keyring, KeyType, KeyStore } from '@dxos/credentials';
-import { ECHO, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager
-} from '@dxos/echo-db';
+import { ECHO, PartyManager, PartyFactory, FeedStoreAdapter, IdentityManager } from '@dxos/echo-db';
 import { codec } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';

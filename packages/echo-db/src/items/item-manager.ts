@@ -133,7 +133,7 @@ export class ItemManager {
       assert(mutation);
       return {
         meta,
-        mutation: mutationCodec.decode(mutation),
+        mutation: mutationCodec.decode(mutation)
       };
     });
 
@@ -143,7 +143,7 @@ export class ItemManager {
     const outboundTransform = createTransform<unknown, EchoEnvelope>(async (mutation) => {
       return {
         itemId,
-        mutation: mutationCodec.encode(mutation),
+        mutation: mutationCodec.encode(mutation)
       };
     });
 

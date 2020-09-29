@@ -32,7 +32,7 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
   return class extends Model<Mutation> {
     static meta: ModelMeta = {
       type: `wrn://protocol.dxos.org/model/adapter/${encodeURIComponent(typeUrl)}`,
-      mutation: schema.getCodecForType('dxos.echo.adapter.Mutation'),
+      mutation: schema.getCodecForType('dxos.echo.adapter.Mutation')
     }
 
     model = new InnerModelConstructor();

@@ -34,7 +34,6 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
     //
     if (genesis) {
       const { itemType, modelType } = genesis;
-      (itemType);
       assert(modelType);
 
       // Create inbound stream for item.

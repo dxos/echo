@@ -10,6 +10,7 @@ import ram from 'random-access-memory';
 import { waitForCondition } from '@dxos/async';
 import { createFeedAdmitMessage, createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
 import { createId, humanize } from '@dxos/crypto';
+import { codec } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -20,7 +21,6 @@ import { ECHO } from './echo';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { IdentityManager, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
-import { codec } from '@dxos/echo-protocol';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

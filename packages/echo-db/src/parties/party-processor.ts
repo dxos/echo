@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
 
 import { Event } from '@dxos/async';
@@ -9,7 +10,6 @@ import { Party as PartyStateMachine, KeyType, PartyCredential, getPartyCredentia
 import { keyToString } from '@dxos/crypto';
 import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
-import assert from 'assert';
 
 const log = debug('dxos:echo:halo-party-processor');
 
@@ -91,7 +91,7 @@ export class PartyProcessor {
           if (echo.genesis && !Object.keys({}).length) {
             return i;
           } else {
-            assert(echo.timeframe)
+            assert(echo.timeframe);
             const gaps = spacetime.dependencies(echo.timeframe, this._timeframe);
             assert(gaps.frames);
             if (gaps.frames.length === 0) {

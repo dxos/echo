@@ -139,7 +139,7 @@ export class Pipeline {
           if (message.halo) {
             await this._partyProcessor.processMessage({
               meta: createFeedMeta(block),
-              data: message.halo,
+              data: message.halo
             });
           }
 

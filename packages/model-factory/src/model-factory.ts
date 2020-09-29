@@ -41,11 +41,11 @@ export class ModelFactory {
     return new constructor(meta, itemId, writeStream);
   }
 
-  getModelMeta(modelType: ModelType): ModelMeta {
+  getModelMeta (modelType: ModelType): ModelMeta {
     if (!this._models.has(modelType)) {
       throw new Error(`Invalid model type: ${modelType}`);
     }
     const { meta } = this._models.get(modelType)!;
-    return meta
+    return meta;
   }
 }

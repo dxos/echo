@@ -122,7 +122,7 @@ export class Item<M extends Model<any>> {
       const parent = getItem(parentId);
       this._updateParent(parent);
     }
-    
+
     this._onUpdate.emit(this);
   }
 
