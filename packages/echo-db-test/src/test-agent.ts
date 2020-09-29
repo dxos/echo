@@ -67,7 +67,7 @@ export default class TestAgent implements Agent {
       case Command.CREATE_PARTY: {
         this.party = await this.echo.createParty();
 
-        const items = await this.party.queryItems();
+        const items = await this.party.database.queryItems();
         this.environment.metrics.set('item.count', items.value.length);
         items.subscribe(items => {
           this.environment.metrics.set('item.count', items.length);
@@ -89,7 +89,7 @@ export default class TestAgent implements Agent {
       case Command.JOIN_PARTY: {
         const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any);
         this.party = await this.echo.joinParty(invitation, async () => Buffer.from('0000'));
-        const items = await this.party.queryItems();
+        const items = await this.party.database.queryItems();
         items.subscribe(items => {
           this.environment.metrics.set('item.count', items.length);
         });
@@ -98,7 +98,8 @@ export default class TestAgent implements Agent {
         });
       } break;
       case Command.CREATE_ITEM:
-        this.party!.createItem(ObjectModel);
+        assert(this.party);
+        this.party.database.createItem(ObjectModel);
         break;
       default: {
         throw new Error('Invalid command');
@@ -107,7 +108,7 @@ export default class TestAgent implements Agent {
   }
 
   async snapshot () {
-    const items = await this.party?.queryItems();
+    const items = await this.party?.database.queryItems();
     return {
       items: items?.value.map(item => ({
         id: item.id,

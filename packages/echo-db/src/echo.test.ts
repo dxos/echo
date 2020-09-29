@@ -95,13 +95,13 @@ describe('api tests', () => {
       // TODO(burdon): Update currentybly called after all mutations below have completed?
       expect(parties).toHaveLength(1);
       parties.map(async party => {
-        const items = await party.queryItems();
+        const items = await party.database.queryItems();
         items.value.forEach(item => {
           log('Item:', String(item));
         });
 
         // TODO(burdon): Check item mutations.
-        const result = await party.queryItems({ type: 'wrn://dxos.org/item/document' });
+        const result = await party.database.queryItems({ type: 'wrn://dxos.org/item/document' });
         expect(result.value).toHaveLength(2);
         onUpdate();
       });
@@ -111,9 +111,9 @@ describe('api tests', () => {
     expect(party.isOpen).toBeTruthy();
 
     // TODO(burdon): Test item mutations.
-    await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
-    await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
-    await party.createItem(ObjectModel, 'wrn://dxos.org/item/kanban');
+    await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/kanban');
 
     await updated;
     unsubscribe();
@@ -133,12 +133,12 @@ describe('api tests', () => {
 
       expect(parties).toHaveLength(1);
       parties.map(async party => {
-        const items = await party.queryItems();
+        const items = await party.database.queryItems();
         items.value.forEach(item => {
           log('Item:', String(item));
         });
 
-        const { first: item } = await party.queryItems({ type: 'wrn://dxos.org/item/document' });
+        const { first: item } = await party.database.queryItems({ type: 'wrn://dxos.org/item/document' });
         expect(item.children).toHaveLength(1);
         expect(item.children[0].type).toBe(undefined);
         // TODO(burdon): Test parent.
@@ -149,8 +149,8 @@ describe('api tests', () => {
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const parent = await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
-    await party.createItem(ObjectModel, undefined, parent.id);
+    const parent = await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    await party.database.createItem(ObjectModel, undefined, parent.id);
 
     await updated;
     unsubscribe();
@@ -167,13 +167,13 @@ describe('api tests', () => {
     const party = await db.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const parentA = await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
-    const childA = await party.createItem(ObjectModel, undefined, parentA.id);
+    const parentA = await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    const childA = await party.database.createItem(ObjectModel, undefined, parentA.id);
     expect(parentA.children).toHaveLength(1);
     expect(parentA.children[0].id).toEqual(childA.id);
 
-    const parentB = await party.createItem(ObjectModel, 'wrn://dxos.org/item/document');
-    const childB = await party.createItem(ObjectModel, undefined, parentB.id);
+    const parentB = await party.database.createItem(ObjectModel, 'wrn://dxos.org/item/document');
+    const childB = await party.database.createItem(ObjectModel, undefined, parentB.id);
     expect(parentB.children).toHaveLength(1);
     expect(parentB.children[0].id).toEqual(childB.id);
 
@@ -238,7 +238,7 @@ describe('api tests', () => {
     assert(party);
     log('Initialized party');
 
-    const items = await party.queryItems();
+    const items = await party.database.queryItems();
     await waitForCondition(() => items.value.length > 0);
   });
 });

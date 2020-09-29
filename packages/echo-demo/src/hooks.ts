@@ -56,7 +56,7 @@ export const useItems = ({ partyKey }): Item<any>[] => {
     let unsubscribe;
     setImmediate(async () => {
       const party = await database.getParty(partyKey);
-      const result = await party.queryItems();
+      const result = await party.database.queryItems();
       unsubscribe = result.subscribe(() => {
         setItems(result.value);
       });
@@ -152,7 +152,7 @@ export const useGraphData = ({ id }) => {
     setData(createGraphData(id, partyMap));
 
     return liftCallback(await Promise.all(parties.map(async party => {
-      const result = await party.queryItems();
+      const result = await party.database.queryItems();
 
       partyMap.set(party.key, { party, items: result.value });
       setData(createGraphData(id, partyMap));

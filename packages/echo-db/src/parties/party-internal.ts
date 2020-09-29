@@ -61,6 +61,10 @@ export class PartyInternal {
     return !!this._itemManager;
   }
 
+  get itemManager () {
+    return this._itemManager;
+  }
+
   /**
    * Opens the pipeline and connects the streams.
    */
@@ -111,33 +115,6 @@ export class PartyInternal {
   }
 
   /**
-   * Creates a new item with the given queryable type and model.
-   * @param {ModelType} model
-   * @param {ItemType} [itemType]
-   * @param {ItemID} [parentId]
-   */
-  // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
-  // TODO(burdon): Pass in { type, parent } as options.
-  async createItem <M extends Model<any>> (model: ModelConstructor<M>,
-    itemType?: ItemType | undefined,
-    parentId?: ItemID | undefined): Promise<Item<M>> {
-    assert(this._itemManager);
-    assert(model?.meta?.type);
-
-    return this._itemManager.createItem(model.meta.type, itemType, parentId);
-  }
-
-  /**
-   * Queries for a set of Items matching the optional filter.
-   * @param filter
-   */
-  queryItems (filter?: ItemFilter): ResultSet<Item<any>> {
-    assert(this._itemManager, 'ItemManger is missing.');
-
-    return this._itemManager.queryItems(filter);
-  }
-
-  /**
    * Creates an invition for a remote peer.
    */
   async createInvitation (inviteDetails: InvitationDetails) {
@@ -169,13 +146,5 @@ export class PartyInternal {
     const { value: items } = await this._itemManager?.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1);
     return items[0];
-  }
-
-  /**
-   * Retrieves a item from the index.
-   * @param itemId
-   */
-  getItem (itemId: ItemID): Item<any> | undefined {
-    return this._itemManager?.getItem(itemId);
   }
 }
