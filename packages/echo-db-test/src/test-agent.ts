@@ -7,7 +7,7 @@ import assert from 'assert';
 import { Keyring, KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import {
-  codec, Database, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager, IdentityManager
+  codec, ECHO, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager, IdentityManager
 } from '@dxos/echo-db';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
@@ -24,7 +24,7 @@ export enum Command {
 
 export default class TestAgent implements Agent {
   private party?: Party;
-  private db!: Database;
+  private echo!: ECHO;
 
   constructor (private environment: Environment) {}
 
@@ -56,8 +56,8 @@ export default class TestAgent implements Agent {
     await partyManager.open();
     await partyManager.createHalo();
 
-    this.db = new Database(partyManager);
-    await this.db.open();
+    this.echo = new ECHO(partyManager);
+    await this.echo.open();
   }
 
   async onEvent (event: JsonObject) {
@@ -65,7 +65,7 @@ export default class TestAgent implements Agent {
 
     switch (event.command) {
       case Command.CREATE_PARTY: {
-        this.party = await this.db.createParty();
+        this.party = await this.echo.createParty();
 
         const items = await this.party.queryItems();
         this.environment.metrics.set('item.count', items.value.length);
@@ -88,7 +88,7 @@ export default class TestAgent implements Agent {
       } break;
       case Command.JOIN_PARTY: {
         const invitation = InvitationDescriptor.fromQueryParameters(event.invitation as any);
-        this.party = await this.db.joinParty(invitation, async () => Buffer.from('0000'));
+        this.party = await this.echo.joinParty(invitation, async () => Buffer.from('0000'));
         const items = await this.party.queryItems();
         items.subscribe(items => {
           this.environment.metrics.set('item.count', items.length);
