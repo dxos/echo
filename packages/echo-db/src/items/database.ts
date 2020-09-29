@@ -5,33 +5,51 @@
 import assert from 'assert';
 
 import { ItemID, ItemType } from '@dxos/echo-protocol';
-import { Model, ModelConstructor } from '@dxos/model-factory';
+import { Model, ModelConstructor, ModelType } from '@dxos/model-factory';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
 import { ItemFilter, ItemManager } from './item-manager';
 
+/**
+ * Represents a shared dataset containing queryable Items that are constructed from an ordered stream
+ * of mutations.
+ */
 export class Database {
   constructor (
-    private readonly _itemManager: ItemManager | undefined
+    // This needs to be a function to ensure that database can be created before ItemManager is initialized.
+    // TODO(marik-d): Is there an easier way to do this?
+    private readonly _itemManagerProvider: () => ItemManager | undefined
   ) {}
 
   /**
    * Creates a new item with the given queryable type and model.
-   * @param {ModelType} model
-   * @param {ItemType} [itemType]
-   * @param {ItemID} [parentId]
+   * @param model
+   * @param itemType
+   * @param parentId
    */
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   // TODO(burdon): Pass in { type, parent } as options.
-  async createItem <M extends Model<any>> (
+  createItem <M extends Model<any>> (
     model: ModelConstructor<M>,
     itemType?: ItemType | undefined,
     parentId?: ItemID | undefined
   ): Promise<Item<M>> {
-    assert(this._itemManager, 'Database not open.');
+    return this._getItemManager().createItem(model.meta.type, itemType, parentId);
+  }
 
-    return this._itemManager.createItem(model.meta.type, itemType, parentId);
+  /**
+   * Creates a new item with the given queryable type and model.
+   * @param modelType
+   * @param itemType
+   * @param parentId
+   */
+  createItemByType(
+    modelType: ModelType,
+    itemType?: ItemType,
+    parentId?: ItemID,
+  ): Promise<Item<Model<unknown>>> {
+    return this._getItemManager().createItem(modelType, itemType, parentId);
   }
 
   /**
@@ -39,9 +57,7 @@ export class Database {
    * @param filter
    */
   queryItems (filter?: ItemFilter): ResultSet<Item<any>> {
-    assert(this._itemManager, 'Database not open.');
-
-    return this._itemManager.queryItems(filter);
+    return this._getItemManager().queryItems(filter);
   }
 
   /**
@@ -49,8 +65,12 @@ export class Database {
    * @param itemId
    */
   getItem (itemId: ItemID): Item<any> | undefined {
-    assert(this._itemManager, 'Database not open.');
+    return this._getItemManager().getItem(itemId);
+  }
 
-    return this._itemManager.getItem(itemId);
+  private _getItemManager() {
+    const itemManager = this._itemManagerProvider();
+    assert(itemManager, 'Database not open.');
+    return itemManager
   }
 }

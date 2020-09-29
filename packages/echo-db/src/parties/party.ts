@@ -19,7 +19,7 @@ export class Party {
   constructor (
     private readonly _impl: PartyInternal
   ) {
-    this._database = new Database(this._impl.itemManager);
+    this._database = new Database(() => this._impl.itemManager);
   }
 
   toString () {
