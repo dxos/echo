@@ -10,3 +10,4 @@ export * from './result';
 export * from './replication';
 export * from './feed-store-adapter';
 export * from './invitations';
+export { codec } from '@dxos/echo-protocol';

@@ -37,7 +37,6 @@ message EchoEnvelope {
   ItemMutation itemMutation = 11;
 
   // User model mutations.
-  // TODO(burdon): Optimize with numeric type_url value? Separate types.
   bytes mutation = 12;
 }
 

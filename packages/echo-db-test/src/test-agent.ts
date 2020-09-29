@@ -7,9 +7,8 @@ import assert from 'assert';
 import { Keyring, KeyType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import {
-  ECHO, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager, IdentityManager
+  codec, ECHO, FeedStoreAdapter, InvitationDescriptor, Party, PartyFactory, PartyManager, IdentityManager
 } from '@dxos/echo-db';
-import { codec } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
