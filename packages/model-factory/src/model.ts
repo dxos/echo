@@ -16,7 +16,7 @@ import { ModelMessage, ModelMeta } from './types';
  * Models define a root message type, which is contained in the partent Item's message envelope.
  */
 export abstract class Model<T> {
-  private readonly _modelUpdate = new Event<Model<T>>();
+  protected readonly _modelUpdate = new Event<Model<T>>();
   private readonly _processor: NodeJS.WritableStream;
 
   private readonly _meta: ModelMeta;

@@ -55,11 +55,15 @@ export class ObjectModel extends Model<ObjectMutationSet> {
         }
       ]
     }));
+
+    // Wait for the property to by updated so that getProperty will return the expected value.
+    // TODO(telackey): It would be better if we could check for a unique ID per mutation rather than the value.
+    return this._modelUpdate.waitFor(() => this.getProperty(key) === value);
   }
 
-  async _processMessage (meta: FeedMeta, messsage: ObjectMutationSet) {
-    log('processMessage', JSON.stringify({ meta, messsage }, jsonReplacer));
-    MutationUtil.applyMutationSet(this._object, messsage);
+  async _processMessage (meta: FeedMeta, message: ObjectMutationSet) {
+    log('processMessage', JSON.stringify({ meta, message }, jsonReplacer));
+    MutationUtil.applyMutationSet(this._object, message);
     return true;
   }
 }
