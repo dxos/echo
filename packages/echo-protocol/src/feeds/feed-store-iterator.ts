@@ -234,6 +234,8 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
         const message = this._popSendQueue();
         if (message === undefined) {
           log('Paused...');
+          console.warn('Paused...');
+          //setTimeout(() => { console.log('PING'); this._trigger.wake(); }, 1000);
           break;
         }
 
