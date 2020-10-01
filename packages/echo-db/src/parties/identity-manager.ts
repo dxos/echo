@@ -34,10 +34,9 @@ export class IdentityManager {
 
   async initialize (halo: PartyInternal) {
     this._halo = halo;
-    // Wait for at least the Identity key to be processed.
     // TODO(telackey): We should wait for the Device key too, once we have multi-device,
     // and Identity/DeviceInfo messages if we make them mandatory.
-    const identityKey = this.identityKey;
-    await waitForCondition(() => halo.processor.credentialMessages.has(identityKey.key));
+    // Wait for the Identity key to be processed; it will be the first one.
+    await waitForCondition(() => halo.processor.memberKeys.length);
   }
 }
