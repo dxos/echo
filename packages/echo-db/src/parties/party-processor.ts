@@ -8,7 +8,7 @@ import debug from 'debug';
 import { Event } from '@dxos/async';
 import { Party as PartyStateMachine, KeyType, PartyCredential, getPartyCredentialMessageType } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey, IHaloStream, FeedKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/echo-protocol';
+import { PartyKey, IHaloStream, FeedKey, PublicKey, Spacetime, FeedKeyMapper, MessageSelector, FeedBlock } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
 
 const log = debug('dxos:echo:halo-party-processor');
@@ -70,6 +70,14 @@ export class PartyProcessor {
     return this._stateMachine.memberKeys;
   }
 
+  get credentialMessages () {
+    return this._stateMachine.credentialMessages;
+  }
+
+  get infoMessages () {
+    return this._stateMachine.infoMessages;
+  }
+
   get messageSelector (): MessageSelector {
     // TODO(telackey): Add KeyAdmit checks.
     // The MessageSelector makes sure that we read in a trusted order. The first message we wish to process is
@@ -115,6 +123,11 @@ export class PartyProcessor {
 
       return undefined;
     };
+  }
+
+  getMemberInfo (publicKey: PublicKey) {
+    // TODO(telackey): Normalize PublicKey types in @dxos/credentials.
+    return this._stateMachine.getInfo(Buffer.from(publicKey));
   }
 
   // TODO(burdon): Rename xxxProvider.

@@ -3,11 +3,16 @@
 //
 
 import { humanize } from '@dxos/crypto';
-import { PartyKey } from '@dxos/echo-protocol';
+import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 
 import { InvitationDetails } from '../invitations';
 import { Database } from '../items/database';
 import { PartyInternal } from './party-internal';
+
+export interface PartyMember {
+  publicKey: PublicKey,
+  displayName?: string
+}
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -36,6 +41,16 @@ export class Party {
 
   get database () {
     return this._database;
+  }
+
+  getMembers (): PartyMember[] {
+    return this._impl.processor.memberKeys.map((publicKey: PublicKey) => {
+      const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
+      return {
+        publicKey,
+        displayName
+      };
+    });
   }
 
   /**
