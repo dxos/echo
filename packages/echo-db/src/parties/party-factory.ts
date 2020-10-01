@@ -31,7 +31,7 @@ import { Pipeline } from './pipeline';
 /**
  * Options allowed when creating the HALO.
  */
-interface HaloCreationOptions {
+export interface HaloCreationOptions {
   identityDisplayName?: string,
   deviceDisplayName?: string
 }
