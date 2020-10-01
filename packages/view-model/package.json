@@ -27,7 +27,7 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@dxos/crypto": "^0.0.1",
+    "@dxos/crypto": "^1.0.0-beta.8",
     "@dxos/model-factory": "^0.1.0"
   },
   "devDependencies": {

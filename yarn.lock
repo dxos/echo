@@ -901,19 +901,10 @@
     lodash.merge "^4.6.2"
     protobufjs "^6.9.0"
 
-"@dxos/crypto@^0.0.1":
-  version "0.0.1"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcrypto/-/crypto-0.0.1.tgz#96ecb7efad8b99a8bc29b7a4522e3890df827296"
-  integrity sha512-ELTJSXE2Inq7THr+Fd6NMoF6xnIPHtCtBJln83PtS+NvR/mjlSagEP/bDpGi7CLv++O/mjjB9ALHm33YjDpndA==
-  dependencies:
-    crypto-js "^3.1.9-1"
-    humanhash "^1.0.4"
-    hypercore-crypto "^1.0.0"
-
-"@dxos/crypto@^1.0.0-beta.1":
-  version "1.0.0-beta.4"
-  resolved "http://npm.dev.dxos.network:5736/@dxos%2fcrypto/-/crypto-1.0.0-beta.4.tgz#bbef21c6d19a82de6d1e7e00bc88f15b8dbfe904"
-  integrity sha512-nFM2UcbCPL1ial0WByZ3DkII5CQoqoQCHTH01Yhy6S7UaxNEcQTRsup0cktIL98vPTcrTqSBxJhMry/r6De5kA==
+"@dxos/crypto@^1.0.0-beta.1", "@dxos/crypto@^1.0.0-beta.8":
+  version "1.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@dxos/crypto/-/crypto-1.0.0-beta.8.tgz#b4e58152b083c959a652f55a17012012a9fd84e9"
+  integrity sha512-dQDgLz0u1W4yxeMOQBvwZZKK8Q6dPlrEL9uSsKj5RGkXLjv0AlrHbNDAqoUJRo9g3dqCrMYbVO5Cx7RN1hu/uA==
   dependencies:
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"
