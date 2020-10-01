@@ -11,7 +11,7 @@ import { ModelMeta, Model } from '@dxos/model-factory';
 import { checkType, jsonReplacer } from '@dxos/util';
 
 import { MutationUtil, ValueUtil } from './mutation';
-import { ObjectMutationSet, schema } from './proto';
+import { ObjectMutation, ObjectMutationSet, schema } from './proto';
 
 const log = debug('dxos:echo:object-model');
 
@@ -48,8 +48,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     await this.write(checkType<ObjectMutationSet>({
       mutations: [
         {
-          // TODO(burdon): Namespace conflict when imported into echo-db.
-          operation: 0, // _protocol.dxos.echo.object.ObjectMutation.Operation.SET,
+          operation: ObjectMutation.Operation.SET,
           key,
           value: ValueUtil.createMessage(value)
         }
