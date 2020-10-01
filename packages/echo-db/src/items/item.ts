@@ -26,6 +26,7 @@ export class Item<M extends Model<any>> {
   private _parent: Item<any> | null = null;
   private readonly _children = new Set<Item<any>>();
   private readonly _onUpdate = new Event<Item<M>>();
+  private _modelUnsubscribe: (() => void) | undefined;
 
   /**
    * Items are constructed by a `Party` object.
@@ -92,6 +93,14 @@ export class Item<M extends Model<any>> {
    * @param listener
    */
   subscribe (listener: (item: Item<M>) => void) {
+    // Model updates mean Item updates, so make sure we are subscribed as well.
+    if (!this._modelUnsubscribe) {
+      // TODO(telackey): What sort of cleanup do we want for Items?
+      this._modelUnsubscribe = this._model.subscribe(() => {
+        this._onUpdate.emit(this);
+      });
+    }
+
     return this._onUpdate.on(listener);
   }
 
