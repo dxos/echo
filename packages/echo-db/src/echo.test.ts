@@ -110,7 +110,7 @@ describe('api tests', () => {
     const party = await echo.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const members = party.getMembers();
+    const members = party.queryMembers().value;
     expect(members.length).toBe(1);
     // Within this test, we use the humanized key as the name.
     expect(members[0].displayName).toEqual(humanize(members[0].publicKey));
@@ -154,7 +154,7 @@ describe('api tests', () => {
     const party = await echo.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const members = party.getMembers();
+    const members = party.queryMembers().value;
     expect(members.length).toBe(1);
     // Within this test, we use the humanized key as the name.
     expect(members[0].displayName).toEqual(humanize(members[0].publicKey));
@@ -177,7 +177,7 @@ describe('api tests', () => {
     const party = await echo.createParty();
     expect(party.isOpen).toBeTruthy();
 
-    const members = party.getMembers();
+    const members = party.queryMembers().value;
     expect(members.length).toBe(1);
     // Within this test, we use the humanized key as the name.
     expect(members[0].displayName).toEqual(humanize(members[0].publicKey));

@@ -7,6 +7,7 @@ import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 
 import { InvitationDetails } from '../invitations';
 import { Database } from '../items/database';
+import { ResultSet } from '../result';
 import { PartyInternal } from './party-internal';
 
 export interface PartyMember {
@@ -43,14 +44,17 @@ export class Party {
     return this._database;
   }
 
-  getMembers (): PartyMember[] {
-    return this._impl.processor.memberKeys.map((publicKey: PublicKey) => {
-      const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
-      return {
-        publicKey,
-        displayName
-      };
-    });
+  queryMembers (): ResultSet<PartyMember> {
+    return new ResultSet(
+      this._impl.processor.keyAdded.discardParameter(),
+      () => this._impl.processor.memberKeys.map((publicKey: PublicKey) => {
+        const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
+        return {
+          publicKey,
+          displayName
+        };
+      })
+    );
   }
 
   /**
