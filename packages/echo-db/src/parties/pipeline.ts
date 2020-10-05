@@ -11,6 +11,7 @@ import { Event } from '@dxos/async';
 import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage } from '@dxos/echo-protocol';
 import { createLoggingTransform, createReadable, createTransform, jsonReplacer } from '@dxos/util';
 
+import { TimeframeClock } from '../items/timeframe-clock';
 import { PartyProcessor } from './party-processor';
 
 interface Options {
@@ -30,6 +31,8 @@ export class Pipeline {
 
   // TODO(burdon): Split (e.g., pass in Timeline and stream)?
   private readonly _partyProcessor: PartyProcessor;
+
+  private readonly _timeframeClock: TimeframeClock;
 
   /**
    * Iterator for messages comming from feeds.
@@ -68,6 +71,7 @@ export class Pipeline {
    */
   constructor (
     partyProcessor: PartyProcessor,
+    timeframeClock: TimeframeClock,
     feedReadStream: AsyncIterable<FeedBlock>,
     feedWriteStream?: NodeJS.WritableStream,
     options?: Options
@@ -75,6 +79,7 @@ export class Pipeline {
     assert(partyProcessor);
     assert(feedReadStream);
     this._partyProcessor = partyProcessor;
+    this._timeframeClock = timeframeClock;
     this._messageIterator = feedReadStream;
     this._feedWriteStream = feedWriteStream;
     this._options = options || {};
@@ -128,7 +133,7 @@ export class Pipeline {
         readLogger?.(block as any);
 
         try {
-          const { data: message } = block;
+          const { data: message, key, seq } = block;
 
           //
           // HALO
@@ -154,6 +159,8 @@ export class Pipeline {
               });
             }
           }
+
+          this._timeframeClock.updateTimeframe(key, seq);
 
           if (!message.halo && !message.echo) {
             // TODO(burdon): Can we throw and have the pipeline log (without breaking the stream)?

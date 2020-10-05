@@ -16,7 +16,7 @@ import {
   createPartyGenesisMessage
 } from '@dxos/credentials';
 import { keyToString, randomBytes } from '@dxos/crypto';
-import { FeedKey, PartyKey } from '@dxos/echo-protocol';
+import { FeedKey, FeedKeyMapper, PartyKey, Spacetime } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
@@ -47,6 +47,8 @@ interface Options {
 }
 
 const log = debug('dxos:echo:party-factory');
+
+const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
 /**
  * Manages the lifecycle of parties.
@@ -123,9 +125,6 @@ export class PartyFactory {
    * @param feedKeyHints
    */
   async constructParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
-    // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
-    //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
-    //   In this case create pipeline in read-only mode.
     const feed = this._feedStore.queryWritableFeed(partyKey);
     assert(feed, `Feed not found for party: ${keyToString(partyKey)}`);
 
@@ -136,7 +135,7 @@ export class PartyFactory {
     // like we do above for the PartyGenesis message.
     //
 
-    const timeframeClock = new TimeframeClock();
+    const timeframeClock = new TimeframeClock(spacetime.createTimeframe(feed.length > 0 ? [[feed.key, feed.length - 1]] : []));
 
     const partyProcessor = new PartyProcessor(partyKey, timeframeClock);
     if (feedKeyHints.length) {
@@ -147,7 +146,12 @@ export class PartyFactory {
     const feedWriteStream = createWritableFeedStream(feed);
 
     const pipeline = new Pipeline(
-      partyProcessor, iterator, feedWriteStream, this._options);
+      partyProcessor,
+      timeframeClock,
+      iterator,
+      feedWriteStream,
+      this._options
+    );
 
     const replicator = new ReplicationAdapter(
       this._networkManager,

@@ -83,7 +83,7 @@ export class PartyInternal {
 
     // Connect to the downstream item demuxer.
     this._itemManager = new ItemManager(this.key, this._modelFactory, this._timeframeClock, writeStream);
-    this._itemDemuxer = createItemDemuxer(this._itemManager, this._timeframeClock);
+    this._itemDemuxer = createItemDemuxer(this._itemManager);
     readStream.pipe(this._itemDemuxer);
 
     // Replication.
@@ -91,6 +91,10 @@ export class PartyInternal {
 
     // TODO(burdon): Propagate errors.
     this._unsubscribePipelineErrors = this._pipeline.errors.on(err => console.error(err));
+
+    // Wait before all of the existing messages in ECHO stream are processed.
+    // This is needed to ensure that synchronous optimistic item mutations don't break the message ordering.
+    await this._timeframeClock.waitForSync();
 
     return this;
   }

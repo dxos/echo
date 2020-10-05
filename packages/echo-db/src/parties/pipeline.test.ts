@@ -31,10 +31,11 @@ describe('pipeline', () => {
     //
     // Create pipeline.
     //
+    const timeframeClock = new TimeframeClock();
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey, new TimeframeClock());
+    const partyProcessor = new PartyProcessor(partyKey, timeframeClock);
     await partyProcessor.takeHints([feed.key]);
-    const pipeline = new Pipeline(partyProcessor, feedReadStream);
+    const pipeline = new Pipeline(partyProcessor, timeframeClock, feedReadStream);
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();
 
