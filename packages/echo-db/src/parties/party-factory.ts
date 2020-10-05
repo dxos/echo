@@ -24,6 +24,7 @@ import { createWritableFeedStream } from '@dxos/util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';
+import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
@@ -135,7 +136,7 @@ export class PartyFactory {
     // like we do above for the PartyGenesis message.
     //
 
-    const partyProcessor = new PartyProcessor(partyKey);
+    const partyProcessor = new PartyProcessor(partyKey, new TimeframeClock());
     if (feedKeyHints.length) {
       await partyProcessor.takeHints(feedKeyHints);
     }
