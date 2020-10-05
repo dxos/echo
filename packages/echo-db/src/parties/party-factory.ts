@@ -40,8 +40,8 @@ export interface HaloCreationOptions {
 }
 
 interface Options {
-  readLogger?: NodeJS.ReadWriteStream;
-  writeLogger?: NodeJS.ReadWriteStream;
+  readLogger?: (msg: any) => void;
+  writeLogger?: (msg: any) => void;
   readOnly?: boolean;
   peerId?: Buffer,
 }
@@ -136,7 +136,9 @@ export class PartyFactory {
     // like we do above for the PartyGenesis message.
     //
 
-    const partyProcessor = new PartyProcessor(partyKey, new TimeframeClock());
+    const timeframeClock = new TimeframeClock();
+
+    const partyProcessor = new PartyProcessor(partyKey, timeframeClock);
     if (feedKeyHints.length) {
       await partyProcessor.takeHints(feedKeyHints);
     }
@@ -159,7 +161,15 @@ export class PartyFactory {
     // Create the party.
     //
     const party = new PartyInternal(
-      this._modelFactory, partyProcessor, pipeline, this._identityManager.keyring, this._getIdentityKey(), this._networkManager, replicator);
+      this._modelFactory,
+      partyProcessor,
+      pipeline,
+      this._identityManager.keyring,
+      this._getIdentityKey(),
+      this._networkManager,
+      replicator,
+      timeframeClock
+    );
     log(`Constructed: ${party}`);
     return { party, pipeline };
   }

@@ -54,10 +54,6 @@ export class PartyProcessor {
     return this._partyKey;
   }
 
-  get timeframe () {
-    return this._timeframeClock.timeframe;
-  }
-
   get feedKeys () {
     return this._stateMachine.memberFeeds;
   }
@@ -135,10 +131,6 @@ export class PartyProcessor {
     // what feeds and keys to trust immediately after Greeting, before we have had the opportunity to replicate the
     // credential messages for ourselves.
     await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
-  }
-
-  updateTimeframe (key: FeedKey, seq: number) {
-    this._timeframeClock.updateTimeframe(key, seq);
   }
 
   async processMessage (message: IHaloStream): Promise<void> {
