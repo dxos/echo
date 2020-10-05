@@ -14,7 +14,9 @@ import { EchoEnvelope, FeedMessage } from './proto';
 //  They are not different types of things, only distinct uses, and the same key may be used in more than one way
 //  (e.g., as both the IdentityKey for the user and as the PartyKey for their HALO).
 
-export type PublicKey = Uint8Array;
+// keys are Buffer type not Uint8Array, though Buffer extend from Uint8Array they are different types
+
+export type PublicKey = Buffer;
 
 export type SwarmKey = PublicKey;
 
