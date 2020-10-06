@@ -21,13 +21,23 @@ const log = debug('dxos:echo:object-model');
 export class ObjectModel extends Model<ObjectMutationSet> {
   static meta: ModelMeta = {
     type: 'wrn://protocol.dxos.org/model/object',
-    mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet')
+    mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet'),
+    
+    async getInitMutation (obj: any): Promise<ObjectMutationSet> {
+      return {
+        mutations: Object.entries(obj).map(([key, value]) => ({
+          operation: ObjectMutation.Operation.SET,
+          key,
+          value: ValueUtil.createMessage(value)
+        }))
+      }
+    }
   };
 
   private _object = {};
 
   /**
-   * Returns an immutable object.p
+   * Returns an immutable object.
    */
   toObject () {
     return cloneDeep(this._object);

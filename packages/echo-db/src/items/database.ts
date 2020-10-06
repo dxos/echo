@@ -5,11 +5,16 @@
 import assert from 'assert';
 
 import { ItemID, ItemType } from '@dxos/echo-protocol';
-import { Model, ModelConstructor, ModelType } from '@dxos/model-factory';
+import { InitializerOf, Model, ModelConstructor, ModelType } from '@dxos/model-factory';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
 import { ItemFilter, ItemManager } from './item-manager';
+
+export interface ItemCreationOptions {
+  type?: ItemType
+  parrent?: ItemID
+}
 
 /**
  * Represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -24,18 +29,14 @@ export class Database {
 
   /**
    * Creates a new item with the given queryable type and model.
-   * @param model
-   * @param itemType
-   * @param parentId
    */
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
-  // TODO(burdon): Pass in { type, parent } as options.
   createItem <M extends Model<any>> (
     model: ModelConstructor<M>,
-    itemType?: ItemType | undefined,
-    parentId?: ItemID | undefined
+    initializer?: InitializerOf<M>,
+    options: ItemCreationOptions = {},
   ): Promise<Item<M>> {
-    return this._getItemManager().createItem(model.meta.type, itemType, parentId);
+    return this._getItemManager().createItem(model.meta.type, options.type, options.parrent, initializer);
   }
 
   /**

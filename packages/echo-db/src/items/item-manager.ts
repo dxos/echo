@@ -62,12 +62,21 @@ export class ItemManager {
    * @param {ItemType} [itemType]
    * @param {ItemID} [parentId]
    */
-  async createItem (modelType: ModelType, itemType?: ItemType, parentId?: ItemID): Promise<Item<any>> {
+  async createItem (modelType: ModelType, itemType?: ItemType, parentId?: ItemID, initParams?: any): Promise<Item<any>> {
     assert(this._writeStream);
     assert(modelType);
 
     if (!this._modelFactory.hasModel(modelType)) {
       throw new Error(`Unknown model: ${modelType}`);
+    }
+
+    let mutation: Uint8Array | undefined = undefined;
+    if(initParams) {
+      const meta = this._modelFactory.getModelMeta(modelType);
+      if(!meta.getInitMutation) {
+        throw new Error('Tried to provide initialization params to a model with no initializer');
+      }
+      mutation = meta.mutation.encode(meta.getInitMutation(initParams));
     }
 
     // Pending until constructed (after genesis block is read from stream).
@@ -84,7 +93,8 @@ export class ItemManager {
         itemType,
         modelType
       },
-      itemMutation: parentId ? { parentId } : undefined
+      itemMutation: parentId ? { parentId } : undefined,
+      mutation,
     }));
 
     // Unlocked by construct.
