@@ -179,8 +179,8 @@ describe('Party manager', () => {
     expect(partyManagerB.parties).toHaveLength(1);
 
     // TODO(telackey): partyManager.getParty???
-    const partyB = <PartyInternal>partyManagerB.parties.find(party =>
-      keyToString(party.key) === keyToString(partyA.key));
+    const partyB = partyManagerB.parties.find(party =>
+      keyToString(party.key) === keyToString(partyA.key)) as PartyInternal;
     expect(partyB).toBeDefined();
     log(`Joined ${keyToString(partyB.key)}`);
 
@@ -249,8 +249,8 @@ describe('Party manager', () => {
     expect(partyManagerB.parties).toHaveLength(1);
 
     // TODO(telackey): partyManager.getParty???
-    const partyB = <PartyInternal>partyManagerB.parties.find(party =>
-      keyToString(party.key) === keyToString(partyA.key));
+    const partyB = partyManagerB.parties.find(party =>
+      keyToString(party.key) === keyToString(partyA.key)) as PartyInternal;
     expect(partyB).toBeDefined();
     log(`Joined ${keyToString(partyB.key)}`);
 
