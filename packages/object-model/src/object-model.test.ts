@@ -11,7 +11,6 @@ import { WritableArray } from '@dxos/util';
 import { ValueUtil } from './mutation';
 import { ObjectModel } from './object-model';
 import { ObjectMutationSet } from './proto';
-import { version } from 'process';
 
 const log = debug('dxos:echo:object-model:testing');
 debug.enable('dxos:echo:*');
@@ -72,7 +71,7 @@ describe('object model', () => {
     // Update.
     const processed = model.setProperties({
       title: 'DXOS',
-      version: 2,
+      version: 2
     });
 
     // Process.
@@ -82,7 +81,7 @@ describe('object model', () => {
     await processed;
     expect(model.toObject()).toStrictEqual({
       title: 'DXOS',
-      version: 2,
+      version: 2
     });
   });
 });

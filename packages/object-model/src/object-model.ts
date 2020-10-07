@@ -8,7 +8,7 @@ import get from 'lodash/get';
 
 import { FeedMeta } from '@dxos/echo-protocol';
 import { ModelMeta, Model } from '@dxos/model-factory';
-import { checkType, jsonReplacer } from '@dxos/util';
+import { jsonReplacer } from '@dxos/util';
 
 import { createMultiFieldMutationSet, MutationUtil, ValueUtil } from './mutation';
 import { ObjectMutation, ObjectMutationSet, schema } from './proto';
@@ -25,7 +25,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
 
     async getInitMutation (obj: any): Promise<ObjectMutationSet> {
       return {
-        mutations: createMultiFieldMutationSet(obj),
+        mutations: createMultiFieldMutationSet(obj)
       };
     }
   };
@@ -69,10 +69,10 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     }
   }
 
-  async setProperties(properties: any) {
+  async setProperties (properties: any) {
     await this.write({
-      mutations: createMultiFieldMutationSet(properties),
-    })
+      mutations: createMultiFieldMutationSet(properties)
+    });
 
     // Wait for the property to by updated so that getProperty will return the expected value.
     // TODO(telackey): It would be better if we could check for a unique ID per mutation rather than the value.
