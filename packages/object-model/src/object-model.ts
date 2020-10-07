@@ -10,7 +10,7 @@ import { FeedMeta } from '@dxos/echo-protocol';
 import { ModelMeta, Model } from '@dxos/model-factory';
 import { checkType, jsonReplacer } from '@dxos/util';
 
-import { MutationUtil, ValueUtil } from './mutation';
+import { createMultiFieldMutationSet, MutationUtil, ValueUtil } from './mutation';
 import { ObjectMutation, ObjectMutationSet, schema } from './proto';
 
 const log = debug('dxos:echo:object-model');
@@ -25,11 +25,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
 
     async getInitMutation (obj: any): Promise<ObjectMutationSet> {
       return {
-        mutations: Object.entries(obj).map(([key, value]) => ({
-          operation: ObjectMutation.Operation.SET,
-          key,
-          value: ValueUtil.createMessage(value)
-        }))
+        mutations: createMultiFieldMutationSet(obj),
       };
     }
   };
@@ -55,7 +51,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
 
   // TODO(burdon): Create builder pattern (replace static methods).
   async setProperty (key: string, value: any) {
-    await this.write(checkType<ObjectMutationSet>({
+    await this.write({
       mutations: [
         {
           operation: ObjectMutation.Operation.SET,
@@ -63,7 +59,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
           value: ValueUtil.createMessage(value)
         }
       ]
-    }));
+    });
 
     // Wait for the property to by updated so that getProperty will return the expected value.
     // TODO(telackey): It would be better if we could check for a unique ID per mutation rather than the value.
@@ -71,6 +67,12 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     if (!match()) {
       await this._modelUpdate.waitFor(match);
     }
+  }
+
+  async setProperties(properties: any) {
+    await this.write({
+      mutations: createMultiFieldMutationSet(properties),
+    })
   }
 
   async _processMessage (meta: FeedMeta, message: ObjectMutationSet) {
