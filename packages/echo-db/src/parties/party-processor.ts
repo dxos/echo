@@ -6,7 +6,15 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { Event } from '@dxos/async';
-import { Party as PartyStateMachine, KeyType, KeyRecord, PartyCredential, getPartyCredentialMessageType } from '@dxos/credentials';
+import {
+  Authenticator,
+  KeyRecord,
+  KeyType,
+  Party as PartyStateMachine,
+  PartyAuthenticator,
+  PartyCredential,
+  getPartyCredentialMessageType
+} from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { PartyKey, IHaloStream, FeedKey, PublicKey, MessageSelector, FeedBlock } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
@@ -27,6 +35,7 @@ export class PartyProcessor {
   protected readonly _feedAdded = new Event<FeedKey>()
 
   private readonly _stateMachine: PartyStateMachine;
+  private readonly _authenticator: Authenticator;
 
   public readonly keyAdded: Event<KeyRecord>;
 
@@ -35,6 +44,7 @@ export class PartyProcessor {
     private readonly _timeframeClock: TimeframeClock
   ) {
     this._stateMachine = new PartyStateMachine(this._partyKey);
+    this._authenticator = new PartyAuthenticator(this._stateMachine);
 
     // TODO(telackey) @dxos/credentials was only half converted to TS. In its current state, the KeyRecord type
     // is not exported, and the PartyStateMachine being used is not properly understood as an EventEmitter by TS.
@@ -68,6 +78,10 @@ export class PartyProcessor {
 
   get infoMessages () {
     return this._stateMachine.infoMessages;
+  }
+
+  get authenticator () {
+    return this._authenticator;
   }
 
   get messageSelector (): MessageSelector {

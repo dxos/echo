@@ -6,16 +6,18 @@ import assert from 'assert';
 import debug from 'debug';
 
 import {
+  Authenticator,
   Filter,
   Keyring,
   KeyType,
+  createAuthMessage,
   createDeviceInfoMessage,
   createEnvelopeMessage,
   createIdentityInfoMessage,
   createKeyAdmitMessage,
   createPartyGenesisMessage
 } from '@dxos/credentials';
-import { keyToString, randomBytes } from '@dxos/crypto';
+import { keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -43,7 +45,6 @@ interface Options {
   readLogger?: (msg: any) => void;
   writeLogger?: (msg: any) => void;
   readOnly?: boolean;
-  peerId?: Buffer,
 }
 
 const log = debug('dxos:echo:party-factory');
@@ -152,9 +153,11 @@ export class PartyFactory {
     const replicator = new ReplicationAdapter(
       this._networkManager,
       this._feedStore,
-      this._options.peerId ?? randomBytes(),
+      this._identityManager.identityKey.publicKey, // TODO(telackey): This should be the Device PublicKey.
       partyKey,
-      partyProcessor.getActiveFeedSet()
+      partyProcessor.getActiveFeedSet(),
+      this._createCredentialsProvider(partyKey, feed?.key),
+      partyProcessor.authenticator
     );
 
     //
@@ -255,5 +258,17 @@ export class PartyFactory {
   // either to PartyFactory or as a param to the create/add methods.
   private _getIdentityKey () {
     return this._identityManager.keyring.findKey(Filter.matches({ type: KeyType.IDENTITY, own: true, trusted: true }));
+  }
+
+  private _createCredentialsProvider (partyKey: PartyKey, feedKey: FeedKey) {
+    return {
+      get: () => Authenticator.encodePayload(createAuthMessage(
+        this._identityManager.keyring,
+        Buffer.from(partyKey),
+        this._identityManager.identityKey,
+        this._identityManager.identityKey, // TODO(telackey): This should be the Device KeyChain.
+        this._identityManager.keyring.getKey(feedKey)
+      ))
+    };
   }
 }
