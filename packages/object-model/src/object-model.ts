@@ -73,6 +73,13 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     await this.write({
       mutations: createMultiFieldMutationSet(properties),
     })
+
+    // Wait for the property to by updated so that getProperty will return the expected value.
+    // TODO(telackey): It would be better if we could check for a unique ID per mutation rather than the value.
+    const match = () => Object.entries(properties).every(([key, value]) => this.getProperty(key) === value);
+    if (!match()) {
+      await this._modelUpdate.waitFor(match);
+    }
   }
 
   async _processMessage (meta: FeedMeta, message: ObjectMutationSet) {
