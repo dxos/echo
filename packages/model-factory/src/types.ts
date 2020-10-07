@@ -21,10 +21,10 @@ export type ModelMeta = {
    * Must return a mutation that will initialize the model.
    * This mutation will be applied in the same processing cycle as the item creation.
    *
-   * @param initParam User-defined params required for initialization. Forwarded from `database.createItem` call.
+   * @param props User-defined props required for initialization. Forwarded from `database.createItem` call.
    * @returns A mutation to be included in the same message as item creation, or null if no initialization is required.
    */
-  getInitMutation? (initParam: any): Promise<any | null>
+  getInitMutation? (props: any): Promise<any | null>
 }
 
 export type ModelConstructor<T> =
