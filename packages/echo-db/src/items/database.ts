@@ -5,7 +5,7 @@
 import assert from 'assert';
 
 import { ItemID, ItemType } from '@dxos/echo-protocol';
-import { InitializerOf, Model, ModelConstructor, ModelType } from '@dxos/model-factory';
+import { Model, ModelConstructor, ModelType } from '@dxos/model-factory';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
@@ -33,7 +33,7 @@ export class Database {
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   createItem <M extends Model<any>> (
     model: ModelConstructor<M>,
-    initializer?: InitializerOf<M>,
+    initializer?: any,
     options: ItemCreationOptions = {},
   ): Promise<Item<M>> {
     return this._getItemManager().createItem(model.meta.type, options.type, options.parrent, initializer);
