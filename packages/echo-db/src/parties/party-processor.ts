@@ -8,8 +8,8 @@ import debug from 'debug';
 import { Event } from '@dxos/async';
 import {
   Authenticator,
+  KeyHint,
   KeyRecord,
-  KeyType,
   Party as PartyStateMachine,
   PartyAuthenticator,
   PartyCredential,
@@ -138,13 +138,13 @@ export class PartyProcessor {
     };
   }
 
-  async takeHints (feedKeys: FeedKey[]) {
-    log(`addHints ${feedKeys.map(key => keyToString(key))}`);
+  async takeHints (hints: KeyHint[]) {
+    log(`addHints ${hints.length}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
     // TODO(telackey): Hints were not intended to provide a feed set for PartyGenesis messages. They are about
     // what feeds and keys to trust immediately after Greeting, before we have had the opportunity to replicate the
     // credential messages for ourselves.
-    await this._stateMachine.takeHints(feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED })));
+    await this._stateMachine.takeHints(hints);
   }
 
   async processMessage (message: IHaloStream): Promise<void> {

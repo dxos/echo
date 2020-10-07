@@ -9,6 +9,7 @@ import {
   Authenticator,
   Filter,
   Keyring,
+  KeyHint,
   KeyType,
   createAuthMessage,
   createDeviceInfoMessage,
@@ -103,15 +104,21 @@ export class PartyFactory {
   /**
    * Constructs a party object and creates a local write feed for it.
    * @param partyKey
-   * @param feedKeyHints - set of hints for existing feeds belonging to this party.
+   * @param hints
    */
-  // TODO(marik-d): Expand this API to accept any type of hint.
-  async addParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
+  async addParty (partyKey: PartyKey, hints: KeyHint[] = []) {
     const { feedKey } = await this._initWritableFeed(partyKey);
 
     // TODO(telackey): We shouldn't have to add our key here, it should be in the hints, but our hint
     // mechanism is broken by not waiting on the messages to be processed before returning.
-    const { party } = await this.constructParty(partyKey, [feedKey.publicKey, ...feedKeyHints]);
+    const { party } = await this.constructParty(partyKey, [
+      {
+        type: feedKey.type,
+        publicKey: feedKey.publicKey
+      },
+      ...hints
+    ]);
+
     await party.open();
 
     // TODO(marik-d): Refactor so it doesn't return a tuple
@@ -121,9 +128,9 @@ export class PartyFactory {
   /**
    * Constructs a party object from an existing set of feeds.
    * @param partyKey
-   * @param feedKeyHints
+   * @param hints
    */
-  async constructParty (partyKey: PartyKey, feedKeyHints: FeedKey[] = []) {
+  async constructParty (partyKey: PartyKey, hints: KeyHint[] = []) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -140,8 +147,8 @@ export class PartyFactory {
     const timeframeClock = new TimeframeClock();
 
     const partyProcessor = new PartyProcessor(partyKey, timeframeClock);
-    if (feedKeyHints.length) {
-      await partyProcessor.takeHints(feedKeyHints);
+    if (hints.length) {
+      await partyProcessor.takeHints(hints);
     }
 
     const iterator = await this._feedStore.createIterator(partyKey, partyProcessor.messageSelector);

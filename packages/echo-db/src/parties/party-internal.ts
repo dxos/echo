@@ -131,7 +131,7 @@ export class PartyInternal {
       this._keyring,
       this._networkManager,
       this._pipeline.outboundHaloStream,
-      () => this._partyProcessor.feedKeys, // TODO(burdon): This can be accessed directly from partyProcessor!
+      this._partyProcessor,
       this._identityKeypair // TODO(burdon): Move to keyring?
     );
 
