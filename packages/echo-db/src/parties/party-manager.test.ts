@@ -19,7 +19,6 @@ import { SecretProvider, SecretValidator } from '../invitations';
 import { Item } from '../items';
 import { IdentityManager } from './identity-manager';
 import { PartyFactory } from './party-factory';
-import { PartyInternal } from './party-internal';
 import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:party-manager-test');
@@ -175,12 +174,7 @@ describe('Party manager', () => {
 
     // Redeem the invitation on B.
     expect(partyManagerB.parties).toHaveLength(0);
-    await partyManagerB.joinParty(invitationDescriptor, secretProvider);
-    expect(partyManagerB.parties).toHaveLength(1);
-
-    // TODO(telackey): partyManager.getParty???
-    const partyB = partyManagerB.parties.find(party =>
-      keyToString(party.key) === keyToString(partyA.key)) as PartyInternal;
+    const partyB = await partyManagerB.joinParty(invitationDescriptor, secretProvider);
     expect(partyB).toBeDefined();
     log(`Joined ${keyToString(partyB.key)}`);
 
@@ -245,12 +239,7 @@ describe('Party manager', () => {
 
     // Redeem the invitation on B.
     expect(partyManagerB.parties).toHaveLength(0);
-    await partyManagerB.joinParty(invitationDescriptor, secretProvider);
-    expect(partyManagerB.parties).toHaveLength(1);
-
-    // TODO(telackey): partyManager.getParty???
-    const partyB = partyManagerB.parties.find(party =>
-      keyToString(party.key) === keyToString(partyA.key)) as PartyInternal;
+    const partyB = await partyManagerB.joinParty(invitationDescriptor, secretProvider);
     expect(partyB).toBeDefined();
     log(`Joined ${keyToString(partyB.key)}`);
 
