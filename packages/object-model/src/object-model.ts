@@ -22,7 +22,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
   static meta: ModelMeta = {
     type: 'wrn://protocol.dxos.org/model/object',
     mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet'),
-    
+
     async getInitMutation (obj: any): Promise<ObjectMutationSet> {
       return {
         mutations: Object.entries(obj).map(([key, value]) => ({
@@ -30,7 +30,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
           key,
           value: ValueUtil.createMessage(value)
         }))
-      }
+      };
     }
   };
 
