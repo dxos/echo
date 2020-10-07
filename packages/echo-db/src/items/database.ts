@@ -34,7 +34,7 @@ export class Database {
   createItem <M extends Model<any>> (
     model: ModelConstructor<M>,
     initializer?: any,
-    options: ItemCreationOptions = {},
+    options: ItemCreationOptions = {}
   ): Promise<Item<M>> {
     return this._getItemManager().createItem(model.meta.type, options.type, options.parrent, initializer);
   }

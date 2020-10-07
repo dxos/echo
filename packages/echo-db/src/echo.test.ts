@@ -182,7 +182,7 @@ describe('api tests', () => {
     // Within this test, we use the humanized key as the name.
     expect(members[0].displayName).toEqual(humanize(members[0].publicKey));
 
-    const parentA = await party.database.createItem(ObjectModel,undefined, { type: 'wrn://dxos.org/item/document' });
+    const parentA = await party.database.createItem(ObjectModel, undefined, { type: 'wrn://dxos.org/item/document' });
     const childA = await party.database.createItem(ObjectModel, undefined, { parrent: parentA.id });
     expect(parentA.children).toHaveLength(1);
     expect(parentA.children[0].id).toEqual(childA.id);

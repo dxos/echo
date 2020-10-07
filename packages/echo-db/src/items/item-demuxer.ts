@@ -48,7 +48,7 @@ export const createItemDemuxer = (itemManager: ItemManager): NodeJS.WritableStre
         itemType,
         itemStream,
         undefined,
-        mutation ? { mutation, meta } : undefined,
+        mutation ? { mutation, meta } : undefined
       );
       assert(item.id === itemId);
     }

@@ -70,10 +70,10 @@ export class ItemManager {
       throw new Error(`Unknown model: ${modelType}`);
     }
 
-    let mutation: Uint8Array | undefined = undefined;
-    if(initProps) {
+    let mutation: Uint8Array | undefined;
+    if (initProps) {
       const meta = this._modelFactory.getModelMeta(modelType);
-      if(!meta.getInitMutation) {
+      if (!meta.getInitMutation) {
         throw new Error('Tried to provide initialization params to a model with no initializer');
       }
       mutation = meta.mutation.encode(await meta.getInitMutation(initProps));
@@ -94,7 +94,7 @@ export class ItemManager {
         modelType
       },
       itemMutation: parentId ? { parentId } : undefined,
-      mutation,
+      mutation
     }));
 
     // Unlocked by construct.
@@ -117,7 +117,7 @@ export class ItemManager {
     itemType: ItemType | undefined,
     readStream: NodeJS.ReadableStream,
     parentId?: ItemID,
-    initialMutation?: ModelMessage<Uint8Array>,
+    initialMutation?: ModelMessage<Uint8Array>
   ) {
     assert(this._writeStream);
     assert(itemId);
@@ -172,7 +172,7 @@ export class ItemManager {
     this._items.set(itemId, item);
     log('Constructed:', String(item));
 
-    if(initialMutation) {
+    if (initialMutation) {
       await item.model.processMessage(initialMutation.meta, mutationCodec.decode(initialMutation.mutation));
     }
 
