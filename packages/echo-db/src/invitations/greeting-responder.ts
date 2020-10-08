@@ -4,7 +4,6 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import pify from 'pify';
 
 import { Event, waitForCondition } from '@dxos/async';
 import {
@@ -57,12 +56,11 @@ export class GreetingResponder {
   readonly connected = new Event<any>();
 
   constructor (
-    private readonly _partyKey: PartyKey, // TODO(burdon): Move to bottom.
     private readonly _keyring: Keyring,
     private readonly _networkManager: NetworkManager,
-    private readonly _writeStream: NodeJS.WritableStream,
     private readonly _partyProcessor: PartyProcessor,
-    private readonly _identityKeypair: KeyRecord
+    private readonly _identityKeypair: KeyRecord,
+    private readonly _partyKey: PartyKey
   ) {
     this._greeter = new Greeter(
       Buffer.from(this._partyKey),
@@ -214,7 +212,7 @@ export class GreetingResponder {
       };
 
       const envelope = createEnvelopeMessage(this._keyring, Buffer.from(this._partyKey), message, [this._identityKeypair], null);
-      await pify(this._writeStream.write.bind(this._writeStream))(envelope);
+      await this._partyProcessor.writeHaloMessage(envelope);
 
       // Wait for keys to be admitted.
       await waitForCondition(() => admittedKeys.every(hasKey));

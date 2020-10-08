@@ -12,7 +12,6 @@ import { FeedStore } from '@dxos/feed-store';
 import { createSetPropertyMutation } from '@dxos/model-factory';
 import { createWritableFeedStream, jsonReplacer, createWritable, latch } from '@dxos/util';
 
-import { TimeframeClock } from '../items/timeframe-clock';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
@@ -33,7 +32,7 @@ describe('pipeline', () => {
     // Create pipeline.
     //
     const { publicKey: partyKey } = createKeyPair();
-    const partyProcessor = new PartyProcessor(partyKey, new TimeframeClock());
+    const partyProcessor = new PartyProcessor(partyKey);
     await partyProcessor.takeHints([{
       type: KeyType.FEED,
       publicKey: feed.key
