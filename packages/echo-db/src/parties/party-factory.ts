@@ -6,9 +6,11 @@ import assert from 'assert';
 import debug from 'debug';
 
 import {
+  Authenticator,
   Keyring,
   KeyHint,
   KeyType,
+  createAuthMessage,
   createDeviceInfoMessage,
   createEnvelopeMessage,
   createIdentityInfoMessage,
@@ -16,7 +18,7 @@ import {
   createPartyGenesisMessage
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey } from '@dxos/echo-protocol';
+import { FeedKey, PartyKey } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
@@ -109,7 +111,7 @@ export class PartyFactory {
 
     // TODO(telackey): We shouldn't have to add our key here, it should be in the hints, but our hint
     // mechanism is broken by not waiting on the messages to be processed before returning.
-    const { party } = await this.constructParty(partyKey, [
+    const party = await this.constructParty(partyKey, [
       {
         type: feedKey.type,
         publicKey: feedKey.publicKey
@@ -255,5 +257,17 @@ export class PartyFactory {
     }
 
     return halo;
+  }
+
+  private _createCredentialsProvider (partyKey: PartyKey, feedKey: FeedKey) {
+    return {
+      get: () => Authenticator.encodePayload(createAuthMessage(
+        this._identityManager.keyring,
+        Buffer.from(partyKey),
+        this._identityManager.identityKey,
+        this._identityManager.identityKey, // TODO(telackey): This should be the Device KeyChain.
+        this._identityManager.keyring.getKey(feedKey)
+      ))
+    };
   }
 }
