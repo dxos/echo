@@ -250,7 +250,6 @@ export class GreetingResponder {
       };
     });
 
-    // TODO(marik-d): Include memberKeys.
     return [...memberKeys, ...memberFeeds];
   }
 }
