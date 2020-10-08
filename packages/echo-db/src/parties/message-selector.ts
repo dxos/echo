@@ -10,18 +10,22 @@ import { MessageSelector } from '@dxos/echo-protocol';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { PartyProcessor } from './party-processor';
 
+/**
+ * The MessageSelector makes sure that we read in a trusted order. The first message we wish to process is
+ * the PartyGenesis, which will admit a Feed. As we encounter and process FeedAdmit messages those are added
+ * to the Party's trust, and we begin processing messages from them as well.
+ *
+ * @param partyProcessor
+ * @param timeframeClock
+ */
 export function createMessageSelector (
   partyProcessor: PartyProcessor,
   timeframeClock: TimeframeClock
 ): MessageSelector {
   // TODO(telackey): Add KeyAdmit checks.
-  // The MessageSelector makes sure that we read in a trusted order. The first message we wish to process is
-  // the PartyGenesis, which will admit a Feed. As we encounter and process FeedAdmit messages those are added
-  // to the Party's trust, and we begin processing messages from them as well.
   return candidates => {
     for (let i = 0; i < candidates.length; i++) {
       const { key: feedKey, data: { halo, echo } } = candidates[i];
-
       const feedAdmitted = partyProcessor.isFeedAdmitted(feedKey);
 
       if (halo) {
@@ -36,15 +40,9 @@ export function createMessageSelector (
           }
         }
       } else if (echo && feedAdmitted) {
-        // ItemZero has no timeframe.
-        // TODO(telackey): Is this a bug?
-        if (echo.genesis) {
+        assert(echo.timeframe);
+        if (!timeframeClock.hasGaps(echo.timeframe)) {
           return i;
-        } else {
-          assert(echo.timeframe);
-          if (!timeframeClock.hasGaps(echo.timeframe)) {
-            return i;
-          }
         }
       }
     }
