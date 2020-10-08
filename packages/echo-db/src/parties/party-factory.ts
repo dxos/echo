@@ -6,7 +6,6 @@ import assert from 'assert';
 import debug from 'debug';
 
 import {
-  Filter,
   Keyring,
   KeyType,
   createDeviceInfoMessage,
@@ -69,7 +68,7 @@ export class PartyFactory {
   async createParty (): Promise<PartyInternal> {
     assert(!this._options.readOnly);
     const { keyring } = this._identityManager;
-    const identityKey = this._getIdentityKey();
+    const identityKey = this._identityManager.identityKey;
 
     const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
     const { feedKey } = await this._initWritableFeed(partyKey.publicKey);
@@ -166,7 +165,7 @@ export class PartyFactory {
       partyProcessor,
       pipeline,
       this._identityManager.keyring,
-      this._getIdentityKey(),
+      this._identityManager.identityKey,
       this._networkManager,
       replicator,
       timeframeClock
@@ -183,7 +182,7 @@ export class PartyFactory {
         const { feedKey } = await this._initWritableFeed(partyKey);
         return feedKey;
       },
-      this._getIdentityKey(),
+      this._identityManager.identityKey,
       invitationDescriptor
     );
 
@@ -213,10 +212,8 @@ export class PartyFactory {
   async createHalo (options: HaloCreationOptions = {}): Promise<PartyInternal> {
     const identityKey = this._identityManager.keyring.findKey(Keyring.signingFilter({ type: KeyType.IDENTITY }));
     assert(identityKey, 'Identity key required.');
-    let deviceKey = this._identityManager.keyring.findKey(Keyring.signingFilter({ type: KeyType.DEVICE }));
-    if (!deviceKey) {
-      deviceKey = await this._identityManager.keyring.createKeyRecord({ type: KeyType.DEVICE });
-    }
+    const deviceKey = this._identityManager.keyring.findKey(Keyring.signingFilter({ type: KeyType.DEVICE })) ??
+      await this._identityManager.keyring.createKeyRecord({ type: KeyType.DEVICE });
 
     // 1. Create a feed for the HALO.
     // TODO(telackey): Just create the FeedKey and then let other code create the feed with the correct key.
@@ -250,11 +247,5 @@ export class PartyFactory {
     }
 
     return halo;
-  }
-
-  // TODO(telackey): This seems kind of out of place. Perhaps we should simply pass the IdentityManager
-  // either to PartyFactory or as a param to the create/add methods.
-  private _getIdentityKey () {
-    return this._identityManager.keyring.findKey(Filter.matches({ type: KeyType.IDENTITY, own: true, trusted: true }));
   }
 }
