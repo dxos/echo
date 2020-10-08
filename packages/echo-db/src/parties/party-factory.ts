@@ -27,6 +27,7 @@ import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invi
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
+import { createMessageSelector } from './message-selector';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -138,12 +139,12 @@ export class PartyFactory {
 
     const timeframeClock = new TimeframeClock();
 
-    const partyProcessor = new PartyProcessor(partyKey, timeframeClock);
+    const partyProcessor = new PartyProcessor(partyKey);
     if (feedKeyHints.length) {
       await partyProcessor.takeHints(feedKeyHints);
     }
 
-    const iterator = await this._feedStore.createIterator(partyKey, partyProcessor.messageSelector);
+    const iterator = await this._feedStore.createIterator(partyKey, createMessageSelector(partyProcessor, timeframeClock));
     const feedWriteStream = createWritableFeedStream(feed);
 
     const pipeline = new Pipeline(
