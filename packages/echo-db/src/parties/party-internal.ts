@@ -70,6 +70,10 @@ export class PartyInternal {
     return this._partyProcessor;
   }
 
+  get pipeline () {
+    return this._pipeline;
+  }
+
   /**
    * Opens the pipeline and connects the streams.
    */
