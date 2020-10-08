@@ -79,13 +79,13 @@ export class PartyFactory {
 
     // TODO(burdon): Call party processor to write genesis, etc.
     // TODO(marik-d): Wait for this message to be processed first
-    party.pipeline.outboundHaloStream!.write(createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey));
+    await party.processor.writeHaloMessage(createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey));
 
     // TODO(telackey): Should we simply assert that the HALO exists?
     if (this._identityManager.halo) {
       const infoMessage = this._identityManager.halo.processor.infoMessages.get(identityKey.key);
       if (infoMessage) {
-        party.pipeline.outboundHaloStream!.write(createEnvelopeMessage(keyring, partyKey.publicKey, infoMessage, [identityKey]));
+        await party.processor.writeHaloMessage(createEnvelopeMessage(keyring, partyKey.publicKey, infoMessage, [identityKey]));
       }
     }
 
@@ -226,22 +226,22 @@ export class PartyFactory {
     //      A. Identity key (in the case of the HALO, this serves as the Party key)
     //      B. Device key (the first "member" of the Identity's HALO)
     //      C. Feed key (the feed owned by the Device)
-    halo.pipeline.outboundHaloStream!.write(createPartyGenesisMessage(this._identityManager.keyring, identityKey, feedKey, deviceKey));
+    await halo.processor.writeHaloMessage(createPartyGenesisMessage(this._identityManager.keyring, identityKey, feedKey, deviceKey));
 
     // 3. Make a special self-signed KeyAdmit message which will serve as an "IdentityGenesis" message. This
     //    message will be copied into other Parties which we create or join.
-    halo.pipeline.outboundHaloStream!.write(createKeyAdmitMessage(this._identityManager.keyring, identityKey.publicKey, identityKey));
+    await halo.processor.writeHaloMessage(createKeyAdmitMessage(this._identityManager.keyring, identityKey.publicKey, identityKey));
 
     if (options.identityDisplayName) {
       // 4. Write the IdentityInfo message with descriptive details (eg, display name).
-      halo.pipeline.outboundHaloStream!.write(
+      await halo.processor.writeHaloMessage(
         createIdentityInfoMessage(this._identityManager.keyring, options.identityDisplayName, identityKey)
       );
     }
 
     if (options.deviceDisplayName) {
       // 5. Write the DeviceInfo message with descriptive details (eg, display name).
-      halo.pipeline.outboundHaloStream!.write(
+      await halo.processor.writeHaloMessage(
         createDeviceInfoMessage(this._identityManager.keyring, options.deviceDisplayName, deviceKey)
       );
     }

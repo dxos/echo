@@ -2,7 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
+import pify from 'pify';
 
 import { Event } from '@dxos/async';
 import { Party as PartyStateMachine, KeyType, KeyRecord } from '@dxos/credentials';
@@ -26,6 +28,8 @@ export class PartyProcessor {
   private readonly _stateMachine: PartyStateMachine;
 
   public readonly keyAdded: Event<KeyRecord>;
+
+  private _outboundHaloStream: NodeJS.WritableStream | undefined;
 
   constructor (
     private readonly _partyKey: PartyKey
@@ -100,5 +104,14 @@ export class PartyProcessor {
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
     const { data } = message;
     return this._stateMachine.processMessages([data]);
+  }
+
+  setOutboundStream (stream: NodeJS.WritableStream) {
+    this._outboundHaloStream = stream;
+  }
+
+  async writeHaloMessage (message: any) {
+    assert(this._outboundHaloStream, 'Party is closed or read-only');
+    await pify(this._outboundHaloStream.write.bind(this._outboundHaloStream))(message);
   }
 }

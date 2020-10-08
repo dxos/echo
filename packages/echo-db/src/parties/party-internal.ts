@@ -90,6 +90,10 @@ export class PartyInternal {
     this._itemDemuxer = createItemDemuxer(this._itemManager, this._timeframeClock);
     readStream.pipe(this._itemDemuxer);
 
+    if (this._pipeline.outboundHaloStream) {
+      this._partyProcessor.setOutboundStream(this._pipeline.outboundHaloStream);
+    }
+
     // Replication.
     this._replicator.start();
 
@@ -131,12 +135,11 @@ export class PartyInternal {
     assert(this._networkManager);
 
     const responder = new GreetingResponder(
-      this.key, // TODO(burdon): Change order.
       this._keyring,
       this._networkManager,
-      this._pipeline.outboundHaloStream,
-      () => this._partyProcessor.feedKeys, // TODO(burdon): This can be accessed directly from partyProcessor!
-      this._identityKeypair // TODO(burdon): Move to keyring?
+      this._partyProcessor,
+      this._identityKeypair, // TODO(burdon): Move to keyring?
+      this.key
     );
 
     const { secretValidator, secretProvider } = authenticationDetails;
