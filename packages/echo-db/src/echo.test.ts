@@ -17,13 +17,7 @@ import { createTestInstance } from './testing';
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
 const createECHO = async (verbose = true) => {
-  const { echo, partyManager, identityManager } = await createTestInstance({ verboseLogging: verbose });
-
-  await identityManager.keyring.createKeyRecord({ type: KeyType.IDENTITY });
-
-  await partyManager.open();
-  await partyManager.createHalo({ identityDisplayName: humanize(identityManager.identityKey.publicKey) });
-
+  const { echo } = await createTestInstance({ verboseLogging: verbose, initialized: true });
   return echo;
 };
 
