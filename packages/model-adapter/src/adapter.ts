@@ -40,16 +40,31 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
     constructor (meta: ModelMeta, itemId: ItemID, writeStream?: NodeJS.WritableStream) {
       super(meta, itemId, writeStream);
 
-      this.model.setAppendHandler(msg => {
-        this.write({
-          innerJson: JSON.stringify(msg)
+      if(this.model.setAppendHandler) {
+        this.model.setAppendHandler(msg => {
+          this.write({
+            innerJson: JSON.stringify(msg)
+          });
         });
-      });
+      } else {
+        (this.model as any).on('append', (msg: any) => {
+          this.write({
+            innerJson: JSON.stringify(msg)
+          });
+        })
+      }
     }
 
     async _processMessage (meta: FeedMeta, message: Mutation): Promise<boolean> {
       const decoded = JSON.parse(message.innerJson!);
-      this.model.processMessages([decoded]); // TODO(marik-d): Include `__meta`
+      this.model.processMessages([{
+        ...decoded,
+        __meta: {
+          credentials: {
+            member: meta.feedKey, // TODO(marik-d): Use identity key here.
+          }
+        }
+      }]);
       return true;
     }
   };
