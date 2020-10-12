@@ -6,12 +6,12 @@ import debug from 'debug';
 
 import { expectToThrow } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
+import { MutationMeta } from '@dxos/echo-protocol';
 import { WritableArray } from '@dxos/util';
 
 import { ValueUtil } from './mutation';
 import { ObjectModel } from './object-model';
 import { ObjectMutationSet } from './proto';
-import { MutationMeta } from '@dxos/echo-protocol';
 
 const log = debug('dxos:echo:object-model:testing');
 debug.enable('dxos:echo:*');

@@ -6,7 +6,7 @@ import assert from 'assert';
 import pify from 'pify';
 
 import { Event } from '@dxos/async';
-import { FeedMeta, ItemID, MutationMeta } from '@dxos/echo-protocol';
+import { ItemID, MutationMeta } from '@dxos/echo-protocol';
 import { createWritable } from '@dxos/util';
 
 import { ModelMessage, ModelMeta } from './types';

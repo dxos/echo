@@ -3,7 +3,7 @@
 //
 
 import { Codec } from '@dxos/codec-experimental-runtime';
-import { MutationMeta, FeedMeta, ItemID } from '@dxos/echo-protocol';
+import { MutationMeta, ItemID } from '@dxos/echo-protocol';
 
 //
 // Types
