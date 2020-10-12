@@ -28,7 +28,10 @@ test('can play a chess game', async () => {
   player2.model.model.appendMessage(moveMessage(5, 'b7', 'b6'))
   player1.model.model.appendMessage(moveMessage(6, 'h5', 'f7'))
 
-  await waitForCondition(() => expect(player1.model.model.game.game_over()).toEqual(true));
+  await waitForCondition(() => 
+    player1.model.model.game.history().length === 7 &&
+    player2.model.model.game.history().length === 7
+  );
 
   expect(player1.model.model.game.turn()).toEqual(BLACK)
   expect(player1.model.model.game.in_checkmate()).toEqual(true);
