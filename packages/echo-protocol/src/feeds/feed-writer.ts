@@ -1,4 +1,4 @@
-import { FeedKey } from "@dxos/echo-protocol";
+import { FeedKey } from "../types";
 import { MaybePromise } from "@dxos/util";
 import { Feed } from 'hypercore'
 import pify from "pify";
@@ -25,6 +25,18 @@ export function createFeedWriter<T>(feed: Feed): FeedWriter<T> {
       return {
         feedKey: feed.key,
         seq,
+      }
+    }
+  }
+}
+
+export function createMockFeedWriterFromStream(strem: NodeJS.WritableStream): FeedWriter<any> {
+  return {
+    write: async message => {
+      await pify(strem.write.bind(strem))(message);
+      return {
+        feedKey: Buffer.from('00'.repeat(32)),
+        seq: 0,
       }
     }
   }

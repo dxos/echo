@@ -6,7 +6,7 @@ import debug from 'debug';
 
 import { expectToThrow } from '@dxos/async';
 import { createKeyPair, createId } from '@dxos/crypto';
-import { MutationMeta } from '@dxos/echo-protocol';
+import { createMockFeedWriterFromStream, MutationMeta } from '@dxos/echo-protocol';
 import { WritableArray } from '@dxos/util';
 
 import { ValueUtil } from './mutation';
@@ -33,7 +33,7 @@ describe('object model', () => {
     const buffer = new WritableArray<ObjectMutationSet>();
 
     const itemId = createId();
-    const model = new ObjectModel(ObjectModel.meta, itemId, buffer);
+    const model = new ObjectModel(ObjectModel.meta, itemId, createMockFeedWriterFromStream(buffer));
     expect(model.itemId).toBe(itemId);
     expect(model.toObject()).toEqual({});
     log(model.toObject());
@@ -64,7 +64,7 @@ describe('object model', () => {
     const buffer = new WritableArray<ObjectMutationSet>();
 
     const itemId = createId();
-    const model = new ObjectModel(ObjectModel.meta, itemId, buffer);
+    const model = new ObjectModel(ObjectModel.meta, itemId, createMockFeedWriterFromStream(buffer));
     expect(model.itemId).toBe(itemId);
     expect(model.toObject()).toEqual({});
     log(model.toObject());

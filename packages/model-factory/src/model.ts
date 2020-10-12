@@ -6,7 +6,7 @@ import assert from 'assert';
 import pify from 'pify';
 
 import { Event } from '@dxos/async';
-import { ItemID, MutationMeta } from '@dxos/echo-protocol';
+import { FeedWriter, ItemID, MutationMeta } from '@dxos/echo-protocol';
 import { createWritable } from '@dxos/util';
 
 import { ModelMessage, ModelMeta } from './types';
@@ -21,14 +21,14 @@ export abstract class Model<T, U = void> {
 
   private readonly _meta: ModelMeta;
   private readonly _itemId: ItemID;
-  private readonly _writeStream?: NodeJS.WritableStream;
+  private readonly _writeStream?: FeedWriter<T>;
 
   /**
    * @param meta
    * @param itemId Parent item.
    * @param writeStream Output mutation stream (unless read-only).
    */
-  constructor (meta: ModelMeta, itemId: ItemID, writeStream?: NodeJS.WritableStream) {
+  constructor (meta: ModelMeta, itemId: ItemID, writeStream?: FeedWriter<T>) {
     assert(meta);
     assert(itemId);
     this._meta = meta;
@@ -71,7 +71,7 @@ export abstract class Model<T, U = void> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await pify(this._writeStream.write.bind(this._writeStream))(mutation);
+    await this._writeStream.write(mutation);
   }
 
   async processMessage (meta: MutationMeta, message: T): Promise<void> {

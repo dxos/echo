@@ -15,7 +15,7 @@ import {
   PartyAuthenticator
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey, IHaloStream, FeedKey, PublicKey } from '@dxos/echo-protocol';
+import { PartyKey, IHaloStream, FeedKey, PublicKey, HaloMessage, FeedWriter, WriteReceipt } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
 
 const log = debug('dxos:echo:halo-party-processor');
@@ -36,7 +36,7 @@ export class PartyProcessor {
 
   public readonly keyAdded: Event<KeyRecord>;
 
-  private _outboundHaloStream: NodeJS.WritableStream | undefined;
+  private _outboundHaloStream: FeedWriter<HaloMessage> | undefined;
 
   constructor (
     private readonly _partyKey: PartyKey
@@ -125,12 +125,13 @@ export class PartyProcessor {
     return this._stateMachine.processMessages([data]);
   }
 
-  setOutboundStream (stream: NodeJS.WritableStream) {
+  setOutboundStream (stream: FeedWriter<HaloMessage>) {
     this._outboundHaloStream = stream;
   }
 
-  async writeHaloMessage (message: any) {
+  async writeHaloMessage (message: HaloMessage): Promise<WriteReceipt> {
     assert(this._outboundHaloStream, 'Party is closed or read-only');
-    await pify(this._outboundHaloStream.write.bind(this._outboundHaloStream))(message);
+    // TODO(marik-d): Wait for the message to be processed?
+    return this._outboundHaloStream.write(message);
   }
 }
