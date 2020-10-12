@@ -138,6 +138,7 @@ describe('party-processor', () => {
     expect(partyProcessor.feedKeys).toContainEqual(feedKey.publicKey);
     expect(partyProcessor.feedKeys).toContainEqual(feedKey2.publicKey);
     expect(partyProcessor.memberKeys).toContainEqual(identityKey.publicKey);
+    expect(partyProcessor.getFeedOwningIdentity(feedKey.publicKey)).toEqual(identityKey.publicKey);
     expect(partyProcessor.getFeedOwningIdentity(feedKey2.publicKey)).toEqual(identityKey2.publicKey);
 
     log(partyProcessor.feedKeys);

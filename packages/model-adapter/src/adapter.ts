@@ -2,7 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import { FeedMeta, ItemID } from '@dxos/echo-protocol';
+import BJSON from 'buffer-json';
+
+import { ItemID, MutationMeta } from '@dxos/echo-protocol';
 import { Model, ModelConstructor, ModelMeta } from '@dxos/model-factory';
 
 import { schema } from './proto/gen';
@@ -43,28 +45,31 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
       if(this.model.setAppendHandler) {
         this.model.setAppendHandler(msg => {
           this.write({
-            innerJson: JSON.stringify(msg)
+            innerJson: BJSON.stringify(msg)
           });
         });
       } else {
         (this.model as any).on('append', (msg: any) => {
           this.write({
-            innerJson: JSON.stringify(msg)
+            innerJson: BJSON.stringify(msg)
           });
         })
       }
     }
 
-    async _processMessage (meta: FeedMeta, message: Mutation): Promise<boolean> {
-      const decoded = JSON.parse(message.innerJson!);
-      this.model.processMessages([{
+    async _processMessage (meta: MutationMeta, message: Mutation): Promise<boolean> {
+      const decoded = BJSON.parse(message.innerJson!);
+      const messageToProcess = {
         ...decoded,
         __meta: {
           credentials: {
-            member: meta.feedKey, // TODO(marik-d): Use identity key here.
+            member: meta.identityKey,
+            feed: meta.feedKey,
+            party: Buffer.from('00'.repeat(32), 'hex'), // TODO(marik-d): Use actual party key here.
           }
         }
-      }]);
+      };
+      this.model.processMessages([messageToProcess]);
       return true;
     }
   };

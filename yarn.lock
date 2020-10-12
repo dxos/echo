@@ -3842,6 +3842,11 @@
   resolved "http://npm.dev.dxos.network:5736/@types%2fbraces/-/braces-3.0.0.tgz#7da1c0d44ff1c7eb660a36ec078ea61ba7eb42cb"
   integrity sha512-TbH79tcyi9FHwbyboOKeRachRq63mSuWYXOflsNO9ZyE5ClQ/JaozNKl+aWUq87qPNsXasXxi2AbgfwIJ+8GQw==
 
+"@types/buffer-json@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@types/buffer-json/-/buffer-json-2.0.0.tgz#6ec0ee9ba7334a378a9c1d849bccc1b079a33554"
+  integrity sha512-nFKOrY93Tvv5Tobws+YbkGlPOJsn1nVpZah3BlSyQ4EniFm97KLvSr54tZ5xQp8mlf/XxbYwskNCYQB9EdrPlQ==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "http://npm.dev.dxos.network:5736/@types%2fcolor-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -5865,14 +5870,14 @@ buffer-from@^0.1.1:
 
 buffer-json-encoding@^1.0.2:
   version "1.0.2"
-  resolved "http://npm.dev.dxos.network:5736/buffer-json-encoding/-/buffer-json-encoding-1.0.2.tgz#f2034ca52b9aa628d40b35264d504f50566fcba4"
+  resolved "https://registry.npmjs.org/buffer-json-encoding/-/buffer-json-encoding-1.0.2.tgz#f2034ca52b9aa628d40b35264d504f50566fcba4"
   integrity sha512-zH4Q0aqJnv0xPVX+Imcp+EbiyYg9xq7//mvShmQ08E6wC1EeYg2+1OG2n9EEu0rfiuYjP+j5LsSmQVufdqflrg==
   dependencies:
     buffer-json "^2.0.0"
 
 buffer-json@^2.0.0:
   version "2.0.0"
-  resolved "http://npm.dev.dxos.network:5736/buffer-json/-/buffer-json-2.0.0.tgz#f73e13b1e42f196fe2fd67d001c7d7107edd7c23"
+  resolved "https://registry.npmjs.org/buffer-json/-/buffer-json-2.0.0.tgz#f73e13b1e42f196fe2fd67d001c7d7107edd7c23"
   integrity sha512-+jjPFVqyfF1esi9fvfUs3NqM0pH1ziZ36VP4hmA/y/Ssfo/5w5xHKfTw9BwQjoJ1w/oVtpLomqwUHKdefGyuHw==
 
 buffer-to-arraybuffer@^0.0.5:
