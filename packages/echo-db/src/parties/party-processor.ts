@@ -99,7 +99,7 @@ export class PartyProcessor {
    * Returns IDENTITY public key of the feed owner.
    */
   getFeedOwningIdentity(feedKey: FeedKey): PublicKey {
-    return feedKey; // TODO(marik-d): Implement.
+    return this._stateMachine.getAdmittedBy(feedKey);
   }
 
   // TODO(burdon): Rename xxxProvider.
