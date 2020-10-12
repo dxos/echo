@@ -7364,10 +7364,10 @@ jest@^26.0.0:
     import-local "^3.0.2"
     jest-cli "^26.4.2"
 
-js-data-structs@^1.1.2:
-  version "1.1.2"
-  resolved "http://npm.dev.dxos.network:5736/js-data-structs/-/js-data-structs-1.1.2.tgz#94f3c92474f23f98abd1553230c447b5f286a63e"
-  integrity sha512-GmAcRihJgGfZlY6WPn99yjiP3Bu5FKDudEFT5vYN9DWfHFcc3uiMGhjsSN4OjCLRKsftBx+DDxpjaK+mKJHb8Q==
+js-data-structs@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/js-data-structs/-/js-data-structs-2.0.0.tgz#67a2abde36be3f7b5e6ea338fed39ac1930b5a9c"
+  integrity sha512-ZArukXOUlPgcOb9zyp5YPlZVAhV/L1GKfM5vp6yZVoSp24KUqxGNKxr5T3V5l//3m0KQvQ3TPNMau41oN4MZGw==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
