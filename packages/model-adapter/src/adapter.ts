@@ -30,7 +30,10 @@ export interface ModelAdapter<T extends ClassicModel> extends Model<Mutation> {
   model: T
 }
 
-export function createModelAdapter<T extends ClassicModel> (typeUrl: string, InnerModelConstructor: new () => T): ModelConstructor<ModelAdapter<T>> {
+export function createModelAdapter<T extends ClassicModel> (
+  typeUrl: string,
+  InnerModelConstructor: new () => T
+): ModelConstructor<ModelAdapter<T>> {
   return class extends Model<Mutation> {
     static meta: ModelMeta = {
       type: `wrn://protocol.dxos.org/model/adapter/${encodeURIComponent(typeUrl)}`,
@@ -44,15 +47,11 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
 
       if (this.model.setAppendHandler) {
         this.model.setAppendHandler(msg => {
-          this.write({
-            innerJson: BJSON.stringify(msg)
-          });
+          this._appendMessage(msg);
         });
       } else {
         (this.model as any).on('append', (msg: any) => {
-          this.write({
-            innerJson: BJSON.stringify(msg)
-          });
+          this._appendMessage(msg);
         });
       }
     }
@@ -71,6 +70,16 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
       };
       this.model.processMessages([messageToProcess]);
       return true;
+    }
+
+    private _appendMessage (msg: any) {
+      const fullMessage = {
+        __type_url: typeUrl,
+        ...msg
+      };
+      this.write({
+        innerJson: BJSON.stringify(fullMessage)
+      });
     }
   };
 }
