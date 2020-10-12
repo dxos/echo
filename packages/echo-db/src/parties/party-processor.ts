@@ -98,7 +98,7 @@ export class PartyProcessor {
   /**
    * Returns IDENTITY public key of the feed owner.
    */
-  getFeedOwningIdentity(feedKey: FeedKey): PublicKey {
+  getFeedOwningIdentity (feedKey: FeedKey): PublicKey {
     return this._stateMachine.getAdmittedBy(feedKey);
   }
 

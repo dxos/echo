@@ -42,7 +42,7 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
     constructor (meta: ModelMeta, itemId: ItemID, writeStream?: NodeJS.WritableStream) {
       super(meta, itemId, writeStream);
 
-      if(this.model.setAppendHandler) {
+      if (this.model.setAppendHandler) {
         this.model.setAppendHandler(msg => {
           this.write({
             innerJson: BJSON.stringify(msg)
@@ -53,7 +53,7 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
           this.write({
             innerJson: BJSON.stringify(msg)
           });
-        })
+        });
       }
     }
 
@@ -65,7 +65,7 @@ export function createModelAdapter<T extends ClassicModel> (typeUrl: string, Inn
           credentials: {
             member: meta.identityKey,
             feed: meta.feedKey,
-            party: Buffer.from('00'.repeat(32), 'hex'), // TODO(marik-d): Use actual party key here.
+            party: Buffer.from('00'.repeat(32), 'hex') // TODO(marik-d): Use actual party key here.
           }
         }
       };

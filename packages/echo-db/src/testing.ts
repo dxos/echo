@@ -78,7 +78,7 @@ export type TestPeer = Awaited<ReturnType<typeof createTestInstance>>;
 
 export type WithTestMeta<T> = T & { testMeta: TestPeer }
 
-function addTestMeta<T>(obj: T, meta: TestPeer): WithTestMeta<T> {
+function addTestMeta<T> (obj: T, meta: TestPeer): WithTestMeta<T> {
   (obj as any).testMeta = meta;
   return obj as any;
 }
@@ -122,10 +122,10 @@ export async function createSharedTestParty (peerCount = 2): Promise<WithTestMet
 export async function createModelTestBench<M extends Model<any>> (options: ItemCreationOptions<M> & { peerCount?: number}): Promise<WithTestMeta<Item<M>>[]> {
   const parties = await createSharedTestParty(options.peerCount ?? 2);
 
-  for(const party of parties) {
+  for (const party of parties) {
     const { modelFactory } = party.testMeta;
-    if(!modelFactory.hasModel(options.model.meta.type)) {
-      modelFactory.registerModel(options.model)
+    if (!modelFactory.hasModel(options.model.meta.type)) {
+      modelFactory.registerModel(options.model);
     }
   }
 
@@ -140,4 +140,4 @@ export async function createModelTestBench<M extends Model<any>> (options: ItemC
   return parties.map(party => party.database.getItem(item.id)!).map((item, i) => addTestMeta(item, parties[i].testMeta));
 }
 
-const messageLogger = (tag: string) => (message: any) => { log(tag, JSON.stringify(message, jsonReplacer, 2)); }
+const messageLogger = (tag: string) => (message: any) => { log(tag, JSON.stringify(message, jsonReplacer, 2)); };
