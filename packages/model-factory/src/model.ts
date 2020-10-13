@@ -82,11 +82,11 @@ export abstract class Model<T, U = void> {
     return {
       ...receipt,
       waitToBeProcessed: async () => {
-        await this._messageProcessed.waitFor(meta => 
+        await this._messageProcessed.waitFor(meta =>
           Buffer.compare(meta.feedKey, receipt.feedKey) === 0 && meta.seq === receipt.seq
         );
-      },
-    }
+      }
+    };
   }
 
   async processMessage (meta: MutationMeta, message: T): Promise<void> {
