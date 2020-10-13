@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (2020-10-13)
+
+
+### Features
+
+* Initial release-please ([087c595](https://www.github.com/dxos/echo/commit/087c595fea97751f809c853a72273beea3a37076))
+
+
+### Reverts
+
+* Revert "Publish to `dev` channel with `0-dev` preid" ([18d9f8a](https://www.github.com/dxos/echo/commit/18d9f8a188ae6139dedd784ede9420f3c0858f10))
+
 ## [Unreleased]
 
 ### Added
