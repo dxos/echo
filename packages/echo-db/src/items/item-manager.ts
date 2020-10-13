@@ -206,20 +206,20 @@ export class ItemManager {
   }
 }
 
-function matchesFilter(item: Item<any>, filter: ItemFilter) {
-  if(filter.type && (!item.type || !equalsOrIncludes(item.type, filter.type))) {
-    return false
+function matchesFilter (item: Item<any>, filter: ItemFilter) {
+  if (filter.type && (!item.type || !equalsOrIncludes(item.type, filter.type))) {
+    return false;
   }
-  if(filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
+  if (filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
     return false;
   }
 
   return true;
 }
 
-function equalsOrIncludes<T>(value: T, expected: T | T[]) {
-  if(Array.isArray(expected)) {
-    return expected.includes(value)
+function equalsOrIncludes<T> (value: T, expected: T | T[]) {
+  if (Array.isArray(expected)) {
+    return expected.includes(value);
   } else {
     return expected === value;
   }

@@ -81,12 +81,12 @@ describe('pipeline', () => {
     const partyProcessor = new PartyProcessor(partyKey.publicKey);
     await partyProcessor.takeHints([{
       type: KeyType.FEED,
-      publicKey: feedKey.publicKey,
-    }])
+      publicKey: feedKey.publicKey
+    }]);
     const pipeline = new Pipeline(
       partyProcessor,
       feedReadStream,
-      createFeedWriter(feed),
+      createFeedWriter(feed)
     );
     await pipeline.open();
 
