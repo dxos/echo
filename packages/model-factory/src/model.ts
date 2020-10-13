@@ -5,10 +5,14 @@
 import assert from 'assert';
 
 import { Event } from '@dxos/async';
-import { FeedWriter, ItemID, MutationMeta } from '@dxos/echo-protocol';
+import { FeedWriter, ItemID, MutationMeta, WriteReceipt } from '@dxos/echo-protocol';
 import { createWritable } from '@dxos/util';
 
 import { ModelMessage, ModelMeta } from './types';
+
+export interface MutationWriteReceipt extends WriteReceipt {
+  waitToBeProcessed(): Promise<void>
+}
 
 /**
  * Abstract base class for Models.
@@ -21,6 +25,8 @@ export abstract class Model<T, U = void> {
   private readonly _meta: ModelMeta;
   private readonly _itemId: ItemID;
   private readonly _writeStream?: FeedWriter<T>;
+
+  private readonly _messageProcessed = new Event<MutationMeta>()
 
   /**
    * @param meta
@@ -41,6 +47,8 @@ export abstract class Model<T, U = void> {
       assert(mutation);
 
       await this.processMessage(meta, mutation);
+
+      this._messageProcessed.emit(meta);
     });
   }
 
@@ -65,12 +73,20 @@ export abstract class Model<T, U = void> {
    * Writes the raw mutation to the output stream.
    * @param mutation
    */
-  protected async write (mutation: T): Promise<void> {
+  protected async write (mutation: T): Promise<MutationWriteReceipt> {
     if (!this._writeStream) {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    await this._writeStream.write(mutation);
+    const receipt = await this._writeStream.write(mutation);
+    return {
+      ...receipt,
+      waitToBeProcessed: async () => {
+        await this._messageProcessed.waitFor(meta => 
+          Buffer.compare(meta.feedKey, receipt.feedKey) === 0 && meta.seq === receipt.seq
+        );
+      },
+    }
   }
 
   async processMessage (meta: MutationMeta, message: T): Promise<void> {
