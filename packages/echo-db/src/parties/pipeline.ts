@@ -150,7 +150,7 @@ export class Pipeline {
                 meta: {
                   seq: block.seq,
                   feedKey: block.key,
-                  identityKey: this._partyProcessor.getFeedOwningIdentity(block.key)
+                  memberKey: this._partyProcessor.getFeedOwningMember(block.key)
                 },
                 data: message.echo
               }));
