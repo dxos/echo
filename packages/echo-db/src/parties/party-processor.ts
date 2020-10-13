@@ -4,7 +4,6 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import pify from 'pify';
 
 import { Event } from '@dxos/async';
 import {
@@ -15,7 +14,7 @@ import {
   PartyAuthenticator
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey, IHaloStream, FeedKey, PublicKey, HaloMessage, FeedWriter, WriteReceipt } from '@dxos/echo-protocol';
+import { FeedKey, FeedWriter, HaloMessage, IHaloStream, PartyKey, PublicKey, WriteReceipt } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
 
 const log = debug('dxos:echo:halo-party-processor');

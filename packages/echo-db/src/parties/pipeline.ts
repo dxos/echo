@@ -2,12 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
-import { Event } from '@dxos/async';
-import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage, HaloMessage, IEchoStream, FeedWriter, mapFeedWriter } from '@dxos/echo-protocol';
-import { checkType, createReadable, jsonReplacer } from '@dxos/util';
 import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
+
+import { Event } from '@dxos/async';
+import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage, HaloMessage, IEchoStream, FeedWriter, mapFeedWriter } from '@dxos/echo-protocol';
+import { checkType, createReadable, jsonReplacer } from '@dxos/util';
+
 import { PartyProcessor } from './party-processor';
 
 interface Options {

@@ -2,6 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+import debug from 'debug';
+
 import {
   Authenticator,
   createAuthMessage,
@@ -17,8 +20,7 @@ import { FeedKey, PartyKey, createFeedWriter } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
-import assert from 'assert';
-import debug from 'debug';
+
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';
 import { TimeframeClock } from '../items/timeframe-clock';
@@ -28,8 +30,6 @@ import { createMessageSelector } from './message-selector';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-
-
 
 /**
  * Options allowed when creating the HALO.

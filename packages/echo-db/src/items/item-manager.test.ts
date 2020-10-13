@@ -5,12 +5,12 @@
 import ram from 'random-access-memory';
 
 import { createKeyPair } from '@dxos/crypto';
+import { createFeedWriter } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
 
 import { ItemManager } from './item-manager';
 import { TimeframeClock } from './timeframe-clock';
-import { createFeedWriter } from '@dxos/echo-protocol';
 
 describe('items', () => {
   test('item construction', async () => {

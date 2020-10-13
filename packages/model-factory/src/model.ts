@@ -3,7 +3,6 @@
 //
 
 import assert from 'assert';
-import pify from 'pify';
 
 import { Event } from '@dxos/async';
 import { FeedWriter, ItemID, MutationMeta } from '@dxos/echo-protocol';

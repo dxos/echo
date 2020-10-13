@@ -4,13 +4,12 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { ItemID, ItemType, IEchoStream, PartyKey, EchoEnvelope, FeedWriter, mapFeedWriter } from '@dxos/echo-protocol';
-import { Model, ModelType, ModelFactory, ModelMessage } from '@dxos/model-factory';
-import { checkType, createTransform } from '@dxos/util';
+import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, PartyKey } from '@dxos/echo-protocol';
+import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
+import { createTransform } from '@dxos/util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
@@ -47,7 +46,7 @@ export class ItemManager {
      private readonly _partyKey: PartyKey,
      private readonly _modelFactory: ModelFactory,
      private readonly _timeframeClock: TimeframeClock,
-     writeStream?: FeedWriter<EchoEnvelope>,
+     writeStream?: FeedWriter<EchoEnvelope>
   ) {
     if (writeStream) {
       this._writeStream = mapFeedWriter(message => ({

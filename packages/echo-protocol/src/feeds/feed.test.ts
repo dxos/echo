@@ -56,9 +56,9 @@ describe('Feed tests:', () => {
     expect(receipt.feedKey).toEqual(feed.key);
     expect(receipt.seq).toEqual(0);
 
-    expect(feed.length).toEqual(1)
+    expect(feed.length).toEqual(1);
 
     const block = await pify(feed.get.bind(feed))(0);
     expect(block).toEqual(data);
-  })
+  });
 });
