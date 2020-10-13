@@ -88,7 +88,7 @@ export class ItemManager {
 
     // Write Item Genesis block.
     log('Item Genesis:', itemId);
-    await pify(this._writeStream.write.bind(this._writeStream))(checkType<EchoEnvelope>({
+    await this._writeStream.write({
       itemId,
       genesis: {
         itemType,
@@ -96,7 +96,7 @@ export class ItemManager {
       },
       itemMutation: parentId ? { parentId } : undefined,
       mutation
-    }));
+    });
 
     // Unlocked by construct.
     log('Pending Item:', itemId);
