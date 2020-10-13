@@ -162,7 +162,7 @@ export class Pipeline {
             log(`Skipping invalid message: ${JSON.stringify(message, jsonReplacer)}`);
           }
         } catch (err) {
-          log(`Error in message processing: ${err}`);
+          console.error(`Error in message processing: ${err}`);
         }
       }
     });
