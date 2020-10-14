@@ -5,5 +5,11 @@
   },
   "include": [
     "src",
+  ],
+  "references": [
+    { "path": "../echo-protocol" },
+    { "path": "../model-factory" },
+    { "path": "../object-model" },
+    { "path": "../util" }
   ]
 }

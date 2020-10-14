@@ -5,5 +5,9 @@
   },
   "include": [
     "src",
+  ],
+  "references": [
+    { "path": "../model-factory" },
+    { "path": "../util" }
   ]
 }

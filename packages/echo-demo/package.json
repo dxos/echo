@@ -13,7 +13,7 @@
   "license": "GPL-3.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --verbose src",
     "lint": "eslint './src/**/*.ts'",
