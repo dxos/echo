@@ -230,20 +230,20 @@ function equalsOrIncludes<T> (value: T, expected: T | T[]) {
 /**
  * Returns a new event that groups all of the updates emitted during single tick into a single event emission.
  */
-function debounceEvent(event: Event): Event {
-  const debouncedEvent = new Event()
+function debounceEvent (event: Event): Event {
+  const debouncedEvent = new Event();
 
   let firing = false;
 
   debouncedEvent.addEffect(() => event.on(() => {
-    if(!firing) {
+    if (!firing) {
       firing = true;
       setTimeout(() => {
-        firing = false;       
+        firing = false;
         debouncedEvent.emit();
       }, 0);
     }
-  }))
+  }));
 
-  return debouncedEvent
+  return debouncedEvent;
 }

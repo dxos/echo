@@ -10,8 +10,8 @@ import { Event } from '@dxos/async';
 import { createFeedMeta, EchoEnvelope, FeedBlock, FeedMessage, HaloMessage, IEchoStream, FeedWriter, mapFeedWriter } from '@dxos/echo-protocol';
 import { checkType, createReadable, jsonReplacer } from '@dxos/util';
 
-import { PartyProcessor } from './party-processor';
 import { TimeframeClock } from '../items/timeframe-clock';
+import { PartyProcessor } from './party-processor';
 
 interface Options {
   readLogger?: (msg: any) => void;

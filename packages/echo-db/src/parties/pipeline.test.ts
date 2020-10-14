@@ -14,9 +14,9 @@ import { FeedStore } from '@dxos/feed-store';
 import { createSetPropertyMutation } from '@dxos/model-factory';
 import { createWritable, createWritableFeedStream, jsonReplacer, latch, WritableArray } from '@dxos/util';
 
+import { TimeframeClock } from '../items/timeframe-clock';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-import { TimeframeClock } from '../items/timeframe-clock';
 
 const log = debug('dxos:echo:pipeline:test');
 

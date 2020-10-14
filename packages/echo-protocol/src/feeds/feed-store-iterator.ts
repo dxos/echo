@@ -64,7 +64,7 @@ export async function createIterator (
 
   iterator.stalled.on(candidates => {
     console.warn(`Feed store reader stalled: no message candidates were accepted after ${STALL_TIMEOUT}ms timeout.\nCurrent candidates:`, candidates);
-  })
+  });
 
   return iterator;
 }
@@ -167,12 +167,12 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
   /**
    * Returns all messages that are waiting to be read from each of the open feeds.
    */
-  private _getMessageCandidates() {
+  private _getMessageCandidates () {
     const openFeeds = Array.from(this._openFeeds.values());
     return openFeeds
       .filter(feed => !feed.frozen && feed.sendQueue.length > 0)
       .map(feed => feed.sendQueue[0]);
-    }
+  }
 
   /**
    * @private
@@ -231,10 +231,10 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
     //   NOTE: When implementing this mechanism be sure to maintain the comment above.
     const timeoutId = setTimeout(() => {
       const candidates = this._getMessageCandidates();
-      if(candidates.length > 0) {
+      if (candidates.length > 0) {
         this.stalled.emit(candidates);
       }
-    }, STALL_TIMEOUT)
+    }, STALL_TIMEOUT);
     await this._trigger.wait();
     clearTimeout(timeoutId);
 
