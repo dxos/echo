@@ -4,6 +4,7 @@
 
 // eslint-disable-next-line camelcase
 import { EchoEnvelope, FeedMessage } from './proto';
+import { Message as HaloMessage } from '@dxos/credentials';
 
 //
 // Keys
@@ -56,8 +57,6 @@ export const createFeedMeta = (block: IFeedGenericBlock<any>): FeedMeta => ({
 });
 
 export type FeedBlock = IFeedGenericBlock<FeedMessage>;
-
-export type HaloMessage = any;
 
 export interface IHaloStream {
   meta: FeedMeta;
