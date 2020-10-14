@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [2.0.3](https://www.github.com/dxos/echo/compare/v2.0.2...v2.0.3) (2020-10-14)
+
+
+### Bug Fixes
+
+* Iterator stalling ([#234](https://www.github.com/dxos/echo/issues/234)) ([c502674](https://www.github.com/dxos/echo/commit/c502674b05b3c63603fab39eb5dcced6641e39b0))
+
 ### [2.0.2](https://www.github.com/dxos/echo/compare/v2.0.1...v2.0.2) (2020-10-14)
 
 
