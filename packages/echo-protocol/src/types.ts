@@ -3,8 +3,9 @@
 //
 
 // eslint-disable-next-line camelcase
-import { EchoEnvelope, FeedMessage } from './proto';
 import { Message as HaloMessage } from '@dxos/credentials';
+
+import { EchoEnvelope, FeedMessage } from './proto';
 
 //
 // Keys
