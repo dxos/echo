@@ -1,6 +1,6 @@
 {
   "name": "@dxos/echo",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Eventually Consistent Hierarchical Object Database.",
   "homepage": "https://github.com/dxos/echo#readme",
   "bugs": {
@@ -30,15 +30,17 @@
     "*.ts": "eslint --cache --fix"
   },
   "pre-commit": [
-    "lint:staged"
+    "lint:staged",
+    "lint:lockfile"
   ],
   "scripts": {
     "build": "lerna run build",
     "depcheck": "lerna run depcheck",
     "test": "lerna run test",
-    "lint": "yarn workspaces run lint",
+    "lint": "yarn workspaces run lint && npm run lint:lockfile",
     "lint:fix": "lerna run lint -- --fix",
     "lint:staged": "lint-staged",
+    "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts yarn npm codeload.github.com --validate-https",
     "sort-package-json": "lerna exec npx sort-package-json",
     "validate": "npm ls"
   },
@@ -46,11 +48,12 @@
     "eslint": "^7.7.0",
     "husky": "^4.2.5",
     "lerna": "^3.11.1",
-    "lint-staged": "^8.1.0"
+    "lint-staged": "^8.1.0",
+    "lockfile-lint": "^4.3.7"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "npm run lint:staged && npm run lint:lockfile"
     }
   }
 }
