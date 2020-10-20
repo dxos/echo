@@ -27,7 +27,9 @@ const log = debug('dxos:echo:database:test,dxos:*:error');
 export interface TestOptions {
   verboseLogging?: boolean
   initialized?: boolean
+  feedStore?: FeedStore,
   storage?: any
+  keyStore?: KeyStore,
   keyStorage?: any
   swarmProvider?: SwarmProvider
 }
@@ -38,14 +40,17 @@ export interface TestOptions {
 export async function createTestInstance ({
   verboseLogging = false,
   initialized = false,
+  feedStore: injectedFeedStore,
   storage = ram,
+  keyStore: injectedKeyStore,
   keyStorage = undefined,
   swarmProvider = new SwarmProvider()
 }: TestOptions = {}) {
-  const feedStore = new FeedStore(storage, { feedOptions: { valueEncoding: codec } });
+  const feedStore = injectedFeedStore ?? new FeedStore(storage, { feedOptions: { valueEncoding: codec } });
   const feedStoreAdapter = new FeedStoreAdapter(feedStore);
 
-  const identityManager = new IdentityManager(new Keyring(new KeyStore(keyStorage)));
+  const keyStore = injectedKeyStore ?? new KeyStore(keyStorage);
+  const identityManager = new IdentityManager(new Keyring(keyStore));
 
   const modelFactory = new ModelFactory()
     .registerModel(ObjectModel);
@@ -70,7 +75,7 @@ export async function createTestInstance ({
     await echo.open();
   }
 
-  return { echo, partyManager, modelFactory, identityManager, feedStoreAdapter, feedStore };
+  return { echo, partyManager, modelFactory, identityManager, feedStoreAdapter, feedStore, keyStore };
 }
 
 export type Awaited<T> = T extends Promise<infer U> ? U : T;
