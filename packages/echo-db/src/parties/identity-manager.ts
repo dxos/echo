@@ -2,10 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
+
 import { waitForCondition } from '@dxos/async';
 import { Keyring, KeyType, Filter } from '@dxos/credentials';
 
 import { PartyInternal } from './party-internal';
+
+const log = debug('dxos:echo:identity-manager');
 
 export class IdentityManager {
   // TODO(telackey): Party here is wrong, or at least incomplete. To build KeyChains and retrieve Identity "genesis"
@@ -52,7 +56,7 @@ export class IdentityManager {
         halo.processor.feedKeys
       ) : undefined;
     } catch (e) {
-      console.warn('Unable to load device KeyChain');
+      log('Unable to locate device KeyChain.');
     }
     return keyChain;
   }
