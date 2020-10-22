@@ -44,11 +44,17 @@ export class IdentityManager {
 
   get deviceKeyChain () {
     const { halo, deviceKey } = this;
-    return halo && deviceKey ? Keyring.buildKeyChain(
-      deviceKey.publicKey,
-      halo.processor.credentialMessages,
-      halo.processor.feedKeys
-    ) : undefined;
+    let keyChain;
+    try {
+      keyChain = halo && deviceKey ? Keyring.buildKeyChain(
+        deviceKey.publicKey,
+        halo.processor.credentialMessages,
+        halo.processor.feedKeys
+      ) : undefined;
+    } catch (e) {
+      console.warn('Unable to load device KeyChain');
+    }
+    return keyChain;
   }
 
   get initialized () {
