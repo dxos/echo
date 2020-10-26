@@ -1,0 +1,33 @@
+//
+// Copyright 2020 DXOS.org
+//
+
+syntax = "proto3";
+
+package dxos.echo.snapshot;
+
+import "echo.proto";
+
+message ItemSnapshot {
+  string itemId = 1;
+
+  string itemType = 2;
+  string modelType = 3;
+  string modelVersion = 4;
+
+  string parentId = 5;
+
+  repeated bytes mutations = 6;
+}
+
+message DatabaseSnapshot {
+  repeated ItemSnapshot items = 1;
+}
+
+message PartySnapshot {
+  Timeframe timeframe = 1;
+
+  // PartyStateSnapshot halo = 2;
+
+  DatabaseSnapshot database = 3;
+}
