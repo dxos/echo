@@ -42,8 +42,7 @@
     "lint:staged": "lint-staged",
     "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts yarn npm codeload.github.com --validate-https",
     "sort-package-json": "lerna exec npx sort-package-json",
-    "validate": "npm ls",
-    "postinstall": "test $(whoami) = 'dmaretskyi' && rm .git/hooks/pre-commit || true"
+    "validate": "npm ls"
   },
   "devDependencies": {
     "eslint": "^7.7.0",
