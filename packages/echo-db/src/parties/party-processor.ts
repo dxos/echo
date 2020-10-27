@@ -92,6 +92,7 @@ export class PartyProcessor {
   }
 
   isMemberKey (publicKey: PublicKey) {
+    // TODO(telackey): Make sure it is not a feed.
     return this._stateMachine.credentialMessages.has(keyToString(publicKey));
   }
 
