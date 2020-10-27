@@ -30,7 +30,7 @@ import { createMessageSelector } from './message-selector';
 import {
   PartyInternal,
   PARTY_ITEM_TYPE,
-  HALO_PARTY_MARKER_TYPE
+  HALO_PARTY_META_TYPE
 } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -147,7 +147,16 @@ export class PartyFactory {
 
     await party.open();
 
-    // TODO(marik-d): Refactor so it doesn't return a tuple
+    const isHalo = this._identityManager.identityKey.publicKey.equals(partyKey);
+
+    // Write the Feed genesis message.
+    await party.processor.writeHaloMessage(createFeedAdmitMessage(
+      this._identityManager.keyring,
+      Buffer.from(partyKey),
+      feedKey,
+      [isHalo ? this._identityManager.deviceKey : this._identityManager.deviceKeyChain]
+    ));
+
     return party;
   }
 
@@ -340,22 +349,22 @@ export class PartyFactory {
     };
   }
 
-  private async _recordPartyJoining(party: PartyInternal) {
-    const knownParties = await this._identityManager.halo?.itemManager?.queryItems({ type: HALO_PARTY_MARKER_TYPE }).value;
-    const partyMarker = knownParties?.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
-    assert(!partyMarker, `Marker already exists for Party ${keyToString(party.key)}`)
+  private async _recordPartyJoining (party: PartyInternal) {
+    const knownParties = await this._identityManager.halo?.itemManager?.queryItems({ type: HALO_PARTY_META_TYPE }).value;
+    const partyMeta = knownParties?.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
+    assert(!partyMeta, `Metadata already exists for Party ${keyToString(party.key)}`);
 
     await this._identityManager.halo?.itemManager?.createItem(
       ObjectModel.meta.type,
-      HALO_PARTY_MARKER_TYPE,
+      HALO_PARTY_META_TYPE,
       undefined,
       {
         publicKey: party.key,
         subscribed: true,
-        hints: {
-          memberKeys: party.processor.memberKeys.map(publicKey => ({publicKey})),
-          memberFeeds: party.processor.feedKeys.map(publicKey => ({publicKey, type: KeyType.FEED}))
-        }
+        hints: [
+          ...party.processor.memberKeys.map(publicKey => ({ publicKey })),
+          ...party.processor.feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED }))
+        ]
       }
     );
   }

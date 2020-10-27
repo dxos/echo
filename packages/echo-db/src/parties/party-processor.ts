@@ -51,6 +51,7 @@ export class PartyProcessor {
 
     // TODO(marik-d): Use Event.wrap here.
     state.on('admit:feed', (keyRecord: any) => {
+      log('ADMIT:FEED', keyRecord.key);
       log(`Feed key admitted ${keyToString(keyRecord.publicKey)}`);
       this._feedAdded.emit(keyRecord.publicKey);
     });

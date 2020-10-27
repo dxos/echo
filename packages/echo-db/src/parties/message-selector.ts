@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-import { getPartyCredentialMessageType, PartyCredential } from '@dxos/credentials';
+import { getPartyCredentialMessageType, PartyCredential, admitsKeys } from '@dxos/credentials';
 import { MessageSelector } from '@dxos/echo-protocol';
 
 import { TimeframeClock } from '../items/timeframe-clock';
@@ -36,6 +36,10 @@ export function createMessageSelector (
         if (partyProcessor.genesisRequired) {
           // TODO(telackey): Add check that this is for the right Party.
           if (getPartyCredentialMessageType(halo) === PartyCredential.Type.PARTY_GENESIS) {
+            return i;
+          }
+        } else if (getPartyCredentialMessageType(halo) === PartyCredential.Type.FEED_ADMIT) {
+          if (admitsKeys(halo).find(key => key.equals(feedKey))) {
             return i;
           }
         }

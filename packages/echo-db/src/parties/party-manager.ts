@@ -5,7 +5,7 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { Event, synchronized } from '@dxos/async';
+import { Event, synchronized, waitForCondition } from '@dxos/async';
 import { KeyHint } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { PartyKey, PublicKey } from '@dxos/echo-protocol';
@@ -14,9 +14,10 @@ import { ComplexMap } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
+import { ResultSet } from '../result';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
-import { PartyInternal } from './party-internal';
+import { HALO_PARTY_META_TYPE, PartyInternal } from './party-internal';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -92,7 +93,8 @@ export class PartyManager {
     assert(!this._identityManager.halo, 'HALO already exists.');
 
     const halo = await this._partyFactory.joinHalo(invitationDescriptor, secretProvider);
-    await this._identityManager.initialize(halo);
+    await this._setHalo(halo);
+
     return halo;
   }
 
@@ -105,7 +107,8 @@ export class PartyManager {
     assert(!this._identityManager.halo, 'HALO already exists.');
 
     const halo = await this._partyFactory.createHalo(options);
-    await this._identityManager.initialize(halo);
+    await this._setHalo(halo);
+
     return halo;
   }
 
@@ -167,6 +170,28 @@ export class PartyManager {
     this._parties.set(party.key, party);
     this.update.emit(party);
     return party;
+  }
+
+  // Only call from a @synchronized method.
+  private async _setHalo (halo: PartyInternal) {
+    await this._identityManager.initialize(halo);
+
+    const result = await halo.itemManager?.queryItems({ type: HALO_PARTY_META_TYPE }) as ResultSet<any>;
+    result.subscribe(async (values) => {
+      for await (const partyMeta of values) {
+        const partyKey = partyMeta.model.getProperty('publicKey');
+        if (!this._parties.has(partyKey)) {
+          log(`Auto-opening new Party from HALO: ${keyToString(partyKey)}`);
+          await waitForCondition(() => this._identityManager.deviceKeyChain);
+          const hints = [];
+          const hintObj = partyMeta.model.getProperty('hints');
+          for (const key of Object.keys(hintObj)) {
+            hints.push(hintObj[key]);
+          }
+          await this.addParty(partyKey, hints);
+        }
+      }
+    });
   }
 
   private _isHalo (partyKey: PublicKey) {
