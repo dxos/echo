@@ -74,4 +74,5 @@ test('restored party is identical to the source party', async () => {
   expect(restoredParty.key).toEqual(party.key);
   expect(restoredParty.queryMembers().value).toEqual(party.queryMembers().value);
   expect(restoredParty.database.queryItems().value.length).toEqual(restoredParty.database.queryItems().value.length);
+  expect(restoredParty.database.getItem(item.id)?.model.toObject()).toEqual(item.model.toObject());
 });
