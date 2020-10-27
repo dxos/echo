@@ -492,7 +492,7 @@ describe('Party manager', () => {
       expect(party.itemManager?.queryItems({ type: 'wrn://dxos.org/item/test' }).value.length).toBe(0);
     }
 
-    for await (const partyManager of [partyManagerA1, partyManagerB1]) {
+    for await (const partyManager of [partyManagerA1, partyManagerA2, partyManagerB1, partyManagerB2]) {
       let item: Item<any> | null = null;
       const [party] = partyManager.parties;
       const itemPromises = [];
