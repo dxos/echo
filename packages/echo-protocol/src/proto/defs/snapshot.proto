@@ -17,17 +17,32 @@ message ItemSnapshot {
 
   string parentId = 5;
 
-  repeated bytes mutations = 6;
+  repeated ModelMutation mutations = 6;
+}
+
+message ModelMutation {
+  bytes mutation = 1;
+  ModelMutationMeta meta = 2;
+}
+
+message ModelMutationMeta {
+  bytes feedKey = 1;
+  int32 seq = 2;
+  bytes memberKey = 3;
 }
 
 message DatabaseSnapshot {
   repeated ItemSnapshot items = 1;
 }
 
+message HaloStateSnapshot {
+  repeated dxos.CredentialsMessage messages = 1;
+}
+
 message PartySnapshot {
   Timeframe timeframe = 1;
 
-  // PartyStateSnapshot halo = 2;
+  HaloStateSnapshot halo = 2;
 
   DatabaseSnapshot database = 3;
 }

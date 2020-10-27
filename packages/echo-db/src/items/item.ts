@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import { Event } from '@dxos/async';
 import { EchoEnvelope, ItemID, ItemMutation, ItemType, PartyKey, FeedWriter } from '@dxos/echo-protocol';
-import { Model } from '@dxos/model-factory';
+import { Model, ModelType } from '@dxos/model-factory';
 
 /**
  * A globally addressable data item.
@@ -17,6 +17,7 @@ export class Item<M extends Model<any>> {
   private readonly _partyKey: PartyKey;
   private readonly _itemId: ItemID;
   private readonly _itemType?: ItemType; // TODO(burdon): If optional, is this just a label (or "kind"?)
+  private readonly _modelType: ModelType;
   private readonly _model: M;
   private readonly _writeStream?: FeedWriter<EchoEnvelope>;
 
@@ -38,6 +39,7 @@ export class Item<M extends Model<any>> {
     partyKey: PartyKey,
     itemId: ItemID,
     itemType: ItemType | undefined,
+    modelType: ModelType,
     model: M,
     writeStream?: FeedWriter<EchoEnvelope>,
     parent?: Item<any> | null
@@ -48,6 +50,7 @@ export class Item<M extends Model<any>> {
     this._partyKey = partyKey;
     this._itemId = itemId;
     this._itemType = itemType;
+    this._modelType = modelType;
     this._model = model;
     this._writeStream = writeStream;
     this._updateParent(parent);
@@ -70,6 +73,10 @@ export class Item<M extends Model<any>> {
 
   get type (): ItemType | undefined {
     return this._itemType;
+  }
+
+  get modelType (): ModelType {
+    return this._modelType;
   }
 
   get model (): M {

@@ -15,7 +15,7 @@ import {
   Message as HaloMessage
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { FeedKey, FeedWriter, IHaloStream, PartyKey, PublicKey, WriteReceipt } from '@dxos/echo-protocol';
+import { FeedKey, FeedWriter, IHaloStream, PartyKey, HaloStateSnapshot, PublicKey, WriteReceipt } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
 
 const log = debug('dxos:echo:halo-party-processor');
@@ -37,6 +37,11 @@ export class PartyProcessor {
   public readonly keyOrInfoAdded = new Event<PublicKey>();
 
   private _outboundHaloStream: FeedWriter<HaloMessage> | undefined;
+
+  /**
+   * Used to generate halo snapshot.
+   */
+  private _haloMessages: HaloMessage[] = [];
 
   constructor (
     private readonly _partyKey: PartyKey
@@ -124,6 +129,7 @@ export class PartyProcessor {
   async processMessage (message: IHaloStream): Promise<void> {
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
     const { data } = message;
+    this._haloMessages.push(data);
     return this._stateMachine.processMessages([data]);
   }
 
@@ -135,5 +141,11 @@ export class PartyProcessor {
     assert(this._outboundHaloStream, 'Party is closed or read-only');
     // TODO(marik-d): Wait for the message to be processed?
     return this._outboundHaloStream.write(message);
+  }
+
+  makeSnapshot (): HaloStateSnapshot {
+    return {
+      messages: this._haloMessages
+    };
   }
 }

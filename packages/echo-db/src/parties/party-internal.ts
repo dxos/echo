@@ -5,7 +5,7 @@
 import assert from 'assert';
 
 import { synchronized } from '@dxos/async';
-import { PartyKey } from '@dxos/echo-protocol';
+import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
@@ -14,6 +14,7 @@ import {
   GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationAuthenticator, InvitationOptions
 } from '../invitations';
 import { createItemDemuxer, Item, ItemManager } from '../items';
+import { DatabaseSnasphotRecorder } from '../items/snapshot-recorder';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
@@ -34,6 +35,7 @@ export class PartyInternal {
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: NodeJS.WritableStream | undefined;
   private _unsubscribePipelineErrors: (() => void) | undefined;
+  private _snapshotRecorder: DatabaseSnasphotRecorder | undefined;
 
   /**
    * The Party is constructed by the `Database` object.
@@ -86,7 +88,8 @@ export class PartyInternal {
 
     // Connect to the downstream item demuxer.
     this._itemManager = new ItemManager(this.key, this._modelFactory, this._timeframeClock, writeStream);
-    this._itemDemuxer = createItemDemuxer(this._itemManager);
+    this._snapshotRecorder = new DatabaseSnasphotRecorder(this._itemManager);
+    this._itemDemuxer = createItemDemuxer(this._itemManager, this._snapshotRecorder);
     readStream.pipe(this._itemDemuxer);
 
     if (this._pipeline.outboundHaloStream) {
@@ -167,5 +170,14 @@ export class PartyInternal {
   get isHalo () {
     // The PartyKey of the HALO is the Identity key.
     return this._identityManager.identityKey.publicKey.equals(this.key);
+  }
+
+  makeSnapshot (): PartySnapshot {
+    assert(this._snapshotRecorder, 'Party not open.');
+    return {
+      timeframe: this._timeframeClock.timeframe,
+      database: this._snapshotRecorder.makeSnapshot(),
+      halo: this._partyProcessor.makeSnapshot()
+    };
   }
 }

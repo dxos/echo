@@ -167,7 +167,7 @@ export class ItemManager {
     readStream.pipe(inboundTransform).pipe(model.processor);
 
     // Create the Item.
-    const item = new Item(this._partyKey, itemId, itemType, model, this._writeStream, parent);
+    const item = new Item(this._partyKey, itemId, itemType, modelType, model, this._writeStream, parent);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
     log('Constructed:', String(item));
