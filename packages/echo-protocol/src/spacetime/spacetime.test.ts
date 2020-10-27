@@ -7,15 +7,13 @@ import debug from 'debug';
 
 import { createKeyPair } from '@dxos/crypto';
 
-import { FeedKeyMapper, Spacetime } from './spacetime';
+import { spacetime } from './spacetime';
 
 const log = debug('dxos:echo:spacetime:test');
 debug.enable('dxos:echo:*');
 
 describe('spacetime', () => {
   test('constructors', () => {
-    const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
-
     const { publicKey: feedKey } = createKeyPair();
 
     const tf1 = spacetime.createTimeframe([[feedKey, 1]]);
@@ -24,8 +22,6 @@ describe('spacetime', () => {
   });
 
   test('merge/subtract', () => {
-    const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
-
     const { publicKey: feedKey1 } = createKeyPair();
     const { publicKey: feedKey2 } = createKeyPair();
     const { publicKey: feedKey3 } = createKeyPair();
@@ -70,8 +66,6 @@ describe('spacetime', () => {
   });
 
   test('dependencies', () => {
-    const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
-
     const { publicKey: feedKey1 } = createKeyPair();
     const { publicKey: feedKey2 } = createKeyPair();
     const { publicKey: feedKey3 } = createKeyPair();

@@ -162,3 +162,8 @@ export class Spacetime<T, S> {
     };
   }
 }
+
+/**
+ * Spacetime for uncompressed timeframes.
+ */
+export const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));

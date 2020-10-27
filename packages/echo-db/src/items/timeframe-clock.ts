@@ -2,9 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import { FeedKey, FeedKeyMapper, Spacetime, Timeframe } from '@dxos/echo-protocol';
-
-const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
+import { FeedKey, spacetime, Timeframe } from '@dxos/echo-protocol';
 
 export class TimeframeClock {
   private _timeframe = spacetime.createTimeframe();

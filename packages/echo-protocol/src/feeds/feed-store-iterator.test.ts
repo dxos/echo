@@ -14,7 +14,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { ComplexMap, latch } from '@dxos/util';
 
 import { codec, createTestItemMutation, schema } from '../proto';
-import { FeedKeyMapper, Spacetime } from '../spacetime';
+import { spacetime } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 import { createIterator, FeedSelector } from './feed-store-iterator';
 
@@ -36,8 +36,6 @@ describe('feed store iterator', () => {
     //
     // Create the ordered feed stream.
     //
-
-    const spacetime = new Spacetime(new FeedKeyMapper('feedKey'));
 
     // Update when processed downstream.
     let currentTimeframe = spacetime.createTimeframe();
