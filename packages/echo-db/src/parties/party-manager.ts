@@ -17,7 +17,7 @@ import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { ResultSet } from '../result';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
-import { HALO_PARTY_META_TYPE, PartyInternal } from './party-internal';
+import { HALO_PARTY_DESCRIPTOR_TYPE, PartyInternal } from './party-internal';
 
 const log = debug('dxos:echo:party-manager');
 
@@ -176,18 +176,23 @@ export class PartyManager {
   private async _setHalo (halo: PartyInternal) {
     await this._identityManager.initialize(halo);
 
-    const result = await halo.itemManager?.queryItems({ type: HALO_PARTY_META_TYPE }) as ResultSet<any>;
+    const result = await halo.itemManager?.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }) as ResultSet<any>;
     result.subscribe(async (values) => {
       for await (const partyMeta of values) {
         const partyKey = partyMeta.model.getProperty('publicKey');
         if (!this._parties.has(partyKey)) {
           log(`Auto-opening new Party from HALO: ${keyToString(partyKey)}`);
+          // It is possible to read the descriptor for a Party before loading our KeyChain.  If that happens
+          // we want to defer opening the Party until our KeyChain is ready.
           await waitForCondition(() => this._identityManager.deviceKeyChain);
+
+          // TODO(telackey): Fix ObjectModel's handling of arrays.
           const hints = [];
           const hintObj = partyMeta.model.getProperty('hints');
           for (const key of Object.keys(hintObj)) {
             hints.push(hintObj[key]);
           }
+
           await this.addParty(partyKey, hints);
         }
       }

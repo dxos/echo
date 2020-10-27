@@ -30,7 +30,7 @@ import { createMessageSelector } from './message-selector';
 import {
   PartyInternal,
   PARTY_ITEM_TYPE,
-  HALO_PARTY_META_TYPE
+  HALO_PARTY_DESCRIPTOR_TYPE
 } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -350,13 +350,13 @@ export class PartyFactory {
   }
 
   private async _recordPartyJoining (party: PartyInternal) {
-    const knownParties = await this._identityManager.halo?.itemManager?.queryItems({ type: HALO_PARTY_META_TYPE }).value;
+    const knownParties = await this._identityManager.halo?.itemManager?.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }).value;
     const partyMeta = knownParties?.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
     assert(!partyMeta, `Metadata already exists for Party ${keyToString(party.key)}`);
 
     await this._identityManager.halo?.itemManager?.createItem(
       ObjectModel.meta.type,
-      HALO_PARTY_META_TYPE,
+      HALO_PARTY_DESCRIPTOR_TYPE,
       undefined,
       {
         publicKey: party.key,
