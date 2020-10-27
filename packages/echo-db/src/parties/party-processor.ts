@@ -34,7 +34,7 @@ export class PartyProcessor {
   private readonly _stateMachine: PartyStateMachine;
   private readonly _authenticator: Authenticator;
 
-  public readonly keyAdded: Event<KeyRecord>;
+  public readonly keyOrInfoAdded = new Event<PublicKey>();
 
   private _outboundHaloStream: FeedWriter<HaloMessage> | undefined;
 
@@ -54,8 +54,8 @@ export class PartyProcessor {
       log(`Feed key admitted ${keyToString(keyRecord.publicKey)}`);
       this._feedAdded.emit(keyRecord.publicKey);
     });
-
-    this.keyAdded = Event.wrap(state, 'admit:key');
+    state.on('admit:key', (keyRecord: KeyRecord) => this.keyOrInfoAdded.emit(keyRecord.publicKey));
+    state.on('update:identityinfo', (publicKey: PublicKey) => this.keyOrInfoAdded.emit(publicKey));
   }
 
   get partyKey () {
@@ -87,7 +87,13 @@ export class PartyProcessor {
   }
 
   isFeedAdmitted (feedKey: FeedKey) {
+    // TODO(telackey): Make sure it is a feed.
     return this._stateMachine.credentialMessages.has(keyToString(feedKey));
+  }
+
+  isMemberKey (publicKey: PublicKey) {
+    // TODO(telackey): Make sure it is not a feed.
+    return this._stateMachine.credentialMessages.has(keyToString(publicKey));
   }
 
   getMemberInfo (publicKey: PublicKey) {

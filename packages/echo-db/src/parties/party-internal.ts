@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-import { KeyRecord, Keyring } from '@dxos/credentials';
+import { synchronized } from '@dxos/async';
 import { PartyKey } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -16,11 +16,13 @@ import {
 import { createItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
+import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
+export const HALO_PARTY_DESCRIPTOR_TYPE = 'wrn://dxos.org/item/halo/party-descriptor';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
@@ -41,8 +43,7 @@ export class PartyInternal {
     private readonly _modelFactory: ModelFactory,
     private readonly _partyProcessor: PartyProcessor,
     private readonly _pipeline: Pipeline,
-    private readonly _keyring: Keyring,
-    private readonly _identityKeypair: KeyRecord,
+    private readonly _identityManager: IdentityManager,
     private readonly _networkManager: NetworkManager,
     private readonly _replicator: ReplicationAdapter,
     private readonly _timeframeClock: TimeframeClock
@@ -50,8 +51,6 @@ export class PartyInternal {
     assert(this._modelFactory);
     assert(this._partyProcessor);
     assert(this._pipeline);
-    assert(this._keyring);
-    assert(this._identityKeypair);
   }
 
   get key (): PartyKey {
@@ -77,6 +76,7 @@ export class PartyInternal {
   /**
    * Opens the pipeline and connects the streams.
    */
+  @synchronized
   async open () {
     if (this._itemManager) {
       return this;
@@ -106,6 +106,7 @@ export class PartyInternal {
   /**
    * Closes the pipeline and streams.
    */
+  @synchronized
   async close () {
     if (!this._itemManager) {
       return this;
@@ -135,11 +136,9 @@ export class PartyInternal {
     assert(this._networkManager);
 
     const responder = new GreetingResponder(
-      this._keyring,
+      this._identityManager,
       this._networkManager,
-      this._partyProcessor,
-      this._identityKeypair, // TODO(burdon): Move to keyring?
-      this.key
+      this._partyProcessor
     );
 
     const { secretValidator, secretProvider } = authenticationDetails;
@@ -148,16 +147,26 @@ export class PartyInternal {
     const swarmKey = await responder.start();
     const invitation = await responder.invite(secretValidator, secretProvider, onFinish, expiration);
 
-    return new InvitationDescriptor(InvitationDescriptorType.INTERACTIVE, swarmKey, invitation);
+    return new InvitationDescriptor(
+      InvitationDescriptorType.INTERACTIVE,
+      swarmKey,
+      invitation,
+      this.isHalo ? Buffer.from(this.key) : undefined
+    );
   }
 
   /**
    * Returns a special Item that is used by the Party to manage its properties.
    */
-  async getPropertiestItem (): Promise<Item<ObjectModel>> {
+  getPropertiestItem (): Item<ObjectModel> {
     assert(this._itemManager);
-    const { value: items } = await this._itemManager?.queryItems({ type: PARTY_ITEM_TYPE });
+    const { value: items } = this._itemManager.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1);
     return items[0];
+  }
+
+  get isHalo () {
+    // The PartyKey of the HALO is the Identity key.
+    return this._identityManager.identityKey.publicKey.equals(this.key);
   }
 }

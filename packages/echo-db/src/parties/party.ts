@@ -8,7 +8,7 @@ import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 import { InvitationAuthenticator, InvitationOptions } from '../invitations';
 import { Database } from '../items/database';
 import { ResultSet } from '../result';
-import { PartyInternal } from './party-internal';
+import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 
 export interface PartyMember {
   publicKey: PublicKey,
@@ -46,14 +46,16 @@ export class Party {
 
   queryMembers (): ResultSet<PartyMember> {
     return new ResultSet(
-      this._impl.processor.keyAdded.discardParameter(),
-      () => this._impl.processor.memberKeys.map((publicKey: PublicKey) => {
-        const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
-        return {
-          publicKey,
-          displayName
-        };
-      })
+      this._impl.processor.keyOrInfoAdded.discardParameter(),
+      () => this._impl.processor.memberKeys
+        .filter(publicKey => Buffer.compare(this._impl.processor.partyKey, publicKey) !== 0)
+        .map((publicKey: PublicKey) => {
+          const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
+          return {
+            publicKey,
+            displayName
+          };
+        })
     );
   }
 
@@ -61,7 +63,19 @@ export class Party {
    * Opens the pipeline and connects the streams.
    */
   async open () {
-    await this._impl.open();
+    const timeoutId = setTimeout(() => {
+      console.error('Looks like party.open() is taking more then 5 seconds. This is not an error but might mean that something went wrong.');
+    }, 5000);
+    try {
+      await this._impl.open();
+
+      if (this.database.queryItems({ type: PARTY_ITEM_TYPE }).value.length === 0) {
+        await this.database.queryItems({ type: PARTY_ITEM_TYPE }).update.waitFor(items => items.length > 0);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
     return this;
   }
 
@@ -89,8 +103,8 @@ export class Party {
    * Returns a party property value.
    * @param key
    */
-  async getProperty (key: string): Promise<any> {
-    const item = await this._impl.getPropertiestItem();
+  getProperty (key: string): any {
+    const item = this._impl.getPropertiestItem();
     return item.model.getProperty(key);
   }
 
