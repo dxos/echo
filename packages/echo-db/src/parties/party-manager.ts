@@ -178,8 +178,8 @@ export class PartyManager {
 
     const result = await halo.itemManager?.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }) as ResultSet<any>;
     result.subscribe(async (values) => {
-      for await (const partyMeta of values) {
-        const partyKey = partyMeta.model.getProperty('publicKey');
+      for await (const partyDesc of values) {
+        const partyKey = partyDesc.model.getProperty('publicKey');
         if (!this._parties.has(partyKey)) {
           log(`Auto-opening new Party from HALO: ${keyToString(partyKey)}`);
           // It is possible to read the descriptor for a Party before loading our KeyChain.  If that happens
@@ -188,7 +188,7 @@ export class PartyManager {
 
           // TODO(telackey): Fix ObjectModel's handling of arrays.
           const hints = [];
-          const hintObj = partyMeta.model.getProperty('hints');
+          const hintObj = partyDesc.model.getProperty('hints');
           for (const key of Object.keys(hintObj)) {
             hints.push(hintObj[key]);
           }
