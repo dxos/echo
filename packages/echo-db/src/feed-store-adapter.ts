@@ -83,7 +83,7 @@ export class FeedStoreAdapter {
       this._feedStore,
       descriptor => descriptor.metadata.partyKey.equals(partyKey),
       messageSelector,
-      initialTimeframe,
+      initialTimeframe
     );
   }
 }

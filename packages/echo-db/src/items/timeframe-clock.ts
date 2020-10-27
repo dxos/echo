@@ -5,8 +5,8 @@
 import { FeedKey, spacetime, Timeframe } from '@dxos/echo-protocol';
 
 export class TimeframeClock {
-  constructor(
-    private _timeframe = spacetime.createTimeframe(),
+  constructor (
+    private _timeframe = spacetime.createTimeframe()
   ) {}
 
   get timeframe () {

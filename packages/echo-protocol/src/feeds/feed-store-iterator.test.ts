@@ -153,15 +153,15 @@ describe('feed store iterator', () => {
     const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: schema.getCodecForType('dxos.echo.testing.TestItemMutation') } });
     await feedStore.open();
 
-    const feed1 = await feedStore.openFeed(`feed-1`);
-    const feed2 = await feedStore.openFeed(`feed-2`);
+    const feed1 = await feedStore.openFeed('feed-1');
+    const feed2 = await feedStore.openFeed('feed-2');
 
-    await pify(feed1.append.bind(feed1))({ key: 'feed1', value: '0' })
-    await pify(feed1.append.bind(feed1))({ key: 'feed1', value: '1' })
-    await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '0' })
-    await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '1' })
+    await pify(feed1.append.bind(feed1))({ key: 'feed1', value: '0' });
+    await pify(feed1.append.bind(feed1))({ key: 'feed1', value: '1' });
+    await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '0' });
+    await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '1' });
 
-    const iterator = await createIterator(feedStore, undefined, undefined, spacetime.createTimeframe([[feed1.key, 0]]))
+    const iterator = await createIterator(feedStore, undefined, undefined, spacetime.createTimeframe([[feed1.key, 0]]));
 
     const [counter, updateCounter] = latch(3);
     const messages: any[] = [];
@@ -172,11 +172,11 @@ describe('feed store iterator', () => {
       }
     });
     await counter;
-    
+
     expect(messages).toHaveLength(3);
 
-    expect(messages).toContainEqual({ key: 'feed1', value: '1' })
-    expect(messages).toContainEqual({ key: 'feed2', value: '0' })
-    expect(messages).toContainEqual({ key: 'feed2', value: '1' })
-  })
+    expect(messages).toContainEqual({ key: 'feed1', value: '1' });
+    expect(messages).toContainEqual({ key: 'feed2', value: '0' });
+    expect(messages).toContainEqual({ key: 'feed2', value: '1' });
+  });
 });

@@ -203,12 +203,12 @@ export class PartyFactory {
     return party;
   }
 
-  async constructPartyFromSnapshot(snapshot: PartySnapshot) {
+  async constructPartyFromSnapshot (snapshot: PartySnapshot) {
     assert(snapshot.partyKey);
     const party = await this.constructParty(snapshot.partyKey, [], snapshot.timeframe);
 
     await party.open(); // TODO(marik-d): This shouldn't be required if we create item manager & item demuxer at the beginning.
-    
+
     assert(snapshot.halo);
     await party.processor.restoreFromSnapshot(snapshot.halo);
 

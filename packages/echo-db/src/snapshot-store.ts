@@ -1,36 +1,40 @@
-import { schema } from '@dxos/echo-protocol';
-import { keyToString } from '@dxos/crypto';
-import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
-import { Storage } from '@dxos/random-access-multi-storage';
-import pify from 'pify';
+//
+// Copyright 2020 DXOS.org
+//
+
 import assert from 'assert';
+import pify from 'pify';
+
+import { keyToString } from '@dxos/crypto';
+import { schema, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
+import { Storage } from '@dxos/random-access-multi-storage';
 
 export class SnapshotStore {
-  constructor(
+  constructor (
     private readonly _backend: Storage
   ) {}
 
-  async load(partyKey: PartyKey): Promise<PartySnapshot | undefined> {
+  async load (partyKey: PartyKey): Promise<PartySnapshot | undefined> {
     const file = this._backend(keyToString(partyKey));
 
     try {
       const { size } = await pify(file.stat.bind(file))();
-      if(size === 0) return undefined;
+      if (size === 0) return undefined;
 
       const data = await pify(file.read.bind(file))(0, size);
       return schema.getCodecForType('dxos.echo.snapshot.PartySnapshot').decode(data);
     } catch (err) {
-      if(err.code === 'ENOENT') {
-        return undefined
+      if (err.code === 'ENOENT') {
+        return undefined;
       } else {
-        throw err
+        throw err;
       }
     } finally {
       await pify(file.close.bind(file))();
     }
   }
 
-  async save(snapshot: PartySnapshot) {
+  async save (snapshot: PartySnapshot) {
     assert(snapshot.partyKey);
     const file = this._backend(keyToString(snapshot.partyKey), { truncate: true, size: 0 });
 

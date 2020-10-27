@@ -5,12 +5,11 @@
 import assert from 'assert';
 
 import { schema } from '@dxos/echo-protocol';
+import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 
 import { Party, PartyFactory, PartyInternal } from './parties';
 import { createTestInstance } from './testing';
-import { mode } from 'crypto-js';
-import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 
 test('loading large party', async () => {
   const { echo: echo1, feedStore, keyStore } = await createTestInstance({ initialized: true });
@@ -65,14 +64,14 @@ test('restored party is identical to the source party', async () => {
     identityManager,
     feedStoreAdapter,
     modelFactory,
-    new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()), // recreating network manager to avoid "Already joined swarm" errors.
-  )
+    new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()) // recreating network manager to avoid "Already joined swarm" errors.
+  );
 
   const restoredPartyInternal = await partyFactory.constructPartyFromSnapshot(snapshot);
   const restoredParty = new Party(restoredPartyInternal);
-  
+
   expect(restoredParty.isOpen).toBeTruthy();
   expect(restoredParty.key).toEqual(party.key);
   expect(restoredParty.queryMembers().value).toEqual(party.queryMembers().value);
-  expect(restoredParty.database.queryItems().value.length).toEqual(restoredParty.database.queryItems().value.length)
-})
+  expect(restoredParty.database.queryItems().value.length).toEqual(restoredParty.database.queryItems().value.length);
+});

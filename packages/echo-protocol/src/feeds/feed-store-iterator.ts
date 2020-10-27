@@ -166,7 +166,7 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
     const frame = this._skipTimeframe.frames?.find(frame => frame.feedKey && descriptor.key.equals(frame.feedKey));
     const startIdx = frame?.seq !== undefined ? frame.seq + 1 : 0;
 
-    log(`Starting reading from feed ${descriptor.key.toString('hex')} from sequence ${startIdx}`)
+    log(`Starting reading from feed ${descriptor.key.toString('hex')} from sequence ${startIdx}`);
 
     const stream = new Readable({ objectMode: true })
       .wrap(createBatchStream(descriptor.feed, { live: true, start: startIdx }));

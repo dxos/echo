@@ -173,7 +173,7 @@ export class ItemManager {
     log('Constructed:', String(item));
 
     if (initialMutations) {
-      for(const mutation of initialMutations) {
+      for (const mutation of initialMutations) {
         await item.model.processMessage(mutation.meta, mutationCodec.decode(mutation.mutation));
       }
     }

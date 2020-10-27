@@ -149,9 +149,9 @@ export class PartyProcessor {
     };
   }
 
-  async restoreFromSnapshot(snapshot: HaloStateSnapshot) {
+  async restoreFromSnapshot (snapshot: HaloStateSnapshot) {
     assert(this._haloMessages.length === 0, 'PartyProcessor is already initialized');
-    assert(snapshot.messages)
+    assert(snapshot.messages);
     this._haloMessages = snapshot.messages;
     await this._stateMachine.processMessages(snapshot.messages);
   }
