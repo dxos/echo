@@ -118,7 +118,7 @@ export class ItemDemuxer {
     };
   }
 
-  restoreFromSnapshot (snapshot: DatabaseSnapshot) {
+  async restoreFromSnapshot (snapshot: DatabaseSnapshot) {
     assert(snapshot.items);
     for (const item of sortItemsTopologically(snapshot.items)) {
       assert(item.itemId);
@@ -134,7 +134,7 @@ export class ItemDemuxer {
         this._modelMutations.set(item.itemId, item.mutations);
       }
 
-      this._itemManager.constructItem(
+      await this._itemManager.constructItem(
         item.itemId,
         item.modelType,
         item.itemType,

@@ -213,7 +213,8 @@ export class PartyFactory {
     await party.processor.restoreFromSnapshot(snapshot.halo);
 
     assert(snapshot.database);
-    party.itemDemuxer?.restoreFromSnapshot(snapshot.database);
+    assert(party.itemDemuxer);
+    await party.itemDemuxer.restoreFromSnapshot(snapshot.database);
 
     return party;
   }
