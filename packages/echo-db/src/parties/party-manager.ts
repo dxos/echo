@@ -5,7 +5,7 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { Event, synchronized, waitForCondition } from '@dxos/async';
+import { Event, synchronized } from '@dxos/async';
 import { KeyHint } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { PartyKey, PublicKey } from '@dxos/echo-protocol';
@@ -14,7 +14,6 @@ import { ComplexMap } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
-import { ResultSet } from '../result';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
 import { HALO_PARTY_DESCRIPTOR_TYPE, PartyInternal } from './party-internal';
@@ -174,25 +173,21 @@ export class PartyManager {
 
   // Only call from a @synchronized method.
   private async _setHalo (halo: PartyInternal) {
+    assert(halo.itemManager, 'ItemManger is required');
     await this._identityManager.initialize(halo);
 
-    const result = await halo.itemManager?.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }) as ResultSet<any>;
+    const result = await halo.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE });
     result.subscribe(async (values) => {
-      for await (const partyDesc of values) {
+      for (const partyDesc of values) {
         const partyKey = partyDesc.model.getProperty('publicKey');
         if (!this._parties.has(partyKey)) {
           log(`Auto-opening new Party from HALO: ${keyToString(partyKey)}`);
           // It is possible to read the descriptor for a Party before loading our KeyChain.  If that happens
           // we want to defer opening the Party until our KeyChain is ready.
-          await waitForCondition(() => this._identityManager.deviceKeyChain);
+          await this._identityManager.deviceKeyChainAvailable();
 
           // TODO(telackey): Fix ObjectModel's handling of arrays.
-          const hints = [];
-          const hintObj = partyDesc.model.getProperty('hints');
-          for (const key of Object.keys(hintObj)) {
-            hints.push(hintObj[key]);
-          }
-
+          const hints = Object.values(partyDesc.model.getProperty('hints')) as KeyHint[];
           await this.addParty(partyKey, hints);
         }
       }

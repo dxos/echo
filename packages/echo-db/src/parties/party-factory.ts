@@ -350,11 +350,14 @@ export class PartyFactory {
   }
 
   private async _recordPartyJoining (party: PartyInternal) {
-    const knownParties = await this._identityManager.halo?.itemManager?.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }).value;
-    const partyDesc = knownParties?.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
+    assert(this._identityManager.halo, 'HALO is required.');
+    assert(this._identityManager.halo.itemManager, 'ItemManager is required.');
+
+    const knownParties = await this._identityManager.halo.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }).value;
+    const partyDesc = knownParties.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
     assert(!partyDesc, `Descriptor already exists for Party ${keyToString(party.key)}`);
 
-    await this._identityManager.halo?.itemManager?.createItem(
+    await this._identityManager.halo.itemManager.createItem(
       ObjectModel.meta.type,
       HALO_PARTY_DESCRIPTOR_TYPE,
       undefined,
