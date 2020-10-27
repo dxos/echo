@@ -75,7 +75,7 @@ export async function createTestInstance ({
     await echo.open();
   }
 
-  return { echo, partyManager, modelFactory, identityManager, feedStoreAdapter, feedStore, keyStore };
+  return { echo, partyManager, partyFactory, modelFactory, identityManager, feedStoreAdapter, feedStore, keyStore };
 }
 
 export type Awaited<T> = T extends Promise<infer U> ? U : T;

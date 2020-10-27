@@ -16,7 +16,7 @@ import {
   KeyType
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { FeedKey, PartyKey, createFeedWriter } from '@dxos/echo-protocol';
+import { FeedKey, PartyKey, createFeedWriter, PartySnapshot, Timeframe } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
@@ -150,7 +150,7 @@ export class PartyFactory {
    * @param partyKey
    * @param hints
    */
-  async constructParty (partyKey: PartyKey, hints: KeyHint[] = []) {
+  async constructParty (partyKey: PartyKey, hints: KeyHint[] = [], initialTimeframe?: Timeframe) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -164,14 +164,14 @@ export class PartyFactory {
     // like we do above for the PartyGenesis message.
     //
 
-    const timeframeClock = new TimeframeClock();
+    const timeframeClock = new TimeframeClock(initialTimeframe);
 
     const partyProcessor = new PartyProcessor(partyKey);
     if (hints.length) {
       await partyProcessor.takeHints(hints);
     }
 
-    const iterator = await this._feedStore.createIterator(partyKey, createMessageSelector(partyProcessor, timeframeClock));
+    const iterator = await this._feedStore.createIterator(partyKey, createMessageSelector(partyProcessor, timeframeClock), initialTimeframe);
     const feedWriteStream = createFeedWriter(feed);
 
     const pipeline = new Pipeline(
@@ -200,6 +200,21 @@ export class PartyFactory {
       timeframeClock
     );
     log(`Constructed: ${party}`);
+    return party;
+  }
+
+  async constructPartyFromSnapshot(snapshot: PartySnapshot) {
+    assert(snapshot.partyKey);
+    const party = await this.constructParty(snapshot.partyKey, [], snapshot.timeframe);
+
+    await party.open(); // TODO(marik-d): This shouldn't be required if we create item manager & item demuxer at the beginning.
+    
+    assert(snapshot.halo);
+    await party.processor.restoreFromSnapshot(snapshot.halo);
+
+    assert(snapshot.database);
+    party.itemDemuxer?.restoreFromSnapshot(snapshot.database);
+
     return party;
   }
 

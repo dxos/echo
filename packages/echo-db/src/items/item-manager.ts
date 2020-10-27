@@ -120,7 +120,7 @@ export class ItemManager {
     itemType: ItemType | undefined,
     readStream: NodeJS.ReadableStream,
     parentId?: ItemID,
-    initialMutation?: ModelMessage<Uint8Array>
+    initialMutations?: ModelMessage<Uint8Array>[]
   ) {
     assert(this._writeStream);
     assert(itemId);
@@ -172,8 +172,10 @@ export class ItemManager {
     this._items.set(itemId, item);
     log('Constructed:', String(item));
 
-    if (initialMutation) {
-      await item.model.processMessage(initialMutation.meta, mutationCodec.decode(initialMutation.mutation));
+    if (initialMutations) {
+      for(const mutation of initialMutations) {
+        await item.model.processMessage(mutation.meta, mutationCodec.decode(mutation.mutation));
+      }
     }
 
     // Notify Item was udpated.

@@ -7,8 +7,10 @@ import assert from 'assert';
 import { schema } from '@dxos/echo-protocol';
 import { ObjectModel } from '@dxos/object-model';
 
-import { PartyInternal } from './parties';
+import { Party, PartyFactory, PartyInternal } from './parties';
 import { createTestInstance } from './testing';
+import { mode } from 'crypto-js';
+import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 
 test('loading large party', async () => {
   const { echo: echo1, feedStore, keyStore } = await createTestInstance({ initialized: true });
@@ -50,3 +52,27 @@ test('can produce & serialize a snapshot', async () => {
 
   expect(serialized instanceof Uint8Array).toBeTruthy();
 });
+
+test('restored party is identical to the source party', async () => {
+  const { echo, identityManager, feedStoreAdapter, modelFactory } = await createTestInstance({ initialized: true });
+  const party = await echo.createParty();
+  const item = await party.database.createItem({ model: ObjectModel, props: { foo: 'foo' } });
+  await item.model.setProperty('foo', 'bar');
+
+  const snapshot = ((party as any)._impl as PartyInternal).makeSnapshot();
+
+  const partyFactory = new PartyFactory(
+    identityManager,
+    feedStoreAdapter,
+    modelFactory,
+    new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()), // recreating network manager to avoid "Already joined swarm" errors.
+  )
+
+  const restoredPartyInternal = await partyFactory.constructPartyFromSnapshot(snapshot);
+  const restoredParty = new Party(restoredPartyInternal);
+  
+  expect(restoredParty.isOpen).toBeTruthy();
+  expect(restoredParty.key).toEqual(party.key);
+  expect(restoredParty.queryMembers().value).toEqual(party.queryMembers().value);
+  expect(restoredParty.database.queryItems().value.length).toEqual(restoredParty.database.queryItems().value.length)
+})

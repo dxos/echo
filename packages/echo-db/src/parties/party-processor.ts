@@ -126,11 +126,11 @@ export class PartyProcessor {
     await this._stateMachine.takeHints(hints);
   }
 
-  async processMessage (message: IHaloStream): Promise<void> {
+  async processMessage (message: IHaloStream) {
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
     const { data } = message;
     this._haloMessages.push(data);
-    return this._stateMachine.processMessages([data]);
+    await this._stateMachine.processMessages([data]);
   }
 
   setOutboundStream (stream: FeedWriter<HaloMessage>) {
@@ -147,5 +147,12 @@ export class PartyProcessor {
     return {
       messages: this._haloMessages
     };
+  }
+
+  async restoreFromSnapshot(snapshot: HaloStateSnapshot) {
+    assert(this._haloMessages.length === 0, 'PartyProcessor is already initialized');
+    assert(snapshot.messages)
+    this._haloMessages = snapshot.messages;
+    await this._stateMachine.processMessages(snapshot.messages);
   }
 }

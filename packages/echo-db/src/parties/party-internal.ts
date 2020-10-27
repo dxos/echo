@@ -13,8 +13,7 @@ import { ObjectModel } from '@dxos/object-model';
 import {
   GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationAuthenticator, InvitationOptions
 } from '../invitations';
-import { createItemDemuxer, Item, ItemManager } from '../items';
-import { DatabaseSnasphotRecorder } from '../items/snapshot-recorder';
+import { ItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
@@ -33,9 +32,9 @@ export interface PartyFilter {}
  */
 export class PartyInternal {
   private _itemManager: ItemManager | undefined;
-  private _itemDemuxer: NodeJS.WritableStream | undefined;
+  private _itemDemuxer: ItemDemuxer | undefined;
+  private _inboundEchoStream: NodeJS.WritableStream | undefined;
   private _unsubscribePipelineErrors: (() => void) | undefined;
-  private _snapshotRecorder: DatabaseSnasphotRecorder | undefined;
 
   /**
    * The Party is constructed by the `Database` object.
@@ -66,6 +65,10 @@ export class PartyInternal {
     return this._itemManager;
   }
 
+  get itemDemuxer () {
+    return this._itemDemuxer;
+  }
+
   get processor () {
     return this._partyProcessor;
   }
@@ -88,9 +91,10 @@ export class PartyInternal {
 
     // Connect to the downstream item demuxer.
     this._itemManager = new ItemManager(this.key, this._modelFactory, this._timeframeClock, writeStream);
-    this._snapshotRecorder = new DatabaseSnasphotRecorder(this._itemManager);
-    this._itemDemuxer = createItemDemuxer(this._itemManager, this._snapshotRecorder);
-    readStream.pipe(this._itemDemuxer);
+    this._itemDemuxer = new ItemDemuxer(this._itemManager, { snapshots: true });
+
+    this._inboundEchoStream = this._itemDemuxer.open();
+    readStream.pipe(this._inboundEchoStream);
 
     if (this._pipeline.outboundHaloStream) {
       this._partyProcessor.setOutboundStream(this._pipeline.outboundHaloStream);
@@ -117,7 +121,7 @@ export class PartyInternal {
     this._replicator.stop();
 
     // Disconnect the read stream.
-    this._pipeline.inboundEchoStream?.unpipe(this._itemDemuxer);
+    this._pipeline.inboundEchoStream?.unpipe(this._inboundEchoStream);
 
     this._itemManager = undefined;
     this._itemDemuxer = undefined;
@@ -173,10 +177,11 @@ export class PartyInternal {
   }
 
   makeSnapshot (): PartySnapshot {
-    assert(this._snapshotRecorder, 'Party not open.');
+    assert(this._itemDemuxer, 'Party not open.');
     return {
+      partyKey: this.key,
       timeframe: this._timeframeClock.timeframe,
-      database: this._snapshotRecorder.makeSnapshot(),
+      database: this._itemDemuxer.makeSnapshot(),
       halo: this._partyProcessor.makeSnapshot()
     };
   }

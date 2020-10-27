@@ -21,14 +21,14 @@ message ItemSnapshot {
 }
 
 message ModelMutation {
-  bytes mutation = 1;
-  ModelMutationMeta meta = 2;
+  required bytes mutation = 1;
+  required ModelMutationMeta meta = 2;
 }
 
 message ModelMutationMeta {
-  bytes feedKey = 1;
-  int32 seq = 2;
-  bytes memberKey = 3;
+  required bytes feedKey = 1;
+  required int32 seq = 2;
+  required bytes memberKey = 3;
 }
 
 message DatabaseSnapshot {
@@ -40,9 +40,9 @@ message HaloStateSnapshot {
 }
 
 message PartySnapshot {
-  Timeframe timeframe = 1;
+  bytes partyKey = 1;
+  Timeframe timeframe = 2;
 
-  HaloStateSnapshot halo = 2;
-
-  DatabaseSnapshot database = 3;
+  HaloStateSnapshot halo = 3;
+  DatabaseSnapshot database = 4;
 }
