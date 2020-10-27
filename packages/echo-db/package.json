@@ -41,6 +41,7 @@
     "@dxos/network-manager": "^1.0.0-beta.108",
     "@dxos/object-model": "^2.3.0-alpha.0",
     "@dxos/protocol-plugin-replicator": "^1.1.0-beta.14",
+    "@dxos/random-access-multi-storage": "^1.1.0-beta.7",
     "@dxos/util": "^2.3.0-alpha.0",
     "@types/debug": "^4.1.1",
     "@types/end-of-stream": "^1.4.0",
