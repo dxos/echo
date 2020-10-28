@@ -68,8 +68,7 @@ export class PartyFactory {
     private readonly _modelFactory: ModelFactory,
     private readonly _networkManager: NetworkManager,
     private readonly _options: Options = {}
-  ) {
-  }
+  ) {}
 
   /**
    * Create a new party with a new feed for it. Writes a party genensis message to this feed.
