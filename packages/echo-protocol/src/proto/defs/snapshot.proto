@@ -8,6 +8,33 @@ package dxos.echo.snapshot;
 
 import "echo.proto";
 
+//
+// Snapshots define full party state at a given point in time.
+// They must have enough information to be able to recover the party state without reading the feed messages.
+//
+// Each snapshot is identified by a party key and a timeframe.
+// The timeframe defines the set of feed messages that have already been processed.
+// When loading from the snapshot, application would skip all of the feed messages up to (and including) the provided timeframe. 
+//
+
+
+message PartySnapshot {
+  bytes partyKey = 1;
+  Timeframe timeframe = 2;
+
+  HaloStateSnapshot halo = 3;
+  DatabaseSnapshot database = 4;
+}
+
+message DatabaseSnapshot {
+  repeated ItemSnapshot items = 1;
+}
+
+// For now we just store and replay a list of all halo messages as thier number is expected to be relatively low.
+message HaloStateSnapshot {
+  repeated dxos.CredentialsMessage messages = 1;
+}
+
 message ItemSnapshot {
   string itemId = 1;
 
@@ -17,10 +44,12 @@ message ItemSnapshot {
 
   string parentId = 5;
 
+  // TODO(marik-d): This should also allow for model-specific serialization format with a fallback to array of mutations.
   repeated ModelMutation mutations = 6;
 }
 
 message ModelMutation {
+  // Encoded model mutation, format is defined by model's codec.
   required bytes mutation = 1;
   required ModelMutationMeta meta = 2;
 }
@@ -31,18 +60,5 @@ message ModelMutationMeta {
   required bytes memberKey = 3;
 }
 
-message DatabaseSnapshot {
-  repeated ItemSnapshot items = 1;
-}
 
-message HaloStateSnapshot {
-  repeated dxos.CredentialsMessage messages = 1;
-}
 
-message PartySnapshot {
-  bytes partyKey = 1;
-  Timeframe timeframe = 2;
-
-  HaloStateSnapshot halo = 3;
-  DatabaseSnapshot database = 4;
-}

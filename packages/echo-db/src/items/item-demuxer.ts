@@ -159,22 +159,22 @@ export class ItemDemuxer {
 }
 
 function sortItemsTopologically (items: ItemSnapshot[]): ItemSnapshot[] {
-  const res: ItemSnapshot[] = [];
+  const snapshots: ItemSnapshot[] = [];
   const seenIds = new Set<ItemID>();
 
-  while (res.length !== items.length) {
-    const prevLength = res.length;
+  while (snapshots.length !== items.length) {
+    const prevLength = snapshots.length;
     for (const item of items) {
       assert(item.itemId);
       if (!seenIds.has(item.itemId) && (item.parentId == null || seenIds.has(item.parentId))) {
-        res.push(item);
+        snapshots.push(item);
         seenIds.add(item.itemId);
       }
     }
-    if (prevLength === res.length && res.length !== items.length) {
+    if (prevLength === snapshots.length && snapshots.length !== items.length) {
       throw new Error('Cannot topologically sorts items in snapshot: some parents are missing.');
     }
   }
 
-  return res;
+  return snapshots;
 }

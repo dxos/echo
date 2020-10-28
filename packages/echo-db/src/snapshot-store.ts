@@ -19,7 +19,9 @@ export class SnapshotStore {
 
     try {
       const { size } = await pify(file.stat.bind(file))();
-      if (size === 0) return undefined;
+      if (size === 0) {
+        return undefined;
+      }
 
       const data = await pify(file.read.bind(file))(0, size);
       return schema.getCodecForType('dxos.echo.snapshot.PartySnapshot').decode(data);

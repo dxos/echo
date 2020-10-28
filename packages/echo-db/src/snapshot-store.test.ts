@@ -8,7 +8,7 @@ import { createStorage, File } from '@dxos/random-access-multi-storage';
 
 import { SnapshotStore } from './snapshot-store';
 
-// RAM storage doesn't preserve data when re-opening files
+// RAM storage doesn't preserve data when re-opening files.
 function createRamStorage () {
   const storage = createStorage('snapshots', 'ram');
   const files = new Map<string, File>();

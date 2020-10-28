@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { schema } from '@dxos/echo-protocol';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -10,6 +11,8 @@ import { ObjectModel } from '@dxos/object-model';
 
 import { Party, PartyFactory, PartyInternal } from './parties';
 import { createTestInstance } from './testing';
+
+const log = debug('dxos:snapshot:test');
 
 test('loading large party', async () => {
   const { echo: echo1, feedStore, keyStore } = await createTestInstance({ initialized: true });
@@ -31,7 +34,7 @@ test('loading large party', async () => {
     const item = party2.database.getItem(item1.id);
     return item?.model.getProperty('foo') === 'done';
   });
-  console.log(`Load took ${Date.now() - startTime}ms`);
+  log(`Load took ${Date.now() - startTime}ms`);
 });
 
 test('can produce & serialize a snapshot', async () => {
@@ -40,7 +43,7 @@ test('can produce & serialize a snapshot', async () => {
   const item = await party.database.createItem({ model: ObjectModel, props: { foo: 'foo' } });
   await item.model.setProperty('foo', 'bar');
 
-  const snapshot = ((party as any)._impl as PartyInternal).makeSnapshot();
+  const snapshot = ((party as any)._impl as PartyInternal).createSnapshot();
 
   expect(snapshot.database?.items).toHaveLength(2);
   expect(snapshot.database?.items?.find(i => i.itemId === item.id)?.mutations).toHaveLength(2);
@@ -58,7 +61,7 @@ test('restored party is identical to the source party', async () => {
   const item = await party.database.createItem({ model: ObjectModel, props: { foo: 'foo' } });
   await item.model.setProperty('foo', 'bar');
 
-  const snapshot = ((party as any)._impl as PartyInternal).makeSnapshot();
+  const snapshot = ((party as any)._impl as PartyInternal).createSnapshot();
 
   const partyFactory = new PartyFactory(
     identityManager,

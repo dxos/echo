@@ -67,9 +67,17 @@ export class FeedKeyMapper extends KeyMapper<FeedKey, string> {
 }
 
 export class FeedIndexMapper extends KeyMapper<number, number> {
-  equals (key1: number, key2: number) { return key1 === key2; }
-  toScalar (value: number): number { return value; }
-  fromScalar (value: number): number { return value; }
+  equals (key1: number, key2: number) {
+    return key1 === key2;
+  }
+
+  toScalar (value: number): number {
+    return value;
+  }
+
+  fromScalar (value: number): number {
+    return value;
+  }
 }
 
 /**

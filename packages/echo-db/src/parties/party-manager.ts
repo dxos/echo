@@ -52,7 +52,9 @@ export class PartyManager {
 
   @synchronized
   async open () {
-    if (this._opened) return;
+    if (this._opened) {
+      return;
+    }
     await this._feedStore.open();
 
     // Open the HALO first (if present).

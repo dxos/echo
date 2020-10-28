@@ -176,7 +176,7 @@ export class PartyInternal {
     return this._identityManager.identityKey.publicKey.equals(this.key);
   }
 
-  makeSnapshot (): PartySnapshot {
+  createSnapshot (): PartySnapshot {
     assert(this._itemDemuxer, 'Party not open.');
     return {
       partyKey: this.key,
