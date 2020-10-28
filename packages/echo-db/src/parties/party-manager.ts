@@ -84,7 +84,11 @@ export class PartyManager {
   }
 
   /**
-   * Joins an existing Identity HALO.
+   * Joins an existing Identity HALO from a recovery seed phrase.
+   * TODO(telackey): Combine with joinHalo?
+   *   joinHalo({ seedPhrase }) // <- Recovery version
+   *   joinHalo({ invitationDescriptor, secretProvider}) // <- Standard invitation version
+   * The downside is that would wreck the symmetry to createParty/joinParty.
    */
   @synchronized
   async recoverHalo (seedPhrase: string) {
