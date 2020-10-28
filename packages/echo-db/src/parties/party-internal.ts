@@ -3,10 +3,8 @@
 //
 
 import assert from 'assert';
-import debug from 'debug';
 
 import { synchronized } from '@dxos/async';
-import { humanize } from '@dxos/crypto';
 import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -18,7 +16,6 @@ import {
 import { ItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
-import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -28,8 +25,6 @@ export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
-
-const log = debug('dxos:party-internal');
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -52,8 +47,7 @@ export class PartyInternal {
     private readonly _identityManager: IdentityManager,
     private readonly _networkManager: NetworkManager,
     private readonly _replicator: ReplicationAdapter,
-    private readonly _timeframeClock: TimeframeClock,
-    private readonly _snapshotStore: SnapshotStore
+    private readonly _timeframeClock: TimeframeClock
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -109,17 +103,6 @@ export class PartyInternal {
 
     // Replication.
     this._replicator.start();
-
-    // Snapshots
-    this._subscriptions.push(this._timeframeClock.update.on(timeframe => {
-      // TODO(marik-d): Extract this.
-      // TODO(marik-d): Disabling snapshots in config.
-      // TODO(marik-d): Extract message count to config.
-      const totalMessages = timeframe.totalMessages();
-      if (totalMessages > 10 && totalMessages % 10 === 0) {
-        this.saveSnapshot();
-      }
-    }));
 
     // TODO(burdon): Propagate errors.
     this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
@@ -206,14 +189,5 @@ export class PartyInternal {
       database: this._itemDemuxer.makeSnapshot(),
       halo: this._partyProcessor.makeSnapshot()
     };
-  }
-
-  /**
-   * Create a snapshot and save it to the snapshot store.
-   */
-  async saveSnapshot () {
-    log(`Saving snapshot of ${humanize(this.key)}...`);
-    const snapshot = this.createSnapshot();
-    await this._snapshotStore.save(snapshot);
   }
 }

@@ -35,6 +35,7 @@ export interface TestOptions {
   snapshotStorage?: Storage,
   keyStorage?: any
   swarmProvider?: SwarmProvider
+  snapshotInterval?: number
 }
 
 /**
@@ -48,7 +49,8 @@ export async function createTestInstance ({
   keyStore: injectedKeyStore,
   keyStorage = undefined,
   snapshotStorage = ram,
-  swarmProvider = new SwarmProvider()
+  swarmProvider = new SwarmProvider(),
+  snapshotInterval
 }: TestOptions = {}) {
   const feedStore = injectedFeedStore ?? new FeedStore(storage, { feedOptions: { valueEncoding: codec } });
   const feedStoreAdapter = new FeedStoreAdapter(feedStore);
@@ -59,10 +61,12 @@ export async function createTestInstance ({
   const modelFactory = new ModelFactory()
     .registerModel(ObjectModel);
 
-  const options = verboseLogging ? {
-    readLogger: messageLogger('>>>'),
-    writeLogger: messageLogger('<<<')
-  } : undefined;
+  const options = {
+    readLogger: verboseLogging ? messageLogger('>>>') : undefined,
+    writeLogger: verboseLogging ? messageLogger('<<<') : undefined,
+    snapshots: snapshotStorage !== ram,
+    snapshotInterval
+  };
 
   const networkManager = new NetworkManager(feedStore, swarmProvider);
   const snapshotStore = new SnapshotStore(snapshotStorage);

@@ -31,6 +31,7 @@ import { createMessageSelector } from './message-selector';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { makeAutomaticSnapshots } from './snapshot-maker';
 
 /**
  * Options allowed when creating the HALO.
@@ -44,7 +45,11 @@ interface Options {
   readLogger?: (msg: any) => void;
   writeLogger?: (msg: any) => void;
   readOnly?: boolean;
+  snapshots?: boolean;
+  snapshotInterval?: number;
 }
+
+const DEFAULT_SNAPSHOT_INTERVAL = 100; // every 100 messages
 
 const log = debug('dxos:echo:party-factory');
 
@@ -199,9 +204,13 @@ export class PartyFactory {
       this._identityManager,
       this._networkManager,
       replicator,
-      timeframeClock,
-      this._snapshotStore
+      timeframeClock
     );
+
+    if (this._options.snapshots) {
+      makeAutomaticSnapshots(party, timeframeClock, this._snapshotStore, this._options.snapshotInterval ?? DEFAULT_SNAPSHOT_INTERVAL);
+    }
+
     log(`Constructed: ${party}`);
     return party;
   }

@@ -43,6 +43,7 @@ export const withSwarm = () => {
         // TODO(burdon): Move const to config.
         swarmProvider: new SwarmProvider({ signal: 'wss://signal2.dxos.network/dxos/signal' }),
         snapshotStorage,
+        snapshotInterval: 10,
       });
 
       log('Created:', String(database));
