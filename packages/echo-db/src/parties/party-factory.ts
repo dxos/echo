@@ -27,7 +27,7 @@ import { ObjectModel } from '@dxos/object-model';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';
-import { HaloRecoverer } from '../invitations/halo-recoverer';
+import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
@@ -281,7 +281,7 @@ export class PartyFactory {
     const recoveredKeyPair = keyPairFromSeedPhrase(seedPhrase);
     await this._identityManager.keyring.addKeyRecord({ ...recoveredKeyPair, type: KeyType.IDENTITY });
 
-    const recoverer = new HaloRecoverer(this._networkManager, this._identityManager);
+    const recoverer = new HaloRecoveryInitiator(this._networkManager, this._identityManager);
     await recoverer.connect();
 
     const invitationDescriptor = await recoverer.claim();

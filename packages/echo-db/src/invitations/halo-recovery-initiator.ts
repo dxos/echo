@@ -24,15 +24,18 @@ import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { GreetingState } from './greeting-responder';
 import { InvitationDescriptor, InvitationDescriptorType } from './invitation-descriptor';
 
-const log = debug('dxos:echo:invitations:halo-recoverer');
+const log = debug('dxos:echo:invitations:halo-recovery-initiator');
 
 const DEFAULT_TIMEOUT = 30000;
 
 /**
- * Class to facilitate making an unauthenticated connection to an existing Party in order to claim an
- * offline invitation. If successful, the regular interactive Greeting flow will follow.
+ * Class to facilitate making a unsolicited connections to an existing HALO Party to ask for entrance.
+ * If successful, regular Greeting will follow authenticated by the Identity key (usually recovered from
+ * seed phrase).
+ *
+ * TODO(telackey): DoS mitigation
  */
-export class HaloRecoverer {
+export class HaloRecoveryInitiator {
   _state: GreetingState;
   _greeterPlugin?: GreetingCommandPlugin;
 

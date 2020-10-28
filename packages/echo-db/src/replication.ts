@@ -18,7 +18,7 @@ import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedStoreAdapter } from './feed-store-adapter';
-import { HaloRecoverer } from './invitations/halo-recoverer';
+import { HaloRecoveryInitiator } from './invitations/halo-recovery-initiator';
 import { FeedSetProvider, IdentityManager } from './parties';
 
 const log = debug('dxos:echo:replication-adapter');
@@ -90,7 +90,7 @@ export class ReplicationAdapter {
       plugins.push(
         new GreetingCommandPlugin(
           this._identityManager.deviceKey.publicKey,
-          HaloRecoverer.createHaloInvitationClaimHandler(this._identityManager)
+          HaloRecoveryInitiator.createHaloInvitationClaimHandler(this._identityManager)
         )
       );
     }
