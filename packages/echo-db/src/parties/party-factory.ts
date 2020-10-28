@@ -308,7 +308,7 @@ export class PartyFactory {
     return this._joinHalo(invitationDescriptor, secretProvider);
   }
 
-  async _joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
+  private async _joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
     log(`Admitting device with invitation: ${keyToString(invitationDescriptor.invitation)}`);
     assert(invitationDescriptor.identityKey);
 
