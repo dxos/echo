@@ -15,7 +15,7 @@ import {
   createPartyGenesisMessage, KeyHint, Keyring,
   KeyType
 } from '@dxos/credentials';
-import { keyToString } from '@dxos/crypto';
+import { humanize, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey, createFeedWriter, PartySnapshot, Timeframe } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -30,6 +30,7 @@ import { createMessageSelector } from './message-selector';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { SnapshotStore } from '../snapshot-store';
 
 /**
  * Options allowed when creating the HALO.
@@ -58,6 +59,7 @@ export class PartyFactory {
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _modelFactory: ModelFactory,
     private readonly _networkManager: NetworkManager,
+    private readonly _snapshotStore: SnapshotStore,
     private readonly _options: Options = {}
   ) {}
 
@@ -197,7 +199,8 @@ export class PartyFactory {
       this._identityManager,
       this._networkManager,
       replicator,
-      timeframeClock
+      timeframeClock,
+      this._snapshotStore,
     );
     log(`Constructed: ${party}`);
     return party;
@@ -205,6 +208,7 @@ export class PartyFactory {
 
   async constructPartyFromSnapshot (snapshot: PartySnapshot) {
     assert(snapshot.partyKey);
+    log(`Constructing ${humanize(snapshot.partyKey)} from snapshot at ${JSON.stringify(snapshot.timeframe)}.`)
 
     const party = await this.constructParty(snapshot.partyKey, [], snapshot.timeframe);
     await party.open(); // TODO(marik-d): This shouldn't be required if we create item manager & item demuxer at the beginning.

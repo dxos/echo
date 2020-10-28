@@ -56,7 +56,7 @@ test('can produce & serialize a snapshot', async () => {
 });
 
 test('restored party is identical to the source party', async () => {
-  const { echo, identityManager, feedStoreAdapter, modelFactory } = await createTestInstance({ initialized: true });
+  const { echo, identityManager, feedStoreAdapter, modelFactory, snapshotStore } = await createTestInstance({ initialized: true });
   const party = await echo.createParty();
   const item = await party.database.createItem({ model: ObjectModel, props: { foo: 'foo' } });
   await item.model.setProperty('foo', 'bar');
@@ -67,7 +67,8 @@ test('restored party is identical to the source party', async () => {
     identityManager,
     feedStoreAdapter,
     modelFactory,
-    new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()) // recreating network manager to avoid "Already joined swarm" errors.
+    new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()), // recreating network manager to avoid "Already joined swarm" errors.
+    snapshotStore,
   );
 
   const restoredPartyInternal = await partyFactory.constructPartyFromSnapshot(snapshot);

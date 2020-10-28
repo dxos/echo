@@ -39,7 +39,7 @@ export class PartyManager {
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _partyFactory: PartyFactory,
-    private readonly _snapshotStore?: SnapshotStore
+    private readonly _snapshotStore: SnapshotStore
   ) { }
 
   get parties (): PartyInternal[] {
@@ -72,15 +72,14 @@ export class PartyManager {
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
         let party: PartyInternal | undefined;
-        if (this._snapshotStore) {
-          const snapshot = await this._snapshotStore.load(partyKey);
-          if (snapshot) {
-            party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
-          }
-        }
-        if (!party) {
+
+        const snapshot = await this._snapshotStore.load(partyKey);
+        if (snapshot) {
+          party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
+        } else {
           party = await this._partyFactory.constructParty(partyKey);
         }
+        
         // TODO(telackey): Should parties be auto-opened?
         await party.open();
         this._parties.set(party.key, party);

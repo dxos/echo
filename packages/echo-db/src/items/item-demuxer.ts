@@ -120,10 +120,11 @@ export class ItemDemuxer {
 
   async restoreFromSnapshot (snapshot: DatabaseSnapshot) {
     assert(snapshot.items);
+    log(`Restoring ${snapshot.items.length} items from snapshot.`);
+
     for (const item of sortItemsTopologically(snapshot.items)) {
       assert(item.itemId);
       assert(item.modelType);
-      assert(item.mutations);
 
       assert(!this._itemStreams.has(item.itemId));
       const itemStream = createReadable<EchoEnvelope>();
@@ -131,7 +132,7 @@ export class ItemDemuxer {
 
       if (this._options.snapshots) {
         // TODO(marik-d): Check if model supports snapshots natively.
-        this._modelMutations.set(item.itemId, item.mutations);
+        this._modelMutations.set(item.itemId, item.mutations ?? []);
       }
 
       await this._itemManager.constructItem(

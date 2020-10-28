@@ -31,6 +31,7 @@ import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
 import { PartyManager } from './party-manager';
+import { SnapshotStore } from '../snapshot-store';
 
 const log = debug('dxos:echo:party-manager-test');
 
@@ -50,12 +51,20 @@ describe('Party manager', () => {
       identityManager = new IdentityManager(keyring);
     }
 
+    const snapshotStore = new SnapshotStore(ram);
     const modelFactory = new ModelFactory().registerModel(ObjectModel);
-    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()), {
-      writeLogger: messageLogger('<<<'),
-      readLogger: messageLogger('>>>')
-    });
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory);
+    const partyFactory = new PartyFactory(
+      identityManager,
+      feedStoreAdapter,
+      modelFactory,
+      new NetworkManager(feedStore, new SwarmProvider()),
+      snapshotStore,
+      {
+        writeLogger: messageLogger('<<<'),
+        readLogger: messageLogger('>>>')
+      }
+    );
+    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
 
     if (open) {
       await partyManager.open();
@@ -136,8 +145,9 @@ describe('Party manager', () => {
     const identityManager = new IdentityManager(keyring);
 
     const modelFactory = new ModelFactory().registerModel(ObjectModel);
-    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()));
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory);
+    const snapshotStore = new SnapshotStore(ram);
+    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()), snapshotStore);
+    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
 
     await feedStore.open();
 

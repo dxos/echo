@@ -9,6 +9,11 @@ import { keyToString } from '@dxos/crypto';
 import { schema, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { Storage } from '@dxos/random-access-multi-storage';
 
+/**
+ * Stores party snapshots. Takes any `random-access-storage` compatible backend.
+ * 
+ * Passing `ram` as a backend will make all of files temporary, effectively disabling snapshots.
+ */
 export class SnapshotStore {
   constructor (
     private readonly _backend: Storage

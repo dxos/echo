@@ -114,4 +114,13 @@ export class Party {
   async createInvitation (authenticationDetails: InvitationAuthenticator, options: InvitationOptions = {}) {
     return this._impl.createInvitation(authenticationDetails, options);
   }
+
+  /**
+   * Create a snapshot of the current party state & save it to storage.
+   * 
+   * Mainly used for testing.
+   */
+  async saveSnapshot() {
+    await this._impl.saveSnapshot();
+  }
 }

@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 
 import { synchronized } from '@dxos/async';
 import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
@@ -19,12 +20,16 @@ import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { SnapshotStore } from '../snapshot-store';
+import { humanize } from '@dxos/crypto';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
+
+const log = debug('dxos:party-internal');
 
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
@@ -34,7 +39,8 @@ export class PartyInternal {
   private _itemManager: ItemManager | undefined;
   private _itemDemuxer: ItemDemuxer | undefined;
   private _inboundEchoStream: NodeJS.WritableStream | undefined;
-  private _unsubscribePipelineErrors: (() => void) | undefined;
+
+  private _subscriptions: (() => void)[] = [];
 
   /**
    * The Party is constructed by the `Database` object.
@@ -46,7 +52,8 @@ export class PartyInternal {
     private readonly _identityManager: IdentityManager,
     private readonly _networkManager: NetworkManager,
     private readonly _replicator: ReplicationAdapter,
-    private readonly _timeframeClock: TimeframeClock
+    private readonly _timeframeClock: TimeframeClock,
+    private readonly _snapshotStore: SnapshotStore,
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -103,8 +110,19 @@ export class PartyInternal {
     // Replication.
     this._replicator.start();
 
+    // Snapshots
+    this._subscriptions.push(this._timeframeClock.update.on(timeframe => {
+      // TODO(marik-d): Extract this.
+      // TODO(marik-d): Disabling snapshots in config.
+      // TODO(marik-d): Extract message count to config.
+      const totalMessages = timeframe.frames?.reduce((acc, frame) => acc + (frame.seq ?? 0), 0) ?? 0;
+      if(totalMessages > 10 && totalMessages % 10 === 0) {
+        this.saveSnapshot();
+      }
+    }));
+
     // TODO(burdon): Propagate errors.
-    this._unsubscribePipelineErrors = this._pipeline.errors.on(err => console.error(err));
+    this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
 
     return this;
   }
@@ -129,7 +147,7 @@ export class PartyInternal {
     // TODO(burdon): Create test to ensure everything closes cleanly.
     await this._pipeline.close();
 
-    this._unsubscribePipelineErrors!();
+    this._subscriptions.forEach(cb => cb());
 
     return this;
   }
@@ -176,13 +194,26 @@ export class PartyInternal {
     return this._identityManager.identityKey.publicKey.equals(this.key);
   }
 
+  /**
+   * Create a snapshot of the current state.
+   */
   createSnapshot (): PartySnapshot {
     assert(this._itemDemuxer, 'Party not open.');
     return {
       partyKey: this.key,
       timeframe: this._timeframeClock.timeframe,
+      timestamp: Date.now(),
       database: this._itemDemuxer.makeSnapshot(),
       halo: this._partyProcessor.makeSnapshot()
     };
+  }
+
+  /**
+   * Create a snapshot and save it to the snapshot store.
+   */
+  async saveSnapshot() {
+    log(`Saving snapshot of ${humanize(this.key)}...`)
+    const snapshot = this.createSnapshot();
+    await this._snapshotStore.save(snapshot);
   }
 }

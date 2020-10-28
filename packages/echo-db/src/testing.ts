@@ -21,6 +21,8 @@ import { Item } from './items';
 import { ItemCreationOptions } from './items/database';
 import { IdentityManager, Party, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
+import { SnapshotStore } from './snapshot-store';
+import { Storage } from '@dxos/random-access-multi-storage';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
@@ -30,6 +32,7 @@ export interface TestOptions {
   feedStore?: FeedStore,
   storage?: any
   keyStore?: KeyStore,
+  snapshotStorage?: Storage,
   keyStorage?: any
   swarmProvider?: SwarmProvider
 }
@@ -44,6 +47,7 @@ export async function createTestInstance ({
   storage = ram,
   keyStore: injectedKeyStore,
   keyStorage = undefined,
+  snapshotStorage = ram,
   swarmProvider = new SwarmProvider()
 }: TestOptions = {}) {
   const feedStore = injectedFeedStore ?? new FeedStore(storage, { feedOptions: { valueEncoding: codec } });
@@ -61,8 +65,9 @@ export async function createTestInstance ({
   } : undefined;
 
   const networkManager = new NetworkManager(feedStore, swarmProvider);
-  const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, networkManager, options);
-  const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory);
+  const snapshotStore = new SnapshotStore(snapshotStorage);
+  const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, networkManager, snapshotStore, options);
+  const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
 
   const echo = new ECHO(partyManager, options);
 
@@ -75,7 +80,7 @@ export async function createTestInstance ({
     await echo.open();
   }
 
-  return { echo, partyManager, partyFactory, modelFactory, identityManager, feedStoreAdapter, feedStore, keyStore };
+  return { echo, partyManager, partyFactory, modelFactory, identityManager, feedStoreAdapter, feedStore, keyStore, snapshotStore };
 }
 
 export type Awaited<T> = T extends Promise<infer U> ? U : T;

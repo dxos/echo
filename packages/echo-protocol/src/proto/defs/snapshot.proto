@@ -22,8 +22,11 @@ message PartySnapshot {
   bytes partyKey = 1;
   Timeframe timeframe = 2;
 
-  HaloStateSnapshot halo = 3;
-  DatabaseSnapshot database = 4;
+  // Unix timestamp of the snapshot creation time. For information purposes only.  
+  int32 timestamp = 3;
+
+  HaloStateSnapshot halo = 11;
+  DatabaseSnapshot database = 12;
 }
 
 message DatabaseSnapshot {
