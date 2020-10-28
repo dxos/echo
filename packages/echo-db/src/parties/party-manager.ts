@@ -18,7 +18,7 @@ import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
 import { HALO_PARTY_DESCRIPTOR_TYPE, PartyInternal } from './party-internal';
 
-const log = debug('dxos:echo:party-manager');
+const log = debug('dxos:echo:parties:party-manager');
 
 /**
  * Manages the life-cycle of parties.
@@ -81,6 +81,21 @@ export class PartyManager {
   async close () {
     await this._feedStore.close();
     this._opened = false;
+  }
+
+  /**
+   * Joins an existing Identity HALO.
+   */
+  @synchronized
+  async recoverHalo (seedPhrase: string) {
+    assert(this._opened, 'PartyManager is not open.');
+    assert(!this._identityManager.halo, 'HALO already exists.');
+    assert(!this._identityManager.identityKey, 'Identity key already exists.');
+
+    const halo = await this._partyFactory.recoverHalo(seedPhrase);
+    await this._setHalo(halo);
+
+    return halo;
   }
 
   /**
