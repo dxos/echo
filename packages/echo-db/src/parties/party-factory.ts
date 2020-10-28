@@ -25,12 +25,12 @@ import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, SecretProvider } from '../invitations';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
+import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-import { SnapshotStore } from '../snapshot-store';
 
 /**
  * Options allowed when creating the HALO.
@@ -200,7 +200,7 @@ export class PartyFactory {
       this._networkManager,
       replicator,
       timeframeClock,
-      this._snapshotStore,
+      this._snapshotStore
     );
     log(`Constructed: ${party}`);
     return party;
@@ -208,7 +208,7 @@ export class PartyFactory {
 
   async constructPartyFromSnapshot (snapshot: PartySnapshot) {
     assert(snapshot.partyKey);
-    log(`Constructing ${humanize(snapshot.partyKey)} from snapshot at ${JSON.stringify(snapshot.timeframe)}.`)
+    log(`Constructing ${humanize(snapshot.partyKey)} from snapshot at ${JSON.stringify(snapshot.timeframe)}.`);
 
     const party = await this.constructParty(snapshot.partyKey, [], snapshot.timeframe);
     await party.open(); // TODO(marik-d): This shouldn't be required if we create item manager & item demuxer at the beginning.

@@ -26,12 +26,12 @@ import { createWritableFeedStream, latch } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationDescriptor, SecretProvider, SecretValidator } from '../invitations';
 import { Item } from '../items';
+import { SnapshotStore } from '../snapshot-store';
 import { messageLogger } from '../testing';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
 import { PartyManager } from './party-manager';
-import { SnapshotStore } from '../snapshot-store';
 
 const log = debug('dxos:echo:party-manager-test');
 

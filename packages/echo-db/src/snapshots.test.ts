@@ -48,7 +48,7 @@ test('can produce & serialize a snapshot', async () => {
   expect(snapshot.database?.items).toHaveLength(2);
   expect(snapshot.database?.items?.find(i => i.itemId === item.id)?.mutations).toHaveLength(2);
   expect(snapshot.halo?.messages && snapshot.halo?.messages?.length > 0).toBeTruthy();
-  expect(snapshot.timeframe?.frames).toHaveLength(1);
+  expect(snapshot.timeframe?.size()).toBe(1);
 
   const serialized = schema.getCodecForType('dxos.echo.snapshot.PartySnapshot').encode(snapshot);
 
@@ -68,7 +68,7 @@ test('restored party is identical to the source party', async () => {
     feedStoreAdapter,
     modelFactory,
     new NetworkManager(feedStoreAdapter.feedStore, new SwarmProvider()), // recreating network manager to avoid "Already joined swarm" errors.
-    snapshotStore,
+    snapshotStore
   );
 
   const restoredPartyInternal = await partyFactory.constructPartyFromSnapshot(snapshot);

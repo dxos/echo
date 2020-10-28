@@ -13,6 +13,7 @@ import { FeedStore } from '@dxos/feed-store';
 import { Model, ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
+import { Storage } from '@dxos/random-access-multi-storage';
 import { jsonReplacer, range } from '@dxos/util';
 
 import { ECHO } from './echo';
@@ -22,7 +23,6 @@ import { ItemCreationOptions } from './items/database';
 import { IdentityManager, Party, PartyManager } from './parties';
 import { PartyFactory } from './parties/party-factory';
 import { SnapshotStore } from './snapshot-store';
-import { Storage } from '@dxos/random-access-multi-storage';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

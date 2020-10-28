@@ -117,10 +117,10 @@ export class Party {
 
   /**
    * Create a snapshot of the current party state & save it to storage.
-   * 
+   *
    * Mainly used for testing.
    */
-  async saveSnapshot() {
+  async saveSnapshot () {
     await this._impl.saveSnapshot();
   }
 }

@@ -79,7 +79,7 @@ export class PartyManager {
         } else {
           party = await this._partyFactory.constructParty(partyKey);
         }
-        
+
         // TODO(telackey): Should parties be auto-opened?
         await party.open();
         this._parties.set(party.key, party);

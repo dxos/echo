@@ -6,6 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { synchronized } from '@dxos/async';
+import { humanize } from '@dxos/crypto';
 import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -17,11 +18,10 @@ import {
 import { ItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
+import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-import { SnapshotStore } from '../snapshot-store';
-import { humanize } from '@dxos/crypto';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
@@ -53,7 +53,7 @@ export class PartyInternal {
     private readonly _networkManager: NetworkManager,
     private readonly _replicator: ReplicationAdapter,
     private readonly _timeframeClock: TimeframeClock,
-    private readonly _snapshotStore: SnapshotStore,
+    private readonly _snapshotStore: SnapshotStore
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -115,8 +115,8 @@ export class PartyInternal {
       // TODO(marik-d): Extract this.
       // TODO(marik-d): Disabling snapshots in config.
       // TODO(marik-d): Extract message count to config.
-      const totalMessages = timeframe.frames?.reduce((acc, frame) => acc + (frame.seq ?? 0), 0) ?? 0;
-      if(totalMessages > 10 && totalMessages % 10 === 0) {
+      const totalMessages = timeframe.totalMessages();
+      if (totalMessages > 10 && totalMessages % 10 === 0) {
         this.saveSnapshot();
       }
     }));
@@ -211,8 +211,8 @@ export class PartyInternal {
   /**
    * Create a snapshot and save it to the snapshot store.
    */
-  async saveSnapshot() {
-    log(`Saving snapshot of ${humanize(this.key)}...`)
+  async saveSnapshot () {
+    log(`Saving snapshot of ${humanize(this.key)}...`);
     const snapshot = this.createSnapshot();
     await this._snapshotStore.save(snapshot);
   }

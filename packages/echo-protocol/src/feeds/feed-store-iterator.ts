@@ -11,8 +11,7 @@ import { keyToString } from '@dxos/crypto';
 import { createBatchStream, FeedDescriptor, FeedStore } from '@dxos/feed-store';
 import { Trigger } from '@dxos/util';
 
-import { Timeframe } from '../proto';
-import { spacetime } from '../spacetime';
+import { Timeframe } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 
 const log = debug('dxos:echo:feed-store-iterator');
@@ -53,7 +52,7 @@ export async function createIterator (
     await feedStore.open();
     await feedStore.ready();
   }
-  const iterator = new FeedStoreIterator(feedSelector, messageSelector, skipTimeframe ?? spacetime.createTimeframe());
+  const iterator = new FeedStoreIterator(feedSelector, messageSelector, skipTimeframe ?? new Timeframe());
 
   // TODO(burdon): Only add feeds that belong to party (or use feedSelector).
   const initialDescriptors = feedStore.getDescriptors().filter(descriptor => descriptor.opened);
@@ -163,8 +162,8 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
   }
 
   private async _startReadingFromFeed (descriptor: FeedDescriptor) {
-    const frame = this._skipTimeframe.frames?.find(frame => frame.feedKey && descriptor.key.equals(frame.feedKey));
-    const startIdx = frame?.seq !== undefined ? frame.seq + 1 : 0;
+    const frameSeq = this._skipTimeframe.get(descriptor.key);
+    const startIdx = frameSeq !== undefined ? frameSeq + 1 : 0;
 
     log(`Starting reading from feed ${descriptor.key.toString('hex')} from sequence ${startIdx}`);
 

@@ -20,7 +20,7 @@ import "echo.proto";
 
 message PartySnapshot {
   bytes partyKey = 1;
-  Timeframe timeframe = 2;
+  TimeframeVector timeframe = 2;
 
   // Unix timestamp of the snapshot creation time. For information purposes only.  
   int32 timestamp = 3;
