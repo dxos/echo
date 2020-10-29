@@ -33,13 +33,15 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     snapshotCodec: schema.getCodecForType('dxos.echo.object.ObjectSnapshot')
   };
 
+  private _pendingObject: object | undefined;
+
   private _object = {};
 
   /**
    * Returns an immutable object.
    */
   toObject () {
-    return cloneDeep(this._object);
+    return this._pendingObject ? cloneDeep(this._pendingObject) : cloneDeep(this._object);
   }
 
   /**
@@ -54,7 +56,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
 
   // TODO(burdon): Create builder pattern (replace static methods).
   async setProperty (key: string, value: any) {
-    const receipt = await this.write({
+    const mutation: ObjectMutationSet = {
       mutations: [
         {
           operation: ObjectMutation.Operation.SET,
@@ -62,20 +64,35 @@ export class ObjectModel extends Model<ObjectMutationSet> {
           value: ValueUtil.createMessage(value)
         }
       ]
-    });
+    };
+
+    this._pendingObject ??= { ...this._object };
+    MutationUtil.applyMutationSet(this._pendingObject, mutation);
+
+    const receipt = await this.write(mutation);
     await receipt.waitToBeProcessed();
   }
 
   async setProperties (properties: any) {
-    const receipt = await this.write({
+    const mutations: ObjectMutationSet = {
       mutations: createMultiFieldMutationSet(properties)
-    });
+    };
+
+    this._pendingObject ??= { ...this._object };
+    MutationUtil.applyMutationSet(this._pendingObject, mutations);
+
+    const receipt = await this.write(mutations);
     await receipt.waitToBeProcessed();
   }
 
   async _processMessage (meta: FeedMeta, message: ObjectMutationSet) {
     log('processMessage', JSON.stringify({ meta, message }, jsonReplacer));
+
     MutationUtil.applyMutationSet(this._object, message);
+    // Clear pending updates as the actual state is newer now
+    // TODO(marik-d): What happens when multiple mutations are pending at once?
+    this._pendingObject = undefined;
+
     return true;
   }
 
