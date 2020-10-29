@@ -47,9 +47,7 @@ test('can produce & serialize a snapshot', async () => {
 
   expect(snapshot.database?.items).toHaveLength(2);
   expect(snapshot.database?.items?.find(i => i.itemId === item.id)?.model?.custom).toBeDefined();
-  console.log(snapshot.database?.items?.find(i => i.itemId === item.id))
   const modelSnapshot = ObjectModel.meta.snapshotCodec?.decode(snapshot.database?.items?.find(i => i.itemId === item.id)?.model?.custom!)
-  console.log(modelSnapshot)
   expect(modelSnapshot).toEqual({ root: ValueUtil.createMessage({ foo: 'bar' }) });
   expect(snapshot.halo?.messages && snapshot.halo?.messages?.length > 0).toBeTruthy();
   expect(snapshot.timeframe?.size()).toBe(1);
