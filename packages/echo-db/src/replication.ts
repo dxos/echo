@@ -20,6 +20,7 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { HaloRecoveryInitiator } from './invitations/halo-recovery-initiator';
 import { FeedSetProvider, IdentityManager } from './parties';
+import assert from 'assert';
 
 const log = debug('dxos:echo:replication-adapter');
 
@@ -73,6 +74,8 @@ export class ReplicationAdapter {
   }
 
   private _createProtocol (channel: any) {
+    assert(this._identityManager.identityKey);
+    assert(this._identityManager.deviceKey);
     const isHalo = this._identityManager.identityKey.publicKey.equals(this._partyKey);
     const plugins = [];
 

@@ -327,8 +327,8 @@ export class PartyFactory {
       createAuthMessage(
         this._identityManager.keyring,
         info.id.value,
-        this._identityManager.identityKey,
-        this._identityManager.identityKey,
+        this._identityManager.identityKey ?? raise(new Error('No identity key')),
+        this._identityManager.identityKey ?? raise(new Error('No identity key')),
         undefined,
         info.authNonce.value)
     );
