@@ -14,13 +14,6 @@ import { Model, ModelMeta, ModelType } from '@dxos/model-factory';
  * The Item data structure is governed by a Model class, which implements data consistency.
  */
 export class Item<M extends Model<any>> {
-  private readonly _partyKey: PartyKey;
-  private readonly _itemId: ItemID;
-  private readonly _itemType?: ItemType; // TODO(burdon): If optional, is this just a label (or "kind"?)
-  private readonly _modelMeta: ModelMeta;
-  private readonly _model: M;
-  private readonly _writeStream?: FeedWriter<EchoEnvelope>;
-
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
   private readonly _children = new Set<Item<any>>();
@@ -36,23 +29,14 @@ export class Item<M extends Model<any>> {
    * @param {Item<any>} [parent] - Parent Item (if not a root Item).
    */
   constructor (
-    partyKey: PartyKey,
-    itemId: ItemID,
-    itemType: ItemType | undefined,
-    modelType: ModelMeta,
-    model: M,
-    writeStream?: FeedWriter<EchoEnvelope>,
+    private readonly _partyKey: PartyKey,
+    private readonly _itemId: ItemID,
+    private readonly _itemType: ItemType | undefined,
+    private readonly _modelMeta: ModelMeta,
+    private readonly _model: M,
+    private readonly _writeStream?: FeedWriter<EchoEnvelope>,
     parent?: Item<any> | null
   ) {
-    assert(partyKey);
-    assert(itemId);
-    assert(model);
-    this._partyKey = partyKey;
-    this._itemId = itemId;
-    this._itemType = itemType;
-    this._modelMeta = this.modelMeta;
-    this._model = model;
-    this._writeStream = writeStream;
     this._updateParent(parent);
 
     // Model updates mean Item updates, so make sure we are subscribed as well.

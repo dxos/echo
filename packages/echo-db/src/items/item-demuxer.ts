@@ -57,14 +57,13 @@ export class ItemDemuxer {
 
         // Create item.
         // TODO(marik-d): Investigate whether gensis message shoudl be able to set parentId.
-        const item = await this._itemManager.constructItem(
+        const item = await this._itemManager.constructItem({
           itemId,
           modelType,
           itemType,
-          itemStream,
-          undefined,
-          mutation ? [{ mutation, meta }] : undefined
-        );
+          readStream: itemStream,
+          initialMutations: mutation ? [{ mutation, meta }] : undefined,
+        });
         assert(item.id === itemId);
 
         if (this._options.snapshots) {
@@ -156,15 +155,15 @@ export class ItemDemuxer {
         this._modelMutations.set(item.itemId, item.model.array.mutations ?? []);
       }
 
-      await this._itemManager.constructItem(
-        item.itemId,
-        item.modelType,
-        item.itemType,
-        itemStream,
-        item.parentId,
-        item.model.array ? item.model.array.mutations : undefined,
-        item.model.custom ? item.model.custom : undefined,
-      );
+      await this._itemManager.constructItem({
+        itemId: item.itemId,
+        modelType: item.modelType,
+        itemType: item.itemType,
+        readStream: itemStream,
+        parentId: item.parentId,
+        initialMutations: item.model.array ? item.model.array.mutations : undefined,
+        modelSnapshot: item.model.custom ? item.model.custom : undefined,
+      });
     }
   }
 

@@ -79,7 +79,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     return true;
   }
 
-  async createSnapshot() {
+  createSnapshot() {
     return {
       root: ValueUtil.createMessage(this._object),
     }

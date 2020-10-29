@@ -22,6 +22,16 @@ export interface ItemFilter {
   parent?: ItemID | ItemID[]
 }
 
+export interface ItemConstructionOptions {
+  itemId: ItemID,
+  modelType: ModelType,
+  itemType: ItemType | undefined,
+  readStream: NodeJS.ReadableStream,
+  parentId?: ItemID,
+  initialMutations?: ModelMessage<Uint8Array>[],
+  modelSnapshot?: Uint8Array,
+}
+
 /**
  * Manages the creation and indexing of items.
  */
@@ -117,15 +127,15 @@ export class ItemManager {
    */
   // TODO(marik-d): Convert params to object.
   @timed(5000)
-  async constructItem (
-    itemId: ItemID,
-    modelType: ModelType,
-    itemType: ItemType | undefined,
-    readStream: NodeJS.ReadableStream,
-    parentId?: ItemID,
-    initialMutations?: ModelMessage<Uint8Array>[],
-    modelSnapshot?: Uint8Array,
-  ) {
+  async constructItem ({
+    itemId, 
+    modelType, 
+    itemType, 
+    readStream, 
+    parentId, 
+    initialMutations, 
+    modelSnapshot, 
+  }: ItemConstructionOptions) {
     assert(this._writeStream);
     assert(itemId);
     assert(modelType);
