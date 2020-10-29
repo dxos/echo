@@ -128,7 +128,7 @@ export class HaloRecoveryInitiator {
     const claimHandler = new PartyInvitationClaimHandler(async () => {
       assert(identityManager.halo, 'HALO is required');
       assert(identityManager.identityKey);
-    // Create a Keyring containing only our own PublicKey. Only a message signed by the matching private key,
+      // Create a Keyring containing only our own PublicKey. Only a message signed by the matching private key,
       // or a KeyChain which traces back to that key, will be verified.
       const keyring = new Keyring();
       await keyring.addPublicKey({

@@ -10,8 +10,8 @@ import { DatabaseSnapshot, EchoEnvelope, IEchoStream, ItemID, ItemSnapshot, Mode
 import { Model, ModelMessage } from '@dxos/model-factory';
 import { createReadable, createWritable, jsonReplacer, raise } from '@dxos/util';
 
-import { ItemManager } from './item-manager';
 import { Item } from './item';
+import { ItemManager } from './item-manager';
 
 const log = debug('dxos:echo:item-demuxer');
 
@@ -62,12 +62,12 @@ export class ItemDemuxer {
           modelType,
           itemType,
           readStream: itemStream,
-          initialMutations: mutation ? [{ mutation, meta }] : undefined,
+          initialMutations: mutation ? [{ mutation, meta }] : undefined
         });
         assert(item.id === itemId);
 
         if (this._options.snapshots) {
-          if(!item.modelMeta.snapshotCodec) {
+          if (!item.modelMeta.snapshotCodec) {
             // If the model doesn't support mutations natively we save & replay it's mutations
             this._beginRecordingItemModelMutations(itemId);
           }
@@ -110,31 +110,31 @@ export class ItemDemuxer {
   createSnapshot (): DatabaseSnapshot {
     assert(this._options.snapshots, 'Snapshots are disabled');
     return {
-      items: this._itemManager.queryItems().value.map(item => this._createItemSnapshot(item)),
+      items: this._itemManager.queryItems().value.map(item => this._createItemSnapshot(item))
     };
   }
 
-  private _createItemSnapshot(item: Item<Model<any>>): ItemSnapshot {
+  private _createItemSnapshot (item: Item<Model<any>>): ItemSnapshot {
     let model: ModelSnapshot;
-    if(item.modelMeta.snapshotCodec) {
+    if (item.modelMeta.snapshotCodec) {
       model = {
-        custom: item.modelMeta.snapshotCodec.encode(item.model.createSnapshot()),
-      }
+        custom: item.modelMeta.snapshotCodec.encode(item.model.createSnapshot())
+      };
     } else {
       model = {
         array: {
-          mutations: this._modelMutations.get(item.id) ?? raise(new Error('Model does not support mutations natively and it\'s weren\'t tracked by the system.')),
+          mutations: this._modelMutations.get(item.id) ?? raise(new Error('Model does not support mutations natively and it\'s weren\'t tracked by the system.'))
         }
-      }
+      };
     }
-    
+
     return {
       itemId: item.id,
       itemType: item.type,
       modelType: item.modelMeta.type,
       parentId: item.parent?.id,
-      model,
-    }
+      model
+    };
   }
 
   async restoreFromSnapshot (snapshot: DatabaseSnapshot) {
@@ -162,7 +162,7 @@ export class ItemDemuxer {
         readStream: itemStream,
         parentId: item.parentId,
         initialMutations: item.model.array ? item.model.array.mutations : undefined,
-        modelSnapshot: item.model.custom ? item.model.custom : undefined,
+        modelSnapshot: item.model.custom ? item.model.custom : undefined
       });
     }
   }

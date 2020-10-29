@@ -2,11 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-import assert from 'assert';
-
 import { Event } from '@dxos/async';
 import { EchoEnvelope, ItemID, ItemMutation, ItemType, PartyKey, FeedWriter } from '@dxos/echo-protocol';
-import { Model, ModelMeta, ModelType } from '@dxos/model-factory';
+import { Model, ModelMeta } from '@dxos/model-factory';
 
 /**
  * A globally addressable data item.

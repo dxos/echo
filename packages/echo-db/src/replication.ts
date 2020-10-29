@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
 import hypercore from 'hypercore';
 
@@ -20,7 +21,6 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { HaloRecoveryInitiator } from './invitations/halo-recovery-initiator';
 import { FeedSetProvider, IdentityManager } from './parties';
-import assert from 'assert';
 
 const log = debug('dxos:echo:replication-adapter');
 

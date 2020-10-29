@@ -104,11 +104,11 @@ export abstract class Model<T> {
    */
   async abstract _processMessage (meta: MutationMeta, message: T): Promise<boolean>;
 
-  createSnapshot(): any {
+  createSnapshot (): any {
     throw new Error('This model does not support snapshots.');
   }
 
-  async restoreFromSnapshot(snapshot: any): Promise<void> {
+  async restoreFromSnapshot (): Promise<void> {
     throw new Error('This model does not support snapshots');
   }
 }

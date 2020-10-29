@@ -128,13 +128,13 @@ export class ItemManager {
   // TODO(marik-d): Convert params to object.
   @timed(5000)
   async constructItem ({
-    itemId, 
-    modelType, 
-    itemType, 
-    readStream, 
-    parentId, 
-    initialMutations, 
-    modelSnapshot, 
+    itemId,
+    modelType,
+    itemType,
+    readStream,
+    parentId,
+    initialMutations,
+    modelSnapshot
   }: ItemConstructionOptions) {
     assert(this._writeStream);
     assert(itemId);
@@ -215,7 +215,7 @@ export class ItemManager {
    * Retrieves a item from the index.
    * @param itemId
    */
-  getItem<M extends Model<any> = any>(itemId: ItemID): Item<M> | undefined {
+  getItem<M extends Model<any> = any> (itemId: ItemID): Item<M> | undefined {
     return this._items.get(itemId);
   }
 
@@ -223,7 +223,7 @@ export class ItemManager {
    * Return matching items.
    * @param [filter]
    */
-  queryItems <M extends Model<any> = any>(filter: ItemFilter = {}): ResultSet<Item<M>> {
+  queryItems <M extends Model<any> = any> (filter: ItemFilter = {}): ResultSet<Item<M>> {
     return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
       .filter(item => matchesFilter(item, filter)));
   }

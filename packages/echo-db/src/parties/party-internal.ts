@@ -9,6 +9,7 @@ import { PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
+import { timed } from '@dxos/util';
 
 import {
   GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationAuthenticator, InvitationOptions
@@ -19,8 +20,6 @@ import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
-import { timed, warnAfterTimeout } from '@dxos/util';
-import { time } from 'console';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';

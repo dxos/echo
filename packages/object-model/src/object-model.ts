@@ -2,10 +2,10 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
 import debug from 'debug';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import assert from 'assert';
 
 import { FeedMeta } from '@dxos/echo-protocol';
 import { ModelMeta, Model } from '@dxos/model-factory';
@@ -30,7 +30,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
       };
     },
 
-    snapshotCodec: schema.getCodecForType('dxos.echo.object.ObjectSnapshot'),
+    snapshotCodec: schema.getCodecForType('dxos.echo.object.ObjectSnapshot')
   };
 
   private _object = {};
@@ -79,14 +79,14 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     return true;
   }
 
-  createSnapshot() {
+  createSnapshot () {
     return {
-      root: ValueUtil.createMessage(this._object),
-    }
+      root: ValueUtil.createMessage(this._object)
+    };
   }
 
-  async restoreFromSnapshot(snapshot: ObjectSnapshot) {
-    const obj: any = {} 
+  async restoreFromSnapshot (snapshot: ObjectSnapshot) {
+    const obj: any = {};
     assert(snapshot.root);
     ValueUtil.applyValue(obj, 'root', snapshot.root);
     this._object = obj.root;
