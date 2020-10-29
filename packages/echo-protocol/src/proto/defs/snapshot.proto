@@ -47,8 +47,21 @@ message ItemSnapshot {
 
   string parentId = 5;
 
-  // TODO(marik-d): This should also allow for model-specific serialization format with a fallback to array of mutations.
-  repeated ModelMutation mutations = 6;
+  ModelSnapshot model = 6;
+}
+
+message ModelSnapshot {
+  oneof snapshot {
+    // Encoding is defined by model.
+    bytes custom = 1;
+
+    // Fallback to storing array of mutations.
+    ModelMutationArray array = 2;
+  }
+}
+
+message ModelMutationArray {
+  repeated ModelMutation mutations = 1;
 }
 
 message ModelMutation {

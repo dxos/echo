@@ -36,6 +36,7 @@ import {
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 import { makeAutomaticSnapshots } from './snapshot-maker';
+import { raise } from '@dxos/util';
 
 /**
  * Options allowed when creating the HALO.
@@ -154,6 +155,7 @@ export class PartyFactory {
 
     await party.open();
 
+    assert(this._identityManager.identityKey, 'No identity key');
     const isHalo = this._identityManager.identityKey.publicKey.equals(partyKey);
 
     // Write the Feed genesis message.
@@ -199,6 +201,7 @@ export class PartyFactory {
     const pipeline = new Pipeline(
       partyProcessor, iterator, timeframeClock, feedWriteStream, this._options);
 
+    assert(this._identityManager.deviceKey, 'No device key.');
     const replicator = new ReplicationAdapter(
       this._networkManager,
       this._feedStore,
@@ -268,6 +271,7 @@ export class PartyFactory {
 
     if (!haloInvitation) {
       // Copy our signed IdentityInfo into the new Party.
+      assert(this._identityManager.identityKey, 'No identity key');
       const infoMessage = this._identityManager.halo?.processor.infoMessages.get(this._identityManager.identityKey.key);
       if (infoMessage) {
         await party.processor.writeHaloMessage(createEnvelopeMessage(
@@ -373,7 +377,7 @@ export class PartyFactory {
       get: () => Authenticator.encodePayload(createAuthMessage(
         this._identityManager.keyring,
         Buffer.from(partyKey),
-        this._identityManager.identityKey,
+        this._identityManager.identityKey ?? raise(new Error('No identity key')),
         this._identityManager.deviceKeyChain ?? this._identityManager.deviceKey,
         this._identityManager.keyring.getKey(feedKey)
       ))

@@ -7,7 +7,7 @@ import debug from 'debug';
 
 import { schema } from '@dxos/echo-protocol';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
-import { ObjectModel } from '@dxos/object-model';
+import { ObjectModel, ValueUtil } from '@dxos/object-model';
 
 import { Party, PartyFactory, PartyInternal } from './parties';
 import { createTestInstance } from './testing';
@@ -46,7 +46,8 @@ test('can produce & serialize a snapshot', async () => {
   const snapshot = ((party as any)._impl as PartyInternal).createSnapshot();
 
   expect(snapshot.database?.items).toHaveLength(2);
-  expect(snapshot.database?.items?.find(i => i.itemId === item.id)?.mutations).toHaveLength(2);
+  expect(snapshot.database?.items?.find(i => i.itemId === item.id)?.model?.custom).toBeDefined();
+  expect(ObjectModel.meta.snapshotCodec?.decode(snapshot.database?.items?.find(i => i.itemId === item.id)?.model?.custom!)).toEqual({ root: ValueUtil.createMessage({ foo: 'bar' }) });
   expect(snapshot.halo?.messages && snapshot.halo?.messages?.length > 0).toBeTruthy();
   expect(snapshot.timeframe?.size()).toBe(1);
 

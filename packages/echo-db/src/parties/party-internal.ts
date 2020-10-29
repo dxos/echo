@@ -175,6 +175,7 @@ export class PartyInternal {
 
   get isHalo () {
     // The PartyKey of the HALO is the Identity key.
+    assert(this._identityManager.identityKey, 'No identity key');
     return this._identityManager.identityKey.publicKey.equals(this.key);
   }
 
@@ -187,7 +188,7 @@ export class PartyInternal {
       partyKey: this.key,
       timeframe: this._timeframeClock.timeframe,
       timestamp: Date.now(),
-      database: this._itemDemuxer.makeSnapshot(),
+      database: this._itemDemuxer.createSnapshot(),
       halo: this._partyProcessor.makeSnapshot()
     };
   }

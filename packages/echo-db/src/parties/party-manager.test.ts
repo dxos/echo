@@ -69,7 +69,7 @@ describe('Party manager', () => {
     if (open) {
       await partyManager.open();
       if (createIdentity) {
-        await partyManager.createHalo({ identityDisplayName: humanize(identityManager.identityKey.publicKey) });
+        await partyManager.createHalo({ identityDisplayName: humanize(identityManager.identityKey!.publicKey) });
       }
     }
 
@@ -240,12 +240,12 @@ describe('Party manager', () => {
       const members = party.queryMembers().value;
       expect(members.length).toBe(2);
       for (const member of members) {
-        if (identityManagerA.identityKey.publicKey.equals(member.publicKey)) {
-          expect(member.displayName).toEqual(humanize(identityManagerA.identityKey.publicKey));
+        if (identityManagerA.identityKey!.publicKey.equals(member.publicKey)) {
+          expect(member.displayName).toEqual(humanize(identityManagerA.identityKey!.publicKey));
           expect(member.displayName).toEqual(identityManagerA.displayName);
         }
-        if (identityManagerB.identityKey.publicKey.equals(member.publicKey)) {
-          expect(member.displayName).toEqual(humanize(identityManagerB.identityKey.publicKey));
+        if (identityManagerB.identityKey!.publicKey.equals(member.publicKey)) {
+          expect(member.displayName).toEqual(humanize(identityManagerB.identityKey!.publicKey));
           expect(member.displayName).toEqual(identityManagerB.displayName);
         }
       }
@@ -322,11 +322,11 @@ describe('Party manager', () => {
       const members = party.queryMembers().value;
       expect(members.length).toBe(2);
       for (const member of members) {
-        if (identityManagerA.identityKey.publicKey.equals(member.publicKey)) {
-          expect(member.displayName).toEqual(humanize(identityManagerA.identityKey.publicKey));
+        if (identityManagerA.identityKey!.publicKey.equals(member.publicKey)) {
+          expect(member.displayName).toEqual(humanize(identityManagerA.identityKey!.publicKey));
         }
-        if (identityManagerB.identityKey.publicKey.equals(member.publicKey)) {
-          expect(member.displayName).toEqual(humanize(identityManagerB.identityKey.publicKey));
+        if (identityManagerB.identityKey!.publicKey.equals(member.publicKey)) {
+          expect(member.displayName).toEqual(humanize(identityManagerB.identityKey!.publicKey));
         }
       }
     }

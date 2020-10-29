@@ -205,6 +205,7 @@ export class PartyManager {
   }
 
   private _isHalo (partyKey: PublicKey) {
+    assert(this._identityManager.identityKey, 'No identity key');
     return Buffer.compare(partyKey, this._identityManager.identityKey.publicKey) === 0;
   }
 }

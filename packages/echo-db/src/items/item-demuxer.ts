@@ -6,11 +6,12 @@ import assert from 'assert';
 import debug from 'debug';
 import { Readable } from 'stream';
 
-import { DatabaseSnapshot, EchoEnvelope, IEchoStream, ItemID, ItemSnapshot, ModelMutation } from '@dxos/echo-protocol';
-import { ModelMessage } from '@dxos/model-factory';
-import { createReadable, createWritable, jsonReplacer } from '@dxos/util';
+import { DatabaseSnapshot, EchoEnvelope, IEchoStream, ItemID, ItemSnapshot, ModelMutation, ModelSnapshot } from '@dxos/echo-protocol';
+import { Model, ModelMessage } from '@dxos/model-factory';
+import { createReadable, createWritable, jsonReplacer, raise } from '@dxos/util';
 
 import { ItemManager } from './item-manager';
+import { Item } from './item';
 
 const log = debug('dxos:echo:item-demuxer');
 
@@ -54,16 +55,6 @@ export class ItemDemuxer {
         const itemStream = createReadable<EchoEnvelope>();
         this._itemStreams.set(itemId, itemStream);
 
-        if (this._options.snapshots) {
-          // TODO(marik-d): Check if model supports snapshots natively.
-          this._beginRecordingItemModelMutations(itemId);
-
-          // Record initial mutation (if it exists).
-          if (mutation) {
-            this._recordModelMutation(itemId, { meta: message.meta, mutation });
-          }
-        }
-
         // Create item.
         // TODO(marik-d): Investigate whether gensis message shoudl be able to set parentId.
         const item = await this._itemManager.constructItem(
@@ -75,6 +66,18 @@ export class ItemDemuxer {
           mutation ? [{ mutation, meta }] : undefined
         );
         assert(item.id === itemId);
+
+        if (this._options.snapshots) {
+          if(!item.modelMeta.snapshotCodec) {
+            // If the model doesn't support mutations natively we save & replay it's mutations
+            this._beginRecordingItemModelMutations(itemId);
+          }
+
+          // Record initial mutation (if it exists).
+          if (mutation) {
+            this._recordModelMutation(itemId, { meta: message.meta, mutation });
+          }
+        }
       }
 
       //
@@ -105,17 +108,34 @@ export class ItemDemuxer {
     });
   }
 
-  makeSnapshot (): DatabaseSnapshot {
+  createSnapshot (): DatabaseSnapshot {
     assert(this._options.snapshots, 'Snapshots are disabled');
     return {
-      items: this._itemManager.queryItems().value.map(item => ({
-        itemId: item.id,
-        itemType: item.type,
-        modelType: item.modelType,
-        parentId: item.parent?.id,
-        mutations: this._modelMutations.get(item.id)
-      }))
+      items: this._itemManager.queryItems().value.map(item => this._createItemSnapshot(item)),
     };
+  }
+
+  private _createItemSnapshot(item: Item<Model<any>>): ItemSnapshot {
+    let model: ModelSnapshot;
+    if(item.modelMeta.snapshotCodec) {
+      model = {
+        custom: item.modelMeta.snapshotCodec.encode(item.model.createSnapshot()),
+      }
+    } else {
+      model = {
+        array: {
+          mutations: this._modelMutations.get(item.id) ?? raise(new Error('Model does not support mutations natively and it\'s weren\'t tracked by the system.')),
+        }
+      }
+    }
+    
+    return {
+      itemId: item.id,
+      itemType: item.type,
+      modelType: item.modelMeta.type,
+      parentId: item.parent?.id,
+      model,
+    }
   }
 
   async restoreFromSnapshot (snapshot: DatabaseSnapshot) {
@@ -125,14 +145,15 @@ export class ItemDemuxer {
     for (const item of sortItemsTopologically(snapshot.items)) {
       assert(item.itemId);
       assert(item.modelType);
+      assert(item.model);
 
       assert(!this._itemStreams.has(item.itemId));
       const itemStream = createReadable<EchoEnvelope>();
       this._itemStreams.set(item.itemId, itemStream);
 
-      if (this._options.snapshots) {
+      if (this._options.snapshots && item.model?.array) {
         // TODO(marik-d): Check if model supports snapshots natively.
-        this._modelMutations.set(item.itemId, item.mutations ?? []);
+        this._modelMutations.set(item.itemId, item.model.array.mutations ?? []);
       }
 
       await this._itemManager.constructItem(
@@ -141,7 +162,8 @@ export class ItemDemuxer {
         item.itemType,
         itemStream,
         item.parentId,
-        item.mutations
+        item.model.array ? item.model.array.mutations : undefined,
+        item.model.custom ? item.model.custom : undefined,
       );
     }
   }

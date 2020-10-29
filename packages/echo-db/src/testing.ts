@@ -79,7 +79,7 @@ export async function createTestInstance ({
     await identityManager.keyring.createKeyRecord({ type: KeyType.IDENTITY });
 
     await partyManager.open();
-    await partyManager.createHalo({ identityDisplayName: humanize(identityManager.identityKey.publicKey) });
+    await partyManager.createHalo({ identityDisplayName: humanize(identityManager.identityKey!.publicKey) });
 
     await echo.open();
   }
