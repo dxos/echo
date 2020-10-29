@@ -28,13 +28,6 @@ const log = debug('dxos:echo:invitations:halo-recovery-initiator');
 
 const DEFAULT_TIMEOUT = 30000;
 
-const combine = (a: Buffer, b: Buffer) => {
-  const combo = Buffer.alloc(a.length + b.length);
-  combo.copy(a);
-  combo.copy(b, a.length);
-  return combo;
-};
-
 /**
  * Class to facilitate making a unsolicited connections to an existing HALO Party to ask for entrance.
  * If successful, regular Greeting will follow authenticated by the Identity key (usually recovered from
@@ -104,7 +97,7 @@ export class HaloRecoveryInitiator {
 
     // Synthesize an "invitationId" which is the signature of both peerIds signed by our Identity key.
     const signature = this._identityManager.keyring.rawSign(
-      combine(this._peerId, responderPeerId),
+      Buffer.concat([this._peerId, responderPeerId]),
       this._identityManager.identityKey
     );
 
@@ -145,7 +138,7 @@ export class HaloRecoveryInitiator {
       assert(identityManager.identityKey);
 
       // The invitationtId is the signature of both peerIds, signed by the Identity key.
-      const ok = verify(combine(remotePeerId, peerId), invitationId, identityManager.identityKey.publicKey);
+      const ok = verify(Buffer.concat([remotePeerId, peerId]), invitationId, identityManager.identityKey.publicKey);
       if (!ok) {
         throw new Error(`Invalid invitation ${keyToString(invitationId)}`);
       }
