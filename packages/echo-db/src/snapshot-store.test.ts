@@ -4,28 +4,12 @@
 
 import { createId, randomBytes } from '@dxos/crypto';
 import { PartySnapshot } from '@dxos/echo-protocol';
-import { createStorage, File } from '@dxos/random-access-multi-storage';
+import { createRamStorage } from './persistant-ram-storage';
 
 import { SnapshotStore } from './snapshot-store';
 
-// RAM storage doesn't preserve data when re-opening files.
-function createRamStorage () {
-  const storage = createStorage('snapshots', 'ram');
-  const files = new Map<string, File>();
-
-  return (name: string) => {
-    if (files.has(name)) {
-      return files.get(name)!;
-    }
-    const file = storage(name);
-    file.close = cb => cb?.(null); // fix
-    files.set(name, file);
-    return file;
-  };
-}
-
 test('in-memory', async () => {
-  const store = new SnapshotStore(createRamStorage() as any);
+  const store = new SnapshotStore(createRamStorage());
 
   const key1 = randomBytes();
   const key2 = randomBytes();
