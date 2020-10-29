@@ -4,8 +4,8 @@
 
 import { createId, randomBytes } from '@dxos/crypto';
 import { PartySnapshot } from '@dxos/echo-protocol';
-import { createRamStorage } from './persistant-ram-storage';
 
+import { createRamStorage } from './persistant-ram-storage';
 import { SnapshotStore } from './snapshot-store';
 
 test('in-memory', async () => {

@@ -138,10 +138,10 @@ export class ItemDemuxer {
   }
 
   async restoreFromSnapshot (snapshot: DatabaseSnapshot) {
-    assert(snapshot.items);
-    log(`Restoring ${snapshot.items.length} items from snapshot.`);
+    const items = snapshot.items ?? [];
+    log(`Restoring ${items.length} items from snapshot.`);
 
-    for (const item of sortItemsTopologically(snapshot.items)) {
+    for (const item of sortItemsTopologically(items)) {
       assert(item.itemId);
       assert(item.modelType);
       assert(item.model);

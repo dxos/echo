@@ -5,10 +5,14 @@
 import assert from 'assert';
 import debug from 'debug';
 
+import { randomBytes } from '@dxos/crypto';
 import { schema } from '@dxos/echo-protocol';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel, ValueUtil } from '@dxos/object-model';
 
+import { ItemDemuxer, ItemManager } from './items';
+import { TimeframeClock } from './items/timeframe-clock';
 import { Party, PartyFactory, PartyInternal } from './parties';
 import { createTestInstance } from './testing';
 
@@ -81,4 +85,13 @@ test('restored party is identical to the source party', async () => {
   expect(restoredParty.queryMembers().value).toEqual(party.queryMembers().value);
   expect(restoredParty.database.queryItems().value.length).toEqual(restoredParty.database.queryItems().value.length);
   expect(restoredParty.database.getItem(item.id)?.model.toObject()).toEqual(item.model.toObject());
+});
+
+describe('Database', () => {
+  test('restore from empty snapshot', async () => {
+    const itemManager = new ItemManager(randomBytes(), new ModelFactory().registerModel(ObjectModel), new TimeframeClock());
+    const itemDemuxer = new ItemDemuxer(itemManager);
+
+    await itemDemuxer.restoreFromSnapshot({});
+  });
 });

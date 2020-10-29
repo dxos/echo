@@ -108,7 +108,8 @@ export abstract class Model<T> {
     throw new Error('This model does not support snapshots.');
   }
 
-  async restoreFromSnapshot (): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async restoreFromSnapshot (snapshot: any): Promise<void> {
     throw new Error('This model does not support snapshots');
   }
 }

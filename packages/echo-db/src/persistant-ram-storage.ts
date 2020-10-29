@@ -1,4 +1,8 @@
-import { createStorage, File, Storage } from "@dxos/random-access-multi-storage";
+//
+// Copyright 2020 DXOS.org
+//
+
+import { createStorage, File, Storage } from '@dxos/random-access-multi-storage';
 
 /**
  * A wrapper around RAM storage that preserves file data when closing and re-opening files
