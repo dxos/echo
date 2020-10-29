@@ -188,7 +188,7 @@ export class ItemManager {
 
     if (modelSnapshot) {
       assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
-      model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
+      await model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
     }
 
     if (initialMutations) {
