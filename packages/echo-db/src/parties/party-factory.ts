@@ -41,7 +41,7 @@ import {
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 import { makeAutomaticSnapshots } from './snapshot-maker';
-import { raise } from '@dxos/util';
+import { raise, timed } from '@dxos/util';
 
 /**
  * Options allowed when creating the HALO.
@@ -69,19 +69,20 @@ const log = debug('dxos:echo:parties:party-factory');
 export class PartyFactory {
   // TODO(telackey): It might be better to take Keyring as a param to createParty/constructParty/etc.
   // TODO(marik-d): Maybe pass identityManager here instead to be able to copy genesis messages.
-  constructor (
+  constructor(
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,
     private readonly _modelFactory: ModelFactory,
     private readonly _networkManager: NetworkManager,
     private readonly _snapshotStore: SnapshotStore,
     private readonly _options: Options = {}
-  ) {}
+  ) { }
 
   /**
    * Create a new party with a new feed for it. Writes a party genensis message to this feed.
    */
-  async createParty (): Promise<PartyInternal> {
+  @timed(5000)
+  async createParty(): Promise<PartyInternal> {
     assert(!this._options.readOnly, 'PartyFactory is read-only');
     assert(this._identityManager.halo, 'HALO must exist');
     assert(this._identityManager.identityGenesis, 'IdentityGenesis must exist');
@@ -145,7 +146,7 @@ export class PartyFactory {
    * @param partyKey
    * @param hints
    */
-  async addParty (partyKey: PartyKey, hints: KeyHint[] = []) {
+  async addParty(partyKey: PartyKey, hints: KeyHint[] = []) {
     const { feedKey } = await this._initWritableFeed(partyKey);
 
     // TODO(telackey): We shouldn't have to add our key here, it should be in the hints, but our hint
@@ -179,7 +180,7 @@ export class PartyFactory {
    * @param partyKey
    * @param hints
    */
-  async constructParty (partyKey: PartyKey, hints: KeyHint[] = [], initialTimeframe?: Timeframe) {
+  async constructParty(partyKey: PartyKey, hints: KeyHint[] = [], initialTimeframe?: Timeframe) {
     // TODO(burdon): Ensure that this node's feed (for this party) has been created first.
     //   I.e., what happens if remote feed is synchronized first triggering 'feed' event above.
     //   In this case create pipeline in read-only mode.
@@ -238,7 +239,7 @@ export class PartyFactory {
     return party;
   }
 
-  async constructPartyFromSnapshot (snapshot: PartySnapshot) {
+  async constructPartyFromSnapshot(snapshot: PartySnapshot) {
     assert(snapshot.partyKey);
     log(`Constructing ${humanize(snapshot.partyKey)} from snapshot at ${JSON.stringify(snapshot.timeframe)}.`);
 
@@ -257,7 +258,7 @@ export class PartyFactory {
     return party;
   }
 
-  async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<PartyInternal> {
+  async joinParty(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<PartyInternal> {
     const haloInvitation = !!invitationDescriptor.identityKey;
     const initiator = new GreetingInitiator(
       this._networkManager,
@@ -294,7 +295,7 @@ export class PartyFactory {
   }
 
   // TODO(marik-d): Refactor this.
-  private async _initWritableFeed (partyKey: PartyKey) {
+  private async _initWritableFeed(partyKey: PartyKey) {
     const feed = await this._feedStore.queryWritableFeed(partyKey) ??
       await this._feedStore.createWritableFeed(partyKey);
 
@@ -308,7 +309,7 @@ export class PartyFactory {
     return { feed, feedKey };
   }
 
-  async recoverHalo (seedPhrase: string) {
+  async recoverHalo(seedPhrase: string) {
     assert(!this._identityManager.halo, 'HALO already exists.');
     assert(!this._identityManager.identityKey, 'Identity key already exists.');
 
@@ -336,13 +337,13 @@ export class PartyFactory {
     return this._joinHalo(invitationDescriptor, secretProvider);
   }
 
-  async joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
+  async joinHalo(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
     assert(!this._identityManager.identityKey, 'Identity key must NOT exist.');
 
     return this._joinHalo(invitationDescriptor, secretProvider);
   }
 
-  private async _joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
+  private async _joinHalo(invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
     log(`Admitting device with invitation: ${keyToString(invitationDescriptor.invitation)}`);
     assert(invitationDescriptor.identityKey);
 
@@ -366,7 +367,7 @@ export class PartyFactory {
   }
 
   // TODO(telackey): Combine with createParty?
-  async createHalo (options: HaloCreationOptions = {}): Promise<PartyInternal> {
+  async createHalo(options: HaloCreationOptions = {}): Promise<PartyInternal> {
     // Don't use identityManager.identityKey, because that doesn't check for the secretKey.
     const identityKey = this._identityManager.keyring.findKey(Keyring.signingFilter({ type: KeyType.IDENTITY }));
     assert(identityKey, 'Identity key required.');
@@ -415,7 +416,7 @@ export class PartyFactory {
     return halo;
   }
 
-  private _createCredentialsProvider (partyKey: PartyKey, feedKey: FeedKey) {
+  private _createCredentialsProvider(partyKey: PartyKey, feedKey: FeedKey) {
     return {
       get: () => Authenticator.encodePayload(createAuthMessage(
         this._identityManager.keyring,
@@ -427,7 +428,8 @@ export class PartyFactory {
     };
   }
 
-  private async _recordPartyJoining (party: PartyInternal) {
+  @timed(5000)
+  private async _recordPartyJoining(party: PartyInternal) {
     assert(this._identityManager.halo, 'HALO is required.');
     assert(this._identityManager.halo.itemManager, 'ItemManager is required.');
 

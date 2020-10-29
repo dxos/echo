@@ -19,6 +19,8 @@ import { ReplicationAdapter } from '../replication';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
+import { timed, warnAfterTimeout } from '@dxos/util';
+import { time } from 'console';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
@@ -83,6 +85,7 @@ export class PartyInternal {
    * Opens the pipeline and connects the streams.
    */
   @synchronized
+  @timed(5000)
   async open () {
     if (this._itemManager) {
       return this;

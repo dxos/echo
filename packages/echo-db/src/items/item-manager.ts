@@ -9,7 +9,7 @@ import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, PartyKey } from '@dxos/echo-protocol';
 import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
-import { createTransform } from '@dxos/util';
+import { createTransform, timed } from '@dxos/util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
@@ -65,6 +65,7 @@ export class ItemManager {
    * @param {ItemType} [itemType]
    * @param {ItemID} [parentId]
    */
+  @timed(5000)
   async createItem (modelType: ModelType, itemType?: ItemType, parentId?: ItemID, initProps?: any): Promise<Item<any>> {
     assert(this._writeStream);
     assert(modelType);
@@ -115,6 +116,7 @@ export class ItemManager {
    * @param [parentId] - ItemID of the parent of this Item (optional).
    */
   // TODO(marik-d): Convert params to object.
+  @timed(5000)
   async constructItem (
     itemId: ItemID,
     modelType: ModelType,
