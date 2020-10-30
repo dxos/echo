@@ -262,6 +262,7 @@ export class PartyFactory {
 
   async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider): Promise<PartyInternal> {
     const haloInvitation = !!invitationDescriptor.identityKey;
+    const originalInvitation = invitationDescriptor;
 
     // Claim the offline invitation and convert it into an interactive invitation.
     if (InvitationDescriptorType.OFFLINE_KEY === invitationDescriptor.type) {
