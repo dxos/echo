@@ -5,7 +5,8 @@
 import assert from 'assert';
 
 import { synchronized } from '@dxos/async';
-import { DatabaseSnapshot, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
+import { createPartyInvitationMessage } from '@dxos/credentials';
+import { DatabaseSnapshot, PartyKey, PartySnapshot, PublicKey } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
@@ -147,11 +148,32 @@ export class PartyInternal {
     return this;
   }
 
+  async createOfflineInvitation (publicKey: PublicKey) {
+    assert(!this.isHalo, 'Offline invitations to HALO are not allowed.');
+    assert(this._identityManager.identityKey, 'Identity key is required.');
+    assert(this._identityManager.deviceKeyChain, 'Device keychain is required.');
+    assert(this._pipeline.outboundHaloStream);
+
+    const invitationMessage = createPartyInvitationMessage(
+      this._identityManager.keyring,
+      this.key,
+      publicKey,
+      this._identityManager.identityKey,
+      this._identityManager.deviceKeyChain
+    );
+    this._pipeline.outboundHaloStream.write(invitationMessage);
+
+    return new InvitationDescriptor(
+      InvitationDescriptorType.OFFLINE_KEY,
+      this.key,
+      invitationMessage.payload.signed.payload.id
+    );
+  }
+
   /**
-   * Creates an invition for a remote peer.
+   * Creates an invitation for a remote peer.
    */
   async createInvitation (authenticationDetails: InvitationAuthenticator, options: InvitationOptions = {}) {
-    assert(this._pipeline.outboundHaloStream);
     assert(this._networkManager);
 
     const responder = new GreetingResponder(
