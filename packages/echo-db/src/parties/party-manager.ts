@@ -35,6 +35,7 @@ export class PartyManager {
   // TODO(burdon): Wrap with subscribe.
   readonly update = new Event<PartyInternal>();
 
+  // TODO(burdon): Can there be sensible defaults?
   constructor (
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,

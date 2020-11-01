@@ -69,6 +69,7 @@ const log = debug('dxos:echo:parties:party-factory');
 export class PartyFactory {
   // TODO(telackey): It might be better to take Keyring as a param to createParty/constructParty/etc.
   // TODO(marik-d): Maybe pass identityManager here instead to be able to copy genesis messages.
+  // TODO(burdon): Can there be sensible defaults?
   constructor (
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,

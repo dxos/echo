@@ -43,7 +43,7 @@ export interface TestOptions {
  */
 export async function createTestInstance ({
   verboseLogging = false,
-  initialized = false,
+  initialized = false, // TODO(burdon): Rename initialze.
   feedStore: injectedFeedStore,
   storage = ram,
   keyStore: injectedKeyStore,
@@ -70,7 +70,9 @@ export async function createTestInstance ({
 
   const networkManager = new NetworkManager(feedStore, swarmProvider);
   const snapshotStore = new SnapshotStore(snapshotStorage);
-  const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, networkManager, snapshotStore, options);
+  const partyFactory = new PartyFactory(
+    identityManager, feedStoreAdapter, modelFactory, networkManager, snapshotStore, options
+  );
   const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
 
   const echo = new ECHO(partyManager, options);

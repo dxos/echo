@@ -29,6 +29,8 @@ export interface Options {
  * `Spactime` `Timeframe` (which implements a vector clock).
  */
 export class ECHO {
+  // TODO(burdon): Support default constructor (or assert).
+  // TODO(burdon): Create minimal unit test for this (and add docs to local README.md).
   constructor (
     private readonly _partyManager: PartyManager,
     private readonly _options: Options = {}
@@ -83,6 +85,7 @@ export class ECHO {
     assert(this._partyManager.opened, 'Database not open.');
 
     const impl = this._partyManager.parties.find(party => Buffer.compare(party.key, partyKey) === 0);
+    // TODO(burdon): Don't create a new instance (maintain map).
     return impl && new Party(impl);
   }
 
