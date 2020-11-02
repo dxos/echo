@@ -47,7 +47,7 @@ export class IdentityManager {
 
   get identityKey (): KeyRecord | undefined {
     if (!this._identityKey) {
-      this._identityKey = this._keyring.findKey(Filter.matches({type: KeyType.IDENTITY, own: true, trusted: true}));
+      this._identityKey = this._keyring.findKey(Filter.matches({ type: KeyType.IDENTITY, own: true, trusted: true }));
     }
     return this._identityKey;
   }
@@ -58,14 +58,14 @@ export class IdentityManager {
 
   get deviceKey (): KeyRecord | undefined {
     if (!this._deviceKey) {
-      this._deviceKey = this._keyring.findKey(Keyring.signingFilter({type: KeyType.DEVICE}));
+      this._deviceKey = this._keyring.findKey(Keyring.signingFilter({ type: KeyType.DEVICE }));
     }
     return this._deviceKey;
   }
 
   get deviceKeyChain () {
     if (!this._deviceKeyChain) {
-      const {halo, deviceKey} = this;
+      const { halo, deviceKey } = this;
       try {
         this._deviceKeyChain = halo && deviceKey ? Keyring.buildKeyChain(
           deviceKey.publicKey,
