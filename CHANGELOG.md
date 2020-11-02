@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [2.5.3](https://www.github.com/dxos/echo/compare/v2.5.2...v2.5.3) (2020-11-02)
+
+
+### Bug Fixes
+
+* Apply database snapshots only after party open ([53b101a](https://www.github.com/dxos/echo/commit/53b101a7f8575a375f986632f87f3f0f781159ae))
+* Ignore unknown models on snapshot restore ([cc13a44](https://www.github.com/dxos/echo/commit/cc13a441b0e0aecd875ffd8fc9a68dfe641677c0))
+
 ### [2.5.2](https://www.github.com/dxos/echo/compare/v2.5.1...v2.5.2) (2020-10-30)
 
 
