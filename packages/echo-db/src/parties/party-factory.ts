@@ -423,7 +423,7 @@ export class PartyFactory {
         this._identityManager.keyring,
         Buffer.from(partyKey),
         this._identityManager.identityKey ?? raise(new Error('No identity key')),
-        this._identityManager.deviceKeyChain ?? this._identityManager.deviceKey,
+        this._identityManager.deviceKeyChain ?? this._identityManager.deviceKey ?? raise(new Error('No device key')),
         this._identityManager.keyring.getKey(feedKey)
       ))
     };
