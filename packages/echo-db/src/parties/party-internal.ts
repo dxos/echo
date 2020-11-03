@@ -5,24 +5,20 @@
 import assert from 'assert';
 
 import { synchronized } from '@dxos/async';
-import { PartyKey } from '@dxos/echo-protocol';
+import { DatabaseSnapshot, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
-import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
+import { timed } from '@dxos/util';
 
-import {
-  GreetingResponder, InvitationDescriptor, InvitationDescriptorType, InvitationAuthenticator, InvitationOptions
-} from '../invitations';
-import { createItemDemuxer, Item, ItemManager } from '../items';
+import { InvitationManager } from '../invitations/invitation-manager';
+import { ItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
-import { ReplicationAdapter } from '../replication';
-import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
+import { PartyProtocol } from './party-protocol';
 import { Pipeline } from './pipeline';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
-export const HALO_PARTY_DESCRIPTOR_TYPE = 'wrn://dxos.org/item/halo/party-descriptor';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
@@ -33,20 +29,23 @@ export interface PartyFilter {}
  */
 export class PartyInternal {
   private _itemManager: ItemManager | undefined;
-  private _itemDemuxer: NodeJS.WritableStream | undefined;
-  private _unsubscribePipelineErrors: (() => void) | undefined;
+  private _itemDemuxer: ItemDemuxer | undefined;
+  private _inboundEchoStream: NodeJS.WritableStream | undefined;
 
   /**
-   * The Party is constructed by the `Database` object.
+   * Snapshot to be restored from when party.open() is called.
    */
+  private _databaseSnapshot: DatabaseSnapshot | undefined;
+
+  private _subscriptions: (() => void)[] = [];
+
   constructor (
     private readonly _modelFactory: ModelFactory,
     private readonly _partyProcessor: PartyProcessor,
     private readonly _pipeline: Pipeline,
-    private readonly _identityManager: IdentityManager,
-    private readonly _networkManager: NetworkManager,
-    private readonly _replicator: ReplicationAdapter,
-    private readonly _timeframeClock: TimeframeClock
+    private readonly _protocol: PartyProtocol,
+    private readonly _timeframeClock: TimeframeClock,
+    private readonly _invitationManager: InvitationManager
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -65,6 +64,10 @@ export class PartyInternal {
     return this._itemManager;
   }
 
+  get itemDemuxer () {
+    return this._itemDemuxer;
+  }
+
   get processor () {
     return this._partyProcessor;
   }
@@ -73,10 +76,15 @@ export class PartyInternal {
     return this._pipeline;
   }
 
+  get invitationManager () {
+    return this._invitationManager;
+  }
+
   /**
    * Opens the pipeline and connects the streams.
    */
   @synchronized
+  @timed(5000)
   async open () {
     if (this._itemManager) {
       return this;
@@ -87,18 +95,24 @@ export class PartyInternal {
 
     // Connect to the downstream item demuxer.
     this._itemManager = new ItemManager(this.key, this._modelFactory, this._timeframeClock, writeStream);
-    this._itemDemuxer = createItemDemuxer(this._itemManager);
-    readStream.pipe(this._itemDemuxer);
+    this._itemDemuxer = new ItemDemuxer(this._itemManager, { snapshots: true });
+
+    this._inboundEchoStream = this._itemDemuxer.open();
+    readStream.pipe(this._inboundEchoStream);
 
     if (this._pipeline.outboundHaloStream) {
       this._partyProcessor.setOutboundStream(this._pipeline.outboundHaloStream);
     }
 
     // Replication.
-    this._replicator.start();
+    await this._protocol.start();
 
     // TODO(burdon): Propagate errors.
-    this._unsubscribePipelineErrors = this._pipeline.errors.on(err => console.error(err));
+    this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
+
+    if (this._databaseSnapshot) {
+      await this.itemDemuxer!.restoreFromSnapshot(this._databaseSnapshot);
+    }
 
     return this;
   }
@@ -112,10 +126,10 @@ export class PartyInternal {
       return this;
     }
 
-    this._replicator.stop();
+    await this._protocol.stop();
 
     // Disconnect the read stream.
-    this._pipeline.inboundEchoStream?.unpipe(this._itemDemuxer);
+    this._pipeline.inboundEchoStream?.unpipe(this._inboundEchoStream);
 
     this._itemManager = undefined;
     this._itemDemuxer = undefined;
@@ -123,36 +137,9 @@ export class PartyInternal {
     // TODO(burdon): Create test to ensure everything closes cleanly.
     await this._pipeline.close();
 
-    this._unsubscribePipelineErrors!();
+    this._subscriptions.forEach(cb => cb());
 
     return this;
-  }
-
-  /**
-   * Creates an invition for a remote peer.
-   */
-  async createInvitation (authenticationDetails: InvitationAuthenticator, options: InvitationOptions = {}) {
-    assert(this._pipeline.outboundHaloStream);
-    assert(this._networkManager);
-
-    const responder = new GreetingResponder(
-      this._identityManager,
-      this._networkManager,
-      this._partyProcessor
-    );
-
-    const { secretValidator, secretProvider } = authenticationDetails;
-    const { onFinish, expiration } = options;
-
-    const swarmKey = await responder.start();
-    const invitation = await responder.invite(secretValidator, secretProvider, onFinish, expiration);
-
-    return new InvitationDescriptor(
-      InvitationDescriptorType.INTERACTIVE,
-      swarmKey,
-      invitation,
-      this.isHalo ? Buffer.from(this.key) : undefined
-    );
   }
 
   /**
@@ -165,8 +152,26 @@ export class PartyInternal {
     return items[0];
   }
 
-  get isHalo () {
-    // The PartyKey of the HALO is the Identity key.
-    return this._identityManager.identityKey.publicKey.equals(this.key);
+  /**
+   * Create a snapshot of the current state.
+   */
+  createSnapshot (): PartySnapshot {
+    assert(this._itemDemuxer, 'Party not open.');
+    return {
+      partyKey: this.key,
+      timeframe: this._timeframeClock.timeframe,
+      timestamp: Date.now(),
+      database: this._itemDemuxer.createSnapshot(),
+      halo: this._partyProcessor.makeSnapshot()
+    };
+  }
+
+  async restoreFromSnapshot (snapshot: PartySnapshot) {
+    assert(snapshot.halo);
+    assert(snapshot.database);
+
+    await this.processor.restoreFromSnapshot(snapshot.halo);
+
+    this._databaseSnapshot = snapshot.database;
   }
 }

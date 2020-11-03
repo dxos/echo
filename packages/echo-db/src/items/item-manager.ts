@@ -9,7 +9,7 @@ import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
 import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, PartyKey } from '@dxos/echo-protocol';
 import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
-import { createTransform } from '@dxos/util';
+import { createTransform, timed } from '@dxos/util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
@@ -20,6 +20,16 @@ const log = debug('dxos:echo:item-manager');
 export interface ItemFilter {
   type?: ItemType | ItemType[]
   parent?: ItemID | ItemID[]
+}
+
+export interface ItemConstructionOptions {
+  itemId: ItemID,
+  modelType: ModelType,
+  itemType: ItemType | undefined,
+  readStream: NodeJS.ReadableStream,
+  parentId?: ItemID,
+  initialMutations?: ModelMessage<Uint8Array>[],
+  modelSnapshot?: Uint8Array,
 }
 
 /**
@@ -59,12 +69,17 @@ export class ItemManager {
     }
   }
 
+  isModelKnown (modelType: ModelType) {
+    return this._modelFactory.hasModel(modelType);
+  }
+
   /**
    * Creates an item and writes the genesis message.
    * @param {ModelType} modelType
    * @param {ItemType} [itemType]
    * @param {ItemID} [parentId]
    */
+  @timed(5000)
   async createItem (modelType: ModelType, itemType?: ItemType, parentId?: ItemID, initProps?: any): Promise<Item<any>> {
     assert(this._writeStream);
     assert(modelType);
@@ -114,15 +129,17 @@ export class ItemManager {
    * @param readStream - Inbound mutation stream (from multiplexer).
    * @param [parentId] - ItemID of the parent of this Item (optional).
    */
-  async constructItem (
-    itemId: ItemID,
-    modelType: ModelType,
-    itemType: ItemType | undefined,
-    readStream: NodeJS.ReadableStream,
-    parentId?: ItemID,
-    initialMutation?: ModelMessage<Uint8Array>
-  ) {
-    assert(this._writeStream);
+  // TODO(marik-d): Convert params to object.
+  @timed(5000)
+  async constructItem ({
+    itemId,
+    modelType,
+    itemType,
+    readStream,
+    parentId,
+    initialMutations,
+    modelSnapshot
+  }: ItemConstructionOptions) {
     assert(itemId);
     assert(modelType);
     assert(readStream);
@@ -136,7 +153,7 @@ export class ItemManager {
     if (!this._modelFactory.hasModel(modelType)) {
       throw new Error(`Unknown model: ${modelType}`);
     }
-    const { mutation: mutationCodec } = this._modelFactory.getModelMeta(modelType);
+    const modelMeta = this._modelFactory.getModelMeta(modelType);
 
     //
     // Convert inbound envelope message to model specific mutation.
@@ -147,16 +164,16 @@ export class ItemManager {
       assert(mutation);
       return {
         meta,
-        mutation: mutationCodec.decode(mutation)
+        mutation: modelMeta.mutation.decode(mutation)
       };
     });
 
     //
     // Convert model-specific outbound mutation to outbound envelope message.
     //
-    const outboundTransform = mapFeedWriter<unknown, EchoEnvelope>(mutation => ({
+    const outboundTransform = this._writeStream && mapFeedWriter<unknown, EchoEnvelope>(mutation => ({
       itemId,
-      mutation: mutationCodec.encode(mutation)
+      mutation: modelMeta.mutation.encode(mutation)
     }), this._writeStream);
 
     // Create the model with the outbound stream.
@@ -167,13 +184,20 @@ export class ItemManager {
     readStream.pipe(inboundTransform).pipe(model.processor);
 
     // Create the Item.
-    const item = new Item(this._partyKey, itemId, itemType, model, this._writeStream, parent);
+    const item = new Item(this._partyKey, itemId, itemType, modelMeta, model, this._writeStream, parent);
     assert(!this._items.has(itemId));
     this._items.set(itemId, item);
     log('Constructed:', String(item));
 
-    if (initialMutation) {
-      await item.model.processMessage(initialMutation.meta, mutationCodec.decode(initialMutation.mutation));
+    if (modelSnapshot) {
+      assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
+      await model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
+    }
+
+    if (initialMutations) {
+      for (const mutation of initialMutations) {
+        await item.model.processMessage(mutation.meta, modelMeta.mutation.decode(mutation.mutation));
+      }
     }
 
     // Notify Item was udpated.
@@ -194,7 +218,7 @@ export class ItemManager {
    * Retrieves a item from the index.
    * @param itemId
    */
-  getItem (itemId: ItemID): Item<any> | undefined {
+  getItem<M extends Model<any> = any> (itemId: ItemID): Item<M> | undefined {
     return this._items.get(itemId);
   }
 
@@ -202,8 +226,8 @@ export class ItemManager {
    * Return matching items.
    * @param [filter]
    */
-  queryItems (filter: ItemFilter = {}): ResultSet<Item<any>> {
-    return new ResultSet<Item<any>>(this._debouncedItemUpdate, () => Array.from(this._items.values())
+  queryItems <M extends Model<any> = any> (filter: ItemFilter = {}): ResultSet<Item<M>> {
+    return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
       .filter(item => matchesFilter(item, filter)));
   }
 }

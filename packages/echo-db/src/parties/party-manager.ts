@@ -14,11 +14,14 @@ import { ComplexMap } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
+import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
-import { HALO_PARTY_DESCRIPTOR_TYPE, PartyInternal } from './party-internal';
+import { PartyInternal } from './party-internal';
 
-const log = debug('dxos:echo:party-manager');
+const CONTACT_DEBOUNCE_INTERVAL = 500;
+
+const log = debug('dxos:echo:parties:party-manager');
 
 /**
  * Manages the life-cycle of parties.
@@ -37,8 +40,13 @@ export class PartyManager {
   constructor (
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,
-    private readonly _partyFactory: PartyFactory
-  ) { }
+    private readonly _partyFactory: PartyFactory,
+    private readonly _snapshotStore: SnapshotStore
+  ) {}
+
+  get identityManager () {
+    return this._identityManager;
+  }
 
   get parties (): PartyInternal[] {
     return Array.from(this._parties.values());
@@ -50,12 +58,15 @@ export class PartyManager {
 
   @synchronized
   async open () {
-    if (this._opened) return;
+    if (this._opened) {
+      return;
+    }
     await this._feedStore.open();
 
     // Open the HALO first (if present).
     if (this._identityManager.identityKey) {
       if (this._feedStore.queryWritableFeed(this._identityManager.identityKey.publicKey)) {
+        // TODO(marik-d): Snapshots for halo party?
         const halo = await this._partyFactory.constructParty(this._identityManager.identityKey.publicKey);
         // Always open the HALO.
         await halo.open();
@@ -66,11 +77,18 @@ export class PartyManager {
     // Iterate descriptors and pre-create Party objects.
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
-        const party = await this._partyFactory.constructParty(partyKey);
+        let party: PartyInternal | undefined;
+
+        const snapshot = await this._snapshotStore.load(partyKey);
+        if (snapshot) {
+          party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
+        } else {
+          party = await this._partyFactory.constructParty(partyKey);
+        }
+
         // TODO(telackey): Should parties be auto-opened?
         await party.open();
-        this._parties.set(party.key, party);
-        this.update.emit(party);
+        this._setParty(party);
       }
     }
 
@@ -81,6 +99,25 @@ export class PartyManager {
   async close () {
     await this._feedStore.close();
     this._opened = false;
+  }
+
+  /**
+   * Joins an existing Identity HALO from a recovery seed phrase.
+   * TODO(telackey): Combine with joinHalo?
+   *   joinHalo({ seedPhrase }) // <- Recovery version
+   *   joinHalo({ invitationDescriptor, secretProvider}) // <- Standard invitation version
+   * The downside is that would wreck the symmetry to createParty/joinParty.
+   */
+  @synchronized
+  async recoverHalo (seedPhrase: string) {
+    assert(this._opened, 'PartyManager is not open.');
+    assert(!this._identityManager.halo, 'HALO already exists.');
+    assert(!this._identityManager.identityKey, 'Identity key already exists.');
+
+    const halo = await this._partyFactory.recoverHalo(seedPhrase);
+    await this._setHalo(halo);
+
+    return halo;
   }
 
   /**
@@ -125,8 +162,7 @@ export class PartyManager {
       await party.close();
       throw new Error(`Party already exists ${keyToString(party.key)}`); // TODO(marik-d): Handle this gracefully
     }
-    this._parties.set(party.key, party);
-    this.update.emit(party);
+    this._setParty(party);
     return party;
   }
 
@@ -150,8 +186,7 @@ export class PartyManager {
       await party.close();
       throw new Error(`Party already exists ${keyToString(party.key)}`); // TODO(marik-d): Handle this gracefully
     }
-    this._parties.set(party.key, party);
-    this.update.emit(party);
+    this._setParty(party);
   }
 
   @synchronized
@@ -166,8 +201,7 @@ export class PartyManager {
       await party.close();
       throw new Error(`Party already exists ${keyToString(party.key)}`); // TODO(marik-d): Handle this gracefully
     }
-    this._parties.set(party.key, party);
-    this.update.emit(party);
+    this._setParty(party);
     return party;
   }
 
@@ -176,22 +210,58 @@ export class PartyManager {
     assert(halo.itemManager, 'ItemManger is required');
     await this._identityManager.initialize(halo);
 
-    const result = await halo.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE });
-    result.subscribe(async (values) => {
+    this._identityManager.halo!.subscribeToJoinedPartyList(async values => {
       for (const partyDesc of values) {
-        const partyKey = partyDesc.model.getProperty('publicKey');
-        if (!this._parties.has(partyKey)) {
-          log(`Auto-opening new Party from HALO: ${keyToString(partyKey)}`);
-
-          // TODO(telackey): Fix ObjectModel's handling of arrays.
-          const hints = Object.values(partyDesc.model.getProperty('hints')) as KeyHint[];
-          await this.addParty(partyKey, hints);
+        if (!this._parties.has(partyDesc.partyKey)) {
+          log(`Auto-opening new Party from HALO: ${keyToString(partyDesc.partyKey)}`);
+          await this.addParty(partyDesc.partyKey, partyDesc.keyHints);
         }
       }
     });
   }
 
+  private _setParty (party: PartyInternal) {
+    const debounced = party.processor.keyOrInfoAdded.debounce(CONTACT_DEBOUNCE_INTERVAL).discardParameter();
+    debounced.on(() => this._updateContactList(party));
+
+    this._parties.set(party.key, party);
+    this.update.emit(party);
+  }
+
+  private async _updateContactList (party: PartyInternal) {
+    const contactListItem = this._identityManager.halo?.getContactListItem();
+    if (!contactListItem) {
+      return;
+    }
+
+    const contactList = contactListItem.model.toObject() as any;
+
+    for (const publicKey of party.processor.memberKeys) {
+      // A key that represents either us or the Party itself is never a contact.
+      if (this._identityManager?.identityKey?.publicKey.equals(publicKey) || Buffer.compare(publicKey, party.key) === 0) {
+        continue;
+      }
+
+      const hexKey = keyToString(publicKey);
+      const contact = contactList[hexKey];
+      const memberInfo = party.processor.getMemberInfo(publicKey);
+
+      if (contact) {
+        if (memberInfo && contact.displayName !== memberInfo.displayName) {
+          log(`Updating contact ${hexKey} to ${memberInfo.displayName}`);
+          contact.displayName = memberInfo.displayName;
+          await contactListItem.model.setProperty(hexKey, memberInfo);
+        }
+      } else {
+        const displayName = memberInfo?.displayName ?? hexKey;
+        log(`Creating contact ${hexKey} to ${displayName}`);
+        await contactListItem.model.setProperty(hexKey, { publicKey, displayName });
+      }
+    }
+  }
+
   private _isHalo (partyKey: PublicKey) {
+    assert(this._identityManager.identityKey, 'No identity key');
     return Buffer.compare(partyKey, this._identityManager.identityKey.publicKey) === 0;
   }
 }

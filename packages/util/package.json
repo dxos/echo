@@ -1,6 +1,6 @@
 {
   "name": "@dxos/util",
-  "version": "2.4.0-beta.0",
+  "version": "2.5.2-alpha.0",
   "description": "Utilities to be moved to other repos.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc --build",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
-    "coverage": "jest --coverage --verbose src",
+    "coverage": "jest --coverage --verbose --rootDir=./src",
     "lint": "eslint './src/**/*.ts'",
     "test": "jest --rootDir=./src --verbose --passWithNoTests",
     "prepublishOnly": "npm run test && npm run build",
@@ -48,7 +48,7 @@
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
-    "@dxos/eslint-plugin": "^1.0.5",
+    "@dxos/eslint-plugin": "^1.0.8",
     "@types/jest": "^25.2.3",
     "del-cli": "^3.0.0",
     "eslint-plugin-jest": "^24.0.2",

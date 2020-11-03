@@ -15,10 +15,10 @@ import {
   Message as HaloMessage
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { FeedKey, FeedWriter, IHaloStream, PartyKey, PublicKey, WriteReceipt } from '@dxos/echo-protocol';
+import { FeedKey, FeedWriter, IHaloStream, PartyKey, HaloStateSnapshot, PublicKey, WriteReceipt } from '@dxos/echo-protocol';
 import { jsonReplacer } from '@dxos/util';
 
-const log = debug('dxos:echo:halo-party-processor');
+const log = debug('dxos:echo:parties:party-processor');
 
 export interface FeedSetProvider {
   get(): FeedKey[]
@@ -29,14 +29,18 @@ export interface FeedSetProvider {
  * Party processor for testing.
  */
 export class PartyProcessor {
-  protected readonly _feedAdded = new Event<FeedKey>()
-
-  private readonly _stateMachine: PartyStateMachine;
   private readonly _authenticator: Authenticator;
+  private _outboundHaloStream: FeedWriter<HaloMessage> | undefined;
+  private readonly _stateMachine: PartyStateMachine;
+
+  protected readonly _feedAdded = new Event<FeedKey>()
 
   public readonly keyOrInfoAdded = new Event<PublicKey>();
 
-  private _outboundHaloStream: FeedWriter<HaloMessage> | undefined;
+  /**
+   * Used to generate halo snapshot.
+   */
+  private _haloMessages: HaloMessage[] = [];
 
   constructor (
     private readonly _partyKey: PartyKey
@@ -118,6 +122,10 @@ export class PartyProcessor {
     };
   }
 
+  getOfflineInvitation (invitationID: Buffer) {
+    return this._stateMachine.getInvitation(invitationID);
+  }
+
   async takeHints (hints: KeyHint[]) {
     log(`addHints ${hints.length}`);
     // Gives state machine hints on initial feed set from where to read party genesis message.
@@ -127,10 +135,11 @@ export class PartyProcessor {
     await this._stateMachine.takeHints(hints);
   }
 
-  async processMessage (message: IHaloStream): Promise<void> {
+  async processMessage (message: IHaloStream) {
     log(`Processing: ${JSON.stringify(message, jsonReplacer)}`);
     const { data } = message;
-    return this._stateMachine.processMessages([data]);
+    this._haloMessages.push(data);
+    await this._stateMachine.processMessages([data]);
   }
 
   setOutboundStream (stream: FeedWriter<HaloMessage>) {
@@ -141,5 +150,18 @@ export class PartyProcessor {
     assert(this._outboundHaloStream, 'Party is closed or read-only');
     // TODO(marik-d): Wait for the message to be processed?
     return this._outboundHaloStream.write(message);
+  }
+
+  makeSnapshot (): HaloStateSnapshot {
+    return {
+      messages: this._haloMessages
+    };
+  }
+
+  async restoreFromSnapshot (snapshot: HaloStateSnapshot) {
+    assert(this._haloMessages.length === 0, 'PartyProcessor is already initialized');
+    assert(snapshot.messages);
+    this._haloMessages = snapshot.messages;
+    await this._stateMachine.processMessages(snapshot.messages);
   }
 }

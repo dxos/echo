@@ -63,20 +63,11 @@ export class Party {
    * Opens the pipeline and connects the streams.
    */
   async open () {
-    const timeoutId = setTimeout(() => {
-      console.error('Looks like party.open() is taking more then 5 seconds. This is not an error but might mean that something went wrong.');
-    }, 5000);
-    try {
-      await this._impl.open();
+    await this._impl.open();
 
-      if (this.database.queryItems({ type: PARTY_ITEM_TYPE }).value.length === 0) {
-        await this.database.queryItems({ type: PARTY_ITEM_TYPE }).update.waitFor(items => items.length > 0);
-      }
-    } finally {
-      clearTimeout(timeoutId);
+    if (this.database.queryItems({ type: PARTY_ITEM_TYPE }).value.length === 0) {
+      await this.database.queryItems({ type: PARTY_ITEM_TYPE }).update.waitFor(items => items.length > 0);
     }
-
-    return this;
   }
 
   /**
@@ -112,6 +103,6 @@ export class Party {
    * Creates an invition for a remote peer.
    */
   async createInvitation (authenticationDetails: InvitationAuthenticator, options: InvitationOptions = {}) {
-    return this._impl.createInvitation(authenticationDetails, options);
+    return this._impl.invitationManager.createInvitation(authenticationDetails, options);
   }
 }

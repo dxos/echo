@@ -1,6 +1,6 @@
 {
   "name": "@dxos/echo-protocol",
-  "version": "2.4.0-beta.0",
+  "version": "2.5.2-alpha.0",
   "description": "ECHO protocol definitions and utilities.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -22,7 +22,7 @@
     "build": "yarn build:protobuf && tsc --build",
     "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/defs/dxos.proto -s src/proto/substitutions.ts -o src/proto/gen",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
-    "coverage": "jest --coverage --verbose src",
+    "coverage": "jest --coverage --verbose --rootDir=./src",
     "lint": "eslint './src/**/*.ts'",
     "test": "jest --rootDir=./src --verbose --passWithNoTests",
     "prepublishOnly": "npm run test && npm run build",
@@ -41,7 +41,7 @@
     "@dxos/credentials": "^2.0.0",
     "@dxos/crypto": "^1.0.0-beta.7",
     "@dxos/feed-store": "^1.2.0-beta.30",
-    "@dxos/util": "^2.4.0-beta.0",
+    "@dxos/util": "^2.5.2-alpha.0",
     "@types/debug": "^4.1.1",
     "@types/end-of-stream": "^1.4.0",
     "@types/lodash": "^4.14.159",
@@ -58,7 +58,7 @@
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
-    "@dxos/eslint-plugin": "^1.0.5",
+    "@dxos/eslint-plugin": "^1.0.8",
     "@dxos/protobuf-compiler": "^0.2.0",
     "@types/jest": "^25.2.3",
     "chance": "^1.1.6",
