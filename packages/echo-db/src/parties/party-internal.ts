@@ -17,7 +17,7 @@ import {
 } from '../invitations';
 import { ItemDemuxer, Item, ItemManager } from '../items';
 import { TimeframeClock } from '../items/timeframe-clock';
-import { ReplicationAdapter } from '../replication';
+import { PartyProtocol } from './party-protocol';
 import { IdentityManager } from './identity-manager';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -55,7 +55,7 @@ export class PartyInternal {
     private readonly _pipeline: Pipeline,
     private readonly _identityManager: IdentityManager,
     private readonly _networkManager: NetworkManager,
-    private readonly _replicator: ReplicationAdapter,
+    private readonly _protocol: PartyProtocol,
     private readonly _timeframeClock: TimeframeClock
   ) {
     assert(this._modelFactory);
@@ -112,7 +112,7 @@ export class PartyInternal {
     }
 
     // Replication.
-    await this._replicator.start();
+    await this._protocol.start();
 
     // TODO(burdon): Propagate errors.
     this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
@@ -133,7 +133,7 @@ export class PartyInternal {
       return this;
     }
 
-    await this._replicator.stop();
+    await this._protocol.stop();
 
     // Disconnect the read stream.
     this._pipeline.inboundEchoStream?.unpipe(this._inboundEchoStream);

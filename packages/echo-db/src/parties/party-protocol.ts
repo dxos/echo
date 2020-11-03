@@ -13,15 +13,16 @@ import {
   GreetingCommandPlugin
 } from '@dxos/credentials';
 import { discoveryKey, keyToString } from '@dxos/crypto';
-import { FeedKey, PartyKey } from '@dxos/echo-protocol';
+import { FeedKey, FeedSetProvider, PartyKey } from '@dxos/echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 import { Protocol } from '@dxos/protocol';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
-import { FeedStoreAdapter } from './feed-store-adapter';
-import { HaloRecoveryInitiator } from './invitations/halo-recovery-initiator';
-import { InvitationProvider, OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
-import { FeedSetProvider, IdentityManager, PartyInternal } from './parties';
+import { FeedStoreAdapter } from '../feed-store-adapter';
+import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
+import { InvitationProvider, OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
+import { PartyInternal } from './party-internal';
+import { IdentityManager } from './identity-manager';
 
 const log = debug('dxos:echo:replication-adapter');
 
@@ -37,9 +38,9 @@ export interface PartyProvider {
 }
 
 /**
- * Joins a network swarm with replication protocol. Coordinates opening new feeds in the feed store.
+ * Joins a network swarm with replication protocol and offline invitation/halo recovery protocol.
  */
-export class ReplicationAdapter {
+export class PartyProtocol {
   private _started = false;
 
   constructor (

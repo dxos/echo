@@ -31,7 +31,7 @@ import { GreetingInitiator, InvitationDescriptor, InvitationDescriptorType, Secr
 import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
 import { InvitationProvider, OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
-import { ReplicationAdapter } from '../replication';
+import { PartyProtocol } from './party-protocol';
 import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
@@ -219,7 +219,7 @@ export class PartyFactory {
     };
 
     assert(this._identityManager.deviceKey, 'No device key.');
-    const replicator = new ReplicationAdapter(
+    const protocol = new PartyProtocol(
       this._identityManager,
       this._networkManager,
       this._feedStore,
@@ -239,7 +239,7 @@ export class PartyFactory {
       pipeline,
       this._identityManager,
       this._networkManager,
-      replicator,
+      protocol,
       timeframeClock
     );
 
