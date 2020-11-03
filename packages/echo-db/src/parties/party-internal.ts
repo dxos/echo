@@ -112,7 +112,7 @@ export class PartyInternal {
     }
 
     // Replication.
-    this._replicator.start();
+    await this._replicator.start();
 
     // TODO(burdon): Propagate errors.
     this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
@@ -133,7 +133,7 @@ export class PartyInternal {
       return this;
     }
 
-    this._replicator.stop();
+    await this._replicator.stop();
 
     // Disconnect the read stream.
     this._pipeline.inboundEchoStream?.unpipe(this._inboundEchoStream);
