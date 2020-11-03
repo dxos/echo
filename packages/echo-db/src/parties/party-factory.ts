@@ -29,9 +29,9 @@ import { raise, timed } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, InvitationDescriptorType, SecretProvider } from '../invitations';
 import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
-import { InvitationProvider, OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
+import { InvitationManager } from '../invitations/invitation-manager';
+import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
-import { PartyProtocol } from './party-protocol';
 import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
@@ -41,6 +41,7 @@ import {
   HALO_PARTY_DESCRIPTOR_TYPE, HALO_CONTACT_LIST_TYPE
 } from './party-internal';
 import { PartyProcessor } from './party-processor';
+import { PartyProtocol } from './party-protocol';
 import { Pipeline } from './pipeline';
 import { makeAutomaticSnapshots } from './snapshot-maker';
 
@@ -208,15 +209,11 @@ export class PartyFactory {
     const pipeline = new Pipeline(
       partyProcessor, iterator, timeframeClock, feedWriteStream, this._options);
 
-    const invitationProvider: InvitationProvider = {
-      createInvitation (authenticationDetails, options) {
-        return party.createInvitation(authenticationDetails, options);
-      },
-
-      getOfflineInvitation (invitationId: Buffer) {
-        return partyProcessor.getOfflineInvitation(invitationId);
-      }
-    };
+    const invitationManager = new InvitationManager(
+      partyProcessor,
+      this._identityManager,
+      this._networkManager
+    );
 
     assert(this._identityManager.deviceKey, 'No device key.');
     const protocol = new PartyProtocol(
@@ -227,7 +224,7 @@ export class PartyFactory {
       partyProcessor.getActiveFeedSet(),
       this._createCredentialsProvider(partyKey, feed?.key),
       partyProcessor.authenticator,
-      invitationProvider
+      invitationManager
     );
 
     //
@@ -238,9 +235,9 @@ export class PartyFactory {
       partyProcessor,
       pipeline,
       this._identityManager,
-      this._networkManager,
       protocol,
-      timeframeClock
+      timeframeClock,
+      invitationManager
     );
 
     if (this._options.snapshots) {

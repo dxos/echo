@@ -21,19 +21,15 @@ import { NetworkManager } from '@dxos/network-manager';
 import { raise } from '@dxos/util';
 
 import { IdentityManager } from '../parties';
-import { InvitationAuthenticator, InvitationOptions, SecretProvider, SecretValidator } from './common';
+import { SecretProvider, SecretValidator } from './common';
 import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { GreetingState } from './greeting-responder';
 import { InvitationDescriptor, InvitationDescriptorType } from './invitation-descriptor';
+import { InvitationManager } from './invitation-manager';
 
 const log = debug('dxos:party-manager:party-invitation-claimer');
 
 const DEFAULT_TIMEOUT = 30000;
-
-export interface InvitationProvider {
-  createInvitation(authenticationDetails: InvitationAuthenticator, options?: InvitationOptions): Promise<InvitationDescriptor>;
-  getOfflineInvitation(invitationId: Buffer): any;
-}
 
 /**
  * Class to facilitate making an unauthenticated connection to an existing Party in order to claim an
@@ -130,9 +126,9 @@ export class OfflineInvitationClaimer {
    * of the Party for responding to attempts to claim an Invitation which has been written to the Party.
    * @param {Party} party
    */
-  static makePartyInvitationClaimHandler (invitationProvider: InvitationProvider) {
+  static makePartyInvitationClaimHandler (invitationManager: InvitationManager) {
     const claimHandler = new PartyInvitationClaimHandler(async (invitationID: Buffer) => {
-      const invitationMessage = invitationProvider.getOfflineInvitation(invitationID);
+      const invitationMessage = invitationManager.getOfflineInvitation(invitationID);
       if (!invitationMessage) {
         throw new Error(`Invalid invitation ${keyToString(invitationID)}`);
       }
@@ -158,7 +154,7 @@ export class OfflineInvitationClaimer {
           invitation.authNonce.equals(authMessage.signed.nonce);
       };
 
-      return invitationProvider.createInvitation({ secretValidator }, { expiration: Date.now() + 60000 });
+      return invitationManager.createInvitation({ secretValidator }, { expiration: Date.now() + 60000 });
     });
 
     return claimHandler.createMessageHandler();

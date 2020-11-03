@@ -20,9 +20,10 @@ import { Replicator } from '@dxos/protocol-plugin-replicator';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
-import { InvitationProvider, OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
-import { PartyInternal } from './party-internal';
+import { InvitationManager } from '../invitations/invitation-manager';
+import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { IdentityManager } from './identity-manager';
+import { PartyInternal } from './party-internal';
 
 const log = debug('dxos:echo:replication-adapter');
 
@@ -51,7 +52,7 @@ export class PartyProtocol {
     private readonly _activeFeeds: FeedSetProvider,
     private readonly _credentials: CredentialsProvider,
     private readonly _authenticator: Authenticator,
-    private readonly _invitationProvider: InvitationProvider
+    private readonly _invitationManager: InvitationManager
   ) {
   }
 
@@ -108,7 +109,7 @@ export class PartyProtocol {
       plugins.push(
         new GreetingCommandPlugin(
           this._identityManager.deviceKey.publicKey,
-          OfflineInvitationClaimer.makePartyInvitationClaimHandler(this._invitationProvider)
+          OfflineInvitationClaimer.makePartyInvitationClaimHandler(this._invitationManager)
         )
       );
     }
