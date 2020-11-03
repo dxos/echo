@@ -114,6 +114,17 @@ export class ECHO {
   }
 
   /**
+   * Joins an existing Identity HALO.
+   */
+  async joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
+    assert(this._partyManager.opened, 'Database not open.');
+    assert(!this._partyManager.identityManager.halo, 'HALO already exists.');
+
+    const impl = await this._partyManager.joinHalo(invitationDescriptor, secretProvider);
+    return new Party(impl);
+  }
+
+  /**
    * Query for contacts.  Contacts represent member keys across all known Parties.
    */
   queryContacts (): ResultSet<Contact> {
