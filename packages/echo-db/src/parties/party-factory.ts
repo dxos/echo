@@ -33,12 +33,12 @@ import { InvitationManager } from '../invitations/invitation-manager';
 import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { SnapshotStore } from '../snapshot-store';
+import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
 import {
   PartyInternal,
-  PARTY_ITEM_TYPE,
-  HALO_PARTY_DESCRIPTOR_TYPE, HALO_CONTACT_LIST_TYPE
+  PARTY_ITEM_TYPE
 } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { PartyProtocol } from './party-protocol';
@@ -70,7 +70,6 @@ const log = debug('dxos:echo:parties:party-factory');
  */
 export class PartyFactory {
   // TODO(telackey): It might be better to take Keyring as a param to createParty/constructParty/etc.
-  // TODO(marik-d): Maybe pass identityManager here instead to be able to copy genesis messages.
   constructor (
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,
@@ -288,8 +287,8 @@ export class PartyFactory {
 
     if (!haloInvitation) {
       // Copy our signed IdentityInfo into the new Party.
-      assert(this._identityManager.identityKey, 'No identity key');
-      const infoMessage = this._identityManager.halo?.processor.infoMessages.get(this._identityManager.identityKey.key);
+      assert(this._identityManager.halo, 'No HALO');
+      const infoMessage = this._identityManager.halo.identityInfo;
       if (infoMessage) {
         await party.processor.writeHaloMessage(createEnvelopeMessage(
           this._identityManager.keyring,
@@ -430,24 +429,14 @@ export class PartyFactory {
   @timed(5000)
   private async _recordPartyJoining (party: PartyInternal) {
     assert(this._identityManager.halo, 'HALO is required.');
-    assert(this._identityManager.halo.itemManager, 'ItemManager is required.');
 
-    const knownParties = await this._identityManager.halo.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }).value;
-    const partyDesc = knownParties.find(partyMarker => Buffer.compare(partyMarker.model.getProperty('publicKey'), party.key) === 0);
-    assert(!partyDesc, `Descriptor already exists for Party ${keyToString(party.key)}`);
-
-    await this._identityManager.halo.itemManager.createItem(
-      ObjectModel.meta.type,
-      HALO_PARTY_DESCRIPTOR_TYPE,
-      undefined,
-      {
-        publicKey: party.key,
-        subscribed: true,
-        hints: [
-          ...party.processor.memberKeys.map(publicKey => ({ publicKey })),
-          ...party.processor.feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED }))
-        ]
-      }
-    );
+    const keyHints: KeyHint[] = [
+      ...party.processor.memberKeys.map(publicKey => ({ publicKey, type: KeyType.UNKNOWN })),
+      ...party.processor.feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED }))
+    ];
+    await this._identityManager.halo.recordPartyJoining({
+      partyKey: party.key,
+      keyHints
+    });
   }
 }

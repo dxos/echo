@@ -30,10 +30,10 @@ import { OfflineInvitationClaimer } from '../invitations/offline-invitation-clai
 import { Item } from '../items';
 import { SnapshotStore } from '../snapshot-store';
 import { messageLogger } from '../testing';
+import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
-import { HALO_CONTACT_LIST_TYPE } from './party-internal';
 import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:parties:party-manager:test');
