@@ -20,8 +20,8 @@ import { keyToString, randomBytes } from '@dxos/crypto';
 import { NetworkManager } from '@dxos/network-manager';
 import { raise } from '@dxos/util';
 
-import { IdentityManager, PartyInternal } from '../parties';
-import { SecretProvider, SecretValidator } from './common';
+import { IdentityManager } from '../parties';
+import { InvitationAuthenticator, InvitationOptions, SecretProvider, SecretValidator } from './common';
 import { greetingProtocolProvider } from './greeting-protocol-provider';
 import { GreetingState } from './greeting-responder';
 import { InvitationDescriptor, InvitationDescriptorType } from './invitation-descriptor';
@@ -29,6 +29,11 @@ import { InvitationDescriptor, InvitationDescriptorType } from './invitation-des
 const log = debug('dxos:party-manager:party-invitation-claimer');
 
 const DEFAULT_TIMEOUT = 30000;
+
+export interface InvitationProvider {
+  createInvitation(authenticationDetails: InvitationAuthenticator, options?: InvitationOptions): Promise<InvitationDescriptor>;
+  getOfflineInvitation(invitationId: Buffer): any;
+}
 
 /**
  * Class to facilitate making an unauthenticated connection to an existing Party in order to claim an
@@ -125,9 +130,9 @@ export class OfflineInvitationClaimer {
    * of the Party for responding to attempts to claim an Invitation which has been written to the Party.
    * @param {Party} party
    */
-  static makePartyInvitationClaimHandler (party: PartyInternal) {
+  static makePartyInvitationClaimHandler (invitationProvider: InvitationProvider) {
     const claimHandler = new PartyInvitationClaimHandler(async (invitationID: Buffer) => {
-      const invitationMessage = party.processor.getOfflineInvitation(invitationID);
+      const invitationMessage = invitationProvider.getOfflineInvitation(invitationID);
       if (!invitationMessage) {
         throw new Error(`Invalid invitation ${keyToString(invitationID)}`);
       }
@@ -153,7 +158,7 @@ export class OfflineInvitationClaimer {
           invitation.authNonce.equals(authMessage.signed.nonce);
       };
 
-      return party.createInvitation({ secretValidator }, { expiration: Date.now() + 60000 });
+      return invitationProvider.createInvitation({ secretValidator }, { expiration: Date.now() + 60000 });
     });
 
     return claimHandler.createMessageHandler();

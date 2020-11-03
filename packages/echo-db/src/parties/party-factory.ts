@@ -29,7 +29,7 @@ import { raise, timed } from '@dxos/util';
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { GreetingInitiator, InvitationDescriptor, InvitationDescriptorType, SecretProvider } from '../invitations';
 import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
-import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
+import { InvitationProvider, OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { ReplicationAdapter } from '../replication';
 import { SnapshotStore } from '../snapshot-store';
@@ -65,7 +65,7 @@ const DEFAULT_SNAPSHOT_INTERVAL = 100; // every 100 messages
 const log = debug('dxos:echo:parties:party-factory');
 
 /**
- * Manages the lifecycle of parties.
+ * Creates parties.
  */
 export class PartyFactory {
   // TODO(telackey): It might be better to take Keyring as a param to createParty/constructParty/etc.
@@ -208,14 +208,13 @@ export class PartyFactory {
     const pipeline = new Pipeline(
       partyProcessor, iterator, timeframeClock, feedWriteStream, this._options);
 
-    // We need this reference inside the PartyProvider closure.
-    // eslint-disable-next-line prefer-const
-    let party: PartyInternal;
+    const invitationProvider: InvitationProvider = {
+      createInvitation (authenticationDetails, options) {
+        return party.createInvitation(authenticationDetails, options);
+      },
 
-    const partyProvider = {
-      get: () => {
-        assert(party);
-        return party;
+      getOfflineInvitation (invitationId: Buffer) {
+        return partyProcessor.getOfflineInvitation(invitationId);
       }
     };
 
@@ -224,16 +223,17 @@ export class PartyFactory {
       this._identityManager,
       this._networkManager,
       this._feedStore,
-      partyProvider,
+      partyKey,
       partyProcessor.getActiveFeedSet(),
       this._createCredentialsProvider(partyKey, feed?.key),
-      partyProcessor.authenticator
+      partyProcessor.authenticator,
+      invitationProvider
     );
 
     //
     // Create the party.
     //
-    party = new PartyInternal(
+    const party = new PartyInternal(
       this._modelFactory,
       partyProcessor,
       pipeline,
