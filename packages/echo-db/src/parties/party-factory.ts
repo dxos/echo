@@ -38,7 +38,7 @@ import { createMessageSelector } from './message-selector';
 import {
   PartyInternal,
   PARTY_ITEM_TYPE,
-  HALO_PARTY_DESCRIPTOR_TYPE
+  HALO_PARTY_DESCRIPTOR_TYPE, HALO_CONTACT_LIST_TYPE
 } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
@@ -410,6 +410,7 @@ export class PartyFactory {
     // Create special properties item.
     assert(halo.itemManager);
     await halo.itemManager.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
+    await halo.itemManager.createItem(ObjectModel.meta.type, HALO_CONTACT_LIST_TYPE);
 
     // Do no retain the Identity secret key after creation of the HALO.
     await this._identityManager.keyring.deleteSecretKey(identityKey);

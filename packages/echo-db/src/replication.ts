@@ -53,7 +53,7 @@ export class ReplicationAdapter {
   ) {
   }
 
-  start (): void {
+  async start () {
     if (this._started) {
       return;
     }
@@ -62,17 +62,19 @@ export class ReplicationAdapter {
     const party = this._party.get();
 
     log('Start', keyToString(party.key));
-    this._networkManager.joinProtocolSwarm(Buffer.from(party.key), ({ channel }: any) => this._createProtocol(channel));
+    return this._networkManager.joinProtocolSwarm(Buffer.from(party.key), ({ channel }: any) => this._createProtocol(channel));
   }
 
-  stop (): void {
+  async stop () {
     if (!this._started) {
       return;
     }
-    log('Stop');
-
-    // TODO(marik-d): Not implmented.
     this._started = false;
+
+    const party = this._party.get();
+    log('Stop', keyToString(party.key));
+
+    return this._networkManager.leaveProtocolSwarm(Buffer.from(party.key));
   }
 
   @synchronized

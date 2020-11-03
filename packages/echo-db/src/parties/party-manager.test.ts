@@ -33,6 +33,7 @@ import { messageLogger } from '../testing';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
+import { HALO_CONTACT_LIST_TYPE } from './party-internal';
 import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:parties:party-manager:test');
@@ -669,5 +670,50 @@ describe('Party manager', () => {
         }
       }
     }
+  });
+
+  test('Contacts', async () => {
+    const { partyManager: partyManagerA, identityManager: identityManagerA } = await setup();
+    const { partyManager: partyManagerB, identityManager: identityManagerB } = await setup();
+    assert(identityManagerA.identityKey);
+    assert(identityManagerB.identityKey);
+
+    await partyManagerA.open();
+    await partyManagerB.open();
+
+    const [updatedA, onUpdateA] = latch();
+    const [updatedB, onUpdateB] = latch();
+
+    identityManagerA?.halo?.itemManager?.queryItems({ type: HALO_CONTACT_LIST_TYPE }).subscribe((value) => {
+      const [list] = value;
+      if (list && list.model.getProperty(identityManagerB?.identityKey?.key)) {
+        onUpdateA();
+      }
+    });
+
+    identityManagerB?.halo?.itemManager?.queryItems({ type: HALO_CONTACT_LIST_TYPE }).subscribe((value) => {
+      const [list] = value;
+      if (list && list.model.getProperty(identityManagerA?.identityKey?.key)) {
+        onUpdateB();
+      }
+    });
+
+    // Create the Party.
+    expect(partyManagerA.parties).toHaveLength(0);
+    const partyA = await partyManagerA.createParty();
+    expect(partyManagerA.parties).toHaveLength(1);
+    log(`Created ${keyToString(partyA.key)}`);
+
+    const invitationDescriptor = await partyA.createOfflineInvitation(identityManagerB.identityKey.publicKey);
+
+    // Redeem the invitation on B.
+    expect(partyManagerB.parties).toHaveLength(0);
+    const partyB = await partyManagerB.joinParty(invitationDescriptor,
+      OfflineInvitationClaimer.createSecretProvider(identityManagerB));
+    expect(partyB).toBeDefined();
+    log(`Joined ${keyToString(partyB.key)}`);
+
+    await updatedA;
+    await updatedB;
   });
 });
