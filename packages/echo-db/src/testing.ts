@@ -56,11 +56,13 @@ export async function createTestInstance ({
 
   if (initialized) {
     await echo.open();
-    const keypair = createKeyPair();
-    await echo.createProfile({
-      ...keypair,
-      identityDisplayName: humanize(keypair.publicKey)
-    });
+    if(!echo.identityKey) {
+      const keypair = createKeyPair();
+      await echo.createProfile({
+        ...keypair,
+        identityDisplayName: humanize(keypair.publicKey)
+      });
+    }
   }
 
   return echo;
