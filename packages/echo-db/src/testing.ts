@@ -56,7 +56,7 @@ export async function createTestInstance ({
 
   if (initialized) {
     await echo.open();
-    if(!echo.identityKey) {
+    if (!echo.identityKey) {
       const keypair = createKeyPair();
       await echo.createProfile({
         ...keypair,
