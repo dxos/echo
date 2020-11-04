@@ -7,8 +7,7 @@ import assert from 'assert';
 import { Event } from '@dxos/async';
 import { PartyKey } from '@dxos/echo-protocol';
 
-import { InvitationDescriptor, SecretProvider } from './invitations';
-import { OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
+import { InvitationDescriptor, SecretProvider, OfflineInvitationClaimer } from './invitations';
 import { PartyFilter, PartyManager, Party, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
 import { ResultSet } from './result';
