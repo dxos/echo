@@ -6,19 +6,21 @@ import assert from 'assert';
 import memdown from 'memdown';
 
 import { Event } from '@dxos/async';
-import { Keyring, KeyStore } from '@dxos/credentials';
+import { Keyring, KeyStore, KeyType } from '@dxos/credentials';
+import { humanize } from '@dxos/crypto';
 import { codec, PartyKey } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
-import { ModelFactory } from '@dxos/model-factory';
+import { ModelConstructor, ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
-import { createStorage, Storage } from '@dxos/random-access-multi-storage';
+import { Storage } from '@dxos/random-access-multi-storage';
 
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { InvitationDescriptor, SecretProvider } from './invitations';
 import { OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
-import { PartyFilter, PartyManager, Party, PartyMember, IdentityManager, PartyFactory } from './parties';
+import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
+import { createRamStorage } from './persistant-ram-storage';
 import { ResultSet } from './result';
 import { SnapshotStore } from './snapshot-store';
 
@@ -63,6 +65,15 @@ export interface EchoCreationOptions {
    * Number of messages after which snapshot will be created. Defaults to 100.
    */
   snapshotInterval?: number
+
+  readLogger?: (msg: any) => void;
+  writeLogger?: (msg: any) => void;
+}
+
+export interface CreateProfileOptions {
+  publicKey?: Buffer
+  secretKey?: Buffer
+  username?: string
 }
 
 /**
@@ -78,61 +89,77 @@ export interface EchoCreationOptions {
  * `Spactime` `Timeframe` (which implements a vector clock).
  */
 export class ECHO {
+  private readonly _partyManager: PartyManager;
+
+  private readonly _feedStore: FeedStore;
+
+  private readonly _keyring: Keyring;
+
+  private readonly _identityManager: IdentityManager;
+
+  private readonly _snapshotStore: SnapshotStore;
+
+  private readonly _networkManager: NetworkManager;
+
+  private readonly _modelFactory: ModelFactory;
+
   /**
    * Creates a new instance of ECHO.
    *
    * Without any parameters will create an in-memory database.
    */
-  static create ({
-    feedStorage = createStorage('temp/feeds', 'ram'),
+  constructor ({
+    feedStorage = createRamStorage(),
     keyStorage = memdown(),
-    snapshotStorage = createStorage('temp/snapshots', 'ram'),
+    snapshotStorage = createRamStorage(),
     swarmProvider = new SwarmProvider(),
     snapshots = true,
-    snapshotInterval = 100
+    snapshotInterval = 100,
+    readLogger,
+    writeLogger
   }: EchoCreationOptions = {}) {
-    const feedStore = new FeedStore(feedStorage, { feedOptions: { valueEncoding: codec } });
-    const feedStoreAdapter = new FeedStoreAdapter(feedStore);
+    this._feedStore = new FeedStore(feedStorage, { feedOptions: { valueEncoding: codec } });
+    const feedStoreAdapter = new FeedStoreAdapter(this._feedStore);
 
     const keyStore = new KeyStore(keyStorage);
-    const identityManager = new IdentityManager(new Keyring(keyStore));
+    this._keyring = new Keyring(keyStore);
+    this._identityManager = new IdentityManager(this._keyring);
 
-    const modelFactory = new ModelFactory()
+    this._modelFactory = new ModelFactory()
       .registerModel(ObjectModel);
 
     const options = {
+      readLogger,
+      writeLogger,
       snapshots,
       snapshotInterval
     };
 
-    const networkManager = new NetworkManager(feedStore, swarmProvider);
-    const snapshotStore = new SnapshotStore(snapshotStorage);
-    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, networkManager, snapshotStore, options);
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
-
-    return new ECHO(partyManager);
+    this._networkManager = new NetworkManager(this._feedStore, swarmProvider);
+    this._snapshotStore = new SnapshotStore(snapshotStorage);
+    const partyFactory = new PartyFactory(this._identityManager, feedStoreAdapter, this._modelFactory, this._networkManager, this._snapshotStore, options);
+    this._partyManager = new PartyManager(this._identityManager, feedStoreAdapter, partyFactory, this._snapshotStore);
   }
 
-  constructor (
-    private readonly _partyManager: PartyManager,
-    private readonly _options: Options = {}
-  ) {}
+  get identityKey () {
+    return this._identityManager.identityKey;
+  }
+
+  get modelFactory () {
+    return this._modelFactory;
+  }
 
   toString () {
     return `Database(${JSON.stringify({
-      parties: this._partyManager.parties.length,
-      options: Object.keys(this._options).length ? this._options : undefined
+      parties: this._partyManager.parties.length
     })})`;
-  }
-
-  get readOnly () {
-    return this._options.readOnly;
   }
 
   /**
    * Opens the pary and constructs the inbound/outbound mutation streams.
    */
   async open () {
+    await this._keyring.load();
     await this._partyManager.open();
   }
 
@@ -140,17 +167,51 @@ export class ECHO {
    * Closes the party and associated streams.
    */
   async close () {
+    await this._networkManager.close();
     await this._partyManager.close();
+  }
+
+  /**
+   * Removes all data and closes this ECHO instance.
+   */
+  async reset () {
+    if (this._feedStore.storage.destroy) {
+      await this._feedStore.storage.destroy();
+    }
+
+    await this._keyring.deleteAllKeyRecords();
+
+    // TODO(marik-d): Delete snapshots.
+
+    await this.close();
+  }
+
+  /**
+   * Create Profile. Add Identity key if public and secret key are provided. Then initializes profile with given username.
+   * If not public and secret key are provided it relies on keyring to contain an identity key.
+   */
+  async createProfile ({ publicKey, secretKey, username }: CreateProfileOptions = {}) {
+    if (publicKey && secretKey) {
+      await this._keyring.addKeyRecord({ publicKey, secretKey, type: KeyType.IDENTITY });
+    }
+
+    if (!this._identityManager.identityKey) {
+      throw new Error('Cannot create profile. Either no keyPair (public and secret key) was provided or cannot read Identity from keyring.');
+    }
+    await this._partyManager.createHalo({
+      identityDisplayName: username || humanize(this._identityManager.identityKey.publicKey)
+    });
+  }
+
+  registerModel (constructor: ModelConstructor<any>): this {
+    this._modelFactory.registerModel(constructor);
+    return this;
   }
 
   /**
    * Creates a new party.
    */
   async createParty (): Promise<Party> {
-    if (this._options.readOnly) {
-      throw new Error('Read-only.');
-    }
-
     await this.open();
 
     const impl = await this._partyManager.createParty();

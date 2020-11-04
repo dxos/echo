@@ -28,6 +28,7 @@ export class FeedStoreAdapter {
     if (!this._feedStore.opened) {
       await this._feedStore.open();
     }
+
     // TODO(telackey): There may be a better way to do this, but at the moment,
     // we don't have any feeds we don't need to be open.
     for await (const descriptor of this._feedStore.getDescriptors()) {

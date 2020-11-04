@@ -52,4 +52,11 @@ export class SnapshotStore {
       await pify(file.close.bind(file))();
     }
   }
+
+  /**
+   * Removes all data.
+   */
+  async clear () {
+    await this._backend.destroy();
+  }
 }

@@ -19,7 +19,7 @@
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --verbose --rootDir=./src",
     "lint": "eslint './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests",
+    "test": "jest --rootDir=./src --verbose --passWithNoTests --testTimeout=10000",
     "prepublishOnly": "npm run test && npm run build",
     "watch": "babel-watch src --out-dir ./dist --source-maps"
   },
