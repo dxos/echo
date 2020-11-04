@@ -192,6 +192,10 @@ export class ECHO {
    */
   async createProfile ({ publicKey, secretKey, username }: CreateProfileOptions = {}) {
     if (publicKey && secretKey) {
+      if (this._identityManager.identityKey) {
+        throw new Error('Identity key already exists. Call createProfile without a keypair to only create a halo party.');
+      }
+
       await this._keyring.addKeyRecord({ publicKey, secretKey, type: KeyType.IDENTITY });
     }
 
