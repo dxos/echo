@@ -1200,10 +1200,19 @@
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
 
-"@dxos/crypto@^1.0.0-beta.1", "@dxos/crypto@^1.0.0-beta.7":
+"@dxos/crypto@^1.0.0-beta.1":
   version "1.0.0-beta.10"
   resolved "https://registry.yarnpkg.com/@dxos/crypto/-/crypto-1.0.0-beta.10.tgz#32933955012b3c5e8de62792affaadee1c257f7c"
   integrity sha512-ydf+xE28BLISWcH+CrrzOHCwCPg8nc8Hi3GgglTzJcpLwbcsirbPzpfdVqJbtlc5XWiw3zou4r/b8naHHcnaBA==
+  dependencies:
+    crypto-js "^3.1.9-1"
+    humanhash "^1.0.4"
+    hypercore-crypto "^1.0.0"
+
+"@dxos/crypto@^1.0.0-beta.12":
+  version "1.0.0-beta.12"
+  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.0-beta.12.tgz#6459639ac717d2c5c83db930ee754b470f23df85"
+  integrity sha512-dq6b0RJ92EzpxO5i0kyXstNWGjlHjtL13Ef2vWS+ROB+om6jZ/zVRC7+WIwgCbA7re1aIME3os0T/dY2sjGVIA==
   dependencies:
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"

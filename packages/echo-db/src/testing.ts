@@ -5,7 +5,7 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { createKeyPair, humanize } from '@dxos/crypto';
+import { createKeyPair } from '@dxos/crypto';
 import { Model } from '@dxos/model-factory';
 import { SwarmProvider } from '@dxos/network-manager';
 import { Storage } from '@dxos/random-access-multi-storage';
@@ -57,11 +57,10 @@ export async function createTestInstance ({
   if (initialized) {
     await echo.open();
     if (!echo.identityKey) {
-      const keypair = createKeyPair();
-      await echo.createProfile({
-        ...keypair,
-        identityDisplayName: humanize(keypair.publicKey)
-      });
+      await echo.createIdentity(createKeyPair());
+    }
+    if (!echo.isHaloInitialized) {
+      await echo.createHalo();
     }
   }
 

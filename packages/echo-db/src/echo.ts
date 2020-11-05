@@ -6,9 +6,9 @@ import assert from 'assert';
 import memdown from 'memdown';
 
 import { Event } from '@dxos/async';
-import { Keyring, KeyStore, KeyType } from '@dxos/credentials';
-import { humanize } from '@dxos/crypto';
-import { codec, PartyKey } from '@dxos/echo-protocol';
+import { KeyRecord, Keyring, KeyStore, KeyType } from '@dxos/credentials';
+import { humanize, KeyPair } from '@dxos/crypto';
+import { PartyKey } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelConstructor, ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
@@ -70,12 +70,6 @@ export interface EchoCreationOptions {
   writeLogger?: (msg: any) => void;
 }
 
-export interface CreateProfileOptions {
-  publicKey?: Buffer
-  secretKey?: Buffer
-  username?: string
-}
-
 /**
  * This is the root object for the ECHO database.
  * It is used to query and mutate the state of all data accessible to the containing node.
@@ -91,7 +85,7 @@ export interface CreateProfileOptions {
 export class ECHO {
   private readonly _partyManager: PartyManager;
 
-  private readonly _feedStore: FeedStore;
+  private readonly _feedStore: FeedStoreAdapter;
 
   private readonly _keyring: Keyring;
 
@@ -118,8 +112,7 @@ export class ECHO {
     readLogger,
     writeLogger
   }: EchoCreationOptions = {}) {
-    this._feedStore = new FeedStore(feedStorage, { feedOptions: { valueEncoding: codec } });
-    const feedStoreAdapter = new FeedStoreAdapter(this._feedStore);
+    this._feedStore = FeedStoreAdapter.create(feedStorage);
 
     const keyStore = new KeyStore(keyStorage);
     this._keyring = new Keyring(keyStore);
@@ -135,18 +128,47 @@ export class ECHO {
       snapshotInterval
     };
 
-    this._networkManager = new NetworkManager(this._feedStore, swarmProvider);
+    this._networkManager = new NetworkManager(this._feedStore.feedStore, swarmProvider);
     this._snapshotStore = new SnapshotStore(snapshotStorage);
-    const partyFactory = new PartyFactory(this._identityManager, feedStoreAdapter, this._modelFactory, this._networkManager, this._snapshotStore, options);
-    this._partyManager = new PartyManager(this._identityManager, feedStoreAdapter, partyFactory, this._snapshotStore);
+    const partyFactory = new PartyFactory(this._identityManager, this._feedStore, this._modelFactory, this._networkManager, this._snapshotStore, options);
+    this._partyManager = new PartyManager(this._identityManager, this._feedStore, partyFactory, this._snapshotStore);
   }
 
-  get identityKey () {
+  get identityKey (): KeyRecord | undefined {
     return this._identityManager.identityKey;
   }
 
-  get modelFactory () {
+  get identityDisplayName (): string | undefined {
+    return this._identityManager.displayName;
+  }
+
+  get isHaloInitialized (): boolean {
+    return !!this._identityManager.halo;
+  }
+
+  get modelFactory (): ModelFactory {
     return this._modelFactory;
+  }
+
+  /**
+   * For devtools.
+   */
+  get keyring (): Keyring {
+    return this._keyring;
+  }
+
+  /**
+   * For devtools.
+   */
+  get feedStore (): FeedStore {
+    return this._feedStore.feedStore;
+  }
+
+  /**
+   * For devtools.
+   */
+  get networkManager (): NetworkManager {
+    return this._networkManager;
   }
 
   toString () {
@@ -181,29 +203,35 @@ export class ECHO {
 
     await this._keyring.deleteAllKeyRecords();
 
-    // TODO(marik-d): Delete snapshots.
+    await this._snapshotStore.clear();
 
     await this.close();
   }
 
   /**
-   * Create Profile. Add Identity key if public and secret key are provided. Then initializes profile with given username.
-   * If not public and secret key are provided it relies on keyring to contain an identity key.
+   * Create Profile. Add Identity key if public and secret key are provided.
    */
-  async createProfile ({ publicKey, secretKey, username }: CreateProfileOptions = {}) {
-    if (publicKey && secretKey) {
-      if (this._identityManager.identityKey) {
-        throw new Error('Identity key already exists. Call createProfile without a keypair to only create a halo party.');
-      }
+  async createIdentity (keyPair: KeyPair) {
+    assert(keyPair.publicKey);
+    assert(keyPair.secretKey);
 
-      await this._keyring.addKeyRecord({ publicKey, secretKey, type: KeyType.IDENTITY });
+    if (this._identityManager.identityKey) {
+      throw new Error('Identity key already exists. Call createProfile without a keypair to only create a halo party.');
     }
 
+    await this._keyring.addKeyRecord({ ...keyPair, type: KeyType.IDENTITY });
+  }
+
+  async createHalo (displayName?: string) {
+    if (this._identityManager.halo) {
+      throw new Error('HALO party already exists');
+    }
     if (!this._identityManager.identityKey) {
-      throw new Error('Cannot create profile. Either no keyPair (public and secret key) was provided or cannot read Identity from keyring.');
+      throw new Error('Cannot create HALO. Identity key not found.');
     }
+
     await this._partyManager.createHalo({
-      identityDisplayName: username || humanize(this._identityManager.identityKey.publicKey)
+      identityDisplayName: displayName || humanize(this._identityManager.identityKey.publicKey)
     });
   }
 

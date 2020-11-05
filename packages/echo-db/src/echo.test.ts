@@ -264,14 +264,16 @@ describe('api tests', () => {
   it('open and create profile', async () => {
     const echo = new ECHO();
     await echo.open();
-    await echo.createProfile({ ...createKeyPair() });
+    await echo.createIdentity(createKeyPair());
+    await echo.createHalo();
     expect(echo.identityKey).toBeDefined();
   });
 
   it('close and open again', async () => {
     const echo = new ECHO();
     await echo.open();
-    await echo.createProfile({ ...createKeyPair() });
+    await echo.createIdentity(createKeyPair());
+    await echo.createHalo();
     expect(echo.identityKey).toBeDefined();
     await echo.close();
 
