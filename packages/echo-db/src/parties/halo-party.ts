@@ -13,7 +13,7 @@ import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 import { ObjectModel } from '@dxos/object-model';
 
 import { Item } from '../items';
-import { PartyInternal } from './party-internal';
+import { PartyActivator, PartyInternal } from './party-internal';
 
 export const HALO_PARTY_DESCRIPTOR_TYPE = 'wrn://dxos.org/item/halo/party-descriptor';
 export const HALO_CONTACT_LIST_TYPE = 'wrn://dxos.org/item/halo/contact-list';
@@ -171,5 +171,27 @@ export class HaloParty {
 
   getContactListItem (): Item<ObjectModel> | undefined {
     return this.itemManager.queryItems({ type: HALO_CONTACT_LIST_TYPE }).value[0];
+  }
+
+  createPartyActivator (partyKey: PublicKey): PartyActivator {
+    return {
+      isActive: () => this.isActive(partyKey),
+      activate: async ({ device, global }) => {
+        if (global) {
+          await this.setGlobalPartyPreference(partyKey, 'active', true);
+        }
+        if (device || (global && device === undefined && !this.isActive(partyKey))) {
+          await this.setDevicePartyPreference(partyKey, 'active', true);
+        }
+      },
+      deactivate: async ({ device, global }) => {
+        if (global) {
+          await this.setGlobalPartyPreference(partyKey, 'active', false);
+        }
+        if (device || (global && device === undefined && this.isActive(partyKey))) {
+          await this.setDevicePartyPreference(partyKey, 'active', false);
+        }
+      }
+    };
   }
 }

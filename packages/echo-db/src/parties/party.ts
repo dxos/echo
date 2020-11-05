@@ -8,7 +8,7 @@ import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 import { InvitationAuthenticator, InvitationOptions } from '../invitations';
 import { Database } from '../items/database';
 import { ResultSet } from '../result';
-import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
+import { PartyInternal, PARTY_ITEM_TYPE, ActivationOptions } from './party-internal';
 
 export interface PartyMember {
   publicKey: PublicKey,
@@ -111,5 +111,17 @@ export class Party {
    */
   async createOfflineInvitation (publicKey: Uint8Array) {
     return this._impl.invitationManager.createOfflineInvitation(publicKey);
+  }
+
+  get isActive () {
+    return this._impl.isActive;
+  }
+
+  async activate (options: ActivationOptions) {
+    return this._impl.activate(options);
+  }
+
+  async deactivate (options: ActivationOptions) {
+    return this._impl.deactivate(options);
   }
 }

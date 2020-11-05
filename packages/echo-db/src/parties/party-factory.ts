@@ -235,7 +235,8 @@ export class PartyFactory {
       pipeline,
       protocol,
       timeframeClock,
-      invitationManager
+      invitationManager,
+      this._identityManager.halo?.createPartyActivator(partyKey)
     );
 
     if (this._options.snapshots) {

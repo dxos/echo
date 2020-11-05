@@ -728,12 +728,12 @@ describe('Party manager', () => {
     expect(partyA.isOpen).toBe(true);
     expect(partyB.isOpen).toBe(true);
 
-    await partyManagerA.deactivate(partyB.key);
+    await partyB.deactivate({ global: true });
 
     expect(partyA.isOpen).toBe(true);
     expect(partyB.isOpen).toBe(false);
 
-    await partyManagerA.activate(partyB.key);
+    await partyB.activate({ global: true });
 
     expect(partyA.isOpen).toBe(true);
     expect(partyB.isOpen).toBe(true);
@@ -755,26 +755,23 @@ describe('Party manager', () => {
     expect(partyManagerA.parties[0].isOpen).toBe(true);
     expect(partyManagerB.parties[0].isOpen).toBe(true);
 
-    await partyManagerA.deactivate(partyManagerA.parties[0].key);
+    await partyManagerA.parties[0].deactivate({ device: true });
+    await waitForCondition(() => !partyManagerA.parties[0].isOpen);
 
     expect(partyManagerA.parties[0].isOpen).toBe(false);
     expect(partyManagerB.parties[0].isOpen).toBe(true);
 
-    await partyManagerA.deactivate(partyManagerA.parties[0].key, true);
+    await partyManagerA.parties[0].deactivate({ global: true });
 
     await waitForCondition(() => !partyManagerB.parties[0].isOpen, 500);
 
     expect(partyManagerA.parties[0].isOpen).toBe(false);
     expect(partyManagerB.parties[0].isOpen).toBe(false);
 
-    await partyManagerB.activate(partyManagerA.parties[0].key, true);
+    await partyManagerA.parties[0].activate({ global: true });
 
-    await waitForCondition(() => partyManagerB.parties[0].isOpen, 500);
+    await waitForCondition(() => partyManagerA.parties[0].isOpen && partyManagerB.parties[0].isOpen, 500);
 
-    expect(partyManagerA.parties[0].isOpen).toBe(false);
-    expect(partyManagerB.parties[0].isOpen).toBe(true);
-
-    await partyManagerA.activate(partyManagerA.parties[0].key, true);
     expect(partyManagerA.parties[0].isOpen).toBe(true);
     expect(partyManagerB.parties[0].isOpen).toBe(true);
   });
