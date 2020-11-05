@@ -254,10 +254,14 @@ export class PartyManager {
         const shouldBeOpen = this._identityManager.halo?.isSubscribed(party.key);
         if (party.isOpen && !shouldBeOpen) {
           log(`Auto-closing unsubscribed party ${keyToString(party.key)}`);
+
           await party.close();
+          this.update.emit(party);
         } else if (!party.isOpen && shouldBeOpen) {
           log(`Auto-opening subscribed party ${keyToString(party.key)}`);
+
           await party.open();
+          this.update.emit(party);
         }
       }
     });
