@@ -77,7 +77,7 @@ export class PartyManager {
     // Iterate descriptors and pre-create Party objects.
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
-        if (!this._identityManager.halo?.isSubscribed(partyKey)) {
+        if (!this._identityManager.halo?.isActive(partyKey)) {
           log(`Skipping unsubscribed party ${keyToString(partyKey)}.`);
         }
 
@@ -209,7 +209,7 @@ export class PartyManager {
     return party;
   }
 
-  async subscribe (partyKey: PublicKey, global = false) {
+  async activate (partyKey: PublicKey, global = false) {
     const party = this._parties.get(partyKey);
     assert(party, `Party ${keyToString(partyKey)} does not exist`);
 
@@ -218,11 +218,11 @@ export class PartyManager {
     }
 
     return global
-      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'subscribed', true)
-      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'subscribed', true);
+      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'active', true)
+      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'active', true);
   }
 
-  async unsubscribe (partyKey: PublicKey, global = false) {
+  async deactivate (partyKey: PublicKey, global = false) {
     const party = this._parties.get(partyKey);
     assert(party, `Party ${keyToString(partyKey)} does not exist`);
 
@@ -231,8 +231,8 @@ export class PartyManager {
     }
 
     return global
-      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'subscribed', false)
-      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'subscribed', false);
+      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'active', false)
+      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'active', false);
   }
 
   // Only call from a @synchronized method.
@@ -251,14 +251,14 @@ export class PartyManager {
 
     this._identityManager.halo!.subscribeToPreferences(async () => {
       for (const party of this._parties.values()) {
-        const shouldBeOpen = this._identityManager.halo?.isSubscribed(party.key);
+        const shouldBeOpen = this._identityManager.halo?.isActive(party.key);
         if (party.isOpen && !shouldBeOpen) {
-          log(`Auto-closing unsubscribed party ${keyToString(party.key)}`);
+          log(`Auto-closing deactivated party ${keyToString(party.key)}`);
 
           await party.close();
           this.update.emit(party);
         } else if (!party.isOpen && shouldBeOpen) {
-          log(`Auto-opening subscribed party ${keyToString(party.key)}`);
+          log(`Auto-opening activated party ${keyToString(party.key)}`);
 
           await party.open();
           this.update.emit(party);

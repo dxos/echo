@@ -92,10 +92,10 @@ export class HaloParty {
     );
   }
 
-  isSubscribed (partyKey: PublicKey | Uint8Array) {
+  isActive (partyKey: PublicKey | Uint8Array) {
     const { preferences } = this;
     const partyPrefs = preferences[keyToString(partyKey)] ?? {};
-    return partyPrefs.subscribed || undefined === partyPrefs.subscribed;
+    return partyPrefs.active || undefined === partyPrefs.active;
   }
 
   public async setGlobalPartyPreference (partyKey: PublicKey, key: string, value: any) {
