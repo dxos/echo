@@ -209,7 +209,6 @@ export class PartyManager {
     return party;
   }
 
-
   // Only call from a @synchronized method.
   private async _setHalo (halo: PartyInternal) {
     assert(halo.itemManager, 'ItemManger is required');

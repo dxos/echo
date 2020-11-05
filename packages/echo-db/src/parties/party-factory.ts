@@ -33,7 +33,7 @@ import { InvitationManager } from '../invitations/invitation-manager';
 import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { SnapshotStore } from '../snapshot-store';
-import {HALO_CONTACT_LIST_TYPE, HALO_DEVICE_PREFERENCES_TYPE, HALO_GENERAL_PREFERENCES_TYPE} from './halo-party';
+import { HALO_CONTACT_LIST_TYPE, HALO_DEVICE_PREFERENCES_TYPE, HALO_GENERAL_PREFERENCES_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
 import {
@@ -422,7 +422,7 @@ export class PartyFactory {
       HALO_DEVICE_PREFERENCES_TYPE,
       undefined,
       { publicKey: deviceKey.publicKey }
-   );
+    );
 
     // Do no retain the Identity secret key after creation of the HALO.
     await this._identityManager.keyring.deleteSecretKey(identityKey);

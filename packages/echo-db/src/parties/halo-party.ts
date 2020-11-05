@@ -3,8 +3,8 @@
 //
 
 import assert from 'assert';
-import defaultsDeep from 'lodash/defaultsDeep';
 import stableStringify from 'json-stable-stringify';
+import defaultsDeep from 'lodash/defaultsDeep';
 
 import { Event } from '@dxos/async';
 import { KeyHint } from '@dxos/credentials';
@@ -92,7 +92,7 @@ export class HaloParty {
     );
   }
 
-  isSubscribed(partyKey: PublicKey | Uint8Array) {
+  isSubscribed (partyKey: PublicKey | Uint8Array) {
     const { preferences } = this;
     const partyPrefs = preferences[keyToString(partyKey)] ?? {};
     return partyPrefs.subscribed || undefined === partyPrefs.subscribed;
@@ -117,14 +117,14 @@ export class HaloParty {
     await preferences.model.setProperty(keyToString(partyKey), partyPrefs);
   }
 
-  getGlobalPreferences() {
+  getGlobalPreferences () {
     const [globalItem] = this.itemManager.queryItems({ type: HALO_GENERAL_PREFERENCES_TYPE }).value;
     return globalItem;
   }
 
-  getDevicePreferences() {
+  getDevicePreferences () {
     const deviceItems = this.itemManager.queryItems({ type: HALO_DEVICE_PREFERENCES_TYPE }).value ?? [];
-    return deviceItems.find(item => Buffer.compare(this._deviceKey,item.model.getProperty('publicKey')) === 0);
+    return deviceItems.find(item => Buffer.compare(this._deviceKey, item.model.getProperty('publicKey')) === 0);
   }
 
   subscribeToPreferences (cb: (preferences: any) => void) {
