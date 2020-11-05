@@ -6,6 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 import ram from 'random-access-memory';
 
+import { sleep } from '@dxos/async';
 import { createPartyGenesisMessage, KeyType, Keyring, generateSeedPhrase, keyPairFromSeedPhrase } from '@dxos/credentials';
 import {
   keyToBuffer,
@@ -715,5 +716,34 @@ describe('Party manager', () => {
 
     await updatedA;
     await updatedB;
+  });
+
+  test('unsubscribe', async () => {
+    const { partyManager: partyManagerA, identityManager: identityManagerA } = await setup();
+    await partyManagerA.open();
+
+    const partyA = await partyManagerA.createParty();
+    const partyB = await partyManagerA.createParty();
+    const partyC = await partyManagerA.createParty();
+
+    expect(partyA.isOpen).toBe(true);
+    expect(partyB.isOpen).toBe(true);
+    expect(partyC.isOpen).toBe(true);
+
+    await identityManagerA.halo?.setDevicePartyPreference(partyB.key, 'subscribed', false);
+
+    await sleep(1000);
+
+    expect(partyA.isOpen).toBe(true);
+    expect(partyB.isOpen).toBe(false);
+    expect(partyC.isOpen).toBe(true);
+
+    await identityManagerA.halo?.setDevicePartyPreference(partyB.key, 'subscribed', true);
+
+    await sleep(1000);
+
+    expect(partyA.isOpen).toBe(true);
+    expect(partyB.isOpen).toBe(true);
+    expect(partyC.isOpen).toBe(true);
   });
 });

@@ -3,10 +3,13 @@
 //
 
 import assert from 'assert';
+import defaultsDeep from 'lodash/defaultsDeep';
+import stableStringify from 'json-stable-stringify';
 
-import { KeyHint, PublicKey } from '@dxos/credentials/dist/es/typedefs';
+import { Event } from '@dxos/async';
+import { KeyHint } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
-import { PartyKey } from '@dxos/echo-protocol';
+import { PartyKey, PublicKey } from '@dxos/echo-protocol';
 import { ObjectModel } from '@dxos/object-model';
 
 import { Item } from '../items';
@@ -14,6 +17,8 @@ import { PartyInternal } from './party-internal';
 
 export const HALO_PARTY_DESCRIPTOR_TYPE = 'wrn://dxos.org/item/halo/party-descriptor';
 export const HALO_CONTACT_LIST_TYPE = 'wrn://dxos.org/item/halo/contact-list';
+export const HALO_GENERAL_PREFERENCES_TYPE = 'wrn://dxos.org/item/halo/preferences';
+export const HALO_DEVICE_PREFERENCES_TYPE = 'wrn://dxos.org/item/halo/device/preferences';
 
 /**
  * A record in HALO party representing a party that user is currently a member of.
@@ -29,7 +34,8 @@ export interface JoinedParty {
 export class HaloParty {
   constructor (
     private readonly _party: PartyInternal,
-    private readonly _identityKey: PublicKey
+    private readonly _identityKey: PublicKey,
+    private readonly _deviceKey: PublicKey
   ) {}
 
   get identityGenesis () {
@@ -61,6 +67,13 @@ export class HaloParty {
     return this._party.itemManager;
   }
 
+  get preferences () {
+    const globalItem = this.getGlobalPreferences();
+    const deviceItem = this.getDevicePreferences();
+
+    return defaultsDeep({}, deviceItem?.model.toObject() ?? {}, globalItem?.model.toObject() ?? {});
+  }
+
   async recordPartyJoining (joinedParty: JoinedParty) {
     assert(this._party.itemManager, 'HALO not open');
     const knownParties = await this._party.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE }).value;
@@ -77,6 +90,73 @@ export class HaloParty {
         hints: joinedParty.keyHints
       }
     );
+  }
+
+  isSubscribed(partyKey: PublicKey | Uint8Array) {
+    const { preferences } = this;
+    const partyPrefs = preferences[keyToString(partyKey)] ?? {};
+    return partyPrefs.subscribed || undefined === partyPrefs.subscribed;
+  }
+
+  public async setGlobalPartyPreference (partyKey: PublicKey, key: string, value: any) {
+    const item = this.getGlobalPreferences();
+    assert(item, 'Global preference item required.');
+    return this._setPartyPreference(item, partyKey, key, value);
+  }
+
+  public async setDevicePartyPreference (partyKey: PublicKey, key: string, value: any) {
+    const item = this.getDevicePreferences();
+    assert(item, 'Device preference item required.');
+    return this._setPartyPreference(item, partyKey, key, value);
+  }
+
+  public async _setPartyPreference (preferences: Item<any>, partyKey: PublicKey, key: string, value: any) {
+    const path = keyToString(partyKey);
+    const partyPrefs = preferences.model.getProperty(path, {});
+    partyPrefs[key] = value;
+    await preferences.model.setProperty(keyToString(partyKey), partyPrefs);
+  }
+
+  getGlobalPreferences() {
+    const [globalItem] = this.itemManager.queryItems({ type: HALO_GENERAL_PREFERENCES_TYPE }).value;
+    return globalItem;
+  }
+
+  getDevicePreferences() {
+    const deviceItems = this.itemManager.queryItems({ type: HALO_DEVICE_PREFERENCES_TYPE }).value ?? [];
+    return deviceItems.find(item => Buffer.compare(this._deviceKey,item.model.getProperty('publicKey')) === 0);
+  }
+
+  subscribeToPreferences (cb: (preferences: any) => void) {
+    const globalResults = this.itemManager.queryItems({ type: HALO_GENERAL_PREFERENCES_TYPE });
+    const deviceResults = this.itemManager.queryItems({ type: HALO_DEVICE_PREFERENCES_TYPE });
+
+    const event = new Event<any>();
+
+    let before = stableStringify(this.preferences);
+
+    const unsubGlobal = globalResults.subscribe(() => {
+      const after = stableStringify(this.preferences);
+      if (before !== after) {
+        before = after;
+        event.emit(this.preferences);
+      }
+    });
+
+    const unsubDev = deviceResults.subscribe(() => {
+      const after = stableStringify(this.preferences);
+      if (before !== after) {
+        before = after;
+        event.emit(this.preferences);
+      }
+    });
+
+    event.on(cb);
+
+    return () => {
+      unsubGlobal();
+      unsubDev();
+    };
   }
 
   subscribeToJoinedPartyList (cb: (parties: JoinedParty[]) => void): () => void {

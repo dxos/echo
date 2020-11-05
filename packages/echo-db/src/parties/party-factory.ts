@@ -33,7 +33,7 @@ import { InvitationManager } from '../invitations/invitation-manager';
 import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { SnapshotStore } from '../snapshot-store';
-import { HALO_CONTACT_LIST_TYPE } from './halo-party';
+import {HALO_CONTACT_LIST_TYPE, HALO_DEVICE_PREFERENCES_TYPE, HALO_GENERAL_PREFERENCES_TYPE} from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
 import {
@@ -357,9 +357,20 @@ export class PartyFactory {
 
     if (!this._identityManager.deviceKey) {
       await this._identityManager.keyring.createKeyRecord({ type: KeyType.DEVICE });
+      assert(this._identityManager.deviceKey);
     }
 
-    return this.joinParty(invitationDescriptor, secretProvider);
+    const halo = await this.joinParty(invitationDescriptor, secretProvider);
+    assert(halo && halo.itemManager, 'Invalid HALO');
+
+    await halo.itemManager.createItem(
+      ObjectModel.meta.type,
+      HALO_DEVICE_PREFERENCES_TYPE,
+      undefined,
+      { publicKey: this._identityManager.deviceKey.publicKey }
+    );
+
+    return halo;
   }
 
   // TODO(telackey): Combine with createParty?
@@ -404,8 +415,14 @@ export class PartyFactory {
 
     // Create special properties item.
     assert(halo.itemManager);
-    await halo.itemManager.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
+    await halo.itemManager.createItem(ObjectModel.meta.type, HALO_GENERAL_PREFERENCES_TYPE);
     await halo.itemManager.createItem(ObjectModel.meta.type, HALO_CONTACT_LIST_TYPE);
+    await halo.itemManager.createItem(
+      ObjectModel.meta.type,
+      HALO_DEVICE_PREFERENCES_TYPE,
+      undefined,
+      { publicKey: deviceKey.publicKey }
+   );
 
     // Do no retain the Identity secret key after creation of the HALO.
     await this._identityManager.keyring.deleteSecretKey(identityKey);
