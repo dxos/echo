@@ -184,7 +184,7 @@ export class ItemManager {
 
     // Create the Item.
     const item = new Item(this._partyKey, itemId, itemType, modelMeta, model, this._writeStream, parent);
-    
+
     if (modelSnapshot) {
       assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
       await model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
