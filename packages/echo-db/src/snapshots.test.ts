@@ -21,7 +21,7 @@ const log = debug('dxos:snapshot:test');
 jest.setTimeout(10000);
 
 test('loading large party', async () => {
-  const echo = await createTestInstance({ initialized: true });
+  const echo = await createTestInstance({ initialize: true });
   const party1 = await echo.createParty();
   const item1 = await party1.database.createItem({ model: ObjectModel });
   for (let i = 0; i < 1_000; i++) {
@@ -46,7 +46,7 @@ test('loading large party', async () => {
 });
 
 test('can produce & serialize a snapshot', async () => {
-  const echo = await createTestInstance({ initialized: true });
+  const echo = await createTestInstance({ initialize: true });
   const party = await echo.createParty();
   const item = await party.database.createItem({ model: ObjectModel, props: { foo: 'foo' } });
   await item.model.setProperty('foo', 'bar');

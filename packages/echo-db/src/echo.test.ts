@@ -17,7 +17,7 @@ import { createTestInstance, inviteTestPeer } from './testing';
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
 const createECHO = async () => {
-  const echo = await createTestInstance({ initialized: true });
+  const echo = await createTestInstance({ initialize: true });
   return echo;
 };
 
@@ -179,8 +179,8 @@ describe('api tests', () => {
   });
 
   test('cold start from replicated party', async () => {
-    const echo1 = await createTestInstance({ initialized: true });
-    const echo2 = await createTestInstance({ initialized: true });
+    const echo1 = await createTestInstance({ initialize: true });
+    const echo2 = await createTestInstance({ initialize: true });
 
     const party1 = await echo1.createParty();
     await inviteTestPeer(party1, echo2);
@@ -255,13 +255,16 @@ describe('api tests', () => {
     expect(echoB.queryContacts().value.length).toBe(1);
   });
 
-  it('open and close', async () => {
+  test('open and close', async () => {
     const echo = new ECHO();
+    expect(echo.isOpen).toBe(false);
     await echo.open();
+    expect(echo.isOpen).toBe(true);
     await echo.close();
+    expect(echo.isOpen).toBe(false);
   });
 
-  it('open and create profile', async () => {
+  test('open and create profile', async () => {
     const echo = new ECHO();
     await echo.open();
     await echo.createIdentity(createKeyPair());
@@ -269,7 +272,7 @@ describe('api tests', () => {
     expect(echo.identityKey).toBeDefined();
   });
 
-  it('close and open again', async () => {
+  test('close and open again', async () => {
     const echo = new ECHO();
     await echo.open();
     await echo.createIdentity(createKeyPair());
@@ -278,6 +281,13 @@ describe('api tests', () => {
     await echo.close();
 
     await echo.open();
+    expect(echo.isOpen).toBe(true);
     expect(echo.identityKey).toBeDefined();
+  });
+
+  test('cant create party on closed echo', async () => {
+    const echo = new ECHO();
+
+    await expect(() => echo.createParty()).rejects.toBeDefined();
   });
 });

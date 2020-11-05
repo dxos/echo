@@ -10,7 +10,7 @@ import { KeyRecord, Keyring, KeyStore, KeyType } from '@dxos/credentials';
 import { humanize, KeyPair } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
-import { ModelConstructor, ModelFactory } from '@dxos/model-factory';
+import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { Storage } from '@dxos/random-access-multi-storage';
@@ -83,8 +83,6 @@ export interface EchoCreationOptions {
  * `Spactime` `Timeframe` (which implements a vector clock).
  */
 export class ECHO {
-  private readonly _partyManager: PartyManager;
-
   private readonly _feedStore: FeedStoreAdapter;
 
   private readonly _keyring: Keyring;
@@ -96,6 +94,8 @@ export class ECHO {
   private readonly _networkManager: NetworkManager;
 
   private readonly _modelFactory: ModelFactory;
+
+  private readonly _partyManager: PartyManager;
 
   /**
    * Creates a new instance of ECHO.
@@ -130,8 +130,24 @@ export class ECHO {
 
     this._networkManager = new NetworkManager(this._feedStore.feedStore, swarmProvider);
     this._snapshotStore = new SnapshotStore(snapshotStorage);
-    const partyFactory = new PartyFactory(this._identityManager, this._feedStore, this._modelFactory, this._networkManager, this._snapshotStore, options);
-    this._partyManager = new PartyManager(this._identityManager, this._feedStore, partyFactory, this._snapshotStore);
+    const partyFactory = new PartyFactory(
+      this._identityManager,
+      this._feedStore,
+      this._modelFactory,
+      this._networkManager,
+      this._snapshotStore,
+      options
+    );
+    this._partyManager = new PartyManager(
+      this._identityManager,
+      this._feedStore,
+      partyFactory,
+      this._snapshotStore
+    );
+  }
+
+  get isOpen () {
+    return this._partyManager.opened;
   }
 
   get identityKey (): KeyRecord | undefined {
@@ -233,11 +249,6 @@ export class ECHO {
     await this._partyManager.createHalo({
       identityDisplayName: displayName || humanize(this._identityManager.identityKey.publicKey)
     });
-  }
-
-  registerModel (constructor: ModelConstructor<any>): this {
-    this._modelFactory.registerModel(constructor);
-    return this;
   }
 
   /**

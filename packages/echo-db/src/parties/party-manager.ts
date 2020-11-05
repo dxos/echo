@@ -242,6 +242,8 @@ export class PartyManager {
   }
 
   private async _updateContactList (party: PartyInternal) {
+    // Prevent any updates after we closed ECHO.
+    // This will get re-run next time echo is loaded so we don't loose any data.
     if (!this._opened) {
       return;
     }

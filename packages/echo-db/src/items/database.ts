@@ -35,12 +35,15 @@ export class Database {
   // TODO(burdon): Get modelType from somewhere other than ObjectModel.meta.type.
   createItem <M extends Model<any>> (options: ItemCreationOptions<M>): Promise<Item<M>> {
     if (!options.model) {
-      throw new TypeError('You must specify the model for this item. For example: `createItem({ model: ObjectModel })`.');
+      throw new TypeError('You must specify the model for this item.');
     }
+
     validateModelClass(options.model);
+
     if (options.type && typeof options.type !== 'string') {
-      throw new TypeError('Optional item type must be a string URL like: `dxos.org/type/messenger/channel`.');
+      throw new TypeError('Optional item type must be a string URL.');
     }
+
     if (options.parent && typeof options.parent !== 'string') {
       throw new TypeError('Optional parent item id must be a string id of an existing item.');
     }

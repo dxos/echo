@@ -21,7 +21,7 @@ const log = debug('dxos:echo:database:test,dxos:*:error');
 
 export interface TestOptions {
   verboseLogging?: boolean
-  initialized?: boolean
+  initialize?: boolean
   storage?: any
   snapshotStorage?: Storage,
   keyStorage?: any
@@ -35,7 +35,7 @@ export interface TestOptions {
  */
 export async function createTestInstance ({
   verboseLogging = false,
-  initialized = false,
+  initialize = false,
   storage = createRamStorage(),
   keyStorage = undefined,
   snapshotStorage = createRamStorage(),
@@ -54,7 +54,7 @@ export async function createTestInstance ({
     writeLogger: verboseLogging ? messageLogger('<<<') : undefined
   });
 
-  if (initialized) {
+  if (initialize) {
     await echo.open();
     if (!echo.identityKey) {
       await echo.createIdentity(createKeyPair());
@@ -95,7 +95,7 @@ export async function inviteTestPeer (party: Party, peer: ECHO): Promise<Party> 
 export async function createSharedTestParty (peerCount = 2): Promise<WithTestMeta<Party>[]> {
   assert(peerCount >= 2);
 
-  const peers = await Promise.all(range(peerCount).map(() => createTestInstance({ initialized: true })));
+  const peers = await Promise.all(range(peerCount).map(() => createTestInstance({ initialize: true })));
 
   const mainParty = await peers[0].createParty();
   await mainParty.open();

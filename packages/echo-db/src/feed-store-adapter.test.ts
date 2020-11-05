@@ -13,11 +13,8 @@ test('close and re-open', async () => {
   await feedStore.open();
 
   const partyKey = randomBytes();
-
   await feedStore.createWritableFeed(partyKey);
-
   await feedStore.close();
-
   await feedStore.open();
 
   expect(feedStore.getPartyKeys()).toHaveLength(1);
