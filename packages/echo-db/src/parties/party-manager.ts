@@ -74,24 +74,27 @@ export class PartyManager {
       }
     }
 
+    // TODO(telackey): Does it make any sense to load other parties if we don't have an HALO?
+
     // Iterate descriptors and pre-create Party objects.
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
-        if (!this._identityManager.halo?.isActive(partyKey)) {
-          log(`Skipping deactivated party ${keyToString(partyKey)}.`);
-        }
-
+        const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
         let party: PartyInternal | undefined;
 
-        const snapshot = await this._snapshotStore.load(partyKey);
-        if (snapshot) {
-          party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
+        if (isActive) {
+          const snapshot = await this._snapshotStore.load(partyKey);
+          if (snapshot) {
+            party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
+          } else {
+            party = await this._partyFactory.constructParty(partyKey);
+          }
+          await party.open();
         } else {
+          // TODO(telackey): This means if we activate it later, we will not be using any snapshots. Is that a problem?
           party = await this._partyFactory.constructParty(partyKey);
         }
 
-        // TODO(telackey): Should parties be auto-opened?
-        await party.open();
         this._setParty(party);
       }
     }
