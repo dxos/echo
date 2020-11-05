@@ -209,6 +209,32 @@ export class PartyManager {
     return party;
   }
 
+  async subscribe (partyKey: PublicKey, global = false) {
+    const party = this._parties.get(partyKey);
+    assert(party, `Party ${keyToString(partyKey)} does not exist`);
+
+    if (!party.isOpen) {
+      await party.open();
+    }
+
+    return global
+      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'subscribed', true)
+      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'subscribed', true);
+  }
+
+  async unsubscribe (partyKey: PublicKey, global = false) {
+    const party = this._parties.get(partyKey);
+    assert(party, `Party ${keyToString(partyKey)} does not exist`);
+
+    if (party.isOpen) {
+      await party.close();
+    }
+
+    return global
+      ? this._identityManager.halo?.setGlobalPartyPreference(partyKey, 'subscribed', false)
+      : this._identityManager.halo?.setDevicePartyPreference(partyKey, 'subscribed', false);
+  }
+
   // Only call from a @synchronized method.
   private async _setHalo (halo: PartyInternal) {
     assert(halo.itemManager, 'ItemManger is required');
