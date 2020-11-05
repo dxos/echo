@@ -51,11 +51,8 @@ export const withSwarm = () => {
         setDatabase(echo);
 
         if(!echo.identityKey) {
-          const keypair = createKeyPair();
-          await echo.createProfile({
-            ...keypair,
-            identityDisplayName: humanize(keypair.publicKey)
-          });
+          await echo.createIdentity(createKeyPair());
+          await echo.createHalo();
         }
       } catch(err) {
         console.error(err)
