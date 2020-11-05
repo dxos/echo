@@ -97,8 +97,9 @@ describe('Party manager', () => {
     expect(party.isOpen).toBeTruthy();
 
     // The Party key is an inception key, so its secret should be destroyed immediately after use.
-    const partyKey = identityManager.keyring.getKey(party.key);
+    const partyKey = identityManager.keyring.getKey(Buffer.from(party.key));
     expect(partyKey).toBeDefined();
+    assert(partyKey);
     expect(identityManager.keyring.hasSecretKey(partyKey)).toBe(false);
 
     await update;
