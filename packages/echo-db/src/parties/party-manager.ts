@@ -78,7 +78,7 @@ export class PartyManager {
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
         if (!this._identityManager.halo?.isActive(partyKey)) {
-          log(`Skipping unsubscribed party ${keyToString(partyKey)}.`);
+          log(`Skipping deactivated party ${keyToString(partyKey)}.`);
         }
 
         let party: PartyInternal | undefined;
