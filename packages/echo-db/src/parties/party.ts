@@ -113,14 +113,27 @@ export class Party {
     return this._impl.invitationManager.createOfflineInvitation(publicKey);
   }
 
+  /**
+   * Is this Party eligible for automatic opening, processing, and replication?
+   */
   get isActive () {
     return this._impl.isActive;
   }
 
+  /**
+   * Activate the Party for automatic opening, processing, and replication.
+   * The Party will be opened if it is currently closed.
+   * @param options
+   */
   async activate (options: ActivationOptions) {
     return this._impl.activate(options);
   }
 
+  /**
+   * Deactivate the Party (ie, disable automatic opening, processing, and replication).
+   * The Party will be closed if it is currently open.
+   * @param options
+   */
   async deactivate (options: ActivationOptions) {
     return this._impl.deactivate(options);
   }
