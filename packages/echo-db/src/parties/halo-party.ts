@@ -135,7 +135,7 @@ export class HaloParty {
 
     let before = stableStringify(this.preferences);
 
-    const unsubGlobal = globalResults.subscribe(() => {
+    const unsubscribeGlobal = globalResults.subscribe(() => {
       const after = stableStringify(this.preferences);
       if (before !== after) {
         before = after;
@@ -143,7 +143,7 @@ export class HaloParty {
       }
     });
 
-    const unsubDev = deviceResults.subscribe(() => {
+    const unsubscribeDevice = deviceResults.subscribe(() => {
       const after = stableStringify(this.preferences);
       if (before !== after) {
         before = after;
@@ -154,8 +154,8 @@ export class HaloParty {
     event.on(cb);
 
     return () => {
-      unsubGlobal();
-      unsubDev();
+      unsubscribeGlobal();
+      unsubscribeDevice();
     };
   }
 
