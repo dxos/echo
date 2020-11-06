@@ -80,20 +80,14 @@ export class PartyManager {
     // Iterate descriptors and pre-create Party objects.
     for (const partyKey of this._feedStore.getPartyKeys()) {
       if (!this._parties.has(partyKey) && !this._isHalo(partyKey)) {
-        const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
-        let party: PartyInternal | undefined;
+        const snapshot = await this._snapshotStore.load(partyKey);
+        const party = snapshot
+          ? await this._partyFactory.constructPartyFromSnapshot(snapshot)
+          : await this._partyFactory.constructParty(partyKey);
 
+        const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
         if (isActive) {
-          const snapshot = await this._snapshotStore.load(partyKey);
-          if (snapshot) {
-            party = await this._partyFactory.constructPartyFromSnapshot(snapshot);
-          } else {
-            party = await this._partyFactory.constructParty(partyKey);
-          }
           await party.open();
-        } else {
-          // TODO(telackey): This means if we activate it later, we will not be using any snapshots. Is that a problem?
-          party = await this._partyFactory.constructParty(partyKey);
         }
 
         this._setParty(party);
