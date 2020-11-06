@@ -17,7 +17,8 @@ import {
   KeyHint,
   Keyring,
   KeyType,
-  keyPairFromSeedPhrase
+  keyPairFromSeedPhrase,
+  wrapMessage
 } from '@dxos/credentials';
 import { humanize, keyToString } from '@dxos/crypto';
 import { FeedKey, PartyKey, createFeedWriter, PartySnapshot, Timeframe } from '@dxos/echo-protocol';
@@ -108,8 +109,8 @@ export class PartyFactory {
     await party.processor.writeHaloMessage(createEnvelopeMessage(
       this._identityManager.keyring,
       partyKey.publicKey,
-      this._identityManager.identityGenesis,
-      partyKey)
+      wrapMessage(this._identityManager.identityGenesis),
+      [partyKey])
     );
 
     // FeedAdmit (signed by the Device KeyChain).
@@ -125,7 +126,7 @@ export class PartyFactory {
       await party.processor.writeHaloMessage(createEnvelopeMessage(
         this._identityManager.keyring,
         partyKey.publicKey,
-        this._identityManager.identityInfo,
+        wrapMessage(this._identityManager.identityInfo),
         [this._identityManager.deviceKeyChain]
       ));
     }
@@ -165,12 +166,15 @@ export class PartyFactory {
     assert(this._identityManager.identityKey, 'No identity key');
     const isHalo = this._identityManager.identityKey.publicKey.equals(partyKey);
 
+    const signingKey = isHalo ? this._identityManager.deviceKey : this._identityManager.deviceKeyChain;
+    assert(signingKey, 'No device key or keychain.');
+
     // Write the Feed genesis message.
     await party.processor.writeHaloMessage(createFeedAdmitMessage(
       this._identityManager.keyring,
       Buffer.from(partyKey),
       feedKey,
-      [isHalo ? this._identityManager.deviceKey : this._identityManager.deviceKeyChain]
+      [signingKey]
     ));
 
     return party;
@@ -285,6 +289,8 @@ export class PartyFactory {
     await initiator.destroy();
 
     if (!haloInvitation) {
+      assert(this._identityManager.deviceKeyChain);
+
       // Copy our signed IdentityInfo into the new Party.
       assert(this._identityManager.halo, 'No HALO');
       const infoMessage = this._identityManager.halo.identityInfo;
@@ -292,7 +298,7 @@ export class PartyFactory {
         await party.processor.writeHaloMessage(createEnvelopeMessage(
           this._identityManager.keyring,
           partyKey,
-          infoMessage,
+          wrapMessage(infoMessage),
           [this._identityManager.deviceKeyChain]
         ));
       }

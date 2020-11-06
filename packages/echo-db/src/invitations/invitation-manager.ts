@@ -36,8 +36,8 @@ export class InvitationManager {
 
     const invitationMessage = createPartyInvitationMessage(
       this._identityManager.keyring,
-      this._partyProcessor.partyKey,
-      publicKey,
+      Buffer.from(this._partyProcessor.partyKey),
+      Buffer.from(publicKey),
       this._identityManager.identityKey,
       this._identityManager.deviceKeyChain
     );

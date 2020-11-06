@@ -187,6 +187,7 @@ export class GreetingResponder {
    */
   async _writeCredentialsToParty (messages: any[]) {
     assert(this._state === GreetingState.CONNECTED);
+    assert(this._identityManager.deviceKeyChain);
 
     // These messages will be self-signed by keys not yet admitted to the Party,, so we cannot check
     // for a trusted key, only that the signatures are valid.
@@ -212,8 +213,7 @@ export class GreetingResponder {
         this._identityManager.keyring,
         Buffer.from(this._partyProcessor.partyKey),
         message,
-        [this._identityManager.deviceKeyChain],
-        null
+        [this._identityManager.deviceKeyChain]
       );
 
       await this._partyProcessor.writeHaloMessage(envelope);

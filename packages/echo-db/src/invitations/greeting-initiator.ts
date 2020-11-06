@@ -15,7 +15,8 @@ import {
   createGreetingNotarizeMessage,
   createKeyAdmitMessage,
   Greeter,
-  GreetingCommandPlugin
+  GreetingCommandPlugin,
+  wrapMessage
 } from '@dxos/credentials';
 import { keyToString } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
@@ -140,6 +141,8 @@ export class GreetingInitiator {
 
     const credentialMessages = [];
     if (haloInvitation) {
+      assert(this._identityManager.deviceKey, 'Device key required');
+
       // For the HALO, add the DEVICE directly.
       credentialMessages.push(
         createKeyAdmitMessage(
@@ -156,17 +159,19 @@ export class GreetingInitiator {
           this._identityManager.keyring,
           partyKey,
           feedKey,
-          this._identityManager.deviceKey,
+          [this._identityManager.deviceKey],
           nonce)
       );
     } else {
+      assert(this._identityManager.deviceKeyChain, 'Device key required');
+
       // For any other Party, add the IDENTITY, signed by the DEVICE keychain, which links back to that IDENTITY.
       credentialMessages.push(
         createEnvelopeMessage(
           this._identityManager.keyring,
           partyKey,
-          this._identityManager.identityGenesis,
-          this._identityManager.deviceKeyChain,
+          wrapMessage(this._identityManager.identityGenesis),
+          [this._identityManager.deviceKeyChain],
           nonce)
       );
 
@@ -176,7 +181,7 @@ export class GreetingInitiator {
           this._identityManager.keyring,
           partyKey,
           feedKey,
-          this._identityManager.deviceKeyChain,
+          [this._identityManager.deviceKeyChain],
           nonce)
       );
     }
