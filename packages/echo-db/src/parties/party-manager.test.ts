@@ -18,12 +18,12 @@ import {
   keyToString,
   humanize
 } from '@dxos/crypto';
-import { codec } from '@dxos/echo-protocol';
+import { codec, EchoEnvelope, Timeframe } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
-import { createWritableFeedStream, latch } from '@dxos/util';
+import { checkType, createWritableFeedStream, latch } from '@dxos/util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationDescriptor, SecretProvider, SecretValidator } from '../invitations';
@@ -36,6 +36,7 @@ import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
 import { PartyManager } from './party-manager';
+import { PARTY_ITEM_TYPE } from './party-internal';
 
 const log = debug('dxos:echo:parties:party-manager:test');
 
@@ -180,6 +181,15 @@ describe('Party manager', () => {
 
       const feedStream = createWritableFeedStream(feed);
       feedStream.write({ halo: createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey) });
+      feedStream.write({ echo: checkType<EchoEnvelope>({ 
+          itemId: 'foo',
+          genesis: {
+            itemType: PARTY_ITEM_TYPE,
+            modelType: ObjectModel.meta.type,
+          },
+          timeframe: new Timeframe(),
+        })
+      })
     }
 
     // Open.
