@@ -3,7 +3,7 @@
 //
 
 import { ModelMutation, MutationMeta } from '@dxos/echo-protocol';
-import { Model, ModelMeta, Codec } from '@dxos/model-factory';
+import { Model, ModelMeta, Codec, ModelType } from '@dxos/model-factory';
 
 const noopCodec: Codec<Uint8Array> = {
   encode: (value: Uint8Array) => value,
@@ -17,6 +17,10 @@ export class UnknownModel extends Model<Uint8Array> {
   }
 
   private _mutations: ModelMutation[] = [];
+
+  public snapshot: Uint8Array | undefined;
+
+  public originalModelType!: ModelType;
 
   get mutations () {
     return this._mutations;

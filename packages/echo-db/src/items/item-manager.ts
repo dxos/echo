@@ -4,6 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
@@ -183,8 +184,12 @@ export class ItemManager {
     const item = new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 
     if (modelSnapshot) {
-      assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
-      await model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
+      if (model instanceof UnknownModel) {
+        model.snapshot = modelSnapshot;
+      } else {
+        assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
+        await model.restoreFromSnapshot(modelMeta.snapshotCodec.decode(modelSnapshot));
+      }
     }
 
     if (initialMutations) {
@@ -197,14 +202,16 @@ export class ItemManager {
     this._items.set(itemId, item);
     log('Constructed:', String(item));
 
-    // Notify Item was udpated.
-    // TODO(burdon): Update the item directly?
-    this._itemUpdate.emit(item);
-
-    // TODO(telackey): Unsubscribe?
-    item.subscribe(() => {
+    if (!(item.model instanceof UnknownModel)) {
+      // Notify Item was udpated.
+      // TODO(burdon): Update the item directly?
       this._itemUpdate.emit(item);
-    });
+
+      // TODO(telackey): Unsubscribe?
+      item.subscribe(() => {
+        this._itemUpdate.emit(item);
+      });
+    }
 
     // Notify pending creates.
     this._pendingItems.get(itemId)?.(item);
@@ -226,6 +233,35 @@ export class ItemManager {
   queryItems <M extends Model<any> = any> (filter: ItemFilter = {}): ResultSet<Item<M>> {
     return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
       .filter(item => !(item.model instanceof UnknownModel) && matchesFilter(item, filter)));
+  }
+
+  getItemsWithUnknownModels (): Item<UnknownModel>[] {
+    return Array.from(this._items.values()).filter(item => item.model instanceof UnknownModel);
+  }
+
+  /**
+   * Reconstruct an item with an unknown model when that model becomes registered.
+   * New model instance is created and streams are reconnected.
+   */
+  async reconstructItemWithUnknownModel (itemId: ItemID, readStream: NodeJS.ReadableStream) {
+    const item = this._items.get(itemId);
+    assert(item);
+    assert(item.model instanceof UnknownModel);
+
+    console.log('reconstruct', itemId);
+
+    this._items.delete(itemId);
+    // Disconnect stream.
+    await pify(item.model.processor.end.bind(item.model.processor))();
+
+    await this.constructItem({
+      itemId,
+      itemType: item.type,
+      modelType: item.model.originalModelType,
+      readStream,
+      initialMutations: item.model.mutations,
+      modelSnapshot: item.model.snapshot
+    });
   }
 }
 

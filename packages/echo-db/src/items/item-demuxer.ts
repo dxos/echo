@@ -40,6 +40,16 @@ export class ItemDemuxer {
   ) {}
 
   open (): NodeJS.WritableStream {
+    this._modelFactory.registered.on(async model => {
+      console.log('regitered', model.meta.type);
+      for (const item of this._itemManager.getItemsWithUnknownModels()) {
+        console.log('unknown', item);
+        if (item.model.originalModelType === model.meta.type) {
+          await this._itemManager.reconstructItemWithUnknownModel(item.id, this._itemStreams.get(item.id)!);
+        }
+      }
+    });
+
     // TODO(burdon): Should this implement some "back-pressure" (hints) to the PartyProcessor?
     return createWritable<IEchoStream>(async (message: IEchoStream) => {
       log('Reading:', JSON.stringify(message, jsonReplacer));
@@ -66,6 +76,9 @@ export class ItemDemuxer {
           readStream: itemStream,
           initialMutations: mutation ? [{ mutation, meta }] : undefined
         });
+        if (item.model instanceof UnknownModel) {
+          item.model.originalModelType = modelType;
+        }
         assert(item.id === itemId);
 
         if (this._options.snapshots) {
@@ -157,7 +170,7 @@ export class ItemDemuxer {
         this._modelMutations.set(item.itemId, item.model.array.mutations ?? []);
       }
 
-      await this._itemManager.constructItem({
+      const newItem = await this._itemManager.constructItem({
         itemId: item.itemId,
         modelType: this._modelFactory.hasModel(item.modelType) ? item.modelType : UnknownModel.meta.type,
         itemType: item.itemType,
@@ -166,6 +179,9 @@ export class ItemDemuxer {
         initialMutations: item.model.array ? item.model.array.mutations : undefined,
         modelSnapshot: item.model.custom ? item.model.custom : undefined
       });
+      if (newItem.model instanceof UnknownModel) {
+        newItem.model.originalModelType = item.modelType;
+      }
     }
   }
 
