@@ -13,6 +13,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 import { TimeframeClock } from './timeframe-clock';
+import { UnknownModel } from './unknown-model';
 
 const log = debug('dxos:echo:item-demuxer:test');
 
@@ -20,7 +21,8 @@ test('set-up', async () => {
   const { publicKey: feedKey } = createKeyPair();
 
   const modelFactory = new ModelFactory()
-    .registerModel(TestModel);
+    .registerModel(TestModel)
+    .registerModel(UnknownModel);
 
   const writeStream = createTransform<EchoEnvelope, IEchoStream>(
     async (message: EchoEnvelope): Promise<IEchoStream> => ({
@@ -35,7 +37,7 @@ test('set-up', async () => {
 
   const timeframeClock = new TimeframeClock();
   const itemManager = new ItemManager(modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
-  const itemDemuxer = new ItemDemuxer(itemManager);
+  const itemDemuxer = new ItemDemuxer(itemManager, modelFactory);
   writeStream.pipe(itemDemuxer.open());
 
   //
@@ -95,7 +97,8 @@ test('set-up', async () => {
 
 it('ignores unknown models', async () => {
   const modelFactory = new ModelFactory()
-    .registerModel(TestModel);
+    .registerModel(TestModel)
+    .registerModel(UnknownModel);
 
   const writeStream = createTransform<EchoEnvelope, IEchoStream>(
     async (message: EchoEnvelope): Promise<IEchoStream> => ({
@@ -109,7 +112,7 @@ it('ignores unknown models', async () => {
   );
   const timeframeClock = new TimeframeClock();
   const itemManager = new ItemManager(modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
-  const itemDemuxer = new ItemDemuxer(itemManager);
+  const itemDemuxer = new ItemDemuxer(itemManager, modelFactory);
   writeStream.pipe(itemDemuxer.open());
 
   writeStream.write(checkType<EchoEnvelope>({
@@ -132,11 +135,12 @@ it('ignores unknown models', async () => {
 
 it('ignores unknown models on snapshot restore', async () => {
   const modelFactory = new ModelFactory()
-    .registerModel(TestModel);
+    .registerModel(TestModel)
+    .registerModel(UnknownModel);
 
   const timeframeClock = new TimeframeClock();
   const itemManager = new ItemManager(modelFactory, timeframeClock);
-  const itemDemuxer = new ItemDemuxer(itemManager);
+  const itemDemuxer = new ItemDemuxer(itemManager, modelFactory);
 
   await itemDemuxer.restoreFromSnapshot({
     items: [

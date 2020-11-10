@@ -18,6 +18,7 @@ import { Storage } from '@dxos/random-access-multi-storage';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { InvitationDescriptor, SecretProvider } from './invitations';
 import { OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
+import { UnknownModel } from './items/unknown-model';
 import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
 import { createRamStorage } from './persistant-ram-storage';
@@ -119,7 +120,8 @@ export class ECHO {
     this._identityManager = new IdentityManager(this._keyring);
 
     this._modelFactory = new ModelFactory()
-      .registerModel(ObjectModel);
+      .registerModel(ObjectModel)
+      .registerModel(UnknownModel);
 
     const options = {
       readLogger,

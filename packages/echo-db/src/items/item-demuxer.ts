@@ -7,11 +7,12 @@ import debug from 'debug';
 import { Readable } from 'stream';
 
 import { DatabaseSnapshot, EchoEnvelope, IEchoStream, ItemID, ItemSnapshot, ModelMutation, ModelSnapshot } from '@dxos/echo-protocol';
-import { Model, ModelMessage } from '@dxos/model-factory';
+import { Model, ModelFactory, ModelMessage } from '@dxos/model-factory';
 import { createReadable, createWritable, jsonReplacer, raise } from '@dxos/util';
 
 import { Item } from './item';
 import { ItemManager } from './item-manager';
+import { UnknownModel } from './unknown-model';
 
 const log = debug('dxos:echo:item-demuxer');
 
@@ -32,13 +33,9 @@ export class ItemDemuxer {
 
   private readonly _itemStreams = new Map<ItemID, Readable>();
 
-  /**
-   * Items that have unknown model type and are ignored.
-   */
-  private readonly _ignoredItems = new Set<ItemID>();
-
   constructor (
     private readonly _itemManager: ItemManager,
+    private readonly _modelFactory: ModelFactory,
     private readonly _options: ItemManagerOptions = {}
   ) {}
 
@@ -49,22 +46,12 @@ export class ItemDemuxer {
       const { data: { itemId, genesis, itemMutation, mutation }, meta } = message;
       assert(itemId);
 
-      if (this._ignoredItems.has(itemId)) {
-        return;
-      }
-
       //
       // New item.
       //
       if (genesis) {
         const { itemType, modelType } = genesis;
         assert(modelType);
-
-        if (!this._itemManager.isModelKnown(modelType)) {
-          console.warn(`Unknown model: '${modelType}'. Skipping item ${itemId}.`);
-          this._ignoredItems.add(itemId);
-          return;
-        }
 
         // Create inbound stream for item.
         const itemStream = createReadable<EchoEnvelope>();
@@ -74,7 +61,7 @@ export class ItemDemuxer {
         // TODO(marik-d): Investigate whether gensis message shoudl be able to set parentId.
         const item = await this._itemManager.constructItem({
           itemId,
-          modelType,
+          modelType: this._modelFactory.hasModel(modelType) ? modelType : UnknownModel.meta.type,
           itemType,
           readStream: itemStream,
           initialMutations: mutation ? [{ mutation, meta }] : undefined
@@ -156,19 +143,7 @@ export class ItemDemuxer {
     const items = snapshot.items ?? [];
     log(`Restoring ${items.length} items from snapshot.`);
 
-    const knownItems = items.filter(item => {
-      assert(item.itemId);
-      assert(item.modelType);
-      if (!this._itemManager.isModelKnown(item.modelType)) {
-        console.warn(`Unknown model: '${item.modelType}'. Skipping item ${item.itemId}.`);
-        this._ignoredItems.add(item.itemId);
-        return false;
-      } else {
-        return true;
-      }
-    });
-
-    for (const item of sortItemsTopologically(knownItems)) {
+    for (const item of sortItemsTopologically(items)) {
       assert(item.itemId);
       assert(item.modelType);
       assert(item.model);
@@ -184,7 +159,7 @@ export class ItemDemuxer {
 
       await this._itemManager.constructItem({
         itemId: item.itemId,
-        modelType: item.modelType,
+        modelType: this._modelFactory.hasModel(item.modelType) ? item.modelType : UnknownModel.meta.type,
         itemType: item.itemType,
         readStream: itemStream,
         parentId: item.parentId,

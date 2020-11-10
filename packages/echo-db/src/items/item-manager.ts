@@ -14,6 +14,7 @@ import { createTransform, timed } from '@dxos/util';
 import { ResultSet } from '../result';
 import { Item } from './item';
 import { TimeframeClock } from './timeframe-clock';
+import { UnknownModel } from './unknown-model';
 
 const log = debug('dxos:echo:item-manager');
 
@@ -67,10 +68,6 @@ export class ItemManager {
         timeframe: this._timeframeClock.timeframe
       }), writeStream);
     }
-  }
-
-  isModelKnown (modelType: ModelType) {
-    return this._modelFactory.hasModel(modelType);
   }
 
   /**
@@ -228,7 +225,7 @@ export class ItemManager {
    */
   queryItems <M extends Model<any> = any> (filter: ItemFilter = {}): ResultSet<Item<M>> {
     return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
-      .filter(item => matchesFilter(item, filter)));
+      .filter(item => !(item.model instanceof UnknownModel) && matchesFilter(item, filter)));
   }
 }
 

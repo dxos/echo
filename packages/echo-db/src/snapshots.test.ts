@@ -66,8 +66,9 @@ test('can produce & serialize a snapshot', async () => {
 
 describe('Database', () => {
   test('restore from empty snapshot', async () => {
-    const itemManager = new ItemManager(new ModelFactory().registerModel(ObjectModel), new TimeframeClock());
-    const itemDemuxer = new ItemDemuxer(itemManager);
+    const modelFactory = new ModelFactory().registerModel(ObjectModel);
+    const itemManager = new ItemManager(modelFactory, new TimeframeClock());
+    const itemDemuxer = new ItemDemuxer(itemManager, modelFactory);
 
     await itemDemuxer.restoreFromSnapshot({});
   });

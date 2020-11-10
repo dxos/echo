@@ -47,7 +47,7 @@ export class Database {
     private readonly _snapshot?: DatabaseSnapshot
   ) {
     this._itemManager = new ItemManager(this._modelFactory, this._timeframeClock, this._outboundStream ?? undefined);
-    this._itemDemuxer = new ItemDemuxer(this._itemManager, { snapshots: true });
+    this._itemDemuxer = new ItemDemuxer(this._itemManager, this._modelFactory, { snapshots: true });
   }
 
   get isReadOnly () {
