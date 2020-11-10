@@ -231,15 +231,15 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
             feed.sendQueue.push(...result.value);
             this._trigger.wake();
           }, (err) => {
-            if(err.message.includes('Feed is closed')) {
+            if (err.message.includes('Feed is closed')) {
               // When feeds are closed the iterator errors with "Feed is closed" error message. This is fine and we can just stop iterating.
               // TODO(marik-d): Should we remove this feed from the set of tracked ones?
               return;
             }
             // TODO(marik-d): Proper error handling.
-            console.error('Feed read error:')
+            console.error('Feed read error:');
             console.error(err);
-          }); 
+          });
       }
     }
   }

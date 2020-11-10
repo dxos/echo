@@ -35,8 +35,8 @@ import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
 import { PartyFactory } from './party-factory';
-import { PartyManager } from './party-manager';
 import { PARTY_ITEM_TYPE } from './party-internal';
+import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:parties:party-manager:test');
 
@@ -181,15 +181,16 @@ describe('Party manager', () => {
 
       const feedStream = createWritableFeedStream(feed);
       feedStream.write({ halo: createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey) });
-      feedStream.write({ echo: checkType<EchoEnvelope>({ 
+      feedStream.write({
+        echo: checkType<EchoEnvelope>({
           itemId: 'foo',
           genesis: {
             itemType: PARTY_ITEM_TYPE,
-            modelType: ObjectModel.meta.type,
+            modelType: ObjectModel.meta.type
           },
-          timeframe: new Timeframe(),
+          timeframe: new Timeframe()
         })
-      })
+      });
     }
 
     // Open.
