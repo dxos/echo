@@ -20,6 +20,7 @@ const log = debug('dxos:echo:item-manager');
 export interface ItemFilter {
   type?: ItemType | ItemType[]
   parent?: ItemID | ItemID[]
+  id?: ItemID | ItemID[]
 }
 
 export interface ItemConstructionOptions {
@@ -236,6 +237,9 @@ function matchesFilter (item: Item<any>, filter: ItemFilter) {
     return false;
   }
   if (filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
+    return false;
+  }
+  if (filter.id && !equalsOrIncludes(item.id, filter.id)) {
     return false;
   }
 

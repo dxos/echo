@@ -121,6 +121,19 @@ export class Database {
     return this._itemManager.getItem(itemId);
   }
 
+  /**
+   * Waits for item matching the filter to be present and returns it.
+   */
+  async waitForItem<T extends Model<any> = any> (filter: ItemFilter): Promise<Item<T>> {
+    const query = this.queryItems(filter);
+    if (query.value.length > 0) {
+      return query.value[0];
+    } else {
+      const [item] = await query.update.waitFor(items => items.length > 0);
+      return item;
+    }
+  }
+
   createSnapshot () {
     this._assertInitialized();
     return this._itemDemuxer.createSnapshot();

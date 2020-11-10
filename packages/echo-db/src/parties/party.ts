@@ -60,9 +60,7 @@ export class Party {
   async open () {
     await this._internal.open();
 
-    if (this.database.queryItems({ type: PARTY_ITEM_TYPE }).value.length === 0) {
-      await this.database.queryItems({ type: PARTY_ITEM_TYPE }).update.waitFor(items => items.length > 0);
-    }
+    await this.database.waitForItem({ type: PARTY_ITEM_TYPE });
   }
 
   /**
