@@ -17,7 +17,6 @@ import { TimeframeClock } from './timeframe-clock';
 const log = debug('dxos:echo:item-demuxer:test');
 
 test('set-up', async () => {
-  const { publicKey: partyKey } = createKeyPair();
   const { publicKey: feedKey } = createKeyPair();
 
   const modelFactory = new ModelFactory()
@@ -35,7 +34,7 @@ test('set-up', async () => {
   );
 
   const timeframeClock = new TimeframeClock();
-  const itemManager = new ItemManager(partyKey, modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
+  const itemManager = new ItemManager(modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
   const itemDemuxer = new ItemDemuxer(itemManager);
   writeStream.pipe(itemDemuxer.open());
 
@@ -109,7 +108,7 @@ it('ignores unknown models', async () => {
     })
   );
   const timeframeClock = new TimeframeClock();
-  const itemManager = new ItemManager(randomBytes(), modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
+  const itemManager = new ItemManager(modelFactory, timeframeClock, createMockFeedWriterFromStream(writeStream));
   const itemDemuxer = new ItemDemuxer(itemManager);
   writeStream.pipe(itemDemuxer.open());
 
@@ -136,7 +135,7 @@ it('ignores unknown models on snapshot restore', async () => {
     .registerModel(TestModel);
 
   const timeframeClock = new TimeframeClock();
-  const itemManager = new ItemManager(randomBytes(), modelFactory, timeframeClock);
+  const itemManager = new ItemManager(modelFactory, timeframeClock);
   const itemDemuxer = new ItemDemuxer(itemManager);
 
   await itemDemuxer.restoreFromSnapshot({

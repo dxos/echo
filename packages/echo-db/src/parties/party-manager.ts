@@ -217,7 +217,6 @@ export class PartyManager {
 
   // Only call from a @synchronized method.
   private async _setHalo (halo: PartyInternal) {
-    assert(halo.itemManager, 'ItemManger is required');
     await this._identityManager.initialize(halo);
 
     this._identityManager.halo!.subscribeToJoinedPartyList(async values => {

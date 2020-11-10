@@ -7,7 +7,7 @@ import debug from 'debug';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, PartyKey } from '@dxos/echo-protocol';
+import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter } from '@dxos/echo-protocol';
 import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
 import { createTransform, timed } from '@dxos/util';
 
@@ -56,7 +56,6 @@ export class ItemManager {
    * @param writeStream Outbound `dxos.echo.IEchoEnvelope` mutation stream.
    */
   constructor (
-     private readonly _partyKey: PartyKey,
      private readonly _modelFactory: ModelFactory,
      private readonly _timeframeClock: TimeframeClock,
      writeStream?: FeedWriter<EchoEnvelope>
@@ -183,7 +182,7 @@ export class ItemManager {
     readStream.pipe(inboundTransform).pipe(model.processor);
 
     // Create the Item.
-    const item = new Item(this._partyKey, itemId, itemType, modelMeta, model, this._writeStream, parent);
+    const item = new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 
     if (modelSnapshot) {
       assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');

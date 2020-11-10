@@ -328,9 +328,8 @@ export class ECHO {
   queryContacts (): ResultSet<Contact> {
     assert(this._partyManager.opened, 'Database not open.');
     assert(this._partyManager.identityManager.halo, 'HALO required.');
-    assert(this._partyManager.identityManager.halo.itemManager, 'ItemManager required.');
 
-    const results = this._partyManager.identityManager.halo.itemManager.queryItems({ type: HALO_CONTACT_LIST_TYPE });
+    const results = this._partyManager.identityManager.halo.database.queryItems({ type: HALO_CONTACT_LIST_TYPE });
 
     const getter = () => {
       const [contactListItem] = results.value;
