@@ -8,7 +8,7 @@ import ram from 'random-access-memory';
 
 import { waitForCondition } from '@dxos/async';
 import { createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
-import { createId, createKeyPair, PublicKey } from '@dxos/crypto';
+import { createId, PublicKey } from '@dxos/crypto';
 import { codec, createFeedWriter, createIterator, FeedSelector, IEchoStream } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { createSetPropertyMutation } from '@dxos/model-factory';
@@ -19,8 +19,6 @@ import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
 const log = debug('dxos:echo:pipeline:test');
-
-const createPublicKey = () => PublicKey.from(createKeyPair().publicKey);
 
 // TODO(burdon): Test read-only.
 describe('pipeline', () => {
@@ -36,12 +34,22 @@ describe('pipeline', () => {
     //
     // Create pipeline.
     //
-    const partyKey = createPublicKey();
-    const partyProcessor = new PartyProcessor(partyKey);
-    await partyProcessor.takeHints([{
-      type: KeyType.FEED,
-      publicKey: feed.key
-    }]);
+    const keyring = new Keyring();
+    const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
+    const identityKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
+    const feedKey = await keyring.createKeyRecord({
+      publicKey: PublicKey.from(feed.key),
+      secretKey: feed.secretKey,
+      type: KeyType.FEED
+    });
+    const partyProcessor = new PartyProcessor(partyKey.publicKey);
+    await partyProcessor.processMessage({
+      data: createPartyGenesisMessage(keyring, partyKey, feedKey, identityKey),
+      meta: {
+        feedKey: feedKey.publicKey.asBuffer(),
+        seq: 0
+      }
+    });
     const pipeline = new Pipeline(partyProcessor, feedReadStream, new TimeframeClock());
     const [readStream] = await pipeline.open();
     expect(readStream).toBeTruthy();
