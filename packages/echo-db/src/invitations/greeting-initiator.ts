@@ -20,7 +20,7 @@ import {
   Message
 } from '@dxos/credentials';
 import { WithTypeUrl } from '@dxos/credentials/dist/es/proto/any';
-import {keyToString, PublicKey} from '@dxos/crypto';
+import { keyToString, PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { NetworkManager } from '@dxos/network-manager';
 

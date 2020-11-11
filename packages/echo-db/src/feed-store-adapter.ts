@@ -5,7 +5,7 @@
 import assert from 'assert';
 import { Feed } from 'hypercore';
 
-import {createId, PublicKey} from '@dxos/crypto';
+import { createId, PublicKey } from '@dxos/crypto';
 import { codec, createIterator, FeedKey, FeedStoreIterator, MessageSelector, PartyKey, Timeframe } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { Storage } from '@dxos/random-access-multi-storage';
@@ -79,11 +79,11 @@ export class FeedStoreAdapter {
 
     // TODO(telackey): 'writable' is true property of the Feed, not just its Descriptor's metadata.
     // Using that real value would be preferable to using metadata, but I think it requires the Feed be open.
-    return this._feedStore.openFeed(createId(), { metadata: { partyKey: partyKey.asUint8Array(), writable: true } } as any);
+    return this._feedStore.openFeed(createId(), { metadata: { partyKey: partyKey.asBuffer(), writable: true } } as any);
   }
 
   createReadOnlyFeed (feedKey: FeedKey, partyKey: PartyKey): Promise<Feed> {
-    return this._feedStore.openFeed(createId(), { key: feedKey.asBuffer(), metadata: { partyKey: partyKey.asUint8Array() } } as any);
+    return this._feedStore.openFeed(createId(), { key: feedKey.asBuffer(), metadata: { partyKey: partyKey.asBuffer() } } as any);
   }
 
   createIterator (partyKey: PartyKey, messageSelector: MessageSelector, initialTimeframe?: Timeframe): Promise<FeedStoreIterator> {
