@@ -19,8 +19,6 @@ const log = debug('dxos:snapshot:test');
 
 jest.setTimeout(10000);
 
-const createPublicKey = () => PublicKey.from(createKeyPair().publicKey);
-
 test('loading large party', async () => {
   const echo = await createTestInstance({ initialize: true });
   const party1 = await echo.createParty();
