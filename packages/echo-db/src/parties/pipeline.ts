@@ -126,8 +126,8 @@ export class Pipeline {
           //
           if (message.echo) {
             this._timeframeClock.updateTimeframe(PublicKey.from(block.key), block.seq);
-            const memberKey = this._partyProcessor.getFeedOwningMember(PublicKey.from(block.key));
-            assert(memberKey);
+            const memberKey = this._partyProcessor.getFeedOwningMember(PublicKey.from(block.key)) ??
+              PublicKey.from(Buffer.alloc(PublicKey.LENGTH));
 
             // Validate messge.
             const { itemId } = message.echo;

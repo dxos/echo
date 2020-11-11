@@ -20,7 +20,7 @@ test('in-memory', async () => {
   expect(await store.load(key2)).toBeUndefined();
 
   const snapshot: PartySnapshot = {
-    partyKey: key1.asUint8Array(),
+    partyKey: key1.asBuffer(),
     database: {
       items: [{
         itemId: createId(),
