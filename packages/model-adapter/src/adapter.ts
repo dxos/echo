@@ -65,7 +65,7 @@ export function createModelAdapter<T extends ClassicModel> (
           credentials: {
             member: PublicKey.from(meta.memberKey),
             feed: PublicKey.from(meta.feedKey),
-            party: PublicKey.from(Buffer.from('00'.repeat(32), 'hex')) // TODO(marik-d): Use actual party key here.
+            party: PublicKey.from(Buffer.alloc(PublicKey.LENGTH, 0))
           }
         }
       };
