@@ -63,9 +63,9 @@ export function createModelAdapter<T extends ClassicModel> (
         ...decoded,
         __meta: {
           credentials: {
-            member: PublicKey.from(meta.memberKey),
-            feed: PublicKey.from(meta.feedKey),
-            party: PublicKey.from(Buffer.alloc(PublicKey.LENGTH, 0))
+            member: Buffer.from(meta.memberKey),
+            feed: Buffer.from(meta.feedKey),
+            party: Buffer.alloc(PublicKey.LENGTH, 0)
           }
         }
       };
