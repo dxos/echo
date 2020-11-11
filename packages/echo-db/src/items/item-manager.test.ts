@@ -4,7 +4,7 @@
 
 import ram from 'random-access-memory';
 
-import { createKeyPair } from '@dxos/crypto';
+import { createKeyPair, PublicKey } from '@dxos/crypto';
 import { createFeedWriter } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
@@ -21,7 +21,7 @@ describe('items', () => {
     const { publicKey: partyKey } = createKeyPair();
 
     const modelFactory = new ModelFactory();
-    const itemManager = new ItemManager(partyKey, modelFactory, new TimeframeClock(), createFeedWriter(feed));
+    const itemManager = new ItemManager(PublicKey.from(partyKey), modelFactory, new TimeframeClock(), createFeedWriter(feed));
     expect(itemManager).toBeTruthy();
   });
 });

@@ -6,7 +6,7 @@ import assert from 'assert';
 import debug from 'debug';
 
 import { waitForCondition } from '@dxos/async';
-import { randomBytes } from '@dxos/crypto';
+import { createKeyPair, PublicKey } from '@dxos/crypto';
 import { schema } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { ObjectModel, ValueUtil } from '@dxos/object-model';
@@ -19,6 +19,8 @@ import { createTestInstance } from './testing';
 const log = debug('dxos:snapshot:test');
 
 jest.setTimeout(10000);
+
+const createPublicKey = () => PublicKey.from(createKeyPair().publicKey);
 
 test('loading large party', async () => {
   const echo = await createTestInstance({ initialize: true });
@@ -67,7 +69,7 @@ test('can produce & serialize a snapshot', async () => {
 
 describe('Database', () => {
   test('restore from empty snapshot', async () => {
-    const itemManager = new ItemManager(randomBytes(), new ModelFactory().registerModel(ObjectModel), new TimeframeClock());
+    const itemManager = new ItemManager(createPublicKey(), new ModelFactory().registerModel(ObjectModel), new TimeframeClock());
     const itemDemuxer = new ItemDemuxer(itemManager);
 
     await itemDemuxer.restoreFromSnapshot({});

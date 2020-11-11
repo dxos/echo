@@ -8,7 +8,7 @@ import ram from 'random-access-memory';
 
 import { waitForCondition } from '@dxos/async';
 import { createPartyGenesisMessage, Keyring, KeyType } from '@dxos/credentials';
-import { createId, createKeyPair } from '@dxos/crypto';
+import { createId, createKeyPair, PublicKey } from '@dxos/crypto';
 import { codec, createFeedWriter, createIterator, FeedSelector, IEchoStream } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { createSetPropertyMutation } from '@dxos/model-factory';
@@ -19,6 +19,8 @@ import { PartyProcessor } from './party-processor';
 import { Pipeline } from './pipeline';
 
 const log = debug('dxos:echo:pipeline:test');
+
+const createPublicKey = () => PublicKey.from(createKeyPair().publicKey);
 
 // TODO(burdon): Test read-only.
 describe('pipeline', () => {
@@ -34,7 +36,7 @@ describe('pipeline', () => {
     //
     // Create pipeline.
     //
-    const { publicKey: partyKey } = createKeyPair();
+    const partyKey = createPublicKey();
     const partyProcessor = new PartyProcessor(partyKey);
     await partyProcessor.takeHints([{
       type: KeyType.FEED,
@@ -82,7 +84,7 @@ describe('pipeline', () => {
     const partyProcessor = new PartyProcessor(partyKey.publicKey);
     await partyProcessor.takeHints([{
       type: KeyType.FEED,
-      publicKey: feedKey.publicKey
+      publicKey: feedKey.publicKey.asUint8Array()
     }]);
     const pipeline = new Pipeline(
       partyProcessor,

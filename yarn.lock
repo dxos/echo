@@ -1209,10 +1209,10 @@
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
 
-"@dxos/crypto@^1.0.0-beta.12":
-  version "1.0.0-beta.12"
-  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.0-beta.12.tgz#6459639ac717d2c5c83db930ee754b470f23df85"
-  integrity sha512-dq6b0RJ92EzpxO5i0kyXstNWGjlHjtL13Ef2vWS+ROB+om6jZ/zVRC7+WIwgCbA7re1aIME3os0T/dY2sjGVIA==
+"@dxos/crypto@^1.0.3", "@dxos/crypto@^1.0.3-beta.12":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@dxos/crypto/-/crypto-1.0.3.tgz#9c8ac95a90cfa3cccf551340b0e8ecc0303d4e1e"
+  integrity sha512-77Rqx0xU97VqB7Y8/U0UPL7UJObxdBXmbO/WxDgaf38w+SZ5rG9MdaCT5HWdKJEj+ohhkW8x8Y1Co1O9/knIAw==
   dependencies:
     crypto-js "^3.1.9-1"
     humanhash "^1.0.4"

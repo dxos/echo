@@ -193,7 +193,7 @@ export class PartyInternal {
   createSnapshot (): PartySnapshot {
     assert(this._itemDemuxer, 'Party not open.');
     return {
-      partyKey: this.key,
+      partyKey: this.key.asUint8Array(),
       timeframe: this._timeframeClock.timeframe,
       timestamp: Date.now(),
       database: this._itemDemuxer.createSnapshot(),

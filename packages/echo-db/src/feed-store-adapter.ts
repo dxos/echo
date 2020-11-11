@@ -61,7 +61,7 @@ export class FeedStoreAdapter {
   }
 
   getFeed (feedKey: FeedKey): Feed | undefined {
-    const descriptor = this._feedStore.getDescriptors().find(descriptor => descriptor.key.equals(feedKey));
+    const descriptor = this._feedStore.getDescriptors().find(descriptor => feedKey.equals(descriptor.key));
     return descriptor?.feed;
   }
 
@@ -69,29 +69,27 @@ export class FeedStoreAdapter {
     // TODO(telackey): 'writable' is true property of the Feed, not just its Descriptor's metadata.
     // Using that real value would be preferable to using metadata, but I think it requires the Feed be open.
     const descriptor = this._feedStore.getDescriptors()
-      .find(descriptor => descriptor.metadata.partyKey.equals(partyKey) && descriptor.metadata.writable);
+      .find(descriptor => partyKey.equals(descriptor.metadata.partyKey) && descriptor.metadata.writable);
     return descriptor?.feed;
   }
 
   createWritableFeed (partyKey: PartyKey): Promise<Feed> {
     // TODO(marik-d): Something is wrong here; Buffer should be a subclass of Uint8Array but it isn't here.
-    assert(partyKey instanceof Uint8Array || Buffer.isBuffer(partyKey));
     assert(!this.queryWritableFeed(partyKey), 'Writable feed already exists');
 
     // TODO(telackey): 'writable' is true property of the Feed, not just its Descriptor's metadata.
     // Using that real value would be preferable to using metadata, but I think it requires the Feed be open.
-    return this._feedStore.openFeed(createId(), { metadata: { partyKey, writable: true } } as any);
+    return this._feedStore.openFeed(createId(), { metadata: { partyKey: partyKey.asBuffer(), writable: true } } as any);
   }
 
   createReadOnlyFeed (feedKey: FeedKey, partyKey: PartyKey): Promise<Feed> {
-    assert(partyKey instanceof Uint8Array || Buffer.isBuffer(partyKey));
-    return this._feedStore.openFeed(createId(), { key: Buffer.from(feedKey), metadata: { partyKey } } as any);
+    return this._feedStore.openFeed(createId(), { key: feedKey.asBuffer(), metadata: { partyKey: partyKey.asBuffer() } } as any);
   }
 
   createIterator (partyKey: PartyKey, messageSelector: MessageSelector, initialTimeframe?: Timeframe): Promise<FeedStoreIterator> {
     return createIterator(
       this._feedStore,
-      descriptor => descriptor.metadata.partyKey.equals(partyKey),
+      descriptor => partyKey.equals(descriptor.metadata.partyKey),
       messageSelector,
       initialTimeframe
     );

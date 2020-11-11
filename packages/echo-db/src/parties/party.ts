@@ -2,8 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import { humanize } from '@dxos/crypto';
-import { PartyKey, PublicKey } from '@dxos/echo-protocol';
+import { PublicKey } from '@dxos/crypto';
+import { PartyKey } from '@dxos/echo-protocol';
 
 import { InvitationAuthenticator, InvitationOptions } from '../invitations';
 import { Database } from '../items/database';
@@ -29,7 +29,7 @@ export class Party {
   }
 
   toString () {
-    return `Party(${JSON.stringify({ key: humanize(this.key), open: this.isOpen })})`;
+    return `Party(${JSON.stringify({ key: this.key, open: this.isOpen })})`;
   }
 
   get key (): PartyKey {
@@ -48,7 +48,7 @@ export class Party {
     return new ResultSet(
       this._impl.processor.keyOrInfoAdded.discardParameter(),
       () => this._impl.processor.memberKeys
-        .filter(publicKey => Buffer.compare(this._impl.processor.partyKey, publicKey) !== 0)
+        .filter(publicKey => !this._impl.processor.partyKey.equals(publicKey))
         .map((publicKey: PublicKey) => {
           const displayName = this._impl.processor.getMemberInfo(publicKey)?.displayName;
           return {
@@ -109,7 +109,7 @@ export class Party {
   /**
    * Creates an offline invitation for a known remote peer.
    */
-  async createOfflineInvitation (publicKey: Uint8Array) {
+  async createOfflineInvitation (publicKey: PublicKey) {
     return this._impl.invitationManager.createOfflineInvitation(publicKey);
   }
 

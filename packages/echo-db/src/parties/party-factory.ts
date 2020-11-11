@@ -20,7 +20,7 @@ import {
   keyPairFromSeedPhrase,
   wrapMessage
 } from '@dxos/credentials';
-import { humanize, keyToString } from '@dxos/crypto';
+import { humanize, keyToString, PublicKey } from '@dxos/crypto';
 import { FeedKey, PartyKey, createFeedWriter, PartySnapshot, Timeframe } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
@@ -156,7 +156,7 @@ export class PartyFactory {
     const party = await this.constructParty(partyKey, [
       {
         type: feedKey.type,
-        publicKey: feedKey.publicKey
+        publicKey: feedKey.publicKey.asUint8Array()
       },
       ...hints
     ]);
@@ -189,7 +189,7 @@ export class PartyFactory {
     // TODO(marik-d): Support read-only parties if this feed doesn't exist?
     // TODO(marik-d): Verify that this feed is admitted.
     const feed = this._feedStore.queryWritableFeed(partyKey);
-    assert(feed, `Feed not found for party: ${keyToString(partyKey)}`);
+    assert(feed, `Feed not found for party: ${partyKey.toHex()}`);
 
     //
     // Create the pipeline.
@@ -224,7 +224,7 @@ export class PartyFactory {
       this._feedStore,
       partyKey,
       partyProcessor.getActiveFeedSet(),
-      this._createCredentialsProvider(partyKey, feed?.key),
+      this._createCredentialsProvider(partyKey, PublicKey.from(feed?.key)),
       partyProcessor.authenticator,
       invitationManager
     );
@@ -254,7 +254,7 @@ export class PartyFactory {
     assert(snapshot.partyKey);
     log(`Constructing ${humanize(snapshot.partyKey)} from snapshot at ${JSON.stringify(snapshot.timeframe)}.`);
 
-    const party = await this.constructParty(snapshot.partyKey, [], snapshot.timeframe);
+    const party = await this.constructParty(PublicKey.from(snapshot.partyKey), [], snapshot.timeframe);
     await party.restoreFromSnapshot(snapshot);
     return party;
   }
@@ -316,7 +316,7 @@ export class PartyFactory {
 
     const feedKey = this._identityManager.keyring.getKey(feed.key) ??
       await this._identityManager.keyring.addKeyRecord({
-        publicKey: feed.key,
+        publicKey: PublicKey.from(feed.key),
         secretKey: feed.secretKey,
         type: KeyType.FEED
       });
@@ -329,7 +329,11 @@ export class PartyFactory {
     assert(!this._identityManager.identityKey, 'Identity key already exists.');
 
     const recoveredKeyPair = keyPairFromSeedPhrase(seedPhrase);
-    await this._identityManager.keyring.addKeyRecord({ ...recoveredKeyPair, type: KeyType.IDENTITY });
+    await this._identityManager.keyring.addKeyRecord({
+      publicKey: PublicKey.from(recoveredKeyPair.publicKey),
+      secretKey: recoveredKeyPair.secretKey,
+      type: KeyType.IDENTITY
+    });
 
     const recoverer = new HaloRecoveryInitiator(this._networkManager, this._identityManager);
     await recoverer.connect();
@@ -438,13 +442,13 @@ export class PartyFactory {
 
   private _createCredentialsProvider (partyKey: PartyKey, feedKey: FeedKey) {
     return {
-      get: () => Authenticator.encodePayload(createAuthMessage(
+      get: () => Buffer.from(Authenticator.encodePayload(createAuthMessage(
         this._identityManager.keyring,
-        Buffer.from(partyKey),
+        partyKey,
         this._identityManager.identityKey ?? raise(new Error('No identity key')),
         this._identityManager.deviceKeyChain ?? this._identityManager.deviceKey ?? raise(new Error('No device key')),
-        this._identityManager.keyring.getKey(Buffer.from(feedKey))
-      ))
+        this._identityManager.keyring.getKey(feedKey)
+      )))
     };
   }
 
@@ -453,8 +457,8 @@ export class PartyFactory {
     assert(this._identityManager.halo, 'HALO is required.');
 
     const keyHints: KeyHint[] = [
-      ...party.processor.memberKeys.map(publicKey => ({ publicKey, type: KeyType.UNKNOWN })),
-      ...party.processor.feedKeys.map(publicKey => ({ publicKey, type: KeyType.FEED }))
+      ...party.processor.memberKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.UNKNOWN })),
+      ...party.processor.feedKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.FEED }))
     ];
     await this._identityManager.halo.recordPartyJoining({
       partyKey: party.key,
