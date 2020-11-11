@@ -4,10 +4,10 @@
 
 import BJSON from 'buffer-json';
 
+import { PublicKey } from '@dxos/crypto';
 import { FeedWriter, ItemID, MutationMeta } from '@dxos/echo-protocol';
 import { Model, ModelConstructor, ModelMeta } from '@dxos/model-factory';
 
-import { PublicKey } from '../../../../crypto/src';
 import { schema } from './proto/gen';
 import { Mutation } from './proto/gen/dxos/echo/adapter';
 
