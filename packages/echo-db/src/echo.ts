@@ -18,6 +18,7 @@ import { Storage } from '@dxos/random-access-multi-storage';
 import { FeedStoreAdapter } from './feed-store-adapter';
 import { InvitationDescriptor, SecretProvider } from './invitations';
 import { OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
+import { UnknownModel } from './items/unknown-model';
 import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
 import { createRamStorage } from './persistant-ram-storage';
@@ -119,7 +120,8 @@ export class ECHO {
     this._identityManager = new IdentityManager(this._keyring);
 
     this._modelFactory = new ModelFactory()
-      .registerModel(ObjectModel);
+      .registerModel(ObjectModel)
+      .registerModel(UnknownModel);
 
     const options = {
       readLogger,
@@ -148,6 +150,10 @@ export class ECHO {
 
   get isOpen () {
     return this._partyManager.opened;
+  }
+
+  get identityReady () {
+    return this._identityManager.ready;
   }
 
   get identityKey (): KeyRecord | undefined {
@@ -269,7 +275,7 @@ export class ECHO {
    * @param {PartyKey} partyKey
    */
   getParty (partyKey: PartyKey): Party | undefined {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
 
     const impl = this._partyManager.parties.find(party => party.key.equals(partyKey));
     return impl && new Party(impl);
@@ -281,7 +287,7 @@ export class ECHO {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   queryParties (filter?: PartyFilter): ResultSet<Party> {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
 
     return new ResultSet(this._partyManager.update.discardParameter(), () => this._partyManager.parties.map(impl => new Party(impl)));
   }
@@ -292,7 +298,7 @@ export class ECHO {
    * @param secretProvider
    */
   async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider?: SecretProvider): Promise<Party> {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
 
     const actualSecretProvider = secretProvider ?? OfflineInvitationClaimer.createSecretProvider(this._partyManager.identityManager);
 
@@ -304,7 +310,7 @@ export class ECHO {
    * Joins an existing Identity HALO by invitation.
    */
   async joinHalo (invitationDescriptor: InvitationDescriptor, secretProvider: SecretProvider) {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
     assert(!this._partyManager.identityManager.halo, 'HALO already exists.');
 
     const impl = await this._partyManager.joinHalo(invitationDescriptor, secretProvider);
@@ -315,7 +321,7 @@ export class ECHO {
    * Joins an existing Identity HALO from a recovery seed phrase.
    */
   async recoverHalo (seedPhrase: string) {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
     assert(!this._partyManager.identityManager.halo, 'HALO already exists.');
     assert(!this._partyManager.identityManager.identityKey, 'Identity key already exists.');
 
@@ -327,11 +333,10 @@ export class ECHO {
    * Query for contacts.  Contacts represent member keys across all known Parties.
    */
   queryContacts (): ResultSet<Contact> {
-    assert(this._partyManager.opened, 'Database not open.');
+    assert(this._partyManager.opened, 'ECHO not open.');
     assert(this._partyManager.identityManager.halo, 'HALO required.');
-    assert(this._partyManager.identityManager.halo.itemManager, 'ItemManager required.');
 
-    const results = this._partyManager.identityManager.halo.itemManager.queryItems({ type: HALO_CONTACT_LIST_TYPE });
+    const results = this._partyManager.identityManager.halo.database.queryItems({ type: HALO_CONTACT_LIST_TYPE });
 
     const getter = () => {
       const [contactListItem] = results.value;

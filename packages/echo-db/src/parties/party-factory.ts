@@ -132,8 +132,7 @@ export class PartyFactory {
     }
 
     // Create special properties item.
-    assert(party.itemManager);
-    await party.itemManager.createItem(ObjectModel.meta.type, PARTY_ITEM_TYPE);
+    await party.database.createItem({ model: ObjectModel, type: PARTY_ITEM_TYPE });
 
     // The Party key is an inception key; its SecretKey must be destroyed once the Party has been created.
     await this._identityManager.keyring.deleteSecretKey(partyKey);
@@ -371,14 +370,11 @@ export class PartyFactory {
     }
 
     const halo = await this.joinParty(invitationDescriptor, secretProvider);
-    assert(halo && halo.itemManager, 'Invalid HALO');
-
-    await halo.itemManager.createItem(
-      ObjectModel.meta.type,
-      HALO_DEVICE_PREFERENCES_TYPE,
-      undefined,
-      { publicKey: this._identityManager.deviceKey.publicKey.asBuffer() }
-    );
+    await halo.database.createItem({
+      model: ObjectModel,
+      type: HALO_DEVICE_PREFERENCES_TYPE,
+      props: { publicKey: this._identityManager.deviceKey.publicKey.asBuffer() }
+    });
 
     return halo;
   }
@@ -424,15 +420,13 @@ export class PartyFactory {
     }
 
     // Create special properties item.
-    assert(halo.itemManager);
-    await halo.itemManager.createItem(ObjectModel.meta.type, HALO_GENERAL_PREFERENCES_TYPE);
-    await halo.itemManager.createItem(ObjectModel.meta.type, HALO_CONTACT_LIST_TYPE);
-    await halo.itemManager.createItem(
-      ObjectModel.meta.type,
-      HALO_DEVICE_PREFERENCES_TYPE,
-      undefined,
-      { publicKey: deviceKey.publicKey.asBuffer() }
-    );
+    await halo.database.createItem({ model: ObjectModel, type: HALO_GENERAL_PREFERENCES_TYPE });
+    await halo.database.createItem({ model: ObjectModel, type: HALO_CONTACT_LIST_TYPE });
+    await halo.database.createItem({
+      model: ObjectModel,
+      type: HALO_DEVICE_PREFERENCES_TYPE,
+      props: { publicKey: deviceKey.publicKey.asBuffer() }
+    });
 
     // Do no retain the Identity secret key after creation of the HALO.
     await this._identityManager.keyring.deleteSecretKey(identityKey);

@@ -14,7 +14,8 @@ import { Trigger } from '@dxos/util';
 import { Timeframe } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 
-const log = debug('dxos:echo:feed-store-iterator');
+const log = debug('dxos:echo:feed-store-iterator:log');
+const warn = debug('dxos:echo:feed-store-iterator:warn');
 
 // TODO(burdon): Redesign FeedStore:
 // - event handlers
@@ -66,7 +67,7 @@ export async function createIterator (
   });
 
   iterator.stalled.on(candidates => {
-    console.warn(`Feed store reader stalled: no message candidates were accepted after ${STALL_TIMEOUT}ms timeout.\nCurrent candidates:`, candidates);
+    warn(`Feed store reader stalled: no message candidates were accepted after ${STALL_TIMEOUT}ms timeout.\nCurrent candidates:`, candidates);
   });
 
   return iterator;
@@ -230,7 +231,16 @@ export class FeedStoreIterator implements AsyncIterable<FeedBlock> {
             assert(!result.done);
             feed.sendQueue.push(...result.value);
             this._trigger.wake();
-          }, console.error); // TODO(marik-d): Proper error handling.
+          }, (err) => {
+            if (err.message.includes('Feed is closed')) {
+              // When feeds are closed the iterator errors with "Feed is closed" error message. This is fine and we can just stop iterating.
+              // TODO(marik-d): Should we remove this feed from the set of tracked ones?
+              return;
+            }
+            // TODO(marik-d): Proper error handling.
+            console.error('Feed read error:');
+            console.error(err);
+          });
       }
     }
   }
