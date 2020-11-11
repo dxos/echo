@@ -79,7 +79,7 @@ describe('feed store iterator', () => {
     const feeds = new ComplexMap<FeedKey, hypercore.Feed>(key => key.toHex());
     for await (const i of Array.from({ length: config.numFeeds }, (_, i) => i + 1)) {
       const feed = await feedStore.openFeed(`feed-${i}`);
-      feeds.set(feed.key, feed);
+      feeds.set(PublicKey.from(feed.key), feed);
     }
 
     log(JSON.stringify({
@@ -161,7 +161,7 @@ describe('feed store iterator', () => {
     await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '0' });
     await pify(feed2.append.bind(feed2))({ key: 'feed2', value: '1' });
 
-    const iterator = await createIterator(feedStore, undefined, undefined, new Timeframe([[feed1.key, 0]]));
+    const iterator = await createIterator(feedStore, undefined, undefined, new Timeframe([[PublicKey.from(feed1.key), 0]]));
 
     const [counter, updateCounter] = latch(3);
     const messages: any[] = [];
