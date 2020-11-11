@@ -167,7 +167,7 @@ export class HaloParty {
     const result = this.itemManager.queryItems({ type: HALO_PARTY_DESCRIPTOR_TYPE });
     return result.subscribe(async (values) => {
       cb(values.map(partyDesc => ({
-        partyKey: partyDesc.model.getProperty('publicKey'),
+        partyKey: PublicKey.from(partyDesc.model.getProperty('publicKey')),
         keyHints: Object.values(partyDesc.model.getProperty('hints')) as KeyHint[]
       })));
     });

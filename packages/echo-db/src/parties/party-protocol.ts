@@ -154,11 +154,11 @@ export class PartyProtocol {
         // TODO(marik-d): Why does this do side effects.
         // TODO(burdon): Remove need for external closure (i.e., pass object to this callback).
         protocol.setContext({ topic: this._partyKey.toHex() });
-        return this._partyKey;
+        return this._partyKey.asBuffer();
       }
     })
       .setSession({
-        peerId: this._identityManager.deviceKey.publicKey,
+        peerId: this._identityManager.deviceKey.publicKey.asBuffer(),
         // TODO(telackey): This ought to be the CredentialsProvider itself, so that fresh credentials can be minted.
         credentials: this._credentials.get().toString('base64')
       })

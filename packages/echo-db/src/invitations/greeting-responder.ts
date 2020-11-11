@@ -60,7 +60,7 @@ export class GreetingResponder {
     private readonly _partyProcessor: PartyProcessor
   ) {
     this._greeter = new Greeter(
-      Buffer.from(this._partyProcessor.partyKey),
+      this._partyProcessor.partyKey,
       async (messages: any) => this._writeCredentialsToParty(messages),
       async () => this._gatherHints()
     );
@@ -211,7 +211,7 @@ export class GreetingResponder {
 
       const envelope = createEnvelopeMessage(
         this._identityManager.keyring,
-        Buffer.from(this._partyProcessor.partyKey),
+        this._partyProcessor.partyKey,
         message,
         [this._identityManager.deviceKeyChain]
       );

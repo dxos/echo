@@ -42,7 +42,7 @@ export function createMockFeedWriterFromStream (strem: NodeJS.WritableStream): F
     write: async message => {
       await pify(strem.write.bind(strem))(message);
       return {
-        feedKey: PublicKey.from(Buffer.from('00'.repeat(32))),
+        feedKey: PublicKey.from(Buffer.alloc(PublicKey.LENGTH)),
         seq: 0
       };
     }

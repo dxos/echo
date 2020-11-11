@@ -172,7 +172,7 @@ export class PartyFactory {
     // Write the Feed genesis message.
     await party.processor.writeHaloMessage(createFeedAdmitMessage(
       this._identityManager.keyring,
-      Buffer.from(partyKey),
+      partyKey,
       feedKey,
       [signingKey]
     ));
@@ -377,7 +377,7 @@ export class PartyFactory {
       ObjectModel.meta.type,
       HALO_DEVICE_PREFERENCES_TYPE,
       undefined,
-      { publicKey: this._identityManager.deviceKey.publicKey }
+      { publicKey: this._identityManager.deviceKey.publicKey.asBuffer() }
     );
 
     return halo;
@@ -431,7 +431,7 @@ export class PartyFactory {
       ObjectModel.meta.type,
       HALO_DEVICE_PREFERENCES_TYPE,
       undefined,
-      { publicKey: deviceKey.publicKey }
+      { publicKey: deviceKey.publicKey.asBuffer() }
     );
 
     // Do no retain the Identity secret key after creation of the HALO.

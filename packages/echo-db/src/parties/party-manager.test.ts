@@ -107,7 +107,7 @@ describe('Party manager', () => {
     expect(party.isOpen).toBeTruthy();
 
     // The Party key is an inception key, so its secret should be destroyed immediately after use.
-    const partyKey = identityManager.keyring.getKey(Buffer.from(party.key));
+    const partyKey = identityManager.keyring.getKey(party.key);
     expect(partyKey).toBeDefined();
     assert(partyKey);
     expect(identityManager.keyring.hasSecretKey(partyKey)).toBe(false);
@@ -183,7 +183,7 @@ describe('Party manager', () => {
       const feed = await feedStore.openFeed(partyKey.key,
         { metadata: { partyKey: partyKey.publicKey, writable: true } } as any);
       const feedKey = await keyring.addKeyRecord({
-        publicKey: feed.key,
+        publicKey: PublicKey.from(feed.key),
         secretKey: feed.secretKey,
         type: KeyType.FEED
       });
