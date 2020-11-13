@@ -212,6 +212,7 @@ export class PartyManager {
 
     // TODO(marik-d): Somehow check that we don't already have this party
     const party = await this._partyFactory.joinParty(invitationDescriptor, secretProvider);
+    await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
 
     if (this._parties.has(party.key)) {
       await party.close();
