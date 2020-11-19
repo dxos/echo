@@ -5,8 +5,8 @@
 import assert from 'assert';
 import debug from 'debug';
 
-import { Event, synchronized } from '@dxos/async';
-import { KeyHint } from '@dxos/credentials';
+import { Event, sleep, synchronized } from '@dxos/async';
+import { KeyHint, KeyType } from '@dxos/credentials';
 import { PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { ComplexMap, timed } from '@dxos/util';
@@ -174,6 +174,8 @@ export class PartyManager {
 
     const party = await this._partyFactory.createParty();
 
+    await this._recordPartyJoining(party);
+
     if (this._parties.has(party.key)) {
       await party.close();
       throw new Error(`Party already exists ${party.key.toHex()}`); // TODO(marik-d): Handle this gracefully
@@ -195,7 +197,7 @@ export class PartyManager {
     assert(this._identityManager.initialized, 'IdentityManager has not been initialized with the HALO.');
 
     log(`Adding party partyKey=${partyKey.toHex()} hints=${hints.length}`);
-    assert(!this._parties.has(partyKey));
+    assert(!this._parties.has(partyKey), 'Party already exists.');
     const party = await this._partyFactory.addParty(partyKey, hints);
 
     if (this._parties.has(party.key)) {
@@ -213,6 +215,7 @@ export class PartyManager {
     // TODO(marik-d): Somehow check that we don't already have this party
     const party = await this._partyFactory.joinParty(invitationDescriptor, secretProvider);
     await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
+    await this._recordPartyJoining(party);
 
     if (this._parties.has(party.key)) {
       await party.close();
@@ -306,5 +309,19 @@ export class PartyManager {
   private _isHalo (partyKey: PublicKey) {
     assert(this._identityManager.identityKey, 'No identity key');
     return partyKey.equals(this._identityManager.identityKey.publicKey);
+  }
+
+  @timed(5000)
+  private async _recordPartyJoining (party: PartyInternal) {
+    assert(this._identityManager.halo, 'HALO is required.');
+
+    const keyHints: KeyHint[] = [
+      ...party.processor.memberKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.UNKNOWN })),
+      ...party.processor.feedKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.FEED }))
+    ];
+    await this._identityManager.halo.recordPartyJoining({
+      partyKey: party.key,
+      keyHints
+    });
   }
 }
