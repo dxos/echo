@@ -153,7 +153,7 @@ export class PartyFactory {
     const party = await this.constructParty(partyKey, [
       {
         type: feedKey.type,
-        publicKey: feedKey.publicKey.asUint8Array()
+        publicKey: feedKey.publicKey
       },
       ...hints
     ]);

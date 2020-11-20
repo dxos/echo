@@ -323,8 +323,8 @@ export class PartyManager {
     assert(this._identityManager.halo, 'HALO is required.');
 
     const keyHints: KeyHint[] = [
-      ...party.processor.memberKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.UNKNOWN })),
-      ...party.processor.feedKeys.map(publicKey => ({ publicKey: publicKey.asUint8Array(), type: KeyType.FEED }))
+      ...party.processor.memberKeys.map(publicKey => ({ publicKey: publicKey, type: KeyType.UNKNOWN })),
+      ...party.processor.feedKeys.map(publicKey => ({ publicKey: publicKey, type: KeyType.FEED }))
     ];
     await this._identityManager.halo.recordPartyJoining({
       partyKey: party.key,
