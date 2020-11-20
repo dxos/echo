@@ -136,7 +136,7 @@ export class PartyFactory {
 
     // The Party key is an inception key; its SecretKey must be destroyed once the Party has been created.
     await this._identityManager.keyring.deleteSecretKey(partyKey);
-    
+
     return party;
   }
 
