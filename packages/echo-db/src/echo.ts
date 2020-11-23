@@ -313,7 +313,7 @@ export class ECHO {
    */
   async createHaloInvitation (authenticationDetails: InvitationAuthenticator, options?: InvitationOptions) {
     assert(this._identityManager.halo, 'Cannot create invitation because halo does not exists');
-    return await this._identityManager.halo.invitationManager.createInvitation(authenticationDetails, options);
+    return this._identityManager.halo.invitationManager.createInvitation(authenticationDetails, options);
   }
 
   /**
