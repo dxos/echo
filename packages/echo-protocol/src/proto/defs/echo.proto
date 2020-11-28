@@ -46,6 +46,7 @@ message ItemGenesis {
   string modelVersion = 3;
 }
 
+// TODO(burdon): Support typed links.
 message ItemMutation {
   string parentId = 1;
 }
