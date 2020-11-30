@@ -39,6 +39,14 @@ export class Party {
     return this._internal.database;
   }
 
+  get title () {
+    return this._internal.title;
+  }
+
+  async setTitle (title: string) {
+    return this._internal.setTitle(title);
+  }
+
   queryMembers (): ResultSet<PartyMember> {
     return new ResultSet(
       this._internal.processor.keyOrInfoAdded.discardParameter(),

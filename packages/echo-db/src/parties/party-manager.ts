@@ -17,7 +17,7 @@ import { InvitationDescriptor } from '../invitations/invitation-descriptor';
 import { SnapshotStore } from '../snapshot-store';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
-import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
+import { PartyInternal, PARTY_ITEM_TYPE, PARTY_TITLE_PROPERTY } from './party-internal';
 
 const CONTACT_DEBOUNCE_INTERVAL = 500;
 
@@ -268,11 +268,40 @@ export class PartyManager {
   }
 
   private _setParty (party: PartyInternal) {
-    const debounced = party.processor.keyOrInfoAdded.debounce(CONTACT_DEBOUNCE_INTERVAL).discardParameter();
-    debounced.on(() => this._updateContactList(party));
+    const debouncedContacts = party.processor.keyOrInfoAdded.debounce(CONTACT_DEBOUNCE_INTERVAL).discardParameter();
+    debouncedContacts.on(async () => {
+      try {
+        await this._updateContactList(party);
+      } catch (e) {
+        log('Error updating contact list:', e);
+      }
+    });
+
+    party.database.queryItems({ type: PARTY_ITEM_TYPE }).update.on(async () => {
+      try {
+        await this._updatePartyTitle(party);
+      } catch (e) {
+        log('Error updating stored Party title:', e);
+      }
+    });
 
     this._parties.set(party.key, party);
     this.update.emit(party);
+  }
+
+  private async _updatePartyTitle (party: PartyInternal) {
+    if (!this._opened) {
+      return;
+    }
+
+    const item = await party.getPropertiesItem();
+    const currentTitle = item.model.getProperty(PARTY_TITLE_PROPERTY);
+
+    const storedTitle = this.identityManager.halo?.getGlobalPartyPreference(party.key, PARTY_TITLE_PROPERTY);
+    if (storedTitle !== currentTitle) {
+      log(`Updating stored name from ${storedTitle} to ${currentTitle} for Party ${party.key.toHex()}`);
+      await this.identityManager.halo?.setGlobalPartyPreference(party.key, PARTY_TITLE_PROPERTY, currentTitle);
+    }
   }
 
   private async _updateContactList (party: PartyInternal) {

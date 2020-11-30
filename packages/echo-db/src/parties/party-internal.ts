@@ -18,6 +18,7 @@ import { Pipeline } from './pipeline';
 
 // TODO(burdon): Format?
 export const PARTY_ITEM_TYPE = 'wrn://dxos.org/item/party';
+export const PARTY_TITLE_PROPERTY = 'title';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PartyFilter {}
@@ -29,6 +30,8 @@ export interface ActivationOptions {
 
 export interface PartyActivator {
   isActive(): boolean,
+  getLastKnownTitle(): string,
+  setLastKnownTitle(title: string): Promise<void>,
   activate(options: ActivationOptions): Promise<void>;
   deactivate(options: ActivationOptions): Promise<void>;
 }
@@ -84,6 +87,16 @@ export class PartyInternal {
 
   get invitationManager () {
     return this._invitationManager;
+  }
+
+  get title () {
+    return this._activator?.getLastKnownTitle();
+  }
+
+  async setTitle (title: string) {
+    const item = await this.getPropertiesItem();
+    await item.model.setProperty(PARTY_TITLE_PROPERTY, title);
+    await this._activator?.setLastKnownTitle(title);
   }
 
   /**
@@ -171,9 +184,11 @@ export class PartyInternal {
    * Returns a special Item that is used by the Party to manage its properties.
    */
   async getPropertiesItem () {
+    assert(this.isOpen, 'Party not open.');
+
     await this.database.waitForItem({ type: PARTY_ITEM_TYPE });
     const { value: items } = this.database.queryItems({ type: PARTY_ITEM_TYPE });
-    assert(items.length === 1);
+    assert(items.length === 1, 'Party properties missing.');
     return items[0];
   }
 
@@ -181,6 +196,8 @@ export class PartyInternal {
    * Create a snapshot of the current state.
    */
   createSnapshot (): PartySnapshot {
+    assert(this.isOpen, 'Party not open.');
+
     return {
       partyKey: this.key.asUint8Array(),
       timeframe: this._timeframeClock.timeframe,
