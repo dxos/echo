@@ -22,9 +22,9 @@ import {
 import { UnknownModel } from './items/unknown-model';
 import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
-import { createRamStorage } from './util/persistant-ram-storage';
 import { ResultSet } from './result';
 import { SnapshotStore } from './snapshot-store';
+import { createRamStorage } from './util/persistant-ram-storage';
 
 // TODO(burdon): Unused?
 export interface Options {
