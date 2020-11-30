@@ -69,7 +69,6 @@ export async function createTestInstance ({
 
 export type Awaited<T> = T extends Promise<infer U> ? U : T;
 export type TestPeer = Awaited<ReturnType<typeof createTestInstance>>;
-
 export type WithTestMeta<T> = T & { testMeta: TestPeer }
 
 function addTestMeta<T> (obj: T, meta: TestPeer): WithTestMeta<T> {
@@ -85,6 +84,7 @@ export async function inviteTestPeer (party: Party, peer: ECHO): Promise<Party> 
   const invitation = await party.createInvitation({
     secretValidator: async () => true
   });
+
   return peer.joinParty(invitation, async () => Buffer.from('0000'));
 }
 
@@ -113,7 +113,9 @@ export async function createSharedTestParty (peerCount = 2): Promise<WithTestMet
  * Creates a number of test ECHO instances and an item that's shared between all of them.
  * @returns Item instances from each of the peers.
  */
-export async function createModelTestBench<M extends Model<any>> (options: ItemCreationOptions<M> & { peerCount?: number}): Promise<WithTestMeta<Item<M>>[]> {
+export async function createModelTestBench<M extends Model<any>> (
+  options: ItemCreationOptions<M> & { peerCount?: number}
+): Promise<WithTestMeta<Item<M>>[]> {
   const parties = await createSharedTestParty(options.peerCount ?? 2);
 
   for (const party of parties) {
@@ -131,7 +133,9 @@ export async function createModelTestBench<M extends Model<any>> (options: ItemC
     await party.database.queryItems().update.waitFor(() => !!party.database.getItem(item.id));
   }));
 
-  return parties.map(party => party.database.getItem(item.id)!).map((item, i) => addTestMeta(item, parties[i].testMeta));
+  return parties
+    .map(party => party.database.getItem(item.id)!)
+    .map((item, i) => addTestMeta(item, parties[i].testMeta));
 }
 
 export const messageLogger = (tag: string) => (message: any) => {
