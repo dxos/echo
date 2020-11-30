@@ -12,7 +12,6 @@ import { Model, ModelMeta } from '@dxos/model-factory';
  * The Item data structure is governed by a Model class, which implements data consistency.
  */
 export class Item<M extends Model<any>> {
-
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
 
