@@ -42,8 +42,8 @@ export class PartyManager {
   constructor (
     private readonly _identityManager: IdentityManager,
     private readonly _feedStore: FeedStoreAdapter,
-    private readonly _partyFactory: PartyFactory,
-    private readonly _snapshotStore: SnapshotStore
+    private readonly _snapshotStore: SnapshotStore,
+    private readonly _partyFactory: PartyFactory
   ) {}
 
   get identityManager () {
@@ -90,7 +90,8 @@ export class PartyManager {
         const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
         if (isActive) {
           await party.open();
-          await party.database.waitForItem({ type: PARTY_ITEM_TYPE }); // TODO(marik-d): Might not be required if separately snapshot this item.
+          // TODO(marik-d): Might not be required if separately snapshot this item.
+          await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
         }
 
         this._setParty(party);
@@ -326,6 +327,7 @@ export class PartyManager {
       ...party.processor.memberKeys.map(publicKey => ({ publicKey: publicKey, type: KeyType.UNKNOWN })),
       ...party.processor.feedKeys.map(publicKey => ({ publicKey: publicKey, type: KeyType.FEED }))
     ];
+
     await this._identityManager.halo.recordPartyJoining({
       partyKey: party.key,
       keyHints

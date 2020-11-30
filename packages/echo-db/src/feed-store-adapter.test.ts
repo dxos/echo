@@ -6,7 +6,7 @@ import { randomBytes, PublicKey } from '@dxos/crypto';
 import { FeedStore } from '@dxos/feed-store';
 
 import { FeedStoreAdapter } from './feed-store-adapter';
-import { createRamStorage } from './persistant-ram-storage';
+import { createRamStorage } from './util/persistant-ram-storage';
 
 test('close and re-open', async () => {
   const feedStore = new FeedStoreAdapter(new FeedStore(createRamStorage()));

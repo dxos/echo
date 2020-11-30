@@ -11,10 +11,10 @@ import { SwarmProvider } from '@dxos/network-manager';
 import { Storage } from '@dxos/random-access-multi-storage';
 import { jsonReplacer, range } from '@dxos/util';
 
-import { ECHO } from './echo';
-import { Item } from './items';
-import { ItemCreationOptions } from './items/database';
-import { Party } from './parties';
+import { ECHO } from '../echo';
+import { Item } from '../items';
+import { ItemCreationOptions } from '../items/database';
+import { Party } from '../parties';
 import { createRamStorage } from './persistant-ram-storage';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');

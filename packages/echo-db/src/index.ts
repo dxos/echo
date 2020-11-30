@@ -10,4 +10,5 @@ export * from './parties';
 export * from './result';
 export * from './feed-store-adapter';
 export * from './invitations';
-export * from './testing';
+
+export * from './util/testing';

@@ -16,15 +16,17 @@ import { ObjectModel } from '@dxos/object-model';
 import { Storage } from '@dxos/random-access-multi-storage';
 
 import { FeedStoreAdapter } from './feed-store-adapter';
-import { InvitationAuthenticator, InvitationDescriptor, InvitationOptions, SecretProvider } from './invitations';
-import { OfflineInvitationClaimer } from './invitations/offline-invitation-claimer';
+import {
+  InvitationAuthenticator, InvitationDescriptor, InvitationOptions, SecretProvider, OfflineInvitationClaimer
+} from './invitations';
 import { UnknownModel } from './items/unknown-model';
 import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
 import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
-import { createRamStorage } from './persistant-ram-storage';
+import { createRamStorage } from './util/persistant-ram-storage';
 import { ResultSet } from './result';
 import { SnapshotStore } from './snapshot-store';
 
+// TODO(burdon): Unused?
 export interface Options {
   readOnly?: false;
   readLogger?: (msg: any) => void;
@@ -132,6 +134,7 @@ export class ECHO {
 
     this._networkManager = new NetworkManager(this._feedStore.feedStore, swarmProvider);
     this._snapshotStore = new SnapshotStore(snapshotStorage);
+
     const partyFactory = new PartyFactory(
       this._identityManager,
       this._feedStore,
@@ -140,11 +143,12 @@ export class ECHO {
       this._snapshotStore,
       options
     );
+
     this._partyManager = new PartyManager(
       this._identityManager,
       this._feedStore,
-      partyFactory,
-      this._snapshotStore
+      this._snapshotStore,
+      partyFactory
     );
   }
 
@@ -156,16 +160,18 @@ export class ECHO {
     return this._identityManager.ready;
   }
 
+  // TODO(burdon): Different from 'identityReady'?
+  get isHaloInitialized (): boolean {
+    return !!this._identityManager.halo;
+  }
+
+  // TODO(burdon): Wrap up identity related methods?
   get identityKey (): KeyRecord | undefined {
     return this._identityManager.identityKey;
   }
 
   get identityDisplayName (): string | undefined {
     return this._identityManager.displayName;
-  }
-
-  get isHaloInitialized (): boolean {
-    return !!this._identityManager.halo;
   }
 
   get modelFactory (): ModelFactory {

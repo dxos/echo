@@ -13,7 +13,7 @@ import { ObjectModel, ValueUtil } from '@dxos/object-model';
 import { ItemDemuxer, ItemManager } from './items';
 import { TimeframeClock } from './items/timeframe-clock';
 import { PartyInternal } from './parties';
-import { createTestInstance } from './testing';
+import { createTestInstance } from './util/testing';
 
 const log = debug('dxos:snapshot:test');
 

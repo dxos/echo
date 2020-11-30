@@ -32,11 +32,10 @@ import { ObjectModel } from '@dxos/object-model';
 import { checkType, createWritableFeedStream, latch } from '@dxos/util';
 
 import { FeedStoreAdapter } from '../feed-store-adapter';
-import { InvitationDescriptor } from '../invitations';
-import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
+import { InvitationDescriptor, OfflineInvitationClaimer } from '../invitations';
 import { Item } from '../items';
 import { SnapshotStore } from '../snapshot-store';
-import { messageLogger } from '../testing';
+import { messageLogger } from '../util/testing';
 import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
@@ -80,7 +79,7 @@ describe('Party manager', () => {
         readLogger: messageLogger('>>>')
       }
     );
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
+    const partyManager = new PartyManager(identityManager, feedStoreAdapter, snapshotStore, partyFactory);
 
     if (open) {
       await partyManager.open();
@@ -164,7 +163,7 @@ describe('Party manager', () => {
     const modelFactory = new ModelFactory().registerModel(ObjectModel);
     const snapshotStore = new SnapshotStore(ram);
     const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()), snapshotStore);
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, partyFactory, snapshotStore);
+    const partyManager = new PartyManager(identityManager, feedStoreAdapter, snapshotStore, partyFactory);
 
     await feedStore.open();
 

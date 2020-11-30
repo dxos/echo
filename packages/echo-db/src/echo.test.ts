@@ -12,7 +12,7 @@ import { ObjectModel } from '@dxos/object-model';
 import { latch } from '@dxos/util';
 
 import { ECHO } from './echo';
-import { createTestInstance, inviteTestPeer } from './testing';
+import { createTestInstance, inviteTestPeer } from './util/testing';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

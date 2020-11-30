@@ -10,11 +10,12 @@ const noopCodec: Codec<Uint8Array> = {
   decode: (data: Uint8Array) => data
 };
 
+// TODO(burdon): Document. Is this for testing?
 export class UnknownModel extends Model<Uint8Array> {
   static meta: ModelMeta = {
     type: 'wrn://protocol.dxos.org/model/unknown',
     mutation: noopCodec
-  }
+  };
 
   private _mutations: ModelMutation[] = [];
 
