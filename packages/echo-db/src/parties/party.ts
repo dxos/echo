@@ -7,7 +7,7 @@ import { PartyKey } from '@dxos/echo-protocol';
 
 import { InvitationAuthenticator, InvitationOptions } from '../invitations';
 import { ResultSet } from '../result';
-import { PartyInternal, PARTY_ITEM_TYPE, ActivationOptions } from './party-internal';
+import { PartyInternal, ActivationOptions } from './party-internal';
 
 export interface PartyMember {
   publicKey: PublicKey,
@@ -59,8 +59,6 @@ export class Party {
    */
   async open () {
     await this._internal.open();
-
-    await this.database.waitForItem({ type: PARTY_ITEM_TYPE });
   }
 
   /**
@@ -78,7 +76,7 @@ export class Party {
    * @param value
    */
   async setProperty (key: string, value: any): Promise<this> {
-    const item = await this._internal.getPropertiestItem();
+    const item = await this._internal.getPropertiesItem();
     await item.model.setProperty(key, value);
     return this;
   }
@@ -87,8 +85,8 @@ export class Party {
    * Returns a party property value.
    * @param key
    */
-  getProperty (key: string): any {
-    const item = this._internal.getPropertiestItem();
+  async getProperty (key: string) {
+    const item = await this._internal.getPropertiesItem();
     return item.model.getProperty(key);
   }
 

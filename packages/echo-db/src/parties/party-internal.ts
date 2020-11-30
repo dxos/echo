@@ -7,11 +7,9 @@ import assert from 'assert';
 import { synchronized } from '@dxos/async';
 import { DatabaseSnapshot, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
-import { ObjectModel } from '@dxos/object-model';
 import { timed } from '@dxos/util';
 
 import { InvitationManager } from '../invitations/invitation-manager';
-import { Item } from '../items';
 import { Database } from '../items/database';
 import { TimeframeClock } from '../items/timeframe-clock';
 import { PartyProcessor } from './party-processor';
@@ -172,7 +170,8 @@ export class PartyInternal {
   /**
    * Returns a special Item that is used by the Party to manage its properties.
    */
-  getPropertiestItem (): Item<ObjectModel> {
+  async getPropertiesItem () {
+    await this.database.waitForItem({ type: PARTY_ITEM_TYPE });
     const { value: items } = this.database.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1);
     return items[0];
