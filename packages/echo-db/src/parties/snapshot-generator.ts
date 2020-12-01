@@ -4,13 +4,15 @@
 
 import debug from 'debug';
 
-import { TimeframeClock } from '../items/timeframe-clock';
+import { TimeframeClock } from '../items';
 import { SnapshotStore } from '../snapshot-store';
 import { PartyInternal } from './party-internal';
 
-const log = debug('dxos:snapshot-maker');
+const log = debug('dxos:snapshot-generator');
 
-export function makeAutomaticSnapshots (party: PartyInternal, clock: TimeframeClock, store: SnapshotStore, interval: number) {
+export function createAutomaticSnapshots (
+  party: PartyInternal, clock: TimeframeClock, store: SnapshotStore, interval: number
+) {
   return clock.update.on(async timeframe => {
     const totalMessages = timeframe.totalMessages();
     if (totalMessages > 0 && totalMessages % interval === 0) {

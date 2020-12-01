@@ -5,6 +5,7 @@
 import { Event } from '@dxos/async';
 import { FeedKey, Timeframe } from '@dxos/echo-protocol';
 
+// TODO(burdon): Comment.
 export class TimeframeClock {
   readonly update = new Event<Timeframe>();
 

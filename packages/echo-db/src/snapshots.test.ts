@@ -10,8 +10,7 @@ import { schema } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { ObjectModel, ValueUtil } from '@dxos/object-model';
 
-import { ItemDemuxer, ItemManager } from './items';
-import { TimeframeClock } from './items/timeframe-clock';
+import { ItemDemuxer, ItemManager, TimeframeClock } from './items';
 import { PartyInternal } from './parties';
 import { createTestInstance } from './util/testing';
 
