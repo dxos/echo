@@ -206,16 +206,20 @@ export class ECHO {
    * Opens the pary and constructs the inbound/outbound mutation streams.
    */
   async open () {
-    await this._keyring.load();
-    await this._partyManager.open();
+    if (!this.isOpen) {
+      await this._keyring.load();
+      await this._partyManager.open();
+    }
   }
 
   /**
    * Closes the party and associated streams.
    */
   async close () {
-    await this._networkManager.close();
-    await this._partyManager.close();
+    if (this.isOpen) {
+      await this._networkManager.close();
+      await this._partyManager.close();
+    }
   }
 
   /**
