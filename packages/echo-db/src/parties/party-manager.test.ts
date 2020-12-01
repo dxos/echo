@@ -31,11 +31,11 @@ import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { checkType, createWritableFeedStream, latch } from '@dxos/util';
 
-import { FeedStoreAdapter } from '../feed-store-adapter';
 import { InvitationDescriptor, OfflineInvitationClaimer } from '../invitations';
 import { Item } from '../items';
-import { SnapshotStore } from '../snapshot-store';
-import { messageLogger } from '../util/testing';
+import { SnapshotStore } from '../snapshots/snapshot-store';
+import { messageLogger } from '../testing/test-utils';
+import { FeedStoreAdapter } from '../util/feed-store-adapter';
 import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';

@@ -5,8 +5,8 @@
 import debug from 'debug';
 
 import { TimeframeClock } from '../items';
-import { SnapshotStore } from '../snapshot-store';
-import { PartyInternal } from './party-internal';
+import { PartyInternal } from '../parties';
+import { SnapshotStore } from './snapshot-store';
 
 const log = debug('dxos:snapshot-generator');
 

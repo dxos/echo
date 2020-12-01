@@ -15,16 +15,20 @@ import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { Storage } from '@dxos/random-access-multi-storage';
 
-import { FeedStoreAdapter } from './feed-store-adapter';
 import {
-  InvitationAuthenticator, InvitationDescriptor, InvitationOptions, SecretProvider, OfflineInvitationClaimer
+  InvitationAuthenticator, InvitationDescriptor, InvitationOptions, OfflineInvitationClaimer, SecretProvider
 } from './invitations';
-import { UnknownModel } from './items/unknown-model';
-import { IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember } from './parties';
-import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
+import { UnknownModel } from './items';
+import {
+  HALO_CONTACT_LIST_TYPE, IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
+} from './parties';
 import { ResultSet } from './result';
-import { SnapshotStore } from './snapshot-store';
+import { SnapshotStore } from './snapshots/snapshot-store';
+import { FeedStoreAdapter } from './util/feed-store-adapter';
 import { createRamStorage } from './util/persistant-ram-storage';
+
+// TODO(burdon): Move?
+export type Contact = PartyMember;
 
 // TODO(burdon): Unused?
 export interface Options {
@@ -33,7 +37,7 @@ export interface Options {
   writeLogger?: (msg: any) => void;
 }
 
-export type Contact = PartyMember;
+// TODO(burdon): Create index.ts in each subfolder (no indirect imports).
 
 /**
  * Various options passed to `ECHO.create`.
@@ -245,6 +249,8 @@ export class ECHO {
     assert(secretKey, 'Invalid secretKey');
 
     if (this._identityManager.identityKey) {
+      // TODO(burdon): Bad API: Semantics change based on options.
+      // TODO(burdon): createProfile isn't party of this pakage.
       throw new Error('Identity key already exists. Call createProfile without a keypair to only create a halo party.');
     }
 
@@ -297,7 +303,9 @@ export class ECHO {
   queryParties (filter?: PartyFilter): ResultSet<Party> {
     assert(this._partyManager.opened, 'ECHO not open.');
 
-    return new ResultSet(this._partyManager.update.discardParameter(), () => this._partyManager.parties.map(impl => new Party(impl)));
+    return new ResultSet(
+      this._partyManager.update.discardParameter(), () => this._partyManager.parties.map(impl => new Party(impl))
+    );
   }
 
   /**
@@ -308,7 +316,8 @@ export class ECHO {
   async joinParty (invitationDescriptor: InvitationDescriptor, secretProvider?: SecretProvider): Promise<Party> {
     assert(this._partyManager.opened, 'ECHO not open.');
 
-    const actualSecretProvider = secretProvider ?? OfflineInvitationClaimer.createSecretProvider(this._partyManager.identityManager);
+    const actualSecretProvider =
+      secretProvider ?? OfflineInvitationClaimer.createSecretProvider(this._partyManager.identityManager);
 
     const impl = await this._partyManager.joinParty(invitationDescriptor, actualSecretProvider);
     return new Party(impl);

@@ -11,10 +11,10 @@ import { PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { ComplexMap, timed } from '@dxos/util';
 
-import { FeedStoreAdapter } from '../feed-store-adapter';
 import { SecretProvider } from '../invitations/common';
 import { InvitationDescriptor } from '../invitations/invitation-descriptor';
-import { SnapshotStore } from '../snapshot-store';
+import { SnapshotStore } from '../snapshots/snapshot-store';
+import { FeedStoreAdapter } from '../util/feed-store-adapter';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
 import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';

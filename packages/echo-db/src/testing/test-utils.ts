@@ -12,12 +12,19 @@ import { Storage } from '@dxos/random-access-multi-storage';
 import { jsonReplacer, range } from '@dxos/util';
 
 import { ECHO } from '../echo';
-import { Item } from '../items';
-import { ItemCreationOptions } from '../items/database';
+import { Item, ItemCreationOptions } from '../items';
 import { Party } from '../parties';
-import { createRamStorage } from './persistant-ram-storage';
+import { createRamStorage } from '../util/persistant-ram-storage';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
+
+export const messageLogger = (tag: string) => (message: any) => {
+  log(tag, JSON.stringify(message, jsonReplacer, 2));
+};
+
+export type Awaited<T> = T extends Promise<infer U> ? U : T;
+export type TestPeer = Awaited<ReturnType<typeof createTestInstance>>;
+export type WithTestMeta<T> = T & { testMeta: TestPeer }
 
 export interface TestOptions {
   verboseLogging?: boolean
@@ -67,10 +74,6 @@ export async function createTestInstance ({
   return echo;
 }
 
-export type Awaited<T> = T extends Promise<infer U> ? U : T;
-export type TestPeer = Awaited<ReturnType<typeof createTestInstance>>;
-export type WithTestMeta<T> = T & { testMeta: TestPeer }
-
 function addTestMeta<T> (obj: T, meta: TestPeer): WithTestMeta<T> {
   (obj as any).testMeta = meta;
   return obj as any;
@@ -110,9 +113,10 @@ export async function createSharedTestParty (peerCount = 2): Promise<WithTestMet
 }
 
 /**
- * Creates a number of test ECHO instances and an item that's shared between all of them.
+ * Creates a number of test ECHO instances and an item that is shared between all of them.
  * @returns Item instances from each of the peers.
  */
+// TODO(burdon): This is a very narrow/specific function. Refactor and/or don't export (brittle).
 export async function createModelTestBench<M extends Model<any>> (
   options: ItemCreationOptions<M> & { peerCount?: number}
 ): Promise<WithTestMeta<Item<M>>[]> {
@@ -130,6 +134,7 @@ export async function createModelTestBench<M extends Model<any>> (
     if (party.database.getItem(item.id)) {
       return;
     }
+
     await party.database.queryItems().update.waitFor(() => !!party.database.getItem(item.id));
   }));
 
@@ -137,7 +142,3 @@ export async function createModelTestBench<M extends Model<any>> (
     .map(party => party.database.getItem(item.id)!)
     .map((item, i) => addTestMeta(item, parties[i].testMeta));
 }
-
-export const messageLogger = (tag: string) => (message: any) => {
-  log(tag, JSON.stringify(message, jsonReplacer, 2));
-};

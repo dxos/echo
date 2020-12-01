@@ -27,7 +27,6 @@ import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { raise, timed } from '@dxos/util';
 
-import { FeedStoreAdapter } from '../feed-store-adapter';
 import {
   GreetingInitiator,
   HaloRecoveryInitiator,
@@ -38,7 +37,9 @@ import {
   SecretProvider
 } from '../invitations';
 import { TimeframeClock } from '../items';
-import { SnapshotStore } from '../snapshot-store';
+import { createAutomaticSnapshots } from '../snapshots/snapshot-generator';
+import { SnapshotStore } from '../snapshots/snapshot-store';
+import { FeedStoreAdapter } from '../util/feed-store-adapter';
 import { HALO_CONTACT_LIST_TYPE, HALO_DEVICE_PREFERENCES_TYPE, HALO_GENERAL_PREFERENCES_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
@@ -46,7 +47,6 @@ import { PartyInternal, PARTY_ITEM_TYPE } from './party-internal';
 import { PartyProcessor } from './party-processor';
 import { PartyProtocol } from './party-protocol';
 import { Pipeline } from './pipeline';
-import { createAutomaticSnapshots } from './snapshot-generator';
 
 /**
  * Options allowed when creating the HALO.
