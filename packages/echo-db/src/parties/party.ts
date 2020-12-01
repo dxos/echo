@@ -2,6 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+import debug from 'debug';
+
 import { PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 
@@ -14,6 +16,8 @@ export interface PartyMember {
   displayName?: string
 }
 
+const log = debug('dxos:echo:party');
+
 /**
  * A Party represents a shared dataset containing queryable Items that are constructed from an ordered stream
  * of mutations.
@@ -25,6 +29,10 @@ export class Party {
 
   toString () {
     return `Party(${JSON.stringify({ key: this.key, open: this.isOpen })})`;
+  }
+
+  get update () {
+    return this._internal.update;
   }
 
   get key (): PartyKey {
@@ -93,9 +101,15 @@ export class Party {
    * Returns a party property value.
    * @param key
    */
-  async getProperty (key: string) {
-    const item = await this._internal.getPropertiesItem();
-    return item.model.getProperty(key);
+  getProperty (key: string) {
+    const resultSet = this._internal.getPropertiesSet();
+    if (resultSet.value.length) {
+      const [item] = resultSet.value;
+      return item.model.getProperty(key);
+    }
+
+    log(`No properties item to check for ${key}`);
+    return undefined;
   }
 
   /**

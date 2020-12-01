@@ -270,22 +270,39 @@ export class PartyManager {
   }
 
   private _setParty (party: PartyInternal) {
-    const debouncedContacts = party.processor.keyOrInfoAdded.debounce(CONTACT_DEBOUNCE_INTERVAL).discardParameter();
-    debouncedContacts.on(async () => {
+    const contactUpdater = async () => {
       try {
         await this._updateContactList(party);
       } catch (e) {
         log('Error updating contact list:', e);
       }
-    });
+    };
 
-    party.database.queryItems({ type: PARTY_ITEM_TYPE }).update.on(async () => {
+    const titleUpdater = () => async () => {
       try {
         await this._updatePartyTitle(party);
       } catch (e) {
         log('Error updating stored Party title:', e);
       }
-    });
+    };
+
+    const attachUpdateListeners = () => {
+      const debouncedContacts = party.processor.keyOrInfoAdded.debounce(CONTACT_DEBOUNCE_INTERVAL).discardParameter();
+      debouncedContacts.on(contactUpdater);
+      party.database.queryItems({ type: PARTY_ITEM_TYPE }).update.on(titleUpdater);
+    };
+
+    if (party.isOpen) {
+      attachUpdateListeners();
+    } else {
+      party.update.waitFor(() => {
+        if (party.isOpen) {
+          attachUpdateListeners();
+          return true;
+        }
+        return false;
+      });
+    }
 
     this._parties.set(party.key, party);
     this.update.emit(party);

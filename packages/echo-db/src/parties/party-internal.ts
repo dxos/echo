@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 
-import { synchronized } from '@dxos/async';
+import { synchronized, Event } from '@dxos/async';
 import { DatabaseSnapshot, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { timed } from '@dxos/util';
@@ -41,6 +41,8 @@ export interface PartyActivator {
  * of mutations.
  */
 export class PartyInternal {
+  public readonly update = new Event<void>();
+
   private _database: Database | undefined;
 
   /**
@@ -131,6 +133,10 @@ export class PartyInternal {
     // TODO(burdon): Propagate errors.
     this._subscriptions.push(this._pipeline.errors.on(err => console.error(err)));
 
+    // Issue an 'update' whenever the properties change.
+    this.database.queryItems({ type: PARTY_ITEM_TYPE }).update.on(() => this.update.emit());
+
+    this.update.emit();
     return this;
   }
 
@@ -154,6 +160,8 @@ export class PartyInternal {
 
     this._subscriptions.forEach(cb => cb());
 
+    this.update.emit();
+
     return this;
   }
 
@@ -168,6 +176,8 @@ export class PartyInternal {
 
     if (!this.isOpen) {
       await this.open();
+    } else {
+      this.update.emit();
     }
   }
 
@@ -177,6 +187,8 @@ export class PartyInternal {
 
     if (this.isOpen) {
       await this.close();
+    } else {
+      this.update.emit();
     }
   }
 
@@ -190,6 +202,14 @@ export class PartyInternal {
     const { value: items } = this.database.queryItems({ type: PARTY_ITEM_TYPE });
     assert(items.length === 1, 'Party properties missing.');
     return items[0];
+  }
+
+  /**
+   * Get the ResultSet for the Properties Item query.
+   */
+  getPropertiesSet () {
+    assert(this.isOpen, 'Party not open.');
+    return this.database.queryItems({ type: PARTY_ITEM_TYPE });
   }
 
   /**
