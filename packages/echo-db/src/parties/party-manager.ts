@@ -74,6 +74,8 @@ export class PartyManager {
         // Always open the HALO.
         await halo.open();
         await this._setHalo(halo);
+      } else if (!this.identityManager.keyring.hasSecretKey(this.identityManager.identityKey!)) {
+        throw new Error('HALO missing and Identity key has no secret.');
       }
     }
 
