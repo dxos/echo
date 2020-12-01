@@ -39,7 +39,6 @@ import {
 } from '../invitations';
 import { TimeframeClock } from '../items';
 import { SnapshotStore } from '../snapshot-store';
-
 import { HALO_CONTACT_LIST_TYPE, HALO_DEVICE_PREFERENCES_TYPE, HALO_GENERAL_PREFERENCES_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { createMessageSelector } from './message-selector';
