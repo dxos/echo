@@ -3,6 +3,7 @@
 //
 
 import assert from 'assert';
+import debug from 'debug';
 import memdown from 'memdown';
 
 import { Event } from '@dxos/async';
@@ -24,6 +25,8 @@ import { HALO_CONTACT_LIST_TYPE } from './parties/halo-party';
 import { createRamStorage } from './persistant-ram-storage';
 import { ResultSet } from './result';
 import { SnapshotStore } from './snapshot-store';
+
+const log = debug('dxos:echo');
 
 export interface Options {
   readOnly?: false;
@@ -219,13 +222,25 @@ export class ECHO {
    * Removes all data and closes this ECHO instance.
    */
   async reset () {
-    if (this._feedStore.storage.destroy) {
-      await this._feedStore.storage.destroy();
+    try {
+      if (this._feedStore.storage.destroy) {
+        await this._feedStore.storage.destroy();
+      }
+    } catch (err) {
+      log('Error clearing feed storage:', err);
     }
 
-    await this._keyring.deleteAllKeyRecords();
+    try {
+      await this._keyring.deleteAllKeyRecords();
+    } catch (err) {
+      log('Error clearing keyring:', err);
+    }
 
-    await this._snapshotStore.clear();
+    try {
+      await this._snapshotStore.clear();
+    } catch (err) {
+      log('Error clearing snapshot storage:', err);
+    }
 
     await this.close();
   }

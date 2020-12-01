@@ -277,4 +277,14 @@ describe('api tests', () => {
 
     await expect(() => echo.createParty()).rejects.toBeDefined();
   });
+
+  test('reset', async () => {
+    const echo = new ECHO();
+    await echo.open();
+    await echo.createIdentity(createKeyPair());
+    await echo.createHalo();
+    expect(echo.identityKey).toBeDefined();
+
+    return echo.reset();
+  });
 });
