@@ -222,6 +222,8 @@ export class ECHO {
    * Removes all data and closes this ECHO instance.
    */
   async reset () {
+    await this.close();
+
     try {
       if (this._feedStore.storage.destroy) {
         await this._feedStore.storage.destroy();
@@ -241,8 +243,6 @@ export class ECHO {
     } catch (err) {
       log('Error clearing snapshot storage:', err);
     }
-
-    await this.close();
   }
 
   /**
