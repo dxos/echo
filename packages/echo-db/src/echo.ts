@@ -30,13 +30,6 @@ import { createRamStorage } from './util/persistant-ram-storage';
 // TODO(burdon): Move?
 export type Contact = PartyMember;
 
-// TODO(burdon): Unused?
-export interface Options {
-  readOnly?: false;
-  readLogger?: (msg: any) => void;
-  writeLogger?: (msg: any) => void;
-}
-
 // TODO(burdon): Create index.ts in each subfolder (no indirect imports).
 
 /**
