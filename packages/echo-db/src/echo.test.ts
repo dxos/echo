@@ -12,18 +12,17 @@ import { ObjectModel } from '@dxos/object-model';
 import { latch } from '@dxos/util';
 
 import { ECHO } from './echo';
-import { createTestInstance, inviteTestPeer } from './testing';
+import { createTestInstance, inviteTestPeer } from './testing/test-utils';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
-const createECHO = async () => {
-  const echo = await createTestInstance({ initialize: true });
-  return echo;
+const createInstance = async () => {
+  return await createTestInstance({ initialize: true });
 };
 
 describe('api tests', () => {
   test('create party and update properties.', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
 
     const parties = await echo.queryParties({ open: true });
     log('Parties:', parties.value.map(party => party.key.humanize()));
@@ -36,7 +35,7 @@ describe('api tests', () => {
   });
 
   test('create party and items.', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
 
     const parties = await echo.queryParties({ open: true });
     log('Parties:', parties.value.map(party => party.key.humanize()));
@@ -79,7 +78,7 @@ describe('api tests', () => {
   });
 
   test('create party and item with child item.', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
 
     const parties = await echo.queryParties({ open: true });
     log('Parties:', parties.value.map(party => party.key.humanize()));
@@ -120,7 +119,7 @@ describe('api tests', () => {
   });
 
   test('create party, two items with child items, and then move child.', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
 
     const parties = await echo.queryParties({ open: true });
     log('Parties:', parties.value.map(party => party.key.humanize()));
@@ -152,7 +151,7 @@ describe('api tests', () => {
   });
 
   test('cold start with party', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
     const party = await echo.createParty();
 
     await echo.close();
@@ -189,7 +188,7 @@ describe('api tests', () => {
   });
 
   test('create party and items with props', async () => {
-    const echo = await createECHO();
+    const echo = await createInstance();
 
     const party = await echo.createParty();
 
@@ -200,8 +199,8 @@ describe('api tests', () => {
   });
 
   test('Contacts', async () => {
-    const echoA = await createECHO();
-    const echoB = await createECHO();
+    const echoA = await createInstance();
+    const echoB = await createInstance();
 
     const partyA = await echoA.createParty();
 

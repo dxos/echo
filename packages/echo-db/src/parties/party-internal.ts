@@ -9,9 +9,8 @@ import { DatabaseSnapshot, PartyKey, PartySnapshot } from '@dxos/echo-protocol';
 import { ModelFactory } from '@dxos/model-factory';
 import { timed } from '@dxos/util';
 
-import { InvitationManager } from '../invitations/invitation-manager';
-import { Database } from '../items/database';
-import { TimeframeClock } from '../items/timeframe-clock';
+import { InvitationManager } from '../invitations';
+import { Database, TimeframeClock } from '../items';
 import { PartyProcessor } from './party-processor';
 import { PartyProtocol } from './party-protocol';
 import { Pipeline } from './pipeline';
