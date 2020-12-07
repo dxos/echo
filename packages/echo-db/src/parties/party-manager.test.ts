@@ -944,6 +944,10 @@ describe('Party manager', () => {
     expect(partyD.title).toEqual('Some name'); // However this does not
   }, 30000);
 
+  // Note: The reason I wrote this test is because it does not seem to be working properly in Teamwork
+  // I don't seem to be receiving an update after which party.title holds correct value.
+  // https://github.com/dxos/teamwork/issues/496#issuecomment-739862830
+  // However it seems to be working fine in this test.
   test('Party update event is emitted after the title is set', async () => {
     const { partyManager: partyManagerA, identityManager: identityManagerA, seedPhrase } = await setup(true, true);
     const { partyManager: partyManagerB, identityManager: identityManagerB } = await setup(true, false);
