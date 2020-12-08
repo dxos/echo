@@ -58,7 +58,7 @@ export class PartyInternal {
     private readonly _pipeline: Pipeline,
     private readonly _protocol: PartyProtocol,
     private readonly _timeframeClock: TimeframeClock,
-    private readonly _invitationManager: InvitationManager,
+    private readonly _invitationManager: InvitationManager
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -94,7 +94,7 @@ export class PartyInternal {
     return this._activator?.getLastKnownTitle();
   }
 
-  setActivator(activator: PartyActivator) {
+  setActivator (activator: PartyActivator) {
     this._activator = activator;
   }
 
