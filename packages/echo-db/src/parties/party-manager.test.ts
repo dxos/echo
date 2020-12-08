@@ -978,9 +978,9 @@ describe('Party manager', () => {
     }
 
     // For the other member of the party, title propagates correctly as well
-    await waitForCondition(() => partyD.getProperty('title') === 'Some name', 1000);
+    await waitForCondition(() => partyD.getProperty('title') === 'Some name', 3000);
     expect(partyD.title).toEqual('Some name'); // However this does not
-  }, 30000);
+  });
 
   // Note: The reason I wrote this test is because it does not seem to be working properly in Teamwork
   // I don't seem to be receiving an update after which party.title holds correct value.
