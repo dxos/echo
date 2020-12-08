@@ -50,6 +50,7 @@ export class PartyInternal {
   private _databaseSnapshot: DatabaseSnapshot | undefined;
 
   private _subscriptions: (() => void)[] = [];
+  private _activator: PartyActivator | undefined;
 
   constructor (
     private readonly _modelFactory: ModelFactory,
@@ -58,7 +59,6 @@ export class PartyInternal {
     private readonly _protocol: PartyProtocol,
     private readonly _timeframeClock: TimeframeClock,
     private readonly _invitationManager: InvitationManager,
-    private readonly _activator: PartyActivator | undefined
   ) {
     assert(this._modelFactory);
     assert(this._partyProcessor);
@@ -92,6 +92,10 @@ export class PartyInternal {
 
   get title () {
     return this._activator?.getLastKnownTitle();
+  }
+
+  setActivator(activator: PartyActivator) {
+    this._activator = activator;
   }
 
   async setTitle (title: string) {

@@ -237,9 +237,12 @@ export class PartyFactory {
       pipeline,
       protocol,
       timeframeClock,
-      invitationManager,
-      this._identityManager.halo?.createPartyActivator(partyKey)
+      invitationManager
     );
+
+    if (this._identityManager.halo) {
+      party.setActivator(this._identityManager.halo.createPartyActivator(party));
+    }
 
     if (this._options.snapshots) {
       createAutomaticSnapshots(
