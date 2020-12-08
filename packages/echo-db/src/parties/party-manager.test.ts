@@ -779,6 +779,44 @@ describe('Party manager', () => {
     expect(partyB.title).toBe('B');
   });
 
+  test('Deactivate Party - retrieving items', async () => {
+    const { partyManager: partyManagerA } = await setup(true, true);
+
+    const partyA = new Party(await partyManagerA.createParty());
+
+    expect(partyA.isOpen).toBe(true);
+    expect(partyA.isActive()).toBe(true);
+
+    // --- Create an item ---
+
+    let itemA: Item<any> | null = null;
+    const [updated, onUpdate] = latch();
+
+    partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })
+      .subscribe((result) => {
+        if (result.length) {
+          const [receivedItem] = result;
+          if (itemA && itemA.id === receivedItem.id) {
+            onUpdate();
+          }
+        }
+      });
+
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
+    await updated; // wait to see the update
+
+    expect((await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length).toEqual(1);
+
+    await partyA.deactivate({ global: true });
+    await partyA.activate({ global: true });
+
+    expect(partyA.isOpen).toBe(true);
+    expect(partyA.isActive()).toBe(true);
+
+    await waitForCondition(async () => (await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length > 0, 5000);
+    expect((await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length).toEqual(1);
+  }, 10000);
+
   test('Deactivate Party - multi device', async () => {
     const { partyManager: partyManagerA, seedPhrase } = await setup(true, true);
     const { partyManager: partyManagerB } = await setup(true, false);
