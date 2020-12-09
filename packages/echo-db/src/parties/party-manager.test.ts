@@ -815,7 +815,7 @@ describe('Party manager', () => {
 
     await waitForCondition(() => partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' }).value.length > 0, 5000);
     expect((await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length).toEqual(1);
-  }, 1000000);
+  }, 10000);
 
   test('Deactivate Party - multi device', async () => {
     const { partyManager: partyManagerA, seedPhrase } = await setup(true, true);
