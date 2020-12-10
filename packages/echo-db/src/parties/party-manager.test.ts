@@ -72,7 +72,7 @@ describe('Party manager', () => {
       identityManager,
       feedStoreAdapter,
       modelFactory,
-      new NetworkManager(feedStore, new SwarmProvider()),
+      new NetworkManager(),
       snapshotStore,
       {
         writeLogger: messageLogger('<<<'),
@@ -162,7 +162,7 @@ describe('Party manager', () => {
 
     const modelFactory = new ModelFactory().registerModel(ObjectModel);
     const snapshotStore = new SnapshotStore(ram);
-    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(feedStore, new SwarmProvider()), snapshotStore);
+    const partyFactory = new PartyFactory(identityManager, feedStoreAdapter, modelFactory, new NetworkManager(), snapshotStore);
     const partyManager = new PartyManager(identityManager, feedStoreAdapter, snapshotStore, partyFactory);
 
     await feedStore.open();

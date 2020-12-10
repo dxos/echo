@@ -15,6 +15,7 @@ import { ECHO } from '../echo';
 import { Item, ItemCreationOptions } from '../items';
 import { Party } from '../parties';
 import { createRamStorage } from '../util/persistant-ram-storage';
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
@@ -32,7 +33,7 @@ export interface TestOptions {
   storage?: any
   snapshotStorage?: Storage,
   keyStorage?: any
-  swarmProvider?: SwarmProvider
+  networkManagerOptions?: NetworkManagerOptions
   snapshots?: boolean,
   snapshotInterval?: number
 }
@@ -46,7 +47,7 @@ export async function createTestInstance ({
   storage = createRamStorage(),
   keyStorage = undefined,
   snapshotStorage = createRamStorage(),
-  swarmProvider = new SwarmProvider(),
+  networkManagerOptions,
   snapshots = true,
   snapshotInterval
 }: TestOptions = {}) {
@@ -56,7 +57,7 @@ export async function createTestInstance ({
     snapshotStorage,
     snapshotInterval,
     snapshots,
-    swarmProvider,
+    networkManagerOptions,
     readLogger: verboseLogging ? messageLogger('>>>') : undefined,
     writeLogger: verboseLogging ? messageLogger('<<<') : undefined
   });

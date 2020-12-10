@@ -27,6 +27,7 @@ import { ResultSet } from './result';
 import { SnapshotStore } from './snapshots/snapshot-store';
 import { FeedStoreAdapter } from './util/feed-store-adapter';
 import { createRamStorage } from './util/persistant-ram-storage';
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 
 const log = debug('dxos:echo');
 
@@ -63,7 +64,7 @@ export interface EchoCreationOptions {
   /**
    * Networking provider. Defaults to in-memory networking.
    */
-  swarmProvider?: SwarmProvider,
+  networkManagerOptions?: NetworkManagerOptions,
 
   /**
    * Whether to save and load snapshots. Defaults to `true`.
@@ -115,7 +116,7 @@ export class ECHO {
     feedStorage = createRamStorage(),
     keyStorage = memdown(),
     snapshotStorage = createRamStorage(),
-    swarmProvider = new SwarmProvider(),
+    networkManagerOptions,
     snapshots = true,
     snapshotInterval = 100,
     readLogger,
@@ -138,7 +139,7 @@ export class ECHO {
       snapshotInterval
     };
 
-    this._networkManager = new NetworkManager(this._feedStore.feedStore, swarmProvider);
+    this._networkManager = new NetworkManager(networkManagerOptions);
     this._snapshotStore = new SnapshotStore(snapshotStorage);
 
     const partyFactory = new PartyFactory(
@@ -226,7 +227,7 @@ export class ECHO {
    */
   async close () {
     if (this.isOpen) {
-      await this._networkManager.close();
+      // TODO(marik-d): Close network manager.
       await this._partyManager.close();
     }
   }
