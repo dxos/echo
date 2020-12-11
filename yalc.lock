@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@dxos/network-manager": {
+      "signature": "d01807d57f360a7b8bc0faa94f5ecc9b",
+      "pure": true
+    }
+  }
+}
