@@ -1174,15 +1174,6 @@
     humanhash "^1.0.4"
     hypercore-crypto "^1.0.0"
 
-"@dxos/crypto@1.0.7-alpha.0":
-  version "1.0.7-alpha.0"
-  resolved "https://registry.npmjs.org/@dxos/crypto/-/crypto-1.0.7-alpha.0.tgz#0999287c5b927252c6e7bd4b20b9ded1109cfbe3"
-  integrity sha512-6E6im8xaYbJttS+FPJTbGyge+wTMiKyP+gkJVd1TC8nOQCyMfBOSnC10Ys4mh+UYQe9jsaU6V1PEE1a1oObBow==
-  dependencies:
-    crypto-js "^3.1.9-1"
-    humanhash "^1.0.4"
-    hypercore-crypto "^1.0.0"
-
 "@dxos/debug@^1.0.0-beta.20":
   version "1.0.0-beta.20"
   resolved "https://registry.npmjs.org/@dxos/debug/-/debug-1.0.0-beta.20.tgz#a0ad7b532a7baabdb11430d3b1f4d86a47bd8cbc"
@@ -1278,15 +1269,15 @@
     lodash.set "^4.3.2"
     lodash.unset "^4.5.2"
 
-"@dxos/network-manager@1.0.0-beta.116":
-  version "1.0.0-beta.116"
-  resolved "https://registry.npmjs.org/@dxos/network-manager/-/network-manager-1.0.0-beta.116.tgz#35bb1ea36ca0c0759f966964c91cdd7b559fefb0"
-  integrity sha512-cEm3iUDc3B132y0FLPo+mo5MROHntr4V+o5b+21dGEkZji4CfTVTnbDl4AMEl2lYKYr+83idBVoWzWgzhluG1Q==
+"@dxos/network-manager@1.0.0-beta.117":
+  version "1.0.0-beta.117"
+  resolved "https://registry.npmjs.org/@dxos/network-manager/-/network-manager-1.0.0-beta.117.tgz#3b8c1e6fbef72e15d8e8f39751a6ba7192748195"
+  integrity sha512-dIVBT4TxSPA+JddLT5pK9rBxsLb1KjmpL2S64fnBgr6UM0x/dlWCHAWDo1FuuGgvtRt11YmBwZccnH9POSiHJg==
   dependencies:
     "@dxos/async" "^1.0.2-alpha.0"
-    "@dxos/crypto" "1.0.7-alpha.0"
+    "@dxos/crypto" "1.0.7"
     "@dxos/metrics" "^1.0.0-beta.6"
-    "@dxos/protocol" "^1.0.0-beta.116"
+    "@dxos/protocol" "^1.0.0-beta.117"
     "@dxos/util" "^2.4.0"
     "@geut/discovery-swarm-webrtc" "^4.0.1"
     "@types/mocha" "^8.0.4"
@@ -1339,10 +1330,10 @@
     signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@^1.0.0-beta.116":
-  version "1.0.0-beta.116"
-  resolved "https://registry.npmjs.org/@dxos/protocol/-/protocol-1.0.0-beta.116.tgz#6a81f85f5b369a546396564205683d945599cbd0"
-  integrity sha512-rVihVxZpQSVRtksBKKRnVKGyU2TeCM2NBmeD96uLpUSJBbvMsKvjfDwpbeESMzKmeWh5Ruook9FrA6nFM0Pvgw==
+"@dxos/protocol@^1.0.0-beta.117":
+  version "1.0.0-beta.117"
+  resolved "https://registry.npmjs.org/@dxos/protocol/-/protocol-1.0.0-beta.117.tgz#f8eeec4317d40b50d775e716a1f8f2b405ed3c05"
+  integrity sha512-mXa8XBlt4OhsUpA+EuZhW5yPdklCRsnSyS6IWNZ67r7DtNkzs5rW/mQrMxvg45fOr4Zc/Oo1doqpfWLi+q4W3g==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.10"
     assert "^2.0.0"
