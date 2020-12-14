@@ -78,7 +78,7 @@ export class HaloRecoveryInitiator {
       topic: PublicKey.from(swarmKey),
       peerId: PublicKey.from(this._peerId),
       protocol: greetingProtocolProvider(swarmKey, this._peerId, [this._greeterPlugin]),
-      topology: new FullyConnectedTopology(),
+      topology: new FullyConnectedTopology()
     });
 
     await peerJoinedWaiter;

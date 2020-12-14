@@ -12,7 +12,8 @@ import { KeyPair, PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
-import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
+import { NetworkManager } from '@dxos/network-manager';
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { Storage } from '@dxos/random-access-multi-storage';
 
@@ -27,7 +28,6 @@ import { ResultSet } from './result';
 import { SnapshotStore } from './snapshots/snapshot-store';
 import { FeedStoreAdapter } from './util/feed-store-adapter';
 import { createRamStorage } from './util/persistant-ram-storage';
-import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 
 const log = debug('dxos:echo');
 

@@ -27,7 +27,7 @@ import {
 import { codec, EchoEnvelope, Timeframe } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
-import { NetworkManager, SwarmProvider } from '@dxos/network-manager';
+import { NetworkManager } from '@dxos/network-manager';
 import { ObjectModel } from '@dxos/object-model';
 import { checkType, createWritableFeedStream, latch } from '@dxos/util';
 

@@ -76,7 +76,7 @@ export class OfflineInvitationClaimer {
       topic: PublicKey.from(swarmKey),
       protocol: greetingProtocolProvider(swarmKey, localPeerId, [this._greeterPlugin]),
       peerId: PublicKey.from(localPeerId),
-      topology: new FullyConnectedTopology(),
+      topology: new FullyConnectedTopology()
     });
 
     await peerJoinedWaiter;

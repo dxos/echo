@@ -64,10 +64,10 @@ export class PartyProtocol {
 
     log('Start', this._partyKey.toHex());
     return this._networkManager.joinProtocolSwarm({
-      topic: this._partyKey, 
+      topic: this._partyKey,
       protocol: ({ channel }: any) => this._createProtocol(channel),
       peerId: PublicKey.random(), // TODO(marik-d): Should this be a specific peer id?
-      topology: new MMSTTopology(),
+      topology: new MMSTTopology()
     });
   }
 

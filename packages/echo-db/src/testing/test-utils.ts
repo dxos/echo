@@ -7,7 +7,7 @@ import debug from 'debug';
 
 import { createKeyPair } from '@dxos/crypto';
 import { Model } from '@dxos/model-factory';
-import { SwarmProvider } from '@dxos/network-manager';
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 import { Storage } from '@dxos/random-access-multi-storage';
 import { jsonReplacer, range } from '@dxos/util';
 
@@ -15,7 +15,6 @@ import { ECHO } from '../echo';
 import { Item, ItemCreationOptions } from '../items';
 import { Party } from '../parties';
 import { createRamStorage } from '../util/persistant-ram-storage';
-import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 
