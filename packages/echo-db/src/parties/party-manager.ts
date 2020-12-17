@@ -23,7 +23,7 @@ const CONTACT_DEBOUNCE_INTERVAL = 500;
 
 const log = debug('dxos:echo:parties:party-manager');
 
-interface OpenProgress {
+export interface OpenProgress {
   haloOpened: boolean;
   partiesOpened?: number;
   totalParties?: number;
@@ -66,11 +66,11 @@ export class PartyManager {
 
   @synchronized
   @timed(6000)
-  async open (cb?: (progress: OpenProgress) => void) {
+  async open (onProgressCallback?: (progress: OpenProgress) => void) {
     if (this._opened) {
       return;
     }
-    cb?.({ haloOpened: false });
+    onProgressCallback?.({ haloOpened: false });
 
     await this._feedStore.open();
 
@@ -87,13 +87,13 @@ export class PartyManager {
       }
     }
 
-    cb?.({ haloOpened: true });
+    onProgressCallback?.({ haloOpened: true });
 
     // TODO(telackey): Does it make any sense to load other parties if we don't have an HALO?
 
     // Iterate descriptors and pre-create Party objects.
     const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey))
-    cb?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
+    onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
     for (let i = 0; i < nonHaloParties.length; i++) {
       const partyKey = nonHaloParties[i];
       if (!this._parties.has(partyKey)) {
@@ -110,7 +110,7 @@ export class PartyManager {
         }
 
         this._setParty(party);
-        cb?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
+        onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
       }
     }
 
