@@ -92,7 +92,7 @@ export class PartyManager {
     // TODO(telackey): Does it make any sense to load other parties if we don't have an HALO?
 
     // Iterate descriptors and pre-create Party objects.
-    const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey))
+    const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey));
     onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
     for (let i = 0; i < nonHaloParties.length; i++) {
       const partyKey = nonHaloParties[i];
