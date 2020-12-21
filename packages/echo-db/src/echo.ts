@@ -22,7 +22,7 @@ import {
 } from './invitations';
 import { UnknownModel } from './items';
 import {
-  HALO_CONTACT_LIST_TYPE, IdentityManager, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
+  HALO_CONTACT_LIST_TYPE, IdentityManager, OpenProgress, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
 } from './parties';
 import { ResultSet } from './result';
 import { SnapshotStore } from './snapshots/snapshot-store';
@@ -213,13 +213,13 @@ export class ECHO {
   }
 
   /**
-   * Opens the pary and constructs the inbound/outbound mutation streams.
+   * Opens the party and constructs the inbound/outbound mutation streams.
    */
-  async open () {
+  async open (onProgressCallback?: ((progress: OpenProgress) => void) | undefined) {
     if (!this.isOpen) {
       await this._networkManager.start();
       await this._keyring.load();
-      await this._partyManager.open();
+      await this._partyManager.open(onProgressCallback);
     }
   }
 
