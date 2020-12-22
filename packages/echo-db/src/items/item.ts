@@ -6,6 +6,15 @@ import { Event } from '@dxos/async';
 import { EchoEnvelope, ItemID, ItemMutation, ItemType, FeedWriter } from '@dxos/echo-protocol';
 import { Model, ModelMeta } from '@dxos/model-factory';
 
+import type { Link } from './link';
+
+export interface LinkData {
+  leftId: ItemID
+  rightId: ItemID
+  left?: Item<any>
+  right?: Item<any>
+}
+
 /**
  * A globally addressable data item.
  * Items are hermetic data structures contained within a Party. They may be hierarchical.
@@ -15,7 +24,15 @@ export class Item<M extends Model<any>> {
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
 
+  // Link data (if this item is a link). Only to be set on item genesis.
+  protected _link: LinkData | null = null;
+
   private readonly _children = new Set<Item<any>>();
+
+  /**
+   * Links that reference this item.
+   */
+  private readonly _xrefs = new Set<Link<any, any, any>>();
 
   private readonly _onUpdate = new Event<this>();
 
@@ -34,9 +51,11 @@ export class Item<M extends Model<any>> {
     private readonly _modelMeta: ModelMeta, // TODO(burdon): Why is this not part of the Model interface?
     private readonly _model: M,
     private readonly _writeStream?: FeedWriter<EchoEnvelope>,
-    parent?: Item<any> | null
+    parent?: Item<any> | null,
+    link?: LinkData | null
   ) {
     this._updateParent(parent);
+    this._setLink(link ?? null);
 
     // Model updates mean Item updates, so make sure we are subscribed as well.
     this._onUpdate.addEffect(() => this._model.subscribe(() => this._onUpdate.emit(this)));
@@ -74,6 +93,18 @@ export class Item<M extends Model<any>> {
     return Array.from(this._children.values());
   }
 
+  get isLink () {
+    return !!this._link;
+  }
+
+  get isDanglingLink () {
+    return this._link && (!this._link.left || !this._link.right);
+  }
+
+  get xrefs (): Link<any, any, any>[] {
+    return Array.from(this._xrefs.values()).filter(link => !link.isDanglingLink);
+  }
+
   /**
    * Subscribe for updates.
    * @param listener
@@ -102,6 +133,10 @@ export class Item<M extends Model<any>> {
     await waitForProcessing;
   }
 
+  /**
+   * Process a mutation on this item. Package-private.
+   * @private
+   */
   _processMutation (mutation: ItemMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
     const { parentId } = mutation;
 
@@ -113,7 +148,7 @@ export class Item<M extends Model<any>> {
     this._onUpdate.emit(this);
   }
 
-  _updateParent (parent: Item<any> | null | undefined) {
+  private _updateParent (parent: Item<any> | null | undefined) {
     if (this._parent) {
       this._parent._children.delete(this);
     }
@@ -123,6 +158,14 @@ export class Item<M extends Model<any>> {
       this._parent._children.add(this);
     } else {
       this._parent = null;
+    }
+  }
+
+  private _setLink (linkData: LinkData | null) {
+    this._link = linkData;
+    if (linkData) {
+      linkData?.left?._xrefs?.add(this as any);
+      linkData?.right?._xrefs?.add(this as any);
     }
   }
 }

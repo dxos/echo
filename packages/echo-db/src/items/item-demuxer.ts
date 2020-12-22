@@ -72,7 +72,8 @@ export class ItemDemuxer {
           modelType: this._modelFactory.hasModel(modelType) ? modelType : UnknownModel.meta.type,
           itemType,
           readStream: itemStream,
-          initialMutations: mutation ? [{ mutation, meta }] : undefined
+          initialMutations: mutation ? [{ mutation, meta }] : undefined,
+          link: genesis.link
         });
         if (item.model instanceof UnknownModel) {
           item.model.originalModelType = modelType;

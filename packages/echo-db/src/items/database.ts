@@ -1,21 +1,32 @@
 //
 // Copyright 2020 DXOS.org
 //
+import assert from 'assert';
 
 import { synchronized } from '@dxos/async';
 import { EchoEnvelope, FeedWriter, ItemID, ItemType, DatabaseSnapshot } from '@dxos/echo-protocol';
 import { Model, ModelConstructor, validateModelClass, ModelFactory } from '@dxos/model-factory';
+import { ObjectModel } from '@dxos/object-model';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
+import { Link } from './link';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
   model: ModelConstructor<M>
   type?: ItemType
   parent?: ItemID
+  props?: any // TODO(marik-d): Type this better.
+}
+
+export interface LinkCreationOptions<M, L extends Model<any>, R extends Model<any>> {
+  model?: ModelConstructor<M>
+  type?: ItemType
+  left: Item<L>
+  right: Item<R>
   props?: any // TODO(marik-d): Type this better.
 }
 
@@ -101,6 +112,27 @@ export class Database {
     }
 
     return this._itemManager.createItem(options.model.meta.type, options.type, options.parent, options.props);
+  }
+
+  createLink<M extends Model<any>, L extends Model<any>, R extends Model<any>> (options: LinkCreationOptions<M, L, R>): Promise<Link<M, L, R>> {
+    this._assertInitialized();
+
+    const model = options.model ?? ObjectModel;
+
+    if (!model) {
+      throw new TypeError('You must specify the model for this item.');
+    }
+
+    validateModelClass(model);
+
+    if (options.type && typeof options.type !== 'string') {
+      throw new TypeError('Optional item type must be a string URL.');
+    }
+
+    assert(options.left instanceof Item);
+    assert(options.right instanceof Item);
+
+    return this._itemManager.createLink(model.meta.type, options.type, options.left.id, options.right.id, options.props);
   }
 
   /**

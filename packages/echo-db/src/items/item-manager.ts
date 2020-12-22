@@ -8,12 +8,13 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter } from '@dxos/echo-protocol';
+import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, LinkData } from '@dxos/echo-protocol';
 import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
 import { createTransform, timed } from '@dxos/util';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
+import { Link } from './link';
 import { TimeframeClock } from './timeframe-clock';
 import { UnknownModel } from './unknown-model';
 
@@ -33,6 +34,7 @@ export interface ItemConstructionOptions {
   parentId?: ItemID,
   initialMutations?: ModelMessage<Uint8Array>[],
   modelSnapshot?: Uint8Array,
+  link?: LinkData
 }
 
 /**
@@ -118,6 +120,52 @@ export class ItemManager {
     return await waitForCreation();
   }
 
+  @timed(5000)
+  async createLink (modelType: ModelType, itemType: ItemType | undefined, left: ItemID, right: ItemID, initProps?: any): Promise<Link<any, any, any>> {
+    assert(this._writeStream);
+    assert(modelType);
+
+    if (!this._modelFactory.hasModel(modelType)) {
+      throw new Error(`Unknown model: ${modelType}`);
+    }
+
+    let mutation: Uint8Array | undefined;
+    if (initProps) {
+      const meta = this._modelFactory.getModelMeta(modelType);
+      if (!meta.getInitMutation) {
+        throw new Error('Tried to provide initialization params to a model with no initializer');
+      }
+      mutation = meta.mutation.encode(await meta.getInitMutation(initProps));
+    }
+
+    // Pending until constructed (after genesis block is read from stream).
+    const [waitForCreation, callback] = trigger<Item<any>>();
+
+    const itemId = createId();
+    this._pendingItems.set(itemId, callback);
+
+    // Write Item Genesis block.
+    log('Item Genesis:', itemId);
+    await this._writeStream.write({
+      itemId,
+      genesis: {
+        itemType,
+        modelType,
+        link: {
+          leftItemId: left,
+          rightItemId: right
+        }
+      },
+      mutation
+    });
+
+    // Unlocked by construct.
+    log('Pending Item:', itemId);
+    const link = await waitForCreation();
+    assert(link instanceof Link);
+    return link;
+  }
+
   /**
    * Constructs an item with the appropriate model.
    * @param itemId
@@ -135,7 +183,8 @@ export class ItemManager {
     readStream,
     parentId,
     initialMutations,
-    modelSnapshot
+    modelSnapshot,
+    link
   }: ItemConstructionOptions) {
     assert(itemId);
     assert(modelType);
@@ -180,8 +229,20 @@ export class ItemManager {
     // Connect the streams.
     readStream.pipe(inboundTransform).pipe(model.processor);
 
+    if (link) {
+      assert(link.leftItemId);
+      assert(link.rightItemId);
+    }
+
     // Create the Item.
-    const item = new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
+    const item = link
+      ? new Link(itemId, itemType, modelMeta, model, this._writeStream, parent, {
+        leftId: link.leftItemId!,
+        rightId: link.rightItemId!,
+        left: this.getItem(link.leftItemId!),
+        right: this.getItem(link.rightItemId!)
+      })
+      : new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 
     if (modelSnapshot) {
       if (model instanceof UnknownModel) {
@@ -232,7 +293,11 @@ export class ItemManager {
    */
   queryItems <M extends Model<any> = any> (filter: ItemFilter = {}): ResultSet<Item<M>> {
     return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
-      .filter(item => !(item.model instanceof UnknownModel) && matchesFilter(item, filter)));
+      .filter(item =>
+        !item.isLink &&
+        !(item.model instanceof UnknownModel) &&
+        this._matchesFilter(item, filter)
+      ));
   }
 
   getItemsWithUnknownModels (): Item<UnknownModel>[] {
@@ -261,20 +326,20 @@ export class ItemManager {
       modelSnapshot: item.model.snapshot
     });
   }
-}
 
-function matchesFilter (item: Item<any>, filter: ItemFilter) {
-  if (filter.type && (!item.type || !equalsOrIncludes(item.type, filter.type))) {
-    return false;
-  }
-  if (filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
-    return false;
-  }
-  if (filter.id && !equalsOrIncludes(item.id, filter.id)) {
-    return false;
-  }
+  private _matchesFilter (item: Item<any>, filter: ItemFilter) {
+    if (filter.type && (!item.type || !equalsOrIncludes(item.type, filter.type))) {
+      return false;
+    }
+    if (filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
+      return false;
+    }
+    if (filter.id && !equalsOrIncludes(item.id, filter.id)) {
+      return false;
+    }
 
-  return true;
+    return true;
+  }
 }
 
 function equalsOrIncludes<T> (value: T, expected: T | T[]) {
