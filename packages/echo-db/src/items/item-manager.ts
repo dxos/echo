@@ -121,7 +121,7 @@ export class ItemManager {
   }
 
   @timed(5000)
-  async createLink (modelType: ModelType, itemType: ItemType | undefined, left: ItemID, right: ItemID, initProps?: any): Promise<Link<any, any, any>> {
+  async createLink (modelType: ModelType, itemType: ItemType | undefined, from: ItemID, to: ItemID, initProps?: any): Promise<Link<any, any, any>> {
     assert(this._writeStream);
     assert(modelType);
 
@@ -151,10 +151,7 @@ export class ItemManager {
       genesis: {
         itemType,
         modelType,
-        link: {
-          leftItemId: left,
-          rightItemId: right
-        }
+        link: { fromId: from, toId: to }
       },
       mutation
     });
@@ -230,17 +227,17 @@ export class ItemManager {
     readStream.pipe(inboundTransform).pipe(model.processor);
 
     if (link) {
-      assert(link.leftItemId);
-      assert(link.rightItemId);
+      assert(link.fromId);
+      assert(link.toId);
     }
 
     // Create the Item.
     const item = link
       ? new Link(itemId, itemType, modelMeta, model, this._writeStream, parent, {
-        leftId: link.leftItemId!,
-        rightId: link.rightItemId!,
-        left: this.getItem(link.leftItemId!),
-        right: this.getItem(link.rightItemId!)
+        fromId: link.fromId!,
+        toId: link.toId!,
+        from: this.getItem(link.fromId!),
+        to: this.getItem(link.toId!)
       })
       : new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 

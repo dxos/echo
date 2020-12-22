@@ -40,25 +40,25 @@ export class Link<M extends Model<any>, L extends Model<any>, R extends Model<an
     return true;
   }
 
-  get leftId (): ItemID {
+  get fromId (): ItemID {
     assert(this._link);
-    return this._link.leftId;
+    return this._link.fromId;
   }
 
-  get rightId (): ItemID {
+  get toId (): ItemID {
     assert(this._link);
-    return this._link.rightId;
+    return this._link.toId;
   }
 
-  get left (): Item<L> {
+  get from (): Item<L> {
     assert(this._link);
-    assert(this._link.left, 'Dangling link');
-    return this._link.left;
+    assert(this._link.from, 'Dangling link');
+    return this._link.from;
   }
 
-  get right (): Item<R> {
+  get to (): Item<R> {
     assert(this._link);
-    assert(this._link.right, 'Dangling link');
-    return this._link.right;
+    assert(this._link.to, 'Dangling link');
+    return this._link.to;
   }
 }
