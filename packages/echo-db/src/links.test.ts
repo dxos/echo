@@ -21,9 +21,9 @@ test('directed links', async () => {
   const google = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'Google' } });
   const facebook = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'Facebook' } });
 
-  await party.database.createLink({ left: alice, type: LINK_WORKS_FOR, right: google });
-  await party.database.createLink({ left: bob, type: LINK_WORKS_FOR, right: google });
-  await party.database.createLink({ left: bob, type: LINK_WORKS_FOR, right: facebook });
+  await party.database.createLink({ source: alice, type: LINK_WORKS_FOR, target: google });
+  await party.database.createLink({ source: bob, type: LINK_WORKS_FOR, target: google });
+  await party.database.createLink({ source: bob, type: LINK_WORKS_FOR, target: facebook });
 
   // Find all companies Bob works for
   expect(
@@ -44,8 +44,8 @@ test('undirected links', async () => {
   const bob = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
   const charlie = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Charlie' } });
 
-  await party.database.createLink({ left: alice, type: LINK_FRIENDS_WITH, right: bob });
-  await party.database.createLink({ left: alice, type: LINK_FRIENDS_WITH, right: charlie });
+  await party.database.createLink({ source: alice, type: LINK_FRIENDS_WITH, target: bob });
+  await party.database.createLink({ source: alice, type: LINK_FRIENDS_WITH, target: charlie });
 
   // Find all fiends of Bob
   expect(

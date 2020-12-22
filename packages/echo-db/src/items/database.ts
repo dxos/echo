@@ -25,8 +25,8 @@ export interface ItemCreationOptions<M> {
 export interface LinkCreationOptions<M, L extends Model<any>, R extends Model<any>> {
   model?: ModelConstructor<M>
   type?: ItemType
-  left: Item<L>
-  right: Item<R>
+  source: Item<L>
+  target: Item<R>
   props?: any // TODO(marik-d): Type this better.
 }
 
@@ -129,10 +129,10 @@ export class Database {
       throw new TypeError('Optional item type must be a string URL.');
     }
 
-    assert(options.left instanceof Item);
-    assert(options.right instanceof Item);
+    assert(options.source instanceof Item);
+    assert(options.target instanceof Item);
 
-    return this._itemManager.createLink(model.meta.type, options.type, options.left.id, options.right.id, options.props);
+    return this._itemManager.createLink(model.meta.type, options.type, options.source.id, options.target.id, options.props);
   }
 
   /**
