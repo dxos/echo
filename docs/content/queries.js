@@ -2,6 +2,7 @@ const PERSON = objectType(ObjectModel, 'dxn:echo.dxos:object/person')
 const ORG = objectType(ObjectModel, 'dxn:echo.dxos:object/ORG')
 
 const WORKS_FOR = linkType(PERSON, 'dxn:echo.dxos:link/works-for', ORG)
+const FRIENDS_WITH = linkType(PERSON, 'dxn:echo.dxos:link/friends-with', PERSON)
 
 
 
