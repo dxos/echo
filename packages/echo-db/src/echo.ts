@@ -217,7 +217,6 @@ export class ECHO {
    */
   async open (onProgressCallback?: ((progress: OpenProgress) => void) | undefined) {
     if (!this.isOpen) {
-      await this._networkManager.start();
       await this._keyring.load();
       await this._partyManager.open(onProgressCallback);
     }

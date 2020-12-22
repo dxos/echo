@@ -22,9 +22,9 @@
     "build": "yarn build:protobuf && tsc --build",
     "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/text-model.proto -o src/proto/gen",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
-    "coverage": "jest --coverage --verbose --rootDir=./src --passWithNoTests",
+    "coverage": "jest --coverage --verbose --rootDir=./src --passWithNoTests --forceExit",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests",
+    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit",
     "prepublishOnly": "npm run test && npm run build",
     "watch": "babel-watch src --out-dir ./dist --source-maps"
   },
