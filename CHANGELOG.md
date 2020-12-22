@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [2.6.18](https://www.github.com/dxos/echo/compare/v2.6.17...v2.6.18) (2020-12-22)
+
+
+### Features
+
+* Add swarm labels ([#372](https://www.github.com/dxos/echo/issues/372)) ([011a4d6](https://www.github.com/dxos/echo/commit/011a4d6bb1e3a3b76095e7a32342b4444eed2bc1))
+
+
+### Bug Fixes
+
+* Introduce a progress callback ([#370](https://www.github.com/dxos/echo/issues/370)) ([a3b9aa8](https://www.github.com/dxos/echo/commit/a3b9aa8298570ce890cca8d54c1dcb6b65d3ed0f))
+* Mesh bump ([#373](https://www.github.com/dxos/echo/issues/373)) ([1bd4067](https://www.github.com/dxos/echo/commit/1bd406709e02b6711fe1a2ca5d93fccb06394b9d))
+* Upgrade DXOS dependencies ([#368](https://www.github.com/dxos/echo/issues/368)) ([d73707a](https://www.github.com/dxos/echo/commit/d73707ac5b176aa3bd1bb56bd14834ba6c300183))
+
 ### [2.6.17](https://www.github.com/dxos/echo/compare/v2.6.16...v2.6.17) (2020-12-17)
 
 
