@@ -9,6 +9,7 @@ import { createTestInstance } from './testing/test-utils';
 const OBJECT_PERSON = 'dxn:echo.dxos:object/person';
 const OBJECT_ORG = 'dxn:echo.dxos:object/org';
 const LINK_WORKS_FOR = 'dxn:echo.dxos:link/works-for';
+const LINK_FRIENDS_WITH = 'dxn:echo.dxos:link/friends-with';
 
 test('directed links', async () => {
   const echo = await createTestInstance({ initialize: true });
@@ -33,4 +34,26 @@ test('directed links', async () => {
   expect(
     google.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.left)
   ).toStrictEqual([alice, bob]);
+});
+
+test('undirected links', async () => {
+  const echo = await createTestInstance({ initialize: true });
+  const party = await echo.createParty();
+
+  const alice = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
+  const bob = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
+  const charlie = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Charlie' } });
+
+  await party.database.createLink({ left: alice, type: LINK_FRIENDS_WITH, right: bob });
+  await party.database.createLink({ left: alice, type: LINK_FRIENDS_WITH, right: charlie });
+
+  // Find all fiends of Bob
+  expect(
+    bob.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.right !== bob ? l.right : l.left)
+  ).toStrictEqual([alice]);
+
+  // Find all fiends of Alice
+  expect(
+    alice.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.right !== alice ? l.right : l.left)
+  ).toStrictEqual([bob, charlie]);
 });
