@@ -1,7 +1,3 @@
-query([{ a: 'org' }, '<-works--', {b: 'person' }, 'friends', { c: 'person' }])
-  .where(({ a }) => a.name === 'Alice')
-
-
 const PERSON = objectType(ObjectModel, 'dxn:echo.dxos:object/person')
 const ORG = objectType(ObjectModel, 'dxn:echo.dxos:object/ORG')
 
@@ -44,3 +40,41 @@ database.query(alice)
   .linked(FRIENDS_WITH).other()   // Query<Item<ObjectModel>>
   .linkedFrom(WORKS_FOR).to()     // Query<Item<ObjectModel>>
   .exec()
+
+// Find all friends of Alice who work at Google
+database.query(alice)
+  .linked(FRIENDS_WITH).other()   // Query<Item<ObjectModel>>
+  .where(a => database.query(a)
+    .linkFrom(WORKS_FOR).to()
+    .contains(google)
+  )
+  .exec()
+
+
+// Find all friends of Alice who work at Google
+const googleEmployees = database.query(google)
+  .linkedTo(WORKS_FOR).from()
+  .exec()
+
+database.query(alice)
+  .linked(FRIENDS_WITH).other()
+  .intersect(googleEmployees)
+  .exec()
+
+
+//
+// Match syntax
+//
+
+
+// Find all companies Alice works for
+database.query([alice, linkTo(WORKS_FOR), { org: ORG }])         // Query<{ org: Item<ObjectModel> }>
+
+// Find all employees of google
+database.query([google, linkFrom(WORKS_FOR), { employee: PERSON }]) // Query<{ org: Item<ObjectModel> }>
+
+// Find all companies friends of Alice work at
+database.query([alice, link(FRIENDS_WITH), PERSON, linkTo(WORKS_FOR), { org: ORG }]) // Query<{ org: Item<ObjectModel> }>
+
+// Find all friends of Alice who work at Google
+database.query([alice, link(FRIENDS_WITH), { friend: PERSON }, linkTo(WORKS_FOR), google]) // Query<{ friend: Item<ObjectModel> }>
