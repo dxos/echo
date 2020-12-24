@@ -19,10 +19,10 @@ const createItem = (id: ItemID, type: string) =>
 // TODO(burdon): Create link mutation.
 const createLink = (id: ItemID, type: string, source: Item<any>, target: Item<any>) =>
   new Link(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id), undefined, undefined, {
-    fromId: source.id,
-    toId: target.id,
-    from: source,
-    to: target
+    sourceId: source.id,
+    targetId: target.id,
+    source: source,
+    target: target
   });
 
 // TODO(burdon): Implement generator for testing.
@@ -80,7 +80,7 @@ describe('Selection', () => {
         selection
           .select({ link: 'wrn:dxos/link/employee' })
           .each((link) => {
-            assert(link.fromId === org.id);
+            assert(link.sourceId === org.id);
             count.links++;
           });
       });

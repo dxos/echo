@@ -20,7 +20,6 @@ export interface SelectFilterByLink {
 export type SelectFilter = SelectFilterByType | SelectFilterByLink;
 
 /**
- * Is this a monad?
  * Based loosely on https://github.com/d3/d3-selection
  */
 export class Selection<I extends Item<any>> {
@@ -58,7 +57,7 @@ export class Selection<I extends Item<any>> {
       return new Selection(this._items.filter(item => item.type === filter.type), this._onUpdate);
     } else if ('link' in filter) {
       return new Selection(deduplicate(this._items.flatMap(item =>
-        item.xrefs.filter(link => link.type === filter.link && link.from === item)
+        item.xrefs.filter(link => link.type === filter.link && link.source === item)
       )), this._onUpdate);
     } else {
       throw new Error(`Invalid filter: ${JSON.stringify(filter)}`);
@@ -66,7 +65,7 @@ export class Selection<I extends Item<any>> {
   }
 
   target (this: Selection<Link<any, any, any>>) {
-    return new Selection(deduplicate(this._items.map(link => link.to)), this._onUpdate);
+    return new Selection(deduplicate(this._items.map(link => link.target)), this._onUpdate);
   }
 }
 

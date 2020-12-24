@@ -234,10 +234,10 @@ export class ItemManager {
     // Create the Item.
     const item = link
       ? new Link(itemId, itemType, modelMeta, model, this._writeStream, parent, {
-        fromId: link.fromId!,
-        toId: link.toId!,
-        from: this.getItem(link.fromId!),
-        to: this.getItem(link.toId!)
+        sourceId: link.fromId!,
+        targetId: link.toId!,
+        source: this.getItem(link.fromId!),
+        target: this.getItem(link.toId!)
       })
       : new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 

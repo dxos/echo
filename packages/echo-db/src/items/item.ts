@@ -9,10 +9,10 @@ import { Model, ModelMeta } from '@dxos/model-factory';
 import type { Link } from './link';
 
 export interface LinkData {
-  fromId: ItemID
-  toId: ItemID
-  from?: Item<any>
-  to?: Item<any>
+  sourceId: ItemID
+  targetId: ItemID
+  source?: Item<any>
+  target?: Item<any>
 }
 
 /**
@@ -99,7 +99,7 @@ export class Item<M extends Model<any>> {
 
   // TODO(burdon): Move?
   get isDanglingLink () {
-    return this._link && (!this._link.from || !this._link.to);
+    return this._link && (!this._link.source || !this._link.target);
   }
 
   // TODO(burdon): Move?
@@ -166,8 +166,8 @@ export class Item<M extends Model<any>> {
   private _setLink (linkData: LinkData | null) {
     this._link = linkData;
     if (linkData) {
-      linkData?.from?._xrefs?.add(this as any);
-      linkData?.to?._xrefs?.add(this as any);
+      linkData?.source?._xrefs?.add(this as any);
+      linkData?.target?._xrefs?.add(this as any);
     }
   }
 }

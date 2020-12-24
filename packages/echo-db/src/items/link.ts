@@ -40,25 +40,25 @@ export class Link<M extends Model<any>, L extends Model<any>, R extends Model<an
     return true;
   }
 
-  get fromId (): ItemID {
+  get sourceId (): ItemID {
     assert(this._link);
-    return this._link.fromId;
+    return this._link.sourceId;
   }
 
-  get toId (): ItemID {
+  get targetId (): ItemID {
     assert(this._link);
-    return this._link.toId;
+    return this._link.targetId;
   }
 
-  get from (): Item<L> {
+  get source (): Item<L> {
     assert(this._link);
-    assert(this._link.from, 'Dangling link');
-    return this._link.from;
+    assert(this._link.source, 'Dangling link');
+    return this._link.source;
   }
 
-  get to (): Item<R> {
+  get target (): Item<R> {
     assert(this._link);
-    assert(this._link.to, 'Dangling link');
-    return this._link.to;
+    assert(this._link.target, 'Dangling link');
+    return this._link.target;
   }
 }

@@ -27,12 +27,12 @@ test('directed links', async () => {
 
   // Find all companies Bob works for
   expect(
-    bob.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.to)
+    bob.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.target)
   ).toStrictEqual([google, facebook]);
 
   // Find all employees of Google
   expect(
-    google.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.from)
+    google.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.source)
   ).toStrictEqual([alice, bob]);
 });
 
@@ -49,11 +49,11 @@ test('undirected links', async () => {
 
   // Find all fiends of Bob
   expect(
-    bob.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.to !== bob ? l.to : l.from)
+    bob.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== bob ? l.target : l.source)
   ).toStrictEqual([alice]);
 
   // Find all fiends of Alice
   expect(
-    alice.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.to !== alice ? l.to : l.from)
+    alice.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== alice ? l.target : l.source)
   ).toStrictEqual([bob, charlie]);
 });
