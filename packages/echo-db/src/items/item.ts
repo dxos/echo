@@ -97,10 +97,12 @@ export class Item<M extends Model<any>> {
     return !!this._link;
   }
 
+  // TODO(burdon): Move?
   get isDanglingLink () {
     return this._link && (!this._link.from || !this._link.to);
   }
 
+  // TODO(burdon): Move?
   get xrefs (): Link<any, any, any>[] {
     return Array.from(this._xrefs.values()).filter(link => !link.isDanglingLink);
   }
@@ -119,7 +121,9 @@ export class Item<M extends Model<any>> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    const waitForProcessing = this._onUpdate.waitFor(() => parentId === this._parent?.id);
+    // Wait for mutation below to be processed.
+    // TODO(burdon): Refine to wait for this specific mutation.
+    const onUpdate = this._onUpdate.waitFor(() => parentId === this._parent?.id);
 
     await this._writeStream.write({
       itemId: this._itemId,
@@ -128,9 +132,7 @@ export class Item<M extends Model<any>> {
       }
     });
 
-    // It would be very surprising for item.parent still to reference the old parent just after calling item.setParent.
-    // To prevent that unexpected result, we wait for the mutation written above to be processed.
-    await waitForProcessing;
+    await onUpdate;
   }
 
   /**

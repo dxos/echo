@@ -13,6 +13,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
 import { Link } from './link';
+import { SelectFilter, Selection, SelectFilterByLink, SelectFilterByType } from './selection';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
@@ -164,6 +165,14 @@ export class Database {
       const [item] = await query.update.waitFor(items => items.length > 0);
       return item;
     }
+  }
+
+  select(filter: SelectFilterByType): Selection<Item<any>>;
+  select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
+
+  select (filter: SelectFilter): Selection<any> {
+    const result = this._itemManager.queryItems({});
+    return new Selection(result.value, result.update.discardParameter()).select(filter as any);
   }
 
   createSnapshot () {
