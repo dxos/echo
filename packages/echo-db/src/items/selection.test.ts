@@ -73,7 +73,7 @@ describe('Selection', () => {
       links: 0
     };
 
-    const selection = new Selection(items, new Event())
+    new Selection(items, new Event())
       .select({ type: 'wrn:dxos/type/org' })
       .each((org, selection) => {
         count.org++;
