@@ -161,3 +161,44 @@ database.query([alice, link(FRIENDS_WITH), PERSON, linkTo(WORKS_FOR), { org: ORG
 
 // Find all friends of Alice who work at Google
 database.query([alice, link(FRIENDS_WITH), { friend: PERSON }, linkTo(WORKS_FOR), google]) // Query<{ friend: Item<ObjectModel> }>
+
+
+
+
+
+
+
+useQuery(() => {
+  const result: { 
+    orgs: Record<ItemId, {
+      org: Item
+      employees: Item[]
+      managers: Item[]
+    }>
+  } = {}
+
+
+
+  database
+    .select({ type: 'org' })              // () -> [orgs]
+      .each(item => console.log('Org', item))
+      .each(item => {
+        result.orgs[item.id] = { org: item }
+      })
+      .select({ link: 'employee' })        // [org] -> [[link]]
+        .each(item => console.log(item.source.id, ' => ', item.target.id))
+        .call((selection, org) => { 
+          result.orgs[org.id].employees = selection.items.map(item => item.target)
+        })   // once per org with a set of links
+        .target()
+        .select({ properties: { manager: true } })   // [[link]] -> [[link]]
+          .call((selection, empLink)  => {
+            result.orgs[selection.parent.parent.context.id].managers = selection.items
+          })
+  return result;    
+}, [])
+
+{
+  source: OrgItem
+  items: Map<Id, EmpItem>
+}
