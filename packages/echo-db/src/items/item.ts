@@ -32,7 +32,7 @@ export class Item<M extends Model<any>> {
   /**
    * Links that reference this item.
    */
-  private readonly _xrefs = new Set<Link<any, any, any>>();
+  private readonly _links = new Set<Link<any, any, any>>();
 
   private readonly _onUpdate = new Event<this>();
 
@@ -103,8 +103,8 @@ export class Item<M extends Model<any>> {
   }
 
   // TODO(burdon): Move?
-  get xrefs (): Link<any, any, any>[] {
-    return Array.from(this._xrefs.values()).filter(link => !link.isDanglingLink);
+  get links (): Link<any, any, any>[] {
+    return Array.from(this._links.values()).filter(link => !link.isDanglingLink);
   }
 
   /**
@@ -163,11 +163,15 @@ export class Item<M extends Model<any>> {
     }
   }
 
+  /**
+   * Turn this item into a link.
+   */
+  // TODO(marik-d): Refactor by splitting `Item` into `Object` and `Link` subclasses.
   private _setLink (linkData: LinkData | null) {
     this._link = linkData;
     if (linkData) {
-      linkData?.source?._xrefs?.add(this as any);
-      linkData?.target?._xrefs?.add(this as any);
+      linkData?.source?._links?.add(this as any);
+      linkData?.target?._links?.add(this as any);
     }
   }
 }

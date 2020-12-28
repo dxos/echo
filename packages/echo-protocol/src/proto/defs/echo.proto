@@ -50,8 +50,8 @@ message ItemGenesis {
 }
 
 message LinkData {
-  string fromId = 1;
-  string toId = 2;
+  string source = 1;
+  string target = 2;
 }
 
 //

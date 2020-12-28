@@ -1,6 +1,7 @@
 //
 // Copyright 2020 DXOS.org
 //
+
 import assert from 'assert';
 
 import { synchronized } from '@dxos/async';
@@ -99,13 +100,13 @@ export class Database {
     this._assertInitialized();
 
     if (!options.model) {
-      throw new TypeError('You must specify the model for this item.');
+      throw new TypeError('Missing model class.');
     }
 
     validateModelClass(options.model);
 
     if (options.type && typeof options.type !== 'string') {
-      throw new TypeError('Optional item type must be a string URL.');
+      throw new TypeError('Invalid type.');
     }
 
     if (options.parent && typeof options.parent !== 'string') {
@@ -115,19 +116,18 @@ export class Database {
     return this._itemManager.createItem(options.model.meta.type, options.type, options.parent, options.props);
   }
 
-  createLink<M extends Model<any>, L extends Model<any>, R extends Model<any>> (options: LinkCreationOptions<M, L, R>): Promise<Link<M, L, R>> {
+  createLink<M extends Model<any>, S extends Model<any>, T extends Model<any>> (options: LinkCreationOptions<M, S, T>): Promise<Link<M, S, T>> {
     this._assertInitialized();
 
     const model = options.model ?? ObjectModel;
-
     if (!model) {
-      throw new TypeError('You must specify the model for this item.');
+      throw new TypeError('Missing model class.');
     }
 
     validateModelClass(model);
 
     if (options.type && typeof options.type !== 'string') {
-      throw new TypeError('Optional item type must be a string URL.');
+      throw new TypeError('Invalid type.');
     }
 
     assert(options.source instanceof Item);

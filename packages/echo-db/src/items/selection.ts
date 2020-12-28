@@ -57,7 +57,7 @@ export class Selection<I extends Item<any>> {
       return new Selection(this._items.filter(item => item.type === filter.type), this._onUpdate);
     } else if ('link' in filter) {
       return new Selection(deduplicate(this._items.flatMap(item =>
-        item.xrefs.filter(link => link.type === filter.link && link.source === item)
+        item.links.filter(link => link.type === filter.link && link.source === item)
       )), this._onUpdate);
     } else {
       throw new Error(`Invalid filter: ${JSON.stringify(filter)}`);

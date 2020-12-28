@@ -92,7 +92,7 @@ export class ItemManager {
     if (initProps) {
       const meta = this._modelFactory.getModelMeta(modelType);
       if (!meta.getInitMutation) {
-        throw new Error('Tried to provide initialization params to a model with no initializer');
+        throw new Error('Invalid initialization params: model does not support initializer.');
       }
       mutation = meta.mutation.encode(await meta.getInitMutation(initProps));
     }
@@ -121,7 +121,7 @@ export class ItemManager {
   }
 
   @timed(5000)
-  async createLink (modelType: ModelType, itemType: ItemType | undefined, from: ItemID, to: ItemID, initProps?: any): Promise<Link<any, any, any>> {
+  async createLink (modelType: ModelType, itemType: ItemType | undefined, source: ItemID, target: ItemID, initProps?: any): Promise<Link<any, any, any>> {
     assert(this._writeStream);
     assert(modelType);
 
@@ -151,7 +151,7 @@ export class ItemManager {
       genesis: {
         itemType,
         modelType,
-        link: { fromId: from, toId: to }
+        link: { source, target }
       },
       mutation
     });
@@ -227,17 +227,17 @@ export class ItemManager {
     readStream.pipe(inboundTransform).pipe(model.processor);
 
     if (link) {
-      assert(link.fromId);
-      assert(link.toId);
+      assert(link.source);
+      assert(link.target);
     }
 
     // Create the Item.
     const item = link
       ? new Link(itemId, itemType, modelMeta, model, this._writeStream, parent, {
-        sourceId: link.fromId!,
-        targetId: link.toId!,
-        source: this.getItem(link.fromId!),
-        target: this.getItem(link.toId!)
+        sourceId: link.source!,
+        targetId: link.target!,
+        source: this.getItem(link.source!),
+        target: this.getItem(link.target!)
       })
       : new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 

@@ -8,32 +8,32 @@ import { createTestInstance } from './testing/test-utils';
 
 const OBJECT_PERSON = 'dxn:echo.dxos:object/person';
 const OBJECT_ORG = 'dxn:echo.dxos:object/org';
-const LINK_WORKS_FOR = 'dxn:echo.dxos:link/works-for';
+const LINK_EMPLOYEE = 'dxn:echo.dxos:link/employee';
 const LINK_FRIENDS_WITH = 'dxn:echo.dxos:link/friends-with';
 
 test('directed links', async () => {
   const echo = await createTestInstance({ initialize: true });
   const party = await echo.createParty();
 
-  const alice = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
-  const bob = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
+  const p1 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
+  const p2 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
 
-  const google = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'Google' } });
-  const facebook = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'Facebook' } });
+  const org1 = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'DXOS' } });
+  const org2 = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'ACME' } });
 
-  await party.database.createLink({ source: alice, type: LINK_WORKS_FOR, target: google });
-  await party.database.createLink({ source: bob, type: LINK_WORKS_FOR, target: google });
-  await party.database.createLink({ source: bob, type: LINK_WORKS_FOR, target: facebook });
+  await party.database.createLink({ source: org1, type: LINK_EMPLOYEE, target: p1 });
+  await party.database.createLink({ source: org1, type: LINK_EMPLOYEE, target: p2 });
+  await party.database.createLink({ source: org2, type: LINK_EMPLOYEE, target: p2 });
 
   // Find all companies Bob works for
   expect(
-    bob.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.target)
-  ).toStrictEqual([google, facebook]);
+    p2.links.filter(l => l.type === LINK_EMPLOYEE).map(l => l.source)
+  ).toStrictEqual([org1, org2]);
 
   // Find all employees of Google
   expect(
-    google.xrefs.filter(l => l.type === LINK_WORKS_FOR).map(l => l.source)
-  ).toStrictEqual([alice, bob]);
+    org1.links.filter(l => l.type === LINK_EMPLOYEE).map(l => l.target)
+  ).toStrictEqual([p1, p2]);
 });
 
 test('undirected links', async () => {
@@ -49,11 +49,11 @@ test('undirected links', async () => {
 
   // Find all fiends of Bob
   expect(
-    bob.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== bob ? l.target : l.source)
+    bob.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== bob ? l.target : l.source)
   ).toStrictEqual([alice]);
 
   // Find all fiends of Alice
   expect(
-    alice.xrefs.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== alice ? l.target : l.source)
+    alice.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== alice ? l.target : l.source)
   ).toStrictEqual([bob, charlie]);
 });
