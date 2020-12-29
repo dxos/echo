@@ -12,9 +12,10 @@ const noopCodec: Codec<Uint8Array> = {
 
 /**
  * Is instantiated for items that have non-registered type WRNs.
- *
- * In case the original model gets registered with model factory later, this model holds enough information to instantiate that model on-the-fly.
+ * In case the original model gets registered with model factory later,
+ * this model holds enough information to instantiate that model on-the-fly.
  */
+// TODO(burdon): Remove this.
 export class UnknownModel extends Model<Uint8Array> {
   static meta: ModelMeta = {
     type: 'wrn://protocol.dxos.org/model/unknown',

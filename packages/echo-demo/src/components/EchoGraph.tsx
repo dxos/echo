@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
 
+import { ECHO } from '@dxos/echo-db';
 import {
   createSimulationDrag,
   useGraphStyles,
@@ -14,11 +15,9 @@ import {
   LinkProjector,
   NodeProjector,
 } from '@dxos/gem-spore';
-
 import { ObjectModel } from '@dxos/object-model';
 
 import { useDatabase, useGraphData } from '../hooks';
-import { ECHO } from '@dxos/echo-db';
 
 // TODO(burdon): Merge styles.
 const useCustomStyles = makeStyles(() => ({

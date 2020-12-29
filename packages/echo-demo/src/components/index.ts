@@ -3,7 +3,11 @@
 //
 
 import EchoGraph from './EchoGraph';
+import LinksGraph from './LinksGraph';
+import MemberList from './MemberList';
 
 export {
-  EchoGraph
+  EchoGraph,
+  LinksGraph,
+  MemberList
 };

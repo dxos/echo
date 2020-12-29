@@ -3,5 +3,5 @@
 //
 
 export * from './components';
-export * from './database';
 export * from './hooks';
+export * from './types';
