@@ -169,10 +169,11 @@ export class Database {
 
   select(filter: SelectFilterByType): Selection<Item<any>>;
   select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
+  select(): Selection<Item<any>>;
 
-  select (filter: SelectFilter): Selection<any> {
+  select (filter: any = {}): Selection<any> {
     const result = this._itemManager.queryItems({});
-    return new Selection(result.value, result.update.discardParameter()).select(filter as any);
+    return new Selection(result.value, result.update.discardParameter()).select(filter);
   }
 
   createSnapshot () {
