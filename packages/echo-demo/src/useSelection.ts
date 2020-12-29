@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Selection } from "@dxos/echo-db";
+//
+// Copyright 2020 DXOS.org
+//
 
-export function useSelection<T>(selection: Selection<any>, selector: (selection: Selection<any>) => T, deps: readonly any[]): T {
+import { useEffect, useState } from 'react';
+
+import { Selection } from '@dxos/echo-db';
+
+export function useSelection<T> (selection: Selection<any>, selector: (selection: Selection<any>) => T, deps: readonly any[]): T {
   const [data, setData] = useState(() => selector(selection));
 
   const [event] = useState(selection.update);

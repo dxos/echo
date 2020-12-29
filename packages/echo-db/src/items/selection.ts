@@ -36,7 +36,7 @@ export class Selection<I extends Item<any>> {
     return this._items;
   }
 
-  get update() {
+  get update () {
     return this._update;
   }
 

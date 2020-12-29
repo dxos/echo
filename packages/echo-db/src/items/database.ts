@@ -14,7 +14,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
 import { Link } from './link';
-import { SelectFilter, Selection, SelectFilterByLink, SelectFilterByType } from './selection';
+import { Selection, SelectFilterByLink, SelectFilterByType } from './selection';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
