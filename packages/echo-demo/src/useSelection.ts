@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Item, Selection } from "@dxos/echo-db";
+import { Selection } from "@dxos/echo-db";
 
-export function useSelection<T>(select: () => Selection<T>, deps: readonly any[]): T {
-  const [firstSelection] = useState(() => select());
+export function useSelection<T>(selector: () => Selection<T>, deps: readonly any[]): T {
+  const [firstSelection] = useState(() => selector());
   const [data, setData] = useState(firstSelection.data);
   useEffect(() => firstSelection.update.on(() => {
-    setData(select().data)
+    setData(selector().data)
   }), deps)
   return data;
 }
