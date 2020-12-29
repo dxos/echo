@@ -3,6 +3,7 @@
 //
 
 import React, { useState, useEffect } from 'react'
+import Chance from 'chance';
 
 import { createTestInstance, Database } from '@dxos/echo-db';
 import { ObjectModel } from '@dxos/object-model';
@@ -14,6 +15,8 @@ export default {
   decorators: []
 };
 
+const chance = new Chance(100);
+
 export const withLinks = () => {
   const [database, setDatabase] = useState<Database | undefined>();
 
@@ -22,15 +25,21 @@ export const withLinks = () => {
       const echo = await createTestInstance({ initialize: true });
       const party = await echo.createParty();
 
-      const p1 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
-      const p2 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
+      const organizations = await Promise.all(['DXOS', 'Acme', 'Newco'].map(name =>
+        party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name } })
+      ));
 
-      const org1 = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'DXOS' } });
-      const org2 = await party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name: 'ACME' } });
+      const people = await Promise.all(['Alice', 'Bob', 'Charlie', 'Dianne', 'Emiko'].map(name =>
+        party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } })
+      ));
 
-      await party.database.createLink({ source: org1, type: LINK_EMPLOYEE, target: p1 });
-      await party.database.createLink({ source: org1, type: LINK_EMPLOYEE, target: p2 });
-      await party.database.createLink({ source: org2, type: LINK_EMPLOYEE, target: p2 });
+      await Promise.all(people.flatMap(person => {
+        return organizations.map(organization => {
+          if (chance.bool({ likelihood: 50 })) {
+            return party.database.createLink({ type: LINK_EMPLOYEE, source: organization, target: person })
+          }
+        }).filter(Boolean);
+      }));
 
       setDatabase(party.database);
     })
