@@ -202,3 +202,66 @@ useQuery(() => {
   source: OrgItem
   items: Map<Id, EmpItem>
 }
+
+export function useSelection<T>(selection: Selection, selector: (selection: Selection) => T, deps: readonly any[]): T {
+  const [initialSelection] = useState(() => selector());
+
+  const [data, setData] = useState(initialSelection.data);
+
+  useEffect(() => initialSelection.update.on(() => {
+    setData(selector().data);
+  }), []);
+
+  useEffect(() => {
+    setData(selector().data);
+  }, deps);
+
+  return data;
+}
+
+/*
+  d3.select(document).select().select();
+  d3.select('#root').select().select();
+*/
+
+const useCounter = (name: string) => {
+  const database = useDatabase();
+  return useSelection(database.select(), selection => {
+    const count = {
+      org: 0,
+      links: 0
+    };
+
+    selection
+      .select({ type: 'wrn:dxos/type/org', props: { name } })
+      .each((org, selection) => {
+        count.org++;
+        selection
+          .select({ link: 'wrn:dxos/link/employee' })
+          .each((link) => {
+            assert(link.sourceId === org.id);
+            count.links++;
+          });
+      });
+
+    return count;
+  }, [name]);
+};
+
+const orgs = useOrgs()
+
+const emps = useEmps(orgs)
+
+const useOrgs = () => useSelection(select => select(database).select({ type: 'wrn:dxos/type/org' }), []);
+
+const Component = () => {
+  const database = useDatabase();
+  const n1 = useSelection(database.select(), selector => 100);
+
+  const count = useCounter('foo');
+  const orgs = useOrgs();
+
+  return (
+    <div>{count}:{orgs.length}</div>
+  );
+};
