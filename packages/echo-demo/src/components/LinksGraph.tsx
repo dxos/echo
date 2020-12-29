@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import useResizeAware from 'react-resize-aware';
 
 import { Database } from '@dxos/echo-db'
@@ -32,6 +32,20 @@ const LinksGraph = ({ database }: LinksGraphProps) => {
   const [linkProjector] = useState(() => new LinkProjector({ nodeRadius: 8, showArrows: true }));
   const [layout] = useState(() => new ForceLayout());
   const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
+
+  // TODO(burdon): Adapt Linker.
+  useEffect(() => {
+    drag
+      .on('drag',  ({ source, target, linking }) => {
+        console.log('drag', source, target, linking);
+      })
+      .on('end',  ({ source, target, linking }) => {
+        console.log('end', source, target, linking);
+      })
+      .on('click', ({ source: selected }) => {
+        console.log('click', selected);
+      });
+  }, [drag]);
 
   return (
     <FullScreen>
