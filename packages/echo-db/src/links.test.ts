@@ -40,20 +40,20 @@ test('undirected links', async () => {
   const echo = await createTestInstance({ initialize: true });
   const party = await echo.createParty();
 
-  const alice = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
-  const bob = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
-  const charlie = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Charlie' } });
+  const p1 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Alice' } });
+  const p2 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Bob' } });
+  const p3 = await party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name: 'Charlie' } });
 
-  await party.database.createLink({ source: alice, type: LINK_FRIENDS_WITH, target: bob });
-  await party.database.createLink({ source: alice, type: LINK_FRIENDS_WITH, target: charlie });
+  await party.database.createLink({ source: p1, type: LINK_FRIENDS_WITH, target: p2 });
+  await party.database.createLink({ source: p1, type: LINK_FRIENDS_WITH, target: p3 });
 
   // Find all fiends of Bob
   expect(
-    bob.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== bob ? l.target : l.source)
-  ).toStrictEqual([alice]);
+    p2.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== p2 ? l.target : l.source)
+  ).toStrictEqual([p1]);
 
   // Find all fiends of Alice
   expect(
-    alice.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== alice ? l.target : l.source)
-  ).toStrictEqual([bob, charlie]);
+    p1.links.filter(l => l.type === LINK_FRIENDS_WITH).map(l => l.target !== p1 ? l.target : l.source)
+  ).toStrictEqual([p2, p3]);
 });
