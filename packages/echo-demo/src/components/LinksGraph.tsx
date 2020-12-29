@@ -16,7 +16,7 @@ import {
 } from '@dxos/gem-spore';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
 
-import { useSelection } from '../hooks/useSelection'
+import { useSelection } from '../hooks'
 import { graphSelector } from '../types';
 
 interface LinksGraphProps {
