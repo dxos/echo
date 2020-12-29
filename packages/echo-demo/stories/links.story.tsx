@@ -35,7 +35,7 @@ export const withLinks = () => {
 
       await Promise.all(people.flatMap(person => {
         return organizations.map(organization => {
-          if (chance.bool({ likelihood: 50 })) {
+          if (chance.bool({ likelihood: 40 })) {
             return party.database.createLink({ type: LINK_EMPLOYEE, source: organization, target: person })
           }
         }).filter(Boolean);
