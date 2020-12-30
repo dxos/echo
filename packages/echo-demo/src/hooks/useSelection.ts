@@ -9,11 +9,11 @@ import { Selection } from '@dxos/echo-db';
 /**
  * Hook to generate values from a selection using a selector function.
  *
- * @param [selection] Source selection (can be initially null).
- * @param selector Callback to generate data.
- * @param deps Array of values that the selector depends on.
+ * @param [selection] Source selection (can be initially undefined).
+ * @param selector Callback to generate data from the source selection.
+ * @param [deps] Array of values that trigger the selector when changed.
  */
-// TODO(burdon): Factor out.
+// TODO(burdon): Factor out with tests (echo-db?)
 export function useSelection<T> (
   selection: Selection<any> | undefined,
   selector: (selection: Selection<any>) => T,
@@ -23,7 +23,7 @@ export function useSelection<T> (
 
   // Subscribe to mutation events from source.
   useEffect(() => {
-    selection && selection.update.on(() => {
+    return selection && selection.update.on(() => {
       setData(selector(selection));
     });
   }, [selection]);
