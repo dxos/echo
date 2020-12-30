@@ -2,9 +2,9 @@
 // Copyright 2020 DXOS.org
 //
 
-export const OBJECT_ORG = 'dxn:echo.dxos:object/org';
-export const OBJECT_PERSON = 'dxn:echo.dxos:object/person';
-export const LINK_EMPLOYEE = 'dxn:echo.dxos:link/employee';
+export const OBJECT_ORG = 'wrn:dxos/object/org';
+export const OBJECT_PERSON = 'wrn:dxos/object/person';
+export const LINK_EMPLOYEE = 'wrn:dxos/link/employee';
 
 export const graphSelector = selection => {
   const nodes = [];

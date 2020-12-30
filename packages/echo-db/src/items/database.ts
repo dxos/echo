@@ -45,6 +45,7 @@ enum State {
 export class Database {
   private readonly _itemManager: ItemManager;
   private readonly _itemDemuxer: ItemDemuxer;
+
   private _itemDemuxerInboundStream: NodeJS.WritableStream | undefined;
 
   private _state = State.INITIAL;
