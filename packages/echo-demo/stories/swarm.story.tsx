@@ -9,25 +9,23 @@ import useResizeAware from 'react-resize-aware';
 
 import { Button, TextField, Toolbar } from '@material-ui/core';
 
-import { createId, createKeyPair, humanize, keyToString } from '@dxos/crypto';
-import { ECHO, InvitationDescriptor } from '@dxos/echo-db';
+import { createId, createKeyPair } from '@dxos/crypto';
+import { ECHO, InvitationDescriptor, createTestInstance } from '@dxos/echo-db';
 import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
 import { createStorage } from '@dxos/random-access-multi-storage';
-import { Keyring } from '@dxos/credentials';
 
-import { createECHO, EchoContext, EchoGraph, usePartyMembers } from '../src';
-import { MemberList } from '../src/components/MemberList';
+import { EchoContext, EchoGraph, MemberList } from '../src';
 
 const log = debug('dxos:echo:demo');
 debug.enable('dxos:*');
 
 export default {
-  title: 'Demo',
+  title: 'Swarm',
   decorators: []
 };
 
-export const withSwarm = () => {
+export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' }) => {
   const [id] = useState(createId());
   const [database, setDatabase] = useState<ECHO>();
   const [storage] = useState(() => createStorage('dxos/echo-demo'));
@@ -36,16 +34,16 @@ export const withSwarm = () => {
   useEffect(() => {
     setImmediate(async () => {
       try {
-        const { echo } = await createECHO({
+        const echo = await createTestInstance({
           storage,
           keyStorage: leveljs('dxos/echo-demo/keystore'),
           // TODO(burdon): Move const to config.
-          networkManagerOptions: { signal: 'wss://signal2.dxos.network/dxos/signal' },
+          networkManagerOptions: { signal: [signal] },
           snapshotStorage,
           snapshotInterval: 10,
         });
-        log('Created:', String(echo));
 
+        log('Created:', String(echo));
         await echo.open();
         setDatabase(echo);
 

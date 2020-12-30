@@ -13,14 +13,14 @@ import { PartyKey } from '@dxos/echo-protocol';
 import { FeedStore } from '@dxos/feed-store';
 import { ModelFactory } from '@dxos/model-factory';
 import { NetworkManager } from '@dxos/network-manager';
-import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager';
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager'; // TODO(burdon): Dist!
 import { ObjectModel } from '@dxos/object-model';
 import { Storage } from '@dxos/random-access-multi-storage';
 
 import {
   InvitationAuthenticator, InvitationDescriptor, InvitationOptions, OfflineInvitationClaimer, SecretProvider
 } from './invitations';
-import { UnknownModel } from './items';
+import { DefaultModel } from './items';
 import {
   HALO_CONTACT_LIST_TYPE, IdentityManager, OpenProgress, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
 } from './parties';
@@ -130,7 +130,7 @@ export class ECHO {
 
     this._modelFactory = new ModelFactory()
       .registerModel(ObjectModel)
-      .registerModel(UnknownModel);
+      .registerModel(DefaultModel);
 
     const options = {
       readLogger,

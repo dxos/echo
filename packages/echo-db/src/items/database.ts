@@ -2,20 +2,33 @@
 // Copyright 2020 DXOS.org
 //
 
+import assert from 'assert';
+
 import { synchronized } from '@dxos/async';
 import { EchoEnvelope, FeedWriter, ItemID, ItemType, DatabaseSnapshot } from '@dxos/echo-protocol';
 import { Model, ModelConstructor, validateModelClass, ModelFactory } from '@dxos/model-factory';
+import { ObjectModel } from '@dxos/object-model';
 
 import { ResultSet } from '../result';
 import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
+import { Link } from './link';
+import { Selection, SelectFilterByLink, SelectFilterByType } from './selection';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
   model: ModelConstructor<M>
   type?: ItemType
   parent?: ItemID
+  props?: any // TODO(marik-d): Type this better.
+}
+
+export interface LinkCreationOptions<M, L extends Model<any>, R extends Model<any>> {
+  model?: ModelConstructor<M>
+  type?: ItemType
+  source: Item<L>
+  target: Item<R>
   props?: any // TODO(marik-d): Type this better.
 }
 
@@ -87,13 +100,13 @@ export class Database {
     this._assertInitialized();
 
     if (!options.model) {
-      throw new TypeError('You must specify the model for this item.');
+      throw new TypeError('Missing model class.');
     }
 
     validateModelClass(options.model);
 
     if (options.type && typeof options.type !== 'string') {
-      throw new TypeError('Optional item type must be a string URL.');
+      throw new TypeError('Invalid type.');
     }
 
     if (options.parent && typeof options.parent !== 'string') {
@@ -101,6 +114,26 @@ export class Database {
     }
 
     return this._itemManager.createItem(options.model.meta.type, options.type, options.parent, options.props);
+  }
+
+  createLink<M extends Model<any>, S extends Model<any>, T extends Model<any>> (options: LinkCreationOptions<M, S, T>): Promise<Link<M, S, T>> {
+    this._assertInitialized();
+
+    const model = options.model ?? ObjectModel;
+    if (!model) {
+      throw new TypeError('Missing model class.');
+    }
+
+    validateModelClass(model);
+
+    if (options.type && typeof options.type !== 'string') {
+      throw new TypeError('Invalid type.');
+    }
+
+    assert(options.source instanceof Item);
+    assert(options.target instanceof Item);
+
+    return this._itemManager.createLink(model.meta.type, options.type, options.source.id, options.target.id, options.props);
   }
 
   /**
@@ -132,6 +165,15 @@ export class Database {
       const [item] = await query.update.waitFor(items => items.length > 0);
       return item;
     }
+  }
+
+  select(filter: SelectFilterByType): Selection<Item<any>>;
+  select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
+  select(): Selection<Item<any>>;
+
+  select (filter: any = {}): Selection<any> {
+    const result = this._itemManager.queryItems({});
+    return new Selection(result.value, result.update.discardParameter()).select(filter);
   }
 
   createSnapshot () {

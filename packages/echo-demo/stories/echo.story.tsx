@@ -9,11 +9,12 @@ import { withKnobs, number } from '@storybook/addon-knobs';
 import { makeStyles } from '@material-ui/core/styles';
 import { blueGrey } from '@material-ui/core/colors';
 
+import { createTestInstance } from '@dxos/echo-db';
 import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
 import { createId } from '@dxos/crypto';
 
-import { createECHO, EchoContext, EchoGraph, useDatabase } from '../src';
+import { EchoContext, EchoGraph, useDatabase } from '../src';
 
 const log = debug('dxos:echo:demo');
 debug.enable('dxos:echo:demo, dxos:*:error');
@@ -52,7 +53,7 @@ export const withDatabase = () => {
       setImmediate(async () => {
         const newPeers = await Promise.all([...new Array(n - peers.length)].map(async (_, i) => {
           const id = createId();
-          const { echo } = await createECHO({ initialize: true });
+          const echo = await createTestInstance({ initialize: true });
           console.log('Created:', String(echo));
           return { id, database: echo };
         }));

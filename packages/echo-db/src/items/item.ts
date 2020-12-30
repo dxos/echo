@@ -6,6 +6,15 @@ import { Event } from '@dxos/async';
 import { EchoEnvelope, ItemID, ItemMutation, ItemType, FeedWriter } from '@dxos/echo-protocol';
 import { Model, ModelMeta } from '@dxos/model-factory';
 
+import type { Link } from './link';
+
+export interface LinkData {
+  sourceId: ItemID
+  targetId: ItemID
+  source?: Item<any>
+  target?: Item<any>
+}
+
 /**
  * A globally addressable data item.
  * Items are hermetic data structures contained within a Party. They may be hierarchical.
@@ -15,9 +24,17 @@ export class Item<M extends Model<any>> {
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
 
+  private readonly _onUpdate = new Event<this>();
+
+  // Managed set of child items.
   private readonly _children = new Set<Item<any>>();
 
-  private readonly _onUpdate = new Event<this>();
+  // Managed set of links that reference this item.
+  private readonly _links = new Set<Link<any, any, any>>();
+
+  // TODO(burdon): Factor out into link/object derived classes.
+  // Link data (if this item is a link). Only to be set on item genesis.
+  protected _link: LinkData | null = null;
 
   /**
    * Items are constructed by a `Party` object.
@@ -27,16 +44,19 @@ export class Item<M extends Model<any>> {
    * @param {Model} _model        - Data model (provided by `ModelFactory`).
    * @param [_writeStream]        - Write stream (if not read-only).
    * @param {Item<any>} [parent]  - Parent Item (if not a root Item).
+   * @param {LinkData} [link]
    */
   constructor (
     private readonly _itemId: ItemID,
     private readonly _itemType: ItemType | undefined,
-    private readonly _modelMeta: ModelMeta, // TODO(burdon): Why is this not part of the Model interface?
+    private readonly _modelMeta: ModelMeta,
     private readonly _model: M,
     private readonly _writeStream?: FeedWriter<EchoEnvelope>,
-    parent?: Item<any> | null
+    parent?: Item<any> | null,
+    link?: LinkData | null
   ) {
     this._updateParent(parent);
+    this._setLink(link ?? null);
 
     // Model updates mean Item updates, so make sure we are subscribed as well.
     this._onUpdate.addEffect(() => this._model.subscribe(() => this._onUpdate.emit(this)));
@@ -74,6 +94,20 @@ export class Item<M extends Model<any>> {
     return Array.from(this._children.values());
   }
 
+  get links (): Link<any, any, any>[] {
+    return Array.from(this._links.values()).filter(link => !link.isDanglingLink);
+  }
+
+  // TODO(burdon): Factor out link/object to derived classes from base item.
+  get isLink () {
+    return !!this._link;
+  }
+
+  // TODO(burdon): Remove (should be error since referenced items should already have been processed).
+  get isDanglingLink () {
+    return this._link && (!this._link.source || !this._link.target);
+  }
+
   /**
    * Subscribe for updates.
    * @param listener
@@ -88,7 +122,9 @@ export class Item<M extends Model<any>> {
       throw new Error(`Read-only model: ${this._itemId}`);
     }
 
-    const waitForProcessing = this._onUpdate.waitFor(() => parentId === this._parent?.id);
+    // Wait for mutation below to be processed.
+    // TODO(burdon): Refine to wait for this specific mutation.
+    const onUpdate = this._onUpdate.waitFor(() => parentId === this._parent?.id);
 
     await this._writeStream.write({
       itemId: this._itemId,
@@ -97,11 +133,13 @@ export class Item<M extends Model<any>> {
       }
     });
 
-    // It would be very surprising for item.parent still to reference the old parent just after calling item.setParent.
-    // To prevent that unexpected result, we wait for the mutation written above to be processed.
-    await waitForProcessing;
+    await onUpdate;
   }
 
+  /**
+   * Process a mutation on this item. Package-private.
+   * @private
+   */
   _processMutation (mutation: ItemMutation, getItem: (itemId: ItemID) => Item<any> | undefined) {
     const { parentId } = mutation;
 
@@ -113,7 +151,7 @@ export class Item<M extends Model<any>> {
     this._onUpdate.emit(this);
   }
 
-  _updateParent (parent: Item<any> | null | undefined) {
+  private _updateParent (parent: Item<any> | null | undefined) {
     if (this._parent) {
       this._parent._children.delete(this);
     }
@@ -123,6 +161,18 @@ export class Item<M extends Model<any>> {
       this._parent._children.add(this);
     } else {
       this._parent = null;
+    }
+  }
+
+  /**
+   * Turn this item into a link.
+   */
+  // TODO(marik-d): Refactor by splitting `Item` into `Object` and `Link` subclasses.
+  private _setLink (linkData: LinkData | null) {
+    this._link = linkData;
+    if (linkData) {
+      linkData?.source?._links?.add(this as any);
+      linkData?.target?._links?.add(this as any);
     }
   }
 }
