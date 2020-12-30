@@ -33,13 +33,13 @@ const useCustomStyles = makeStyles(() => ({
     },
     '& g.node.org circle': {
       fill: colors['blue'][200],
-      stroke: '#0000000',
-      strokeWidth: 4
+      stroke: colors['grey'][700],
+      strokeWidth: 2
     },
     '& g.node.person circle': {
       fill: colors['green'][200],
-      stroke: '#0000000',
-      strokeWidth: 4
+      stroke: colors['grey'][700],
+      strokeWidth: 1
     }
   }
 }));

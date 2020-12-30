@@ -62,7 +62,7 @@ export const withLinks = () => {
         party.database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name } })
       ));
 
-      const people = await Promise.all(times(8, () => chance.first()).map(name =>
+      const people = await Promise.all(times(5, () => chance.first()).map(name =>
         party.database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } })
       ));
 
