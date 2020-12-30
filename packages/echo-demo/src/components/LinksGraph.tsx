@@ -18,12 +18,14 @@ import {
   Markers,
 } from '@dxos/gem-spore';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
+import { OBJECT_ORG } from '../types';
 
 interface LinksGraphProps {
   data: any, // TODO(burdon): Type?
   onCreate: Function
 }
 
+// TODO(burdon): Pass in classes (type-specific).
 const useCustomStyles = makeStyles(() => ({
   nodes: {
     '& g.node text': {
@@ -53,8 +55,8 @@ const LinksGraph = ({ data, onCreate }: LinksGraphProps) => {
     node: {
       showLabels: true,
       propertyAdapter: (node) => ({
-        class: node.type,
-        radius: node.type === 'org' ? 16: 8
+        class: node.type.split('/').pop(),
+        radius: node.type === OBJECT_ORG ? 16: 8
       })
     }
   }));

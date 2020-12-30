@@ -8,14 +8,16 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(() => ({
   root: {
     backgroundColor: '#FFF',
-    padding: 6,
     border: '1px solid #999',
     fontFamily: 'monospace',
-    fontSize: 16
+    fontSize: 16,
+    '& td': {
+      paddingLeft: 8,
+      paddingRight: 8
+    }
   },
   type: {
-    color: '#999',
-    paddingRight: 8
+    color: '#999'
   }
 }));
 
@@ -39,6 +41,9 @@ const ItemList = ({ items = [] }) => {
               </td>
               <td>
                 {item.model.getProperty('name')}
+              </td>
+              <td>
+                {item.links.length}
               </td>
             </tr>
           ))}
