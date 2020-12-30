@@ -10,7 +10,16 @@ import times from 'lodash/times';
 import { createTestInstance, Database } from '@dxos/echo-db';
 import { ObjectModel } from '@dxos/object-model';
 
-import { LINK_EMPLOYEE, OBJECT_ORG, OBJECT_PERSON, LinksGraph, graphSelector, useSelection } from '../src';
+import {
+  LINK_EMPLOYEE,
+  OBJECT_ORG,
+  OBJECT_PERSON,
+  ItemList,
+  LinksGraph,
+  graphSelector,
+  useSelection,
+  itemSelector,
+} from '../src';
 
 export default {
   title: 'Links',
@@ -21,6 +30,7 @@ debug.enable('dxos:testing:*');
 
 const chance = new Chance(100);
 
+// Mutator hook.
 const useMutator = (database) => {
   const ref = useRef(database);
   useEffect(() => { ref.current = database }, [database]);
@@ -50,7 +60,8 @@ const useMutator = (database) => {
 
 export const withLinks = () => {
   const [database, setDatabase] = useState<Database | undefined>();
-  const data = useSelection(database && database.select(), graphSelector, []);
+  const data = useSelection(database && database.select(), graphSelector);
+  const items = useSelection(database && database.select(), itemSelector);
   const mutator = useMutator(database);
 
   useEffect(() => {
@@ -89,6 +100,11 @@ export const withLinks = () => {
   };
 
   return (
-    <LinksGraph data={data} onCreate={handleCreate} />
+    <>
+      <div style={{ position: 'absolute', zIndex: 1 }}>
+        <ItemList items={items} />
+      </div>
+      <LinksGraph data={data} onCreate={handleCreate} />
+    </>
   );
 };

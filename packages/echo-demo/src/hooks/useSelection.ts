@@ -17,7 +17,7 @@ import { Selection } from '@dxos/echo-db';
 export function useSelection<T> (
   selection: Selection<any> | undefined,
   selector: (selection: Selection<any>) => T,
-  deps: readonly any[] | undefined
+  deps: readonly any[] = []
 ): T {
   const [data, setData] = useState(() => selection && selector(selection));
 

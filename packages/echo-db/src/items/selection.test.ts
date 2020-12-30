@@ -27,18 +27,18 @@ const createLink = (id: ItemID, type: string, source: Item<any>, target: Item<an
 
 // TODO(burdon): Implement generator for testing.
 const items: Item<any>[] = [
-  createItem('item/0', 'wrn:dxos/type/test'),
-  createItem('item/1', 'wrn:dxos/type/org'),
-  createItem('item/2', 'wrn:dxos/type/org'),
-  createItem('item/3', 'wrn:dxos/type/person'),
-  createItem('item/4', 'wrn:dxos/type/person'),
-  createItem('item/5', 'wrn:dxos/type/person')
+  createItem('item/0', 'wrn://dxos/type/test'),
+  createItem('item/1', 'wrn://dxos/type/org'),
+  createItem('item/2', 'wrn://dxos/type/org'),
+  createItem('item/3', 'wrn://dxos/type/person'),
+  createItem('item/4', 'wrn://dxos/type/person'),
+  createItem('item/5', 'wrn://dxos/type/person')
 ];
 
-items.push(createLink('link/1', 'wrn:dxos/link/employee', items[1], items[3]));
-items.push(createLink('link/2', 'wrn:dxos/link/employee', items[1], items[4]));
-items.push(createLink('link/3', 'wrn:dxos/link/employee', items[1], items[5]));
-items.push(createLink('link/4', 'wrn:dxos/link/employee', items[2], items[5]));
+items.push(createLink('link/1', 'wrn://dxos/link/employee', items[1], items[3]));
+items.push(createLink('link/2', 'wrn://dxos/link/employee', items[1], items[4]));
+items.push(createLink('link/3', 'wrn://dxos/link/employee', items[1], items[5]));
+items.push(createLink('link/4', 'wrn://dxos/link/employee', items[2], items[5]));
 
 describe('Selection', () => {
   test('simple', () => {
@@ -48,18 +48,18 @@ describe('Selection', () => {
     // .select().items).toHaveLength(items.length);
 
     expect(new Selection(items, new Event())
-      .select({ type: 'wrn:dxos/type/person' }).items).toHaveLength(3);
+      .select({ type: 'wrn://dxos/type/person' }).items).toHaveLength(3);
 
     expect(new Selection(items, new Event())
-      .select({ type: 'wrn:dxos/type/invalid' }).items).toHaveLength(0);
+      .select({ type: 'wrn://dxos/type/invalid' }).items).toHaveLength(0);
   });
 
   test('nested with duplicates', () => {
     let count = 0;
 
     const selection = new Selection(items, new Event())
-      .select({ type: 'wrn:dxos/type/org' })
-      .select({ link: 'wrn:dxos/link/employee' })
+      .select({ type: 'wrn://dxos/type/org' })
+      .select({ link: 'wrn://dxos/link/employee' })
       .each(() => count++)
       .target();
 
@@ -74,11 +74,11 @@ describe('Selection', () => {
     };
 
     new Selection(items, new Event())
-      .select({ type: 'wrn:dxos/type/org' })
+      .select({ type: 'wrn://dxos/type/org' })
       .each((org, selection) => {
         count.org++;
         selection
-          .select({ link: 'wrn:dxos/link/employee' })
+          .select({ link: 'wrn://dxos/link/employee' })
           .each((link) => {
             assert(link.sourceId === org.id);
             count.links++;

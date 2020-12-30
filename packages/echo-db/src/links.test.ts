@@ -6,10 +6,10 @@ import { ObjectModel } from '@dxos/object-model';
 
 import { createTestInstance } from './testing/test-utils';
 
-const OBJECT_PERSON = 'wrn:dxos/object/person';
-const OBJECT_ORG = 'wrn:dxos/object/org';
-const LINK_EMPLOYEE = 'wrn:dxos/link/employee';
-const LINK_FRIENDS_WITH = 'wrn:dxos/link/friends-with';
+const OBJECT_PERSON = 'wrn://dxos/object/person';
+const OBJECT_ORG = 'wrn://dxos/object/org';
+const LINK_EMPLOYEE = 'wrn://dxos/link/employee';
+const LINK_FRIENDS_WITH = 'wrn://dxos/link/friends-with';
 
 test('directed links', async () => {
   const echo = await createTestInstance({ initialize: true });
