@@ -14,7 +14,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 import { TimeframeClock } from './timeframe-clock';
-import { UnknownModel } from './unknown-model';
+import { DefaultModel } from './default-model';
 
 const log = debug('dxos:echo:item-demuxer:test');
 
@@ -26,7 +26,7 @@ test('set-up', async () => {
 
   const modelFactory = new ModelFactory()
     .registerModel(TestModel)
-    .registerModel(UnknownModel);
+    .registerModel(DefaultModel);
 
   const writeStream = createTransform<EchoEnvelope, IEchoStream>(
     async (message: EchoEnvelope): Promise<IEchoStream> => ({
@@ -102,7 +102,7 @@ test('set-up', async () => {
 it('ignores unknown models', async () => {
   const modelFactory = new ModelFactory()
     .registerModel(TestModel)
-    .registerModel(UnknownModel);
+    .registerModel(DefaultModel);
 
   const writeStream = createTransform<EchoEnvelope, IEchoStream>(
     async (message: EchoEnvelope): Promise<IEchoStream> => ({
@@ -140,7 +140,7 @@ it('ignores unknown models', async () => {
 it('ignores unknown models on snapshot restore', async () => {
   const modelFactory = new ModelFactory()
     .registerModel(TestModel)
-    .registerModel(UnknownModel);
+    .registerModel(DefaultModel);
 
   const timeframeClock = new TimeframeClock();
   const itemManager = new ItemManager(modelFactory, timeframeClock);
@@ -175,7 +175,7 @@ it('ignores unknown models on snapshot restore', async () => {
 it('models can be registered after item was already created', async () => {
   const modelFactory = new ModelFactory()
     .registerModel(ObjectModel)
-    .registerModel(UnknownModel);
+    .registerModel(DefaultModel);
 
   const writeStream = createTransform<EchoEnvelope, IEchoStream>(
     async (message: EchoEnvelope): Promise<IEchoStream> => ({

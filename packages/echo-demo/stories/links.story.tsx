@@ -42,7 +42,7 @@ export const withLinks = () => {
       }));
 
       setDatabase(party.database);
-    })
+    });
   }, []);
 
   if (!database) {

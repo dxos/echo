@@ -24,17 +24,17 @@ export class Item<M extends Model<any>> {
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
 
-  // Link data (if this item is a link). Only to be set on item genesis.
-  protected _link: LinkData | null = null;
+  private readonly _onUpdate = new Event<this>();
 
+  // Managed set of child items.
   private readonly _children = new Set<Item<any>>();
 
-  /**
-   * Links that reference this item.
-   */
+  // Managed set of links that reference this item.
   private readonly _links = new Set<Link<any, any, any>>();
 
-  private readonly _onUpdate = new Event<this>();
+  // TODO(burdon): Factor out into link/object derived classes.
+  // Link data (if this item is a link). Only to be set on item genesis.
+  protected _link: LinkData | null = null;
 
   /**
    * Items are constructed by a `Party` object.
@@ -44,11 +44,12 @@ export class Item<M extends Model<any>> {
    * @param {Model} _model        - Data model (provided by `ModelFactory`).
    * @param [_writeStream]        - Write stream (if not read-only).
    * @param {Item<any>} [parent]  - Parent Item (if not a root Item).
+   * @param {LinkData} [link]
    */
   constructor (
     private readonly _itemId: ItemID,
     private readonly _itemType: ItemType | undefined,
-    private readonly _modelMeta: ModelMeta, // TODO(burdon): Why is this not part of the Model interface?
+    private readonly _modelMeta: ModelMeta,
     private readonly _model: M,
     private readonly _writeStream?: FeedWriter<EchoEnvelope>,
     parent?: Item<any> | null,
@@ -93,18 +94,18 @@ export class Item<M extends Model<any>> {
     return Array.from(this._children.values());
   }
 
+  get links (): Link<any, any, any>[] {
+    return Array.from(this._links.values()).filter(link => !link.isDanglingLink);
+  }
+
+  // TODO(burdon): Factor out link/object to derived classes from base item.
   get isLink () {
     return !!this._link;
   }
 
-  // TODO(burdon): Move?
+  // TODO(burdon): Remove (should be error since referenced items should already have been processed).
   get isDanglingLink () {
     return this._link && (!this._link.source || !this._link.target);
-  }
-
-  // TODO(burdon): Move?
-  get links (): Link<any, any, any>[] {
-    return Array.from(this._links.values()).filter(link => !link.isDanglingLink);
   }
 
   /**

@@ -20,7 +20,7 @@ import { Storage } from '@dxos/random-access-multi-storage';
 import {
   InvitationAuthenticator, InvitationDescriptor, InvitationOptions, OfflineInvitationClaimer, SecretProvider
 } from './invitations';
-import { UnknownModel } from './items';
+import { DefaultModel } from './items';
 import {
   HALO_CONTACT_LIST_TYPE, IdentityManager, OpenProgress, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
 } from './parties';
@@ -130,7 +130,7 @@ export class ECHO {
 
     this._modelFactory = new ModelFactory()
       .registerModel(ObjectModel)
-      .registerModel(UnknownModel);
+      .registerModel(DefaultModel);
 
     const options = {
       readLogger,

@@ -16,7 +16,7 @@ import { ResultSet } from '../result';
 import { Item } from './item';
 import { Link } from './link';
 import { TimeframeClock } from './timeframe-clock';
-import { UnknownModel } from './unknown-model';
+import { DefaultModel } from './default-model';
 
 const log = debug('dxos:echo:item-manager');
 
@@ -242,7 +242,7 @@ export class ItemManager {
       : new Item(itemId, itemType, modelMeta, model, this._writeStream, parent);
 
     if (modelSnapshot) {
-      if (model instanceof UnknownModel) {
+      if (model instanceof DefaultModel) {
         model.snapshot = modelSnapshot;
       } else {
         assert(modelMeta.snapshotCodec, 'Model snapshot provided but the model does not support snapshots.');
@@ -260,7 +260,7 @@ export class ItemManager {
     this._items.set(itemId, item);
     log('Constructed:', String(item));
 
-    if (!(item.model instanceof UnknownModel)) {
+    if (!(item.model instanceof DefaultModel)) {
       // Notify Item was udpated.
       // TODO(burdon): Update the item directly?
       this._itemUpdate.emit(item);
@@ -292,26 +292,27 @@ export class ItemManager {
     return new ResultSet(this._debouncedItemUpdate, () => Array.from(this._items.values())
       .filter(item =>
         !item.isLink &&
-        !(item.model instanceof UnknownModel) &&
+        !(item.model instanceof DefaultModel) &&
         this._matchesFilter(item, filter)
       ));
   }
 
-  getItemsWithUnknownModels (): Item<UnknownModel>[] {
-    return Array.from(this._items.values()).filter(item => item.model instanceof UnknownModel);
+  getItemsWithDefaultModels (): Item<DefaultModel>[] {
+    return Array.from(this._items.values()).filter(item => item.model instanceof DefaultModel);
   }
 
   /**
-   * Reconstruct an item with an unknown model when that model becomes registered.
+   * Reconstruct an item with a default model when that model becomes registered.
    * New model instance is created and streams are reconnected.
    */
-  async reconstructItemWithUnknownModel (itemId: ItemID, readStream: NodeJS.ReadableStream) {
+  async reconstructItemWithDefaultModel (itemId: ItemID, readStream: NodeJS.ReadableStream) {
     const item = this._items.get(itemId);
     assert(item);
-    assert(item.model instanceof UnknownModel);
+    assert(item.model instanceof DefaultModel);
 
     this._items.delete(itemId);
-    // Disconnect stream.
+
+    // Disconnect the stream.
     await pify(item.model.processor.end.bind(item.model.processor))();
 
     await this.constructItem({
@@ -328,9 +329,11 @@ export class ItemManager {
     if (filter.type && (!item.type || !equalsOrIncludes(item.type, filter.type))) {
       return false;
     }
+
     if (filter.parent && (!item.parent || !equalsOrIncludes(item.parent.id, filter.parent))) {
       return false;
     }
+
     if (filter.id && !equalsOrIncludes(item.id, filter.id)) {
       return false;
     }
@@ -339,6 +342,7 @@ export class ItemManager {
   }
 }
 
+// TODO(burdon): Factor out.
 function equalsOrIncludes<T> (value: T, expected: T | T[]) {
   if (Array.isArray(expected)) {
     return expected.includes(value);

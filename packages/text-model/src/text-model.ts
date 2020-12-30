@@ -13,7 +13,7 @@ import { Mutation, Snapshot } from './proto/gen/dxos/echo/text';
 
 export class TextModel extends Model<Mutation> {
   static meta: ModelMeta = {
-    type: 'wrn://protocol.dxos.org/model/text',
+    type: 'wrn://dxos/model/text',
     mutation: schema.getCodecForType('dxos.echo.text.Mutation'),
     snapshotCodec: schema.getCodecForType('dxos.echo.text.Snapshot')
   };

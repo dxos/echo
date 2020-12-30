@@ -21,7 +21,7 @@ const log = debug('dxos:echo:object-model');
  */
 export class ObjectModel extends Model<ObjectMutationSet> {
   static meta: ModelMeta = {
-    type: 'wrn://protocol.dxos.org/model/object',
+    type: 'wrn://dxos/model/object',
     mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet'),
 
     async getInitMutation (obj: any): Promise<ObjectMutationSet> {
