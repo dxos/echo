@@ -10,11 +10,11 @@ import { ModelFactory, TestModel } from '@dxos/model-factory';
 import { ObjectModel } from '@dxos/object-model';
 import { checkType, createTransform, latch } from '@dxos/util';
 
+import { DefaultModel } from './default-model';
 import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemManager } from './item-manager';
 import { TimeframeClock } from './timeframe-clock';
-import { DefaultModel } from './default-model';
 
 const log = debug('dxos:echo:item-demuxer:test');
 

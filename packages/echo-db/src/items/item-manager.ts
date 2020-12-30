@@ -8,15 +8,15 @@ import pify from 'pify';
 
 import { Event, trigger } from '@dxos/async';
 import { createId } from '@dxos/crypto';
-import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, mapFeedWriter, LinkData } from '@dxos/echo-protocol';
+import { EchoEnvelope, FeedWriter, IEchoStream, ItemID, ItemType, LinkData, mapFeedWriter } from '@dxos/echo-protocol';
 import { Model, ModelFactory, ModelMessage, ModelType } from '@dxos/model-factory';
 import { createTransform, timed } from '@dxos/util';
 
 import { ResultSet } from '../result';
+import { DefaultModel } from './default-model';
 import { Item } from './item';
 import { Link } from './link';
 import { TimeframeClock } from './timeframe-clock';
-import { DefaultModel } from './default-model';
 
 const log = debug('dxos:echo:item-manager');
 
@@ -78,9 +78,15 @@ export class ItemManager {
    * @param {ModelType} modelType
    * @param {ItemType} [itemType]
    * @param {ItemID} [parentId]
+   * @param initProps
    */
   @timed(5000)
-  async createItem (modelType: ModelType, itemType?: ItemType, parentId?: ItemID, initProps?: any): Promise<Item<any>> {
+  async createItem (
+    modelType: ModelType,
+    itemType?: ItemType,
+    parentId?: ItemID,
+    initProps?: any // TODO(burdon): Remove/change to array of mutations.
+  ): Promise<Item<any>> {
     assert(this._writeStream);
     assert(modelType);
 
@@ -92,7 +98,7 @@ export class ItemManager {
     if (initProps) {
       const meta = this._modelFactory.getModelMeta(modelType);
       if (!meta.getInitMutation) {
-        throw new Error('Invalid initialization params: model does not support initializer.');
+        throw new Error('Model does not support initializer.');
       }
       mutation = meta.mutation.encode(await meta.getInitMutation(initProps));
     }
@@ -121,7 +127,9 @@ export class ItemManager {
   }
 
   @timed(5000)
-  async createLink (modelType: ModelType, itemType: ItemType | undefined, source: ItemID, target: ItemID, initProps?: any): Promise<Link<any, any, any>> {
+  async createLink (
+    modelType: ModelType, itemType: ItemType | undefined, source: ItemID, target: ItemID, initProps?: any
+  ): Promise<Link<any, any, any>> {
     assert(this._writeStream);
     assert(modelType);
 
@@ -170,8 +178,12 @@ export class ItemManager {
    * @param itemType
    * @param readStream - Inbound mutation stream (from multiplexer).
    * @param [parentId] - ItemID of the parent of this Item (optional).
+   * @param initialMutations
+   * @param modelSnapshot
+   * @param link
    */
-  // TODO(marik-d): Convert params to object.
+  // TODO(marik-d): Convert optional params to typed object.
+  // TODO(burdon): Break up long function (helper function or comment blocks).
   @timed(5000)
   async constructItem ({
     itemId,
@@ -231,7 +243,9 @@ export class ItemManager {
       assert(link.target);
     }
 
+    //
     // Create the Item.
+    //
     const item = link
       ? new Link(itemId, itemType, modelMeta, model, this._writeStream, parent, {
         sourceId: link.source!,
@@ -250,6 +264,7 @@ export class ItemManager {
       }
     }
 
+    // Process initial mutations.
     if (initialMutations) {
       for (const mutation of initialMutations) {
         await item.model.processMessage(mutation.meta, modelMeta.mutation.decode(mutation.mutation));
@@ -273,6 +288,7 @@ export class ItemManager {
 
     // Notify pending creates.
     this._pendingItems.get(itemId)?.(item);
+
     return item;
   }
 

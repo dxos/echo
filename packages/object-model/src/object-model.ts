@@ -24,6 +24,7 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     type: 'wrn://dxos/model/object',
     mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet'),
 
+    // TODO(burdon): Remove.
     async getInitMutation (obj: any): Promise<ObjectMutationSet> {
       return {
         mutations: createMultiFieldMutationSet(obj)

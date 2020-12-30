@@ -10,9 +10,9 @@ import { DatabaseSnapshot, EchoEnvelope, IEchoStream, ItemID, ItemSnapshot, Mode
 import { Model, ModelFactory, ModelMessage } from '@dxos/model-factory';
 import { createReadable, createWritable, jsonReplacer, raise } from '@dxos/util';
 
+import { DefaultModel } from './default-model';
 import { Item } from './item';
 import { ItemManager } from './item-manager';
-import { DefaultModel } from './default-model';
 
 const log = debug('dxos:echo:item-demuxer');
 
