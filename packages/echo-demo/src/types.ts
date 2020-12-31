@@ -17,24 +17,24 @@ export const graphSelector = selection => {
   const links = [];
 
   selection
-    .select({ type: OBJECT_ORG })
-      .each(item => nodes.push({
-        id: item.id,
-        type: OBJECT_ORG,
-        title: item.model.getProperty('name')
-      }))
-      .select({ link: LINK_EMPLOYEE })
-        .each(link => links.push({
-          id: link.id,
-          source: link.source.id,
-          target: link.target.id
-        }))
-        .target()
-          .each(item => nodes.push({
-            id: item.id,
-            type: OBJECT_PERSON,
-            title: item.model.getProperty('name')
-          }));
+    .select({ type: OBJECT_ORG }) // TODO(burdon): Regexp, array of values to match.
+    .each(item => nodes.push({
+      id: item.id,
+      type: OBJECT_ORG,
+      title: item.model.getProperty('name')
+    }))
+    .select({ link: LINK_EMPLOYEE }) // TODO(burdon): Change to .link({ type: LINK_EMPLOYEE })?
+    .each(link => links.push({
+      id: link.id,
+      source: link.source.id,
+      target: link.target.id
+    }))
+    .target()
+    .each(item => nodes.push({
+      id: item.id,
+      type: OBJECT_PERSON,
+      title: item.model.getProperty('name')
+    }));
 
   return { nodes, links };
 };
