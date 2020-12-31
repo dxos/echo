@@ -2,50 +2,67 @@
 // Copyright 2020 DXOS.org
 //
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import useResizeAware from 'react-resize-aware';
+import update from 'immutability-helper';
+import { makeStyles } from '@material-ui/core/styles';
+import * as colors from '@material-ui/core/colors';
 
-import { Database } from '@dxos/echo-db'
 import {
   createSimulationDrag,
   Graph,
+  GraphLinker,
   ForceLayout,
   LinkProjector,
   NodeProjector,
   Markers,
 } from '@dxos/gem-spore';
 import { FullScreen, SVG, useGrid, Grid } from '@dxos/gem-core';
-
-import { useSelection } from '../hooks'
-import { graphSelector } from '../types';
+import { OBJECT_ORG } from '../types';
 
 interface LinksGraphProps {
-  database: Database
+  data: any, // TODO(burdon): Type?
+  onCreate: Function
 }
 
-const LinksGraph = ({ database }: LinksGraphProps) => {
-  const data = useSelection(database.select(), graphSelector, []);
+// TODO(burdon): Pass in classes (type-specific).
+const useCustomStyles = makeStyles(() => ({
+  nodes: {
+    '& g.node text': {
+      fill: colors['grey'][700],
+      fontFamily: 'sans-serif',
+      fontSize: 12
+    },
+    '& g.node.org circle': {
+      fill: colors['blue'][200],
+      stroke: colors['grey'][700],
+      strokeWidth: 2
+    },
+    '& g.node.person circle': {
+      fill: colors['green'][200],
+      stroke: colors['grey'][700],
+      strokeWidth: 1
+    }
+  }
+}));
+
+const LinksGraph = ({ data, onCreate }: LinksGraphProps) => {
+  const classes = useCustomStyles();
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
-  const [nodeProjector] = useState(() => new NodeProjector({ node: { showLabels: true } }));
+  const [nodeProjector] = useState(() => new NodeProjector({
+    node: {
+      showLabels: true,
+      propertyAdapter: (node) => ({
+        class: node.type.split('/').pop(),
+        radius: node.type === OBJECT_ORG ? 16: 8
+      })
+    }
+  }));
   const [linkProjector] = useState(() => new LinkProjector({ nodeRadius: 8, showArrows: true }));
   const [layout] = useState(() => new ForceLayout());
   const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
-
-  // TODO(burdon): Adapt Linker.
-  useEffect(() => {
-    drag
-      .on('drag',  ({ source, target, linking }) => {
-        console.log('drag', source, target, linking);
-      })
-      .on('end',  ({ source, target, linking }) => {
-        console.log('end', source, target, linking);
-      })
-      .on('click', ({ source: selected }) => {
-        console.log('click', selected);
-      });
-  }, [drag]);
 
   return (
     <FullScreen>
@@ -53,6 +70,11 @@ const LinksGraph = ({ database }: LinksGraphProps) => {
       <SVG width={size.width} height={size.height}>
         <Grid grid={grid} />
         <Markers arrowSize={8}/>
+        <GraphLinker
+          grid={grid}
+          drag={drag}
+          onUpdate={mutations => onCreate((update({ nodes: [], links: [] }, mutations)))}
+        />
         <Graph
           grid={grid}
           data={data}
@@ -60,6 +82,9 @@ const LinksGraph = ({ database }: LinksGraphProps) => {
           drag={drag}
           nodeProjector={nodeProjector}
           linkProjector={linkProjector}
+          classes={{
+            nodes: classes.nodes
+          }}
         />
       </SVG>
     </FullScreen>

@@ -14,7 +14,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
 import { Link } from './link';
-import { Selection, SelectFilterByLink, SelectFilterByType } from './selection';
+import { Selection, SelectFilterByLink, SelectFilterByType, SelectFilter } from './selection';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
@@ -45,6 +45,7 @@ enum State {
 export class Database {
   private readonly _itemManager: ItemManager;
   private readonly _itemDemuxer: ItemDemuxer;
+
   private _itemDemuxerInboundStream: NodeJS.WritableStream | undefined;
 
   private _state = State.INITIAL;
@@ -137,15 +138,6 @@ export class Database {
   }
 
   /**
-   * Queries for a set of Items matching the optional filter.
-   * @param filter
-   */
-  queryItems (filter?: ItemFilter): ResultSet<Item<any>> {
-    this._assertInitialized();
-    return this._itemManager.queryItems(filter);
-  }
-
-  /**
    * Retrieves a item from the index.
    * @param itemId
    */
@@ -167,11 +159,27 @@ export class Database {
     }
   }
 
+  /**
+   * Queries for a set of Items matching the optional filter.
+   * @param filter
+   * @deprecated Use the select method.
+   */
+  // TODO(burdon): Replace `ResultSet` with select.
+  queryItems (filter?: ItemFilter): ResultSet<Item<any>> {
+    this._assertInitialized();
+    return this._itemManager.queryItems(filter);
+  }
+
   select(filter: SelectFilterByType): Selection<Item<any>>;
   select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
+  select(filter: {}): Selection<Item<any>>;
   select(): Selection<Item<any>>;
 
-  select (filter: any = {}): Selection<any> {
+  /**
+   * Returns a selection context, which can be used to traverse the object graph.
+   * @param [filter] {SelectFilter}
+   */
+  select (filter: SelectFilter = {}): Selection<any> {
     const result = this._itemManager.queryItems({});
     return new Selection(result.value, result.update.discardParameter()).select(filter);
   }
