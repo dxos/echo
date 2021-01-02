@@ -8,9 +8,10 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(() => ({
   root: {
     backgroundColor: '#FFF',
+    opacity: 0.7,
     border: '1px solid #999',
     fontFamily: 'monospace',
-    fontSize: 16,
+    fontSize: 12,
     '& td': {
       paddingLeft: 8,
       paddingRight: 8

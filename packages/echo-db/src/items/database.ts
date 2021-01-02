@@ -117,7 +117,9 @@ export class Database {
     return this._itemManager.createItem(options.model.meta.type, options.type, options.parent, options.props);
   }
 
-  createLink<M extends Model<any>, S extends Model<any>, T extends Model<any>> (options: LinkCreationOptions<M, S, T>): Promise<Link<M, S, T>> {
+  createLink<M extends Model<any>, S extends Model<any>, T extends Model<any>> (
+    options: LinkCreationOptions<M, S, T>
+  ): Promise<Link<M, S, T>> {
     this._assertInitialized();
 
     const model = options.model ?? ObjectModel;
@@ -134,7 +136,8 @@ export class Database {
     assert(options.source instanceof Item);
     assert(options.target instanceof Item);
 
-    return this._itemManager.createLink(model.meta.type, options.type, options.source.id, options.target.id, options.props);
+    return this._itemManager
+      .createLink(model.meta.type, options.type, options.source.id, options.target.id, options.props);
   }
 
   /**

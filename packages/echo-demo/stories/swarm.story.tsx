@@ -17,8 +17,9 @@ import { createStorage } from '@dxos/random-access-multi-storage';
 
 import { EchoContext, EchoGraph, MemberList } from '../src';
 
-const log = debug('dxos:echo:demo');
-debug.enable('dxos:*');
+const log = debug('dxos:echo:story');
+
+debug.enable('dxos:echo:story:*, dxos:*:error');
 
 export default {
   title: 'Swarm',

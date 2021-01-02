@@ -16,8 +16,9 @@ import { createId } from '@dxos/crypto';
 
 import { EchoContext, EchoGraph, useDatabase } from '../src';
 
-const log = debug('dxos:echo:demo');
-debug.enable('dxos:echo:demo, dxos:*:error');
+const log = debug('dxos:echo:story');
+
+debug.enable('dxos:echo:story:*, dxos:*:error');
 
 export default {
   title: 'Demo',

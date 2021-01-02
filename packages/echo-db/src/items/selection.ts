@@ -96,6 +96,20 @@ export class Selection<I extends Item<any>> {
     // TODO(burdon): Assert links (or sub-class Object/LinkSelection classes?)
     return new Selection(deduplicate(this._items.map(link => link.target)), this._update);
   }
+
+  /**
+   * Parent nodes of selection.
+   */
+  parent () {
+    return new Selection(this._items.map(item => item.parent).filter(Boolean) as Item<any>[], this._update);
+  }
+
+  /**
+   * Child nodes of selection.
+   */
+  children () {
+    return new Selection(this._items.flatMap(item => item.children), this._update);
+  }
 }
 
 /**
