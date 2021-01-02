@@ -13,11 +13,15 @@ export interface SelectFilterByType {
   type: string;
 }
 
+// TODO(burdon): Deprecate (filter both objects and links as items).
 export interface SelectFilterByLink {
-  link: string;
+  link: SelectFilterByType;
 }
 
 export type SelectFilter = SelectFilterByType | SelectFilterByLink | {};
+
+// TODO(burdon): Implement other filters (e.g., array, contains).
+const createFilter = (filter: SelectFilterByType) => (item: Item<any>) => item.type === filter.type;
 
 /**
  * A chainable selection context which contains a set of items, and can be used to filter and traverse the object graph.
@@ -42,26 +46,6 @@ export class Selection<I extends Item<any>> {
     return this._update;
   }
 
-  /**
-   * Calls the given function for each item in the current selection context.
-   * @param fn Visitor callback.
-   */
-  each (fn: (item: I, selection: Selection<I>) => void) {
-    this._items.forEach(item => fn(item as any, new Selection([item], this._update)));
-
-    return this;
-  }
-
-  /**
-   * Calls the given function with the current seleciton context.
-   * @param fn Visitor callback.
-   */
-  call (fn: (selection: this) => void) {
-    fn(this);
-
-    return this;
-  }
-
   select(filter: SelectFilterByType): Selection<Item<any>>;
   select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
   select(filter: {}): Selection<I>;
@@ -71,22 +55,37 @@ export class Selection<I extends Item<any>> {
    * @param [filter] {SelectFilter} Filter applied to each item in the collection.
    */
   select (filter: SelectFilter = {}): Selection<any> {
-    // TODO(burdon): Implement other filters (e.g., array, contains).
     if ('type' in filter) {
       assert(!(filter as any).link);
-      return new Selection(this._items.filter(
-        item => item.type === filter.type
-      ), this._update);
+      const fn = createFilter(filter);
+      return new Selection(this._items.filter(fn), this._update);
     }
 
-    // TODO(burdon): Different method (e.g., .link) using the same filter mechanism above?
+    // TODO(burdon): Separate method.
     if ('link' in filter) {
+      const fn = createFilter(filter.link);
       return new Selection(deduplicate(this._items.flatMap(
-        item => item.links.filter(link => link.type === filter.link && link.source === item)
+        // TODO(burdon): Links should not be bidirectional (remove the source check).
+        item => item.links.filter(link => link.source === item && fn(link))
       )), this._update);
     }
 
     return new Selection(this._items, this._update);
+  }
+
+  // TODO(burdon): Experimental (deprecate select).
+  filter (filter: SelectFilterByType): Selection<any> {
+    const fn = createFilter(filter);
+    return new Selection(this._items.filter(fn), this._update);
+  }
+
+  // TODO(burdon): Experimental (deprecate select).
+  link (filter: SelectFilterByType): Selection<any> {
+    const fn = createFilter(filter);
+    return new Selection(deduplicate(this._items.flatMap(
+      // TODO(burdon): Links should not be bidirectional (remove the source check).
+      item => item.links.filter(link => link.source === item && fn(link))
+    )), this._update);
   }
 
   /**
@@ -109,6 +108,26 @@ export class Selection<I extends Item<any>> {
    */
   children () {
     return new Selection(this._items.flatMap(item => item.children), this._update);
+  }
+
+  /**
+   * Calls the given function for each item in the current selection context.
+   * @param fn Visitor callback.
+   */
+  each (fn: (item: I, selection: Selection<I>) => void) {
+    this._items.forEach(item => fn(item as any, new Selection([item], this._update)));
+
+    return this;
+  }
+
+  /**
+   * Calls the given function with the current seleciton context.
+   * @param fn Visitor callback.
+   */
+  call (fn: (selection: this) => void) {
+    fn(this);
+
+    return this;
   }
 }
 

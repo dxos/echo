@@ -5,19 +5,18 @@
 import assert from 'assert';
 
 import { Event } from '@dxos/async';
-import { ItemID } from '@dxos/echo-protocol';
+import { ItemID, ItemType } from '@dxos/echo-protocol';
 import { ObjectModel } from '@dxos/object-model';
 
 import { Item } from './item';
 import { Link } from './link';
 import { Selection } from './selection';
 
-// TODO(burdon): ItemType?
-const createItem = (id: ItemID, type: string) =>
+const createItem = (id: ItemID, type: ItemType) =>
   new Item(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id));
 
 // TODO(burdon): Create link mutation.
-const createLink = (id: ItemID, type: string, source: Item<any>, target: Item<any>) =>
+const createLink = (id: ItemID, type: ItemType, source: Item<any>, target: Item<any>) =>
   new Link(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id), undefined, undefined, {
     sourceId: source.id,
     targetId: target.id,
@@ -25,7 +24,7 @@ const createLink = (id: ItemID, type: string, source: Item<any>, target: Item<an
     target: target
   });
 
-// TODO(burdon): Implement generator for testing.
+// TODO(burdon): Implement generator used across tests and storybooks.
 const items: Item<any>[] = [
   createItem('item/0', 'wrn://dxos/type/test'),
   createItem('item/1', 'wrn://dxos/type/org'),
@@ -44,8 +43,8 @@ describe('Selection', () => {
   test('simple', () => {
     expect(new Selection(items, new Event()).items).toHaveLength(items.length);
 
-    // expect(new Selection(items, {})
-    // .select().items).toHaveLength(items.length);
+    expect(new Selection(items, new Event())
+      .select({}).items).toHaveLength(items.length);
 
     expect(new Selection(items, new Event())
       .select({ type: 'wrn://dxos/type/person' }).items).toHaveLength(3);
@@ -59,8 +58,8 @@ describe('Selection', () => {
 
     const selection = new Selection(items, new Event())
       .select({ type: 'wrn://dxos/type/org' })
-      .select({ link: 'wrn://dxos/link/employee' })
-      .each(() => count++)
+      .select({ link: { type: 'wrn://dxos/link/employee' } })
+      .call(selection => { count = selection.items.length; })
       .target();
 
     expect(count).toBe(4);
@@ -78,8 +77,8 @@ describe('Selection', () => {
       .each((org, selection) => {
         count.org++;
         selection
-          .select({ link: 'wrn://dxos/link/employee' })
-          .each((link) => {
+          .select({ link: { type: 'wrn://dxos/link/employee' } })
+          .each(link => {
             assert(link.sourceId === org.id);
             count.links++;
           });

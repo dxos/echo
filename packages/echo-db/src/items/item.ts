@@ -11,7 +11,7 @@ import type { Link } from './link';
 export interface LinkData {
   sourceId: ItemID
   targetId: ItemID
-  source?: Item<any>
+  source?: Item<any> // TODO(burdon): Separate type if items are not set?
   target?: Item<any>
 }
 
@@ -24,11 +24,13 @@ export class Item<M extends Model<any>> {
   // Parent item (or null if this item is a root item).
   private _parent: Item<any> | null = null;
 
+  // Called whenever item processes mutation.
   private readonly _onUpdate = new Event<this>();
 
   // Managed set of child items.
   private readonly _children = new Set<Item<any>>();
 
+  // TODO(burdon): Should not be bidirectional?
   // Managed set of links that reference this item.
   private readonly _links = new Set<Link<any, any, any>>();
 
@@ -37,7 +39,7 @@ export class Item<M extends Model<any>> {
   protected _link: LinkData | null = null;
 
   /**
-   * Items are constructed by a `Party` object.
+   * Items are constructed by the `Database` object.
    * @param {ItemID} _itemId      - Addressable ID.
    * @param {ItemType} _itemType  - User defined type (WRN).
    * @param {Model} _modelMeta    - Data model metadata.

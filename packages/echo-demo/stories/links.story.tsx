@@ -3,11 +3,11 @@
 //
 
 import React, { useState, useEffect, useRef } from 'react';
-import faker from 'faker';
-import debug from 'debug';
-import times from 'lodash/times';
 import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
+import debug from 'debug';
+import faker from 'faker';
+import times from 'lodash/times';
 
 import { createTestInstance, Database } from '@dxos/echo-db';
 import { ObjectModel } from '@dxos/object-model';
@@ -22,8 +22,8 @@ import {
   ItemList,
   LinksGraph,
   graphSelector,
-  useSelection,
   itemSelector,
+  useSelection
 } from '../src';
 
 export default {
@@ -48,9 +48,34 @@ const propertyAdapter = (node) => ({
 });
 
 const useStyles = makeStyles(() => ({
-  label: {
+  items: {
+    position: 'absolute',
+    zIndex: 1,
+    left: 0,
+    top: 0,
+    bottom: 0,
+    overflow: 'scroll',
+
+    color: colors['grey'][700],
+    '& .org': {
+      color: colors['blue'][700]
+    },
+    '& .project': {
+      color: colors['orange'][700]
+    },
+    '& .task': {
+      color: colors['pink'][700]
+    },
+    '& .person': {
+      color: colors['green'][700]
+    }
+  },
+  info: {
+    position: 'absolute',
+    zIndex: 1,
+    right: 16,
     fontFamily: 'monospace',
-    color: '#999'
+    color: colors['grey'][700]
   }
 }));
 
@@ -84,6 +109,35 @@ const useGraphStyles = makeStyles(() => ({
   }
 }));
 
+const generate = async (database, config) => {
+  // Orgs.
+  const organizations = await Promise.all(times(config.numOrgs, () => faker.company.companyName()).map(name =>
+    database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name } })
+  ));
+
+  // People.
+  const perope = await Promise.all(times(config.numPeople, () => faker.name.firstName()).map(async name => {
+    const person = await database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } });
+    const count = faker.random.number({ min: 0, max: 2 });
+    const orgs = faker.random.arrayElements(organizations, count);
+    return orgs.map(org => database.createLink({ type: LINK_EMPLOYEE, source: org, target: person }));
+  }));
+
+  // Projects.
+  await Promise.all(times(config.numProjects, () => faker.commerce.productName()).map(async name => {
+    const project = await database.createItem({ model: ObjectModel, type: OBJECT_PROJECT, props: { name } });
+    const org = faker.random.arrayElement(organizations);
+    await database.createLink({ type: LINK_PROJECT, source: org, target: project });
+
+    // Task child nodes.
+    // TODO(burdon): Assign to people (query people from org).
+    await Promise.all(times(faker.random.number({ min: 0, max: 3 }), () => faker.git.commitMessage())
+      .map(async name => {
+        await database.createItem({ model: ObjectModel, type: OBJECT_TASK, props: { name }, parent: project.id });
+      }));
+  }));
+};
+
 // Mutator hook.
 const useMutator = (database) => {
   const ref = useRef(database);
@@ -111,34 +165,6 @@ const useMutator = (database) => {
     createItem,
     linkItem
   };
-};
-
-const generate = async (database, config) => {
-  // Orgs.
-  const organizations = await Promise.all(times(config.numOrgs, () => faker.company.companyName()).map(name =>
-    database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name } })
-  ));
-
-  // Projects.
-  await Promise.all(times(config.numProjects, () => faker.commerce.productName()).map(async name => {
-    const project = await database.createItem({ model: ObjectModel, type: OBJECT_PROJECT, props: { name } });
-    const org = faker.random.arrayElement(organizations);
-    await database.createLink({ type: LINK_PROJECT, source: org, target: project });
-
-    // Task child nodes.
-    await Promise.all(times(faker.random.number({ min: 0, max: 3 }), () => faker.git.commitMessage())
-      .map(async name => {
-        await database.createItem({ model: ObjectModel, type: OBJECT_TASK, props: { name }, parent: project.id });
-      }));
-  }));
-
-  // People.
-  await Promise.all(times(config.numPeople, () => faker.name.firstName()).map(async name => {
-    const person = await database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } });
-    const count = faker.random.number({ min: 0, max: 2 });
-    const orgs = faker.random.arrayElements(organizations, count);
-    return orgs.map(org => database.createLink({ type: LINK_EMPLOYEE, source: org, target: person }));
-  }));
 };
 
 export const withLinks = () => {
@@ -176,14 +202,15 @@ export const withLinks = () => {
 
   return (
     <>
-      <div style={{ position: 'absolute', zIndex: 1 }}>
+      <div className={classes.items}>
         <ItemList items={items} />
       </div>
-      <div style={{ position: 'absolute', zIndex: 1, right: 16 }}>
-        <div className={classes.label}>Command-drag: Org &#x2192; Person</div>
+
+      <div className={classes.info}>
+        <div>Command-drag: Org &#x2192; Person</div>
       </div>
 
-      <LinksGraph data={data} onCreate={handleCreate} classes={graphClasses} propertyAdapter={propertyAdapter} />
+      <LinksGraph classes={graphClasses} data={data} onCreate={handleCreate} propertyAdapter={propertyAdapter} />
     </>
   );
 };
