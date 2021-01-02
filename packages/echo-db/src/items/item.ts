@@ -50,7 +50,7 @@ export class Item<M extends Model<any>> {
    */
   constructor (
     private readonly _itemId: ItemID,
-    private readonly _itemType: ItemType | undefined,
+    private readonly _itemType: ItemType | undefined, // TODO(burdon): Why undefined?
     private readonly _modelMeta: ModelMeta,
     private readonly _model: M,
     private readonly _writeStream?: FeedWriter<EchoEnvelope>,

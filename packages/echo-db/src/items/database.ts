@@ -14,7 +14,7 @@ import { Item } from './item';
 import { ItemDemuxer } from './item-demuxer';
 import { ItemFilter, ItemManager } from './item-manager';
 import { Link } from './link';
-import { Selection, SelectFilterByLink, SelectFilterByType, SelectFilter } from './selection';
+import { Selection, SelectFilter } from './selection';
 import { TimeframeClock } from './timeframe-clock';
 
 export interface ItemCreationOptions<M> {
@@ -173,18 +173,14 @@ export class Database {
     return this._itemManager.queryItems(filter);
   }
 
-  select(filter: SelectFilterByType): Selection<Item<any>>;
-  select(filter: SelectFilterByLink): Selection<Link<any, any, any>>;
-  select(filter: {}): Selection<Item<any>>;
-  select(): Selection<Item<any>>;
-
   /**
    * Returns a selection context, which can be used to traverse the object graph.
    * @param [filter] {SelectFilter}
    */
-  select (filter: SelectFilter = {}): Selection<any> {
+  select (filter?: SelectFilter): Selection<any> {
     const result = this._itemManager.queryItems({});
-    return new Selection(result.value, result.update.discardParameter()).select(filter);
+    const selection = new Selection(result.value, result.update.discardParameter());
+    return filter ? selection.filter(filter) : selection;
   }
 
   createSnapshot () {
