@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -11,10 +12,14 @@ const useStyles = makeStyles(() => ({
     opacity: 0.7,
     fontFamily: 'monospace',
     fontSize: 12,
-    '& td': {
-      paddingLeft: 8,
-      paddingRight: 8
+    color: '#666',
+    '& th': {
+      textAlign: 'left',
+      fontWeight: 100
     }
+  },
+  light: {
+    color: '#DDD'
   }
 }));
 
@@ -36,6 +41,15 @@ const ItemList = ({ items = [] }) => {
   return (
     <div className={classes.root}>
       <table>
+        <thead>
+        <tr>
+          <th>Type</th>
+          <th>Title</th>
+          <th>Child</th>
+          <th>Links</th>
+          <th>Refs</th>
+        </tr>
+        </thead>
         <tbody>
           {items.sort(sorter).map(item => (
             <tr key={item.id}>
@@ -45,8 +59,14 @@ const ItemList = ({ items = [] }) => {
               <td>
                 {item.model.getProperty('name')}
               </td>
-              <td>
+              <td className={clsx(!item.children.length && classes.light)}>
+                {item.children.length}
+              </td>
+              <td className={clsx(!item.links.length && classes.light)}>
                 {item.links.length}
+              </td>
+              <td className={clsx(!item.refs.length && classes.light)}>
+                {item.refs.length}
               </td>
             </tr>
           ))}
