@@ -104,12 +104,18 @@ export class Selection<I extends Item<any>> {
    * Creates a new selection by filtering links from the current selection.
    * @param filter
    */
-  link (filter: SelectFilter): Selection<any> {
+  links (filter: SelectFilter): Selection<any> {
     const fn = (typeof filter === 'function') ? filter : createArrayFilter(filter as SelectFilterByValue);
-    return new Selection(deduplicate(this._items.flatMap(
-      // TODO(burdon): Links should not be bi-directional (remove the source check).
-      item => item.links.filter(link => link.source === item && fn(link))
-    )), this._update);
+    return new Selection(deduplicate(this._items.flatMap(item => item.links.filter(fn))), this._update);
+  }
+
+  /**
+   * Creates a new selection by filtering inbound links to items in the current selection.
+   * @param filter
+   */
+  refs (filter: SelectFilter): Selection<any> {
+    const fn = (typeof filter === 'function') ? filter : createArrayFilter(filter as SelectFilterByValue);
+    return new Selection(deduplicate(this._items.flatMap(item => item.refs.filter(fn))), this._update);
   }
 
   /**

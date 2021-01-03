@@ -30,9 +30,11 @@ export class Item<M extends Model<any>> {
   // Managed set of child items.
   private readonly _children = new Set<Item<any>>();
 
-  // TODO(burdon): Should not be bidirectional?
-  // Managed set of links that reference this item.
+  // Managed set of links with this item as the source.
   private readonly _links = new Set<Link<any, any, any>>();
+
+  // Managed set of links with this item as the target.
+  private readonly _refs = new Set<Link<any, any, any>>();
 
   // TODO(burdon): Factor out into link/object derived classes.
   // Link data (if this item is a link). Only to be set on item genesis.
@@ -100,14 +102,18 @@ export class Item<M extends Model<any>> {
     return Array.from(this._links.values()).filter(link => !link.isDanglingLink);
   }
 
-  // TODO(burdon): Factor out link/object to derived classes from base item.
-  get isLink () {
-    return !!this._link;
+  get refs (): Link<any, any, any>[] {
+    return Array.from(this._refs.values());
   }
 
   // TODO(burdon): Remove (should be error since referenced items should already have been processed).
   get isDanglingLink () {
     return this._link && (!this._link.source || !this._link.target);
+  }
+
+  // TODO(burdon): Factor out link/object to derived classes from base item.
+  get isLink () {
+    return !!this._link;
   }
 
   /**
@@ -174,7 +180,7 @@ export class Item<M extends Model<any>> {
     this._link = linkData;
     if (linkData) {
       linkData?.source?._links?.add(this as any);
-      linkData?.target?._links?.add(this as any);
+      linkData?.target?._refs?.add(this as any);
     }
   }
 }

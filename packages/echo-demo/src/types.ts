@@ -24,7 +24,7 @@ export const graphSelector = selection => {
     .filter({ type: OBJECT_ORG })
     .each(item => nodes.push({ id: item.id, type: OBJECT_ORG, title: item.model.getProperty('name') }))
     .call(selection => {
-      selection.link({ type: LINK_PROJECT })
+      selection.links({ type: LINK_PROJECT })
         .each(link => {
           nodes.push({ id: link.target.id, type: OBJECT_PROJECT, title: link.target.model.getProperty('name') });
           links.push({ id: link.id, source: link.source.id, target: link.target.id });
@@ -36,7 +36,7 @@ export const graphSelector = selection => {
           links.push({ id: `${item.parent.id}-${item.id}`, source: item.parent.id, target: item.id });
         });
     })
-    .link({ type: LINK_EMPLOYEE })
+    .links({ type: LINK_EMPLOYEE })
     .each(link => links.push({ id: link.id, source: link.source.id, target: link.target.id }))
     .target()
     .each(item => nodes.push({ id: item.id, type: OBJECT_PERSON, title: item.model.getProperty('name') }));
