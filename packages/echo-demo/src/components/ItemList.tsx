@@ -7,17 +7,14 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() => ({
   root: {
-    backgroundColor: '#FFF',
-    border: '1px solid #999',
+    backgroundColor: 'white',
+    opacity: 0.7,
     fontFamily: 'monospace',
-    fontSize: 16,
+    fontSize: 12,
     '& td': {
       paddingLeft: 8,
       paddingRight: 8
     }
-  },
-  type: {
-    color: '#999'
   }
 }));
 
@@ -30,13 +27,19 @@ const ItemList = ({ items = [] }) => {
     return null;
   }
 
+  const sorter = (a, b) => {
+    const ta = a.type;
+    const tb = b.type;
+    return ta < tb ? -1 : tb > ta ? 1 : 0;
+  };
+
   return (
     <div className={classes.root}>
       <table>
         <tbody>
-          {items.map(item => (
+          {items.sort(sorter).map(item => (
             <tr key={item.id}>
-              <td className={classes.type}>
+              <td className={item.type.split('/').pop()}>
                 {item.type}
               </td>
               <td>
