@@ -12,10 +12,13 @@ import { Item } from './item';
 import { Link } from './link';
 import { Selection } from './selection';
 
+const OBJECT_ORG = 'wrn://dxos/object/org';
+const OBJECT_PERSON = 'wrn://dxos/object/person';
+const LINK_EMPLOYEE = 'wrn://dxos/link/employee';
+
 const createItem = (id: ItemID, type: ItemType) =>
   new Item(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id));
 
-// TODO(burdon): Create link mutation.
 const createLink = (id: ItemID, type: ItemType, source: Item<any>, target: Item<any>) =>
   new Link(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id), undefined, undefined, {
     sourceId: source.id,
@@ -24,27 +27,27 @@ const createLink = (id: ItemID, type: ItemType, source: Item<any>, target: Item<
     target: target
   });
 
-// TODO(burdon): Implement generator used across tests and storybooks.
 const objects: Item<any>[] = [
-  createItem('item/0', 'wrn://dxos/type/test'),
-  createItem('item/1', 'wrn://dxos/type/org'),
-  createItem('item/2', 'wrn://dxos/type/org'),
-  createItem('item/3', 'wrn://dxos/type/person'),
-  createItem('item/4', 'wrn://dxos/type/person'),
-  createItem('item/5', 'wrn://dxos/type/person')
+  createItem('item/1', OBJECT_ORG),
+  createItem('item/2', OBJECT_ORG),
+  createItem('item/3', OBJECT_PERSON),
+  createItem('item/4', OBJECT_PERSON),
+  createItem('item/5', OBJECT_PERSON)
 ];
 
 const links: Item<any>[] = [
-  createLink('link/1', 'wrn://dxos/link/employee', objects[1], objects[3]),
-  createLink('link/2', 'wrn://dxos/link/employee', objects[1], objects[4]),
-  createLink('link/3', 'wrn://dxos/link/employee', objects[1], objects[5]),
-  createLink('link/4', 'wrn://dxos/link/employee', objects[2], objects[5])
+  createLink('link/1', LINK_EMPLOYEE, objects[0], objects[2]),
+  createLink('link/2', LINK_EMPLOYEE, objects[0], objects[3]),
+  createLink('link/3', LINK_EMPLOYEE, objects[0], objects[4]),
+  createLink('link/4', LINK_EMPLOYEE, objects[1], objects[4])
 ];
 
 const items: Item<any>[] = [
   ...objects,
   ...links
 ];
+
+// TODO(burdon): Test subscriptions/reactivity.
 
 describe('Selection', () => {
   test('simple', () => {
@@ -56,21 +59,21 @@ describe('Selection', () => {
       .filter({ type: 'wrn://dxos/type/invalid' }).items).toHaveLength(0);
 
     expect(new Selection(items, new Event())
-      .filter({ type: 'wrn://dxos/type/person' }).items).toHaveLength(3);
+      .filter({ type: OBJECT_PERSON }).items).toHaveLength(3);
 
     expect(new Selection(items, new Event())
-      .filter({ type: ['wrn://dxos/type/org', 'wrn://dxos/type/person'] }).items).toHaveLength(5);
+      .filter({ type: [OBJECT_ORG, OBJECT_PERSON] }).items).toHaveLength(5);
 
     expect(new Selection(items, new Event())
-      .filter((item: Item<any>) => item.type === 'wrn://dxos/type/org').items).toHaveLength(2);
+      .filter((item: Item<any>) => item.type === OBJECT_ORG).items).toHaveLength(2);
   });
 
   test('nested with duplicates', () => {
     let count = 0;
 
     const selection = new Selection(items, new Event())
-      .filter({ type: 'wrn://dxos/type/org' })
-      .link({ type: 'wrn://dxos/link/employee' })
+      .filter({ type: OBJECT_ORG })
+      .links({ type: LINK_EMPLOYEE })
       .call(selection => {
         count = selection.items.length;
       })
@@ -80,18 +83,18 @@ describe('Selection', () => {
     expect(selection.items).toHaveLength(3);
   });
 
-  test('calling', () => {
+  test('links', () => {
     const count = {
       org: 0,
       links: 0
     };
 
     new Selection(items, new Event())
-      .filter({ type: 'wrn://dxos/type/org' })
+      .filter({ type: OBJECT_ORG })
       .each((org, selection) => {
         count.org++;
         selection
-          .link({ type: 'wrn://dxos/link/employee' })
+          .links({ type: LINK_EMPLOYEE })
           .each(link => {
             assert(link.sourceId === org.id);
             count.links++;

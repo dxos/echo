@@ -7,7 +7,7 @@ import debug from 'debug';
 
 import { createKeyPair } from '@dxos/crypto';
 import { Model } from '@dxos/model-factory';
-import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager'; // TODO(burdon): Dist!
+import { NetworkManagerOptions } from '@dxos/network-manager/dist/network-manager'; // TODO(burdon): Dist.
 import { Storage } from '@dxos/random-access-multi-storage';
 import { jsonReplacer, range } from '@dxos/util';
 
@@ -15,6 +15,8 @@ import { ECHO } from '../echo';
 import { Item, ItemCreationOptions } from '../items';
 import { Party } from '../parties';
 import { createRamStorage } from '../util/persistant-ram-storage';
+
+// TODO(burdon): Factor out to separate module? Creates unnecessary dependencies.
 
 const log = debug('dxos:echo:database:test,dxos:*:error');
 

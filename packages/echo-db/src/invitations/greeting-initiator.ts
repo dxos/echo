@@ -14,12 +14,12 @@ import {
   createGreetingHandshakeMessage,
   createGreetingNotarizeMessage,
   createKeyAdmitMessage,
+  wrapMessage,
   Greeter,
   GreetingCommandPlugin,
-  wrapMessage,
   Message
 } from '@dxos/credentials';
-import { WithTypeUrl } from '@dxos/credentials/dist/es/proto/any';
+import { WithTypeUrl } from '@dxos/credentials/dist/es/proto/any'; // TODO(burdon): Dist.
 import { keyToString, PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { FullyConnectedTopology, NetworkManager } from '@dxos/network-manager';
