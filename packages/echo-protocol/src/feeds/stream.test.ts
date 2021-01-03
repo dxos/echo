@@ -17,7 +17,7 @@ import { codec, createTestItemMutation, FeedMessage } from '../proto';
 import { Timeframe } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 
-const chance = new Chance(999);
+const chance = new Chance(999); // TODO(burdon): Use faker.
 
 //
 // Streams: https://devhints.io/nodejs-stream

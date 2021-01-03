@@ -18,7 +18,7 @@ import { Timeframe } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 import { createIterator, FeedSelector } from './feed-store-iterator';
 
-const chance = new Chance(999);
+const chance = new Chance(999); // TODO(burdon): Use faker.
 
 const log = debug('dxos:echo:feed-store-iterator:test');
 debug.enable('dxos:echo:*');

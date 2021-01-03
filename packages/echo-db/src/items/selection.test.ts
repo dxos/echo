@@ -47,6 +47,8 @@ const items: Item<any>[] = [
   ...links
 ];
 
+// TODO(burdon): Test subscriptions/reactivity.
+
 describe('Selection', () => {
   test('simple', () => {
     expect(new Selection(items, new Event()).items).toHaveLength(items.length);
@@ -81,7 +83,7 @@ describe('Selection', () => {
     expect(selection.items).toHaveLength(3);
   });
 
-  test('calling', () => {
+  test('links', () => {
     const count = {
       org: 0,
       links: 0
