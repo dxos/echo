@@ -18,6 +18,7 @@ import { FeedStoreAdapter } from '../util/feed-store-adapter';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
 import { PartyInternal, PARTY_ITEM_TYPE, PARTY_TITLE_PROPERTY } from './party-internal';
+import { unionWith } from 'lodash';
 
 const CONTACT_DEBOUNCE_INTERVAL = 500;
 
@@ -92,26 +93,28 @@ export class PartyManager {
     // TODO(telackey): Does it make any sense to load other parties if we don't have an HALO?
 
     // Iterate descriptors and pre-create Party objects.
-    const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey));
-    onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
-    for (let i = 0; i < nonHaloParties.length; i++) {
-      const partyKey = nonHaloParties[i];
-      if (!this._parties.has(partyKey)) {
-        const snapshot = await this._snapshotStore.load(partyKey);
-        const party = snapshot
-          ? await this._partyFactory.constructPartyFromSnapshot(snapshot)
-          : await this._partyFactory.constructParty(partyKey);
+    const nonHaloParties = this._feedStore.getPartyKeys()
+      .filter(partyKey => !this._isHalo(partyKey));
+    const uniqueNonHaloParties = unionWith(nonHaloParties, PublicKey.equals); // Parties can be duplicated when there is more than 1 device
 
-        const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
-        if (isActive) {
-          await party.open();
-          // TODO(marik-d): Might not be required if separately snapshot this item.
-          await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
-        }
+    onProgressCallback?.({ haloOpened: true, totalParties: uniqueNonHaloParties.length, partiesOpened: 0 });
 
-        this._setParty(party);
-        onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
+    for (let i = 0; i < uniqueNonHaloParties.length; i++) {
+      const partyKey = uniqueNonHaloParties[i];
+      const snapshot = await this._snapshotStore.load(partyKey);
+      const party = snapshot
+        ? await this._partyFactory.constructPartyFromSnapshot(snapshot)
+        : await this._partyFactory.constructParty(partyKey);
+
+      const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
+      if (isActive) {
+        await party.open();
+        // TODO(marik-d): Might not be required if separately snapshot this item.
+        await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
       }
+
+      this._setParty(party);
+      onProgressCallback?.({ haloOpened: true, totalParties: uniqueNonHaloParties.length, partiesOpened: i + 1 });
     }
 
     this._opened = true;
