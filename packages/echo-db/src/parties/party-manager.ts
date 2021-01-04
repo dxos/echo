@@ -4,6 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
+import { unionWith } from 'lodash';
 
 import { Event, synchronized } from '@dxos/async';
 import { KeyHint, KeyType } from '@dxos/credentials';
@@ -93,9 +94,12 @@ export class PartyManager {
 
     // Iterate descriptors and pre-create Party objects.
     const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey));
-    onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
-    for (let i = 0; i < nonHaloParties.length; i++) {
-      const partyKey = nonHaloParties[i];
+    const uniqueNonHaloParties = unionWith(nonHaloParties, PublicKey.equals); // Parties can be duplicated when there is more than 1 device
+
+    onProgressCallback?.({ haloOpened: true, totalParties: uniqueNonHaloParties.length, partiesOpened: 0 });
+
+    for (let i = 0; i < uniqueNonHaloParties.length; i++) {
+      const partyKey = uniqueNonHaloParties[i];
       if (!this._parties.has(partyKey)) {
         const snapshot = await this._snapshotStore.load(partyKey);
         const party = snapshot
@@ -110,7 +114,7 @@ export class PartyManager {
         }
 
         this._setParty(party);
-        onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
+        onProgressCallback?.({ haloOpened: true, totalParties: uniqueNonHaloParties.length, partiesOpened: i + 1 });
       }
     }
 

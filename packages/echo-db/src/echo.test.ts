@@ -185,6 +185,7 @@ describe('api tests', () => {
 
     const items = await party.database.queryItems();
     await waitForCondition(() => items.value.length > 0);
+    expect(items.value.length).toBeGreaterThan(0);
   });
 
   test('create party and items with props', async () => {
