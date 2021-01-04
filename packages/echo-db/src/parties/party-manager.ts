@@ -92,25 +92,26 @@ export class PartyManager {
     // TODO(telackey): Does it make any sense to load other parties if we don't have an HALO?
 
     // Iterate descriptors and pre-create Party objects.
-    const nonHaloParties = this._feedStore.getPartyKeys()
-      .filter(partyKey => !this._isHalo(partyKey) && this._parties.has(partyKey));
+    const nonHaloParties = this._feedStore.getPartyKeys().filter(partyKey => !this._isHalo(partyKey));
     onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: 0 });
     for (let i = 0; i < nonHaloParties.length; i++) {
       const partyKey = nonHaloParties[i];
-      const snapshot = await this._snapshotStore.load(partyKey);
-      const party = snapshot
-        ? await this._partyFactory.constructPartyFromSnapshot(snapshot)
-        : await this._partyFactory.constructParty(partyKey);
+      if (!this._parties.has(partyKey)) {
+        const snapshot = await this._snapshotStore.load(partyKey);
+        const party = snapshot
+          ? await this._partyFactory.constructPartyFromSnapshot(snapshot)
+          : await this._partyFactory.constructParty(partyKey);
 
-      const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
-      if (isActive) {
-        await party.open();
-        // TODO(marik-d): Might not be required if separately snapshot this item.
-        await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
+        const isActive = this._identityManager.halo?.isActive(partyKey) ?? true;
+        if (isActive) {
+          await party.open();
+          // TODO(marik-d): Might not be required if separately snapshot this item.
+          await party.database.waitForItem({ type: PARTY_ITEM_TYPE });
+        }
+
+        this._setParty(party);
+        onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
       }
-
-      this._setParty(party);
-      onProgressCallback?.({ haloOpened: true, totalParties: nonHaloParties.length, partiesOpened: i + 1 });
     }
 
     this._opened = true;
