@@ -911,9 +911,11 @@ describe('Party manager', () => {
     expect(partyA.title).toBe('A2');
   });
 
+  // TODO(burdon): Sporadically fails: https://github.com/dxos/echo/issues/391
   test('Setting title propagates to other devices AND other party members', async () => {
     // User creating the party
     const { partyManager: partyManagerA, identityManager: identityManagerA, seedPhrase } = await setup(true, true);
+    assert(seedPhrase);
 
     // User's other device, joined by device invitation
     const { partyManager: partyManagerB, identityManager: identityManagerB } = await setup(true, false);
@@ -923,8 +925,6 @@ describe('Party manager', () => {
 
     // Another user in the party.
     const { partyManager: partyManagerD } = await setup(true, true);
-
-    assert(seedPhrase);
 
     const partyA = new Party(await partyManagerA.createParty());
     expect(partyA.isOpen).toBe(true);
@@ -960,7 +960,6 @@ describe('Party manager', () => {
     // D joins as another member of the party.
 
     const PIN = Buffer.from('0000');
-
     const secretValidator: SecretValidator = async (invitation, secret) => secret.equals(PIN);
     const secretProvider: SecretProvider = async () => PIN;
     const invitationDescriptor = await partyManagerA.parties[0].invitationManager
@@ -977,19 +976,20 @@ describe('Party manager', () => {
     expect(partyC.title).toBe(undefined);
     expect(partyD.title).toBe(undefined);
 
-    await partyA.setTitle('Some name');
+    await partyA.setTitle('Test');
 
     for (const _party of [partyA, partyB, partyC]) {
-      await waitForCondition(() => _party.getProperty('title') === 'Some name', 3000);
-      expect(_party.title).toEqual('Some name');
+      await waitForCondition(() => _party.getProperty('title') === 'Test', 3000);
+      expect(_party.title).toEqual('Test');
     }
 
     // For the other member of the party, title propagates correctly as well
-    await waitForCondition(() => partyD.getProperty('title') === 'Some name', 3000);
-    expect(partyD.title).toEqual('Some name'); // However this does not
+    await waitForCondition(() => partyD.getProperty('title') === 'Test', 3000);
+    expect(partyD.title).toEqual('Test'); // However this does not
   });
 
-  // Note: The reason I wrote this test is because it does not seem to be working properly in Teamwork
+  // TODO(burdon): Fix.
+  // Note: The reason I wrote this test is because it does not seem to be working properly in Teamwork.
   // I don't seem to be receiving an update after which party.title holds correct value.
   // https://github.com/dxos/teamwork/issues/496#issuecomment-739862830
   // However it seems to be working fine in this test.
@@ -1043,17 +1043,14 @@ describe('Party manager', () => {
       titleInB = partyB.title;
     });
 
-    await partyA.setTitle('Some name');
-    expect(partyA.title).toEqual('Some name');
+    await partyA.setTitle('value-1');
+    expect(partyA.title).toEqual('value-1');
+    await waitForCondition(() => titleInC === 'value-1', 10000);
+    await waitForCondition(() => titleInB === 'value-1', 10000);
 
-    // The following should eventually be true after one of the updates
-    await waitForCondition(() => titleInC === 'Some name', 10000);
-    await waitForCondition(() => titleInB === 'Some name', 10000);
-
-    await partyA.setTitle('Another name');
-    expect(partyA.title).toEqual('Another name');
-
-    await waitForCondition(() => titleInC === 'Another name', 10000);
-    await waitForCondition(() => titleInB === 'Another name', 10000);
+    await partyA.setTitle('value-2');
+    expect(partyA.title).toEqual('value-2');
+    await waitForCondition(() => titleInC === 'value-2', 10000);
+    await waitForCondition(() => titleInB === 'value-2', 10000);
   }, 20000);
 });

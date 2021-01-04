@@ -178,6 +178,7 @@ export class ItemDemuxer {
         initialMutations: item.model.array ? item.model.array.mutations : undefined,
         modelSnapshot: item.model.custom ? item.model.custom : undefined
       });
+
       if (newItem.model instanceof DefaultModel) {
         newItem.model.originalModelType = item.modelType;
       }
