@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [2.6.20](https://www.github.com/dxos/echo/compare/v2.6.19...v2.6.20) (2021-01-05)
+
+
+### Features
+
+* Linked objects with graph traversal ([#377](https://www.github.com/dxos/echo/issues/377)) ([30b89b2](https://www.github.com/dxos/echo/commit/30b89b226d2d3124b64a1473eb3e3be87099f63f))
+
+
+### Bug Fixes
+
+* Stop counting duplicate device parties against opening status ([#390](https://www.github.com/dxos/echo/issues/390)) ([60a6d1c](https://www.github.com/dxos/echo/commit/60a6d1c6586a92f0722f80b013a7523f77f3b7bb))
+* Upgrade DXOS dependencies ([#376](https://www.github.com/dxos/echo/issues/376)) ([2500315](https://www.github.com/dxos/echo/commit/2500315bd4b0b5c12c0250d0d02d0a73aa2c8ae3))
+
 ### [2.6.19](https://www.github.com/dxos/echo/compare/v2.6.18...v2.6.19) (2020-12-22)
 
 
