@@ -116,7 +116,7 @@ const generate = async (database, config) => {
   ));
 
   // People.
-  const perope = await Promise.all(times(config.numPeople, () => faker.name.firstName()).map(async name => {
+  const people = await Promise.all(times(config.numPeople, () => faker.name.firstName()).map(async name => {
     const person = await database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } });
     const count = faker.random.number({ min: 0, max: 2 });
     const orgs = faker.random.arrayElements(organizations, count);
@@ -157,7 +157,7 @@ const useMutator = (database) => {
     const source = ref.current.getItem(sourceId);
     const target = ref.current.getItem(targetId);
     if (source.type === OBJECT_ORG && target.type === OBJECT_PERSON) {
-      ref.current.createLink({ type: LINK_EMPLOYEE, source, target })
+      ref.current.createLink({ type: LINK_EMPLOYEE, source, target });
     }
   };
 
@@ -210,7 +210,12 @@ export const withLinks = () => {
         <div>Command-drag: Org &#x2192; Person</div>
       </div>
 
-      <LinksGraph classes={graphClasses} data={data} onCreate={handleCreate} propertyAdapter={propertyAdapter} />
+      <LinksGraph
+        classes={graphClasses}
+        data={data}
+        onCreate={handleCreate}
+        propertyAdapter={propertyAdapter}
+      />
     </>
   );
 };
