@@ -2,7 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import { ValueUtil } from './mutation';
+import { MutationUtil, ValueUtil } from './mutation';
+import { ObjectMutation } from './proto';
 
 test('ValueUtil', () => {
   {
@@ -114,4 +115,62 @@ test('ValueUtil bytes', () => {
     const object = ValueUtil.applyValue({}, 'data', ValueUtil.createMessage(Buffer.from('World')));
     expect(object.data).toEqual(Buffer.from('World'));
   }
+});
+
+test('MutationUtil', () => {
+  const data = MutationUtil.applyMutationSet({}, {
+    mutations: [
+      {
+        operation: ObjectMutation.Operation.SET,
+        key: 'name',
+        value: {
+          string: 'DXOS'
+        }
+      },
+      {
+        operation: ObjectMutation.Operation.ARRAY_PUSH,
+        key: 'contact',
+        value: {
+          object: {
+            properties: [
+              {
+                key: 'email',
+                value: {
+                  string: 'admin@dxos.org'
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        operation: ObjectMutation.Operation.ARRAY_PUSH,
+        key: 'contact',
+        value: {
+          object: {
+            properties: [
+              {
+                key: 'email',
+                value: {
+                  string: 'info@dxos.org'
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  });
+
+  expect(data).toEqual({
+    name: 'DXOS',
+    contact: [
+      {
+        email: 'admin@dxos.org'
+      },
+      {
+        email: 'info@dxos.org'
+      }
+    ]
+  });
 });
