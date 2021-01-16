@@ -19,7 +19,7 @@ test('create empty item', async () => {
   expect(peer2.model.toObject()).toEqual({});
 });
 
-test.skip('create item with props', async () => {
+test('create item with props', async () => {
   const [peer1, peer2] = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
   expect(peer1.id).toEqual(peer2.id);
 

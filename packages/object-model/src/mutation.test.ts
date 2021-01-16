@@ -118,13 +118,27 @@ test('ValueUtil bytes', () => {
 });
 
 test('MutationUtil', () => {
-  const data = MutationUtil.applyMutationSet({}, {
+  const data1 = MutationUtil.applyMutationSet({}, {
     mutations: [
       {
         operation: ObjectMutation.Operation.SET,
         key: 'name',
         value: {
           string: 'DXOS'
+        }
+      },
+      {
+        operation: ObjectMutation.Operation.SET_ADD,
+        key: 'labels',
+        value: {
+          string: 'red'
+        }
+      },
+      {
+        operation: ObjectMutation.Operation.SET_ADD,
+        key: 'labels',
+        value: {
+          string: 'green'
         }
       },
       {
@@ -162,8 +176,12 @@ test('MutationUtil', () => {
     ]
   });
 
-  expect(data).toEqual({
+  expect(data1).toEqual({
     name: 'DXOS',
+    labels: [
+      'red',
+      'green'
+    ],
     contact: [
       {
         email: 'admin@dxos.org'
@@ -171,6 +189,36 @@ test('MutationUtil', () => {
       {
         email: 'info@dxos.org'
       }
+    ]
+  });
+
+  const data2 = MutationUtil.applyMutationSet(data1, {
+    mutations: [
+      {
+        operation: ObjectMutation.Operation.DELETE,
+        key: 'contact'
+      },
+      {
+        operation: ObjectMutation.Operation.SET_ADD,
+        key: 'labels',
+        value: {
+          string: 'green'
+        }
+      },
+      {
+        operation: ObjectMutation.Operation.SET_DELETE,
+        key: 'labels',
+        value: {
+          string: 'red'
+        }
+      }
+    ]
+  });
+
+  expect(data2).toEqual({
+    name: 'DXOS',
+    labels: [
+      'green'
     ]
   });
 });

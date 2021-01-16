@@ -211,6 +211,20 @@ export class MutationUtil {
         break;
       }
 
+      case ObjectMutation.Operation.SET_ADD: {
+        const set = new Set(object[key!] || []);
+        set.add(ValueUtil.valueOf(value!));
+        object[key!] = Array.from(set.values());
+        break;
+      }
+
+      case ObjectMutation.Operation.SET_DELETE: {
+        const set = new Set(object[key!] || []);
+        set.delete(ValueUtil.valueOf(value!));
+        object[key!] = Array.from(set.values());
+        break;
+      }
+
       // TODO(burdon): Other mutation types.
       default:
         throw new Error(`Operation not implemented: ${operation}`);
