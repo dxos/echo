@@ -3,9 +3,19 @@
 //
 
 import React, {useState} from 'react';
-import { TextField } from "@material-ui/core";
+import { Input, IconButton, InputAdornment, TextField } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import SearchIcon from '@material-ui/icons/Search';
 
-const SearchBar = ({ onUpdate = console.log }) => {
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    flex: 1
+  }
+}));
+
+const SearchBar = ({ classes = {}, onUpdate = console.log }) => {
+  const clazzes = { ...useStyles(), ...classes };
   const [text, setText] = useState('');
 
   const handleKeyDown = ev => {
@@ -23,17 +33,30 @@ const SearchBar = ({ onUpdate = console.log }) => {
   };
 
   return (
-    <div>
+    <div className={clazzes.root}>
       <TextField
         autoFocus
         fullWidth
+        variant='outlined'
         spellCheck={false}
         value={text}
         onChange={ev => setText(ev.target.value)}
         onKeyUp={handleKeyDown}
+        InputProps={{
+          endAdornment:
+            <InputAdornment position="end">
+              <IconButton
+                size='small'
+                onClick={() => onUpdate(text)}
+                onMouseDown={() => onUpdate(text)}
+              >
+                <SearchIcon/>
+              </IconButton>
+            </InputAdornment>
+        }}
       />
     </div>
   );
-}
+};
 
 export default SearchBar;

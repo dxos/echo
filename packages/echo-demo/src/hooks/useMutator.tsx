@@ -23,16 +23,20 @@ faker.seed(1);
 const createProps = type => {
   const generators = {
     [OBJECT_ORG]: () => ({
-      name: faker.company.companyName()
+      name: faker.company.companyName(),
+      description: faker.lorem.sentence()
     }),
     [OBJECT_PERSON]: () => ({
-      name: faker.name.firstName()
+      name: faker.name.firstName(),
+      description: faker.lorem.sentence()
     }),
     [OBJECT_PROJECT]: () => ({
-      name: faker.commerce.productName()
+      name: faker.commerce.productName(),
+      description: faker.lorem.sentence()
     }),
     [OBJECT_TASK]: () => ({
-      name: faker.git.commitMessage()
+      name: faker.git.commitMessage(),
+      description: faker.lorem.sentence()
     })
   };
 
