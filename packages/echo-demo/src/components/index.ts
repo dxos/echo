@@ -2,14 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import EchoGraph from './EchoGraph';
-import ItemList from './ItemList';
-import LinksGraph from './LinksGraph';
-import MemberList from './MemberList';
-
-export {
-  EchoGraph,
-  ItemList,
-  LinksGraph,
-  MemberList
-};
+export { default as EchoGraph } from './EchoGraph';
+export { default as ItemList } from './ItemList';
+export { default as LinksGraph } from './LinksGraph';
+export { default as MemberList } from './MemberList';
+export { default as SearchBar } from './SearchBar';
