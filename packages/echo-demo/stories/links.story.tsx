@@ -4,10 +4,8 @@
 
 import debug from 'debug';
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import * as colors from '@material-ui/core/colors';
-
-import { useDatabase, useMutator } from './testing';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   OBJECT_ORG,
@@ -18,7 +16,9 @@ import {
   LinksGraph,
   graphSelector,
   itemSelector,
-  useSelection
+  useMutator,
+  useSelection,
+  useTestDatabase
 } from '../src';
 
 export default {
@@ -105,7 +105,12 @@ const useGraphStyles = makeStyles(() => ({
 export const withLinks = () => {
   const classes = useStyles();
   const graphClasses = useGraphStyles();
-  const database = useDatabase();
+
+  const database = useTestDatabase({
+    numOrgs: 4,
+    numPeople: 16,
+    numProjects: 6
+  });
 
   const data = useSelection(database && database.select(), graphSelector);
   const items = useSelection(database && database.select(), itemSelector);

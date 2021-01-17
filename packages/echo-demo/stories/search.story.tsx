@@ -2,19 +2,16 @@
 // Copyright 2020 DXOS.org
 //
 
-import React, {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 
-import { ItemList, SearchBar, useSelection } from "../src";
-
-// TODO(burdon): Merge.
-import { useDatabase } from './testing';
+import { ItemList, SearchBar, useTestDatabase, useSelection } from '../src';
 
 export default {
   title: 'Search'
 };
 
 // TODO(burdon): Create index.
-export const searchSelector = search => selection => {
+const searchSelector = search => selection => {
   const items = [];
 
   const match = (pattern, text) => {
@@ -22,6 +19,7 @@ export const searchSelector = search => selection => {
       return false;
     }
 
+    // TODO(burdon): Prefix match.
     return text.toLowerCase().indexOf(pattern) !== -1;
   };
 
@@ -36,7 +34,10 @@ export const searchSelector = search => selection => {
 };
 
 export const withSearch = () => {
-  const database = useDatabase();
+  const database = useTestDatabase({
+    numOrgs: 10,
+    numPeople: 20
+  });
   const [search, setSearch] = useState(undefined);
   const items = useSelection(database && database.select(), searchSelector(search), [search]);
 

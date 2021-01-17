@@ -17,7 +17,7 @@ import {
 } from '@dxos/gem-spore';
 import { ObjectModel } from '@dxos/object-model';
 
-import { useDatabase, useGraphData } from '../hooks';
+import { useEcho, useGraphData } from '../hooks';
 
 // TODO(burdon): Merge styles.
 const useCustomStyles = makeStyles(() => ({
@@ -39,7 +39,7 @@ const useCustomStyles = makeStyles(() => ({
 }));
 
 interface CreateLayoutOpts {
-  database: ECHO
+  echo: ECHO
   grid: any,
   guides: any
   delta: any
@@ -47,7 +47,7 @@ interface CreateLayoutOpts {
   handleSelect: any
 }
 
-const createLayout = ({ database, grid, guides, delta, linkProjector, handleSelect }: CreateLayoutOpts) => {
+const createLayout = ({ echo, grid, guides, delta, linkProjector, handleSelect }: CreateLayoutOpts) => {
   const layout = new ForceLayout({
     center: {
       x: grid.center.x + delta.x,
@@ -59,7 +59,7 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
         return {
           fx: center.x,
           fy: center.y
-        }
+        };
       }
     },
     force: {
@@ -111,18 +111,18 @@ const createLayout = ({ database, grid, guides, delta, linkProjector, handleSele
     setImmediate(async () => {
       switch (source.type) {
         case 'database': {
-          await database.createParty();
+          await echo.createParty();
           break;
         }
 
         case 'party': {
-          const party = await database.getParty(source.partyKey);
+          const party = await echo.getParty(source.partyKey);
           await party.database.createItem({ model: ObjectModel });
           break;
         }
 
         case 'item': {
-          const party = await database.getParty(source.partyKey);
+          const party = await echo.getParty(source.partyKey);
           const item = await party.database.createItem({ model: ObjectModel, parent: source.id });
           break;
         }
@@ -187,15 +187,15 @@ const EchoGraph = (
     onSelect && onSelect(source);
   };
 
-  const database = useDatabase();
+  const echo = useEcho();
   const [selected, setSelected] = useState();
   const [{ layout, drag }, setLayout] = useState(() => createLayout({
-    database, delta, grid, guides: guides.current, linkProjector, handleSelect
+    echo, delta, grid, guides: guides.current, linkProjector, handleSelect
   }));
 
   useEffect(() => {
     setLayout(createLayout({
-      database, delta, grid, guides: guides.current, linkProjector, handleSelect
+      echo, delta, grid, guides: guides.current, linkProjector, handleSelect
     }));
   }, [delta.x, delta.y]);
 

@@ -28,7 +28,7 @@ export default {
 
 export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' }) => {
   const [id] = useState(createId());
-  const [database, setDatabase] = useState<ECHO>();
+  const [echo, setEcho] = useState<ECHO>();
   const [storage] = useState(() => createStorage('dxos/echo-demo'));
   const [snapshotStorage] = useState(() => createStorage('dxos/echo-demo/snapshots'));
 
@@ -46,14 +46,14 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
 
         log('Created:', String(echo));
         await echo.open();
-        setDatabase(echo);
+        setEcho(echo);
 
-        if(!echo.identityKey) {
+        if (!echo.identityKey) {
           await echo.createIdentity(createKeyPair());
           await echo.createHalo();
         }
       } catch(err) {
-        console.error(err)
+        console.error(err);
       }
     });
   }, []);
@@ -66,7 +66,7 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
 
   // Click to invite.
   const handleInvite = async (node) => {
-    const party = await database.getParty(node.partyKey);
+    const party = await echo.getParty(node.partyKey);
     const invitation = await party.createInvitation({
       secretProvider: async () => Buffer.from('0000'),
       secretValidator: async () => true,
@@ -77,17 +77,17 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
 
   async function handleJoin() {
     log('handleJoin', invitation);
-    const party = await database.joinParty(
+    const party = await echo.joinParty(
       InvitationDescriptor.fromQueryParameters(JSON.parse(invitation)), async () => Buffer.from('0000'));
     await party.open();
   }
 
   async function handleResetStorage() {
-    await database.reset();
+    await echo.reset();
     window.location.reload();
   }
 
-  const activeParty = database?.queryParties().value[0]
+  const activeParty = echo?.queryParties().value[0]
 
   return (
     <FullScreen>
@@ -108,15 +108,15 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
           </div>
         </Toolbar>
 
-        {activeParty && <MemberList party={database.queryParties().first} />}
+        {activeParty && <MemberList party={echo.queryParties().first} />}
 
         <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
           {resizeListener}
           <SVG width={width} height={height}>
             <Markers />
 
-            {database && (
-              <EchoContext.Provider key={id} value={{ database }}>
+            {echo && (
+              <EchoContext.Provider key={id} value={{ echo }}>
                 <EchoGraph
                   id={id}
                   grid={grid}
