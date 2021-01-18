@@ -22,6 +22,7 @@ import { SVG, useGrid } from '@dxos/gem-core';
 interface LinksGraphProps {
   data: any, // TODO(burdon): Type?
   onCreate?: Function,
+  onSelect?: Function,
   classes?: any,
   propertyAdapter?: Function
 }
@@ -35,8 +36,8 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const GraphView = ({ data, onCreate = () => {}, classes = {}, propertyAdapter = () => ({}) }: LinksGraphProps) => {
-  const clazzes = { ...useStyles(), ...classes };
+const GraphView = ({ data, onSelect = () => {}, onCreate = () => {}, classes = {}, propertyAdapter = () => ({}) }: LinksGraphProps) => {
+  const clazzes = { ...useStyles(), ...classes }; // TODO(burdon): merge()
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
@@ -44,6 +45,8 @@ const GraphView = ({ data, onCreate = () => {}, classes = {}, propertyAdapter = 
   const [linkProjector] = useState(() => new LinkProjector({ nodeRadius: 8, showArrows: true }));
   const [layout] = useState(() => new ForceLayout());
   const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
+
+  drag.on('click', ({ source }) => onSelect(source.id));
 
   return (
     <div className={clazzes.root}>

@@ -135,7 +135,7 @@ const createLayout = ({ echo, grid, guides, delta, linkProjector, handleSelect }
   return {
     layout,
     drag
-  }
+  };
 };
 
 /**
@@ -148,7 +148,7 @@ const createLayout = ({ echo, grid, guides, delta, linkProjector, handleSelect }
  */
 const EchoGraph = (
   {
-    id, grid, delta = { x: 0, y: 0 }, radius = 250, onSelect = () => {}
+    id, grid, delta = { x: 0, y: 0 }, onSelect = () => {}
   }: {
     id: string,
     grid: any,
@@ -169,7 +169,7 @@ const EchoGraph = (
         radius: 16,
         showLabels: true,
         // TODO(burdon): Properties on node directly (e.g., radius, class). Arrows use radius.
-        propertyAdapter: ({ type  }) => ({
+        propertyAdapter: ({ type }) => ({
           class: type,
           radius: {
             database: 20,

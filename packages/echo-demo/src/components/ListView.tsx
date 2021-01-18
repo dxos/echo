@@ -26,6 +26,8 @@ const ListView = ({ items = [], icon: Icon = undefined }) => {
     <List dense className={classes.root}>
       {items.map((item) => {
         const title = item.model.getProperty('name');
+        const description = item.model.getProperty('description');
+
         return title && (
           <ListItem key={item.id}>
             {Icon && (
@@ -33,7 +35,7 @@ const ListView = ({ items = [], icon: Icon = undefined }) => {
                 <Icon type={item.type} />
               </ListItemIcon>
             )}
-            <ListItemText primary={title} />
+            <ListItemText primary={title} secondary={description} />
           </ListItem>
         );
       })}
@@ -42,8 +44,3 @@ const ListView = ({ items = [], icon: Icon = undefined }) => {
 };
 
 export default ListView;
-
-import OrgIcon from '@material-ui/icons/Business';
-import PersonIcon from '@material-ui/icons/Person';
-
-import { OBJECT_ORG, OBJECT_PERSON } from '../types';

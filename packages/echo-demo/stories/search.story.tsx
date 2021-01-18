@@ -18,9 +18,9 @@ import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import grey from '@material-ui/core/colors/grey';
 
 import {
-  CardView, GraphView, ListView, SearchBar,
+  CardView, GraphView, ListView, SearchBar, ItemCard,
   useTestDatabase, useSelection, graphSelector,
-  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE
+  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE,
 } from '../src';
 
 export default {
@@ -66,7 +66,6 @@ const useStyles = makeStyles(theme => ({
   },
   toolbar: {
     display: 'flex',
-    marginBottom: theme.spacing(2),
     padding: theme.spacing(1)
   },
   search: {
@@ -80,7 +79,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flex: 1,
     overflow: 'auto',
-    padding: theme.spacing(1)
+    padding: theme.spacing(1),
+
+    '& g.selected circle': {
+      fill: 'red'
+    }
   },
   sublist: {
     marginTop: theme.spacing(1),
@@ -92,6 +95,10 @@ const useStyles = makeStyles(theme => ({
   },
   subheader: {
     color: theme.palette.info.dark
+  },
+  card: {
+    position: 'absolute',
+    zIndex: 100
   }
 }));
 
@@ -128,7 +135,8 @@ export const withSearch = () => {
   // console.log(items);
   // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
   const data = useSelection(database && database.select(), graphSelector);
-  const [view, setView] = useState(VIEW_CARDS);
+  const [selected, setSelected] = useState();
+  const [view, setView] = useState(VIEW_LIST);
 
   const handleUpdate = text => setSearch(text.toLowerCase());
 
@@ -217,9 +225,21 @@ export const withSearch = () => {
           />
         )}
         {view === VIEW_GRAPH && (
-          <GraphView
-            data={data}
-          />
+          <>
+            {selected && (
+              <div className={classes.card}>
+                <ItemCard
+                  item={selected}
+                  icon={Icon}
+                  CustomContent={ItemContent}
+                />
+              </div>
+            )}
+            <GraphView
+              data={data}
+              onSelect={id => setSelected(items.find(item => item.id === id))}
+            />
+          </>
         )}
       </div>
     </div>
