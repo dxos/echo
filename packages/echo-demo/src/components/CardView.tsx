@@ -2,6 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
+import clsx from 'clsx';
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { grey } from '@material-ui/core/colors';
@@ -50,13 +51,14 @@ const CardView = ({ items = [], icon: Icon = undefined, CustomContent = undefine
           <Grid item key={item.id}>
             <Card classes={{ root: classes.card }}>
               <CardHeader
-                classes={{ root: classes.header }}
+                classes={{ root: classes.header, content: classes.nowrap, title: classes.nowrap }}
                 avatar={
                   Icon && (
                     <Icon type={item.type} />
                   )
                 }
                 title={title}
+                titleTypographyProps={{ variant: 'h6' }}
               />
               <CardContent>
                 {description && (

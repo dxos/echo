@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc --build",
     "build-storybook": "build-storybook",
-    "chromatic": "npx chromatic --project-token 5qr4dg9ty0v",
+    "chromatic": "npx chromatic --project-token 5qr4dg9ty0v --auto-accept-changes",
     "coverage": "jest --coverage --verbose  --rootDir=./src --passWithNoTests --forceExit",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
