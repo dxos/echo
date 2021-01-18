@@ -27,7 +27,7 @@ const createProps = type => {
       description: faker.lorem.sentence()
     }),
     [OBJECT_PERSON]: () => ({
-      name: faker.name.firstName(),
+      name: `${faker.name.firstName()} ${faker.name.lastName()}`,
       description: faker.lorem.sentence()
     }),
     [OBJECT_PROJECT]: () => ({

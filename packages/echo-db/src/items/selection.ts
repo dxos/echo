@@ -104,6 +104,7 @@ export class Selection<I extends Item<any>> {
    * Creates a new selection by filtering links from the current selection.
    * @param filter
    */
+  // TODO(burdon): Optional filter.
   links (filter: SelectFilter): Selection<any> {
     const fn = (typeof filter === 'function') ? filter : createArrayFilter(filter as SelectFilterByValue);
     return new Selection(deduplicate(this._items.flatMap(item => item.links.filter(fn))), this._update);
@@ -113,6 +114,7 @@ export class Selection<I extends Item<any>> {
    * Creates a new selection by filtering inbound links to items in the current selection.
    * @param filter
    */
+  // TODO(burdon): Optional filter.
   refs (filter: SelectFilter): Selection<any> {
     const fn = (typeof filter === 'function') ? filter : createArrayFilter(filter as SelectFilterByValue);
     return new Selection(deduplicate(this._items.flatMap(item => item.refs.filter(fn))), this._update);

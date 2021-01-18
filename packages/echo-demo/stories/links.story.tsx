@@ -12,7 +12,7 @@ import {
   OBJECT_PERSON,
   OBJECT_PROJECT,
   OBJECT_TASK,
-  ItemList,
+  DebugItemList,
   LinksGraph,
   graphSelector,
   itemSelector,
@@ -129,7 +129,7 @@ export const withLinks = () => {
   return (
     <>
       <div className={classes.items}>
-        <ItemList items={items} />
+        <DebugItemList items={items} />
       </div>
 
       <div className={classes.info}>

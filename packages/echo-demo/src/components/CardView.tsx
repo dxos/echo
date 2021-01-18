@@ -4,12 +4,13 @@
 
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
 import {
   Button,
   Card,
   CardActionArea,
   CardActions,
-  CardContent,
+  CardContent, CardHeader,
   CardMedia,
   Grid,
   Typography,
@@ -22,8 +23,11 @@ const useStyles = makeStyles(() => ({
   card: {
     width: 300
   },
-  cardContent: {
-    height: 100
+  header: {
+    backgroundColor: grey[200]
+  },
+  description: {
+    maxHeight: 72
   },
   nowrap: {
     whiteSpace: 'nowrap',
@@ -32,34 +36,47 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const CardView = ({ items = [] }) => {
+const CardView = ({ items = [], icons = undefined, customConent = undefined }) => {
   const classes = useStyles();
+
+  const Icon = ({ type }) => {
+    const Icon = icons[type];
+    if (!Icon) {
+      return null;
+    }
+
+    return <Icon />;
+  };
 
   return (
     <Grid container spacing={2} className={classes.root}>
       {items.map((item) => {
         const title = item.model.getProperty('name');
+        if (!title) {
+          return null;
+        }
+
         const description = item.model.getProperty('description');
-        return title && (
+        return (
           <Grid item key={item.id}>
-            <Card className={classes.card}>
-              <CardActionArea>
-                {/*
-              <CardMedia
-                className={classes.media}
-                image="/static/images/cards/contemplative-reptile.jpg"
-                title="Contemplative Reptile"
+            <Card classes={{ root: classes.card }}>
+              <CardHeader
+                classes={{ root: classes.header }}
+                avatar={
+                  icons && (
+                    <Icon type={item.type} />
+                  )
+                }
+                title={title}
               />
-              */}
-                <CardContent className={classes.cardContent}>
-                  <Typography gutterBottom variant="h5" component="h2" className={classes.nowrap}>
-                    {title}
-                  </Typography>
-                  <Typography component="p">
+              <CardContent>
+                {description && (
+                  <Typography component="p" className={classes.description}>
                     {description}
                   </Typography>
-                </CardContent>
-              </CardActionArea>
+                )}
+                {customConent && customConent(item)}
+              </CardContent>
               <CardActions>
                 <Button size="small" color="primary">
                   Info
@@ -67,7 +84,7 @@ const CardView = ({ items = [] }) => {
               </CardActions>
             </Card>
           </Grid>
-        )
+        );
       })}
     </Grid>
   );
