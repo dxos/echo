@@ -117,7 +117,7 @@ export class Item<M extends Model<any>> {
     return !!this._link;
   }
 
-  // TODO(burdon): Experimental.
+  // TODO(burdon): Experimental (event?)
   select (): Selection<any> {
     return new Selection([this], new Event());
   }

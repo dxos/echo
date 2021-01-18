@@ -13,13 +13,14 @@ import {
   OBJECT_PROJECT,
   OBJECT_TASK,
   DebugItemList,
-  LinksGraph,
+  GraphView,
   graphSelector,
   itemSelector,
   useMutator,
   useSelection,
   useTestDatabase
 } from '../src';
+import grey from '@material-ui/core/colors/grey';
 
 export default {
   title: 'Links',
@@ -41,6 +42,15 @@ const propertyAdapter = (node) => ({
 });
 
 const useStyles = makeStyles(() => ({
+  // TODO(burdon): Container.
+  root: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    overflow: 'hidden',
+    height: '100vh',
+    backgroundColor: grey[50]
+  },
   items: {
     position: 'absolute',
     zIndex: 1,
@@ -127,7 +137,7 @@ export const withLinks = () => {
   };
 
   return (
-    <>
+    <div className={classes.root}>
       <div className={classes.items}>
         <DebugItemList items={items} />
       </div>
@@ -136,12 +146,12 @@ export const withLinks = () => {
         <div>Command-drag: Org &#x2192; Person</div>
       </div>
 
-      <LinksGraph
+      <GraphView
         classes={graphClasses}
         data={data}
-        onCreate={handleCreate}
         propertyAdapter={propertyAdapter}
+        onCreate={handleCreate}
       />
-    </>
+    </div>
   );
 };

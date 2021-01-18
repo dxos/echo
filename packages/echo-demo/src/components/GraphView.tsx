@@ -15,16 +15,28 @@ import {
   NodeProjector,
   Markers,
 } from '@dxos/gem-spore';
-import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
+import { SVG, useGrid } from '@dxos/gem-core';
+import { makeStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
 
 interface LinksGraphProps {
   data: any, // TODO(burdon): Type?
-  onCreate: Function,
-  classes: any,
-  propertyAdapter: Function
+  onCreate?: Function,
+  classes?: any,
+  propertyAdapter?: Function
 }
 
-const LinksGraph = ({ data, onCreate, classes = {}, propertyAdapter }: LinksGraphProps) => {
+// TODO(burdon): Create container.
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'flex',
+    flex: 1,
+    position: 'relative' // Important
+  }
+}));
+
+const GraphView = ({ data, onCreate = () => {}, classes = {}, propertyAdapter = () => ({}) }: LinksGraphProps) => {
+  const clazzes = { ...useStyles(), ...classes };
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;
   const grid = useGrid({ width, height });
@@ -34,7 +46,7 @@ const LinksGraph = ({ data, onCreate, classes = {}, propertyAdapter }: LinksGrap
   const [drag] = useState(() => createSimulationDrag(layout.simulation, { link: 'metaKey' }));
 
   return (
-    <FullScreen>
+    <div className={clazzes.root}>
       {resizeListener}
       <SVG width={size.width} height={size.height}>
         <Markers arrowSize={10}/>
@@ -51,12 +63,12 @@ const LinksGraph = ({ data, onCreate, classes = {}, propertyAdapter }: LinksGrap
           nodeProjector={nodeProjector}
           linkProjector={linkProjector}
           classes={{
-            nodes: classes.nodes
+            nodes: clazzes.nodes
           }}
         />
       </SVG>
-    </FullScreen>
+    </div>
   );
 };
 
-export default LinksGraph;
+export default GraphView;

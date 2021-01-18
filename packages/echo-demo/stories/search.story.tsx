@@ -10,13 +10,13 @@ import GridIcon from '@material-ui/icons/ViewComfy';
 import ListIcon from '@material-ui/icons/Reorder';
 import OrgIcon from '@material-ui/icons/Business';
 import PersonIcon from '@material-ui/icons/Person';
-
+import GraphIcon from '@material-ui/icons/Share';
 import grey from '@material-ui/core/colors/grey';
 
 import {
-  CardView, ListView, SearchBar,
+  CardView, GraphView, ListView, SearchBar,
   useTestDatabase, useSelection,
-  OBJECT_ORG, OBJECT_PERSON, LINK_PROJECT, LINK_EMPLOYEE,
+  OBJECT_ORG, OBJECT_PERSON, LINK_PROJECT, LINK_EMPLOYEE, graphSelector
 } from '../src';
 
 export default {
@@ -51,6 +51,7 @@ const searchSelector = search => selection => {
 };
 
 const useStyles = makeStyles(theme => ({
+  // TODO(burdon): Container.
   root: {
     display: 'flex',
     flex: 1,
@@ -84,6 +85,7 @@ const useStyles = makeStyles(theme => ({
 
 const VIEW_LIST = 1;
 const VIEW_CARDS = 2;
+const VIEW_GRAPH = 3;
 
 const icons = {
   [OBJECT_ORG]: OrgIcon,
@@ -94,10 +96,16 @@ export const withSearch = () => {
   const classes = useStyles();
   const database = useTestDatabase({
     numOrgs: 10,
-    numPeople: 20
+    numPeople: 20,
+    numProjects: 20,
+    numTasks: 30
   });
   const [search, setSearch] = useState(undefined);
   const items = useSelection(database && database.select(), searchSelector(search), [search]);
+  // TODO(burdon): Use subset.
+  // console.log(items);
+  // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
+  const data = useSelection(database && database.select(), graphSelector);
   const [view, setView] = useState(VIEW_CARDS);
 
   const handleUpdate = text => setSearch(text.toLowerCase());
@@ -105,41 +113,71 @@ export const withSearch = () => {
   const customContent = item => {
     switch (item.type) {
       case OBJECT_ORG: {
+        const projects = item.select().links({ type: LINK_PROJECT }).target().items;
         const employees = item.select().links({ type: LINK_EMPLOYEE }).target().items;
-        return (employees.length !== 0) && (
-          <div className={classes.sublist}>
-            <Typography variant='caption'>Employees</Typography>
-            {employees.map(item => (
-              <Typography key={item.id} variant='body2'>
-                {item.model.getProperty('name')}
-              </Typography>
-            ))}
-          </div>
+        return (
+          <>
+            {(projects.length !== 0) && (
+              <div className={classes.sublist}>
+                <Typography variant='caption'>Projects</Typography>
+                {projects.map(item => (
+                  <Typography key={item.id} variant='body2'>
+                    {item.model.getProperty('name')}
+                  </Typography>
+                ))}
+              </div>
+            )}
+            {(employees.length !== 0) && (
+              <div className={classes.sublist}>
+                <Typography variant='caption'>Employees</Typography>
+                {employees.map(item => (
+                  <Typography key={item.id} variant='body2'>
+                    {item.model.getProperty('name')}
+                  </Typography>
+                ))}
+              </div>
+            )}
+          </>
         );
       }
     }
   };
+
+  const ViewButton = ({ view: type, icon: Icon }) => (
+    <IconButton color={type === view ? 'primary' : 'default'} size='small' onClick={() => setView(type)}>
+      <Icon />
+    </IconButton>
+  );
 
   return (
     <div className={classes.root}>
       <Toolbar variant='dense' disableGutters classes={{ root: classes.toolbar }}>
         <SearchBar onUpdate={handleUpdate} />
         <div className={classes.buttons}>
-          <IconButton color={view === VIEW_LIST ? 'primary' : 'default'} size='small' onClick={() => setView(VIEW_LIST)}>
-            <ListIcon />
-          </IconButton>
-          <IconButton color={view === VIEW_CARDS ? 'primary' : 'default'} size='small' onClick={() => setView(VIEW_CARDS)}>
-            <GridIcon />
-          </IconButton>
+          <ViewButton view={VIEW_LIST} icon={ListIcon} />
+          <ViewButton view={VIEW_CARDS} icon={GridIcon} />
+          <ViewButton view={VIEW_GRAPH} icon={GraphIcon} />
         </div>
       </Toolbar>
 
       <div className={classes.content}>
         {view === VIEW_LIST && (
-          <ListView items={items} icons={icons} />
+          <ListView
+            items={items}
+            icons={icons}
+          />
         )}
         {view === VIEW_CARDS && (
-          <CardView items={items} icons={icons} customConent={customContent} />
+          <CardView
+            items={items}
+            icons={icons}
+            customConent={customContent}
+          />
+        )}
+        {view === VIEW_GRAPH && (
+          <GraphView
+            data={data}
+          />
         )}
       </div>
     </div>

@@ -48,7 +48,7 @@ export class Selection<I extends Item<any>> {
    */
   constructor (
     private readonly _items: I[],
-    private readonly _update: Event
+    private readonly _update: Event // TODO(burdon): Optional event?
   ) {}
 
   get items (): I[] {
