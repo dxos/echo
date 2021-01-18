@@ -2,14 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
-export const OBJECT_ORG = 'wrn://dxos.org/object/org';
-export const OBJECT_PERSON = 'wrn://dxos.org/object/person';
-export const OBJECT_PROJECT = 'wrn://dxos.org/object/project';
-export const OBJECT_TASK = 'wrn://dxos.org/object/task';
+export const OBJECT_ORG = 'dxn://dxos.org/object/org';
+export const OBJECT_PERSON = 'dxn://dxos.org/object/person';
+export const OBJECT_PROJECT = 'dxn://dxos.org/object/project';
+export const OBJECT_TASK = 'dxn://dxos.org/object/task';
 
-export const LINK_EMPLOYEE = 'wrn://dxos.org/link/employee';
-export const LINK_PROJECT = 'wrn://dxos.org/link/project';
-export const LINK_ASSIGNED = 'wrn://dxos.org/link/assigned';
+export const LINK_EMPLOYEE = 'dxn://dxos.org/link/employee';
+export const LINK_PROJECT = 'dxn://dxos.org/link/project';
+export const LINK_ASSIGNED = 'dxn://dxos.org/link/assigned';
 
 // TODO(burdon): Query objects-only (i.e., not root party item).
 export const itemSelector = selection => {
