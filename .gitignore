@@ -74,3 +74,5 @@ public/
 # Protocol buffer generated source files
 **/proto/gen/
 
+.yalc
+yalc.lock
