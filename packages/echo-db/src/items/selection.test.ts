@@ -12,9 +12,9 @@ import { Item } from './item';
 import { Link } from './link';
 import { Selection } from './selection';
 
-const OBJECT_ORG = 'wrn://dxos/object/org';
-const OBJECT_PERSON = 'wrn://dxos/object/person';
-const LINK_EMPLOYEE = 'wrn://dxos/link/employee';
+const OBJECT_ORG = 'wrn://dxos.org/object/org';
+const OBJECT_PERSON = 'wrn://dxos.org/object/person';
+const LINK_EMPLOYEE = 'wrn://dxos.org/link/employee';
 
 const createItem = (id: ItemID, type: ItemType) =>
   new Item(id, type, ObjectModel.meta, new ObjectModel(ObjectModel.meta, id));
@@ -56,7 +56,7 @@ describe('Selection', () => {
 
   test('filter', () => {
     expect(new Selection(items, new Event())
-      .filter({ type: 'wrn://dxos/type/invalid' }).items).toHaveLength(0);
+      .filter({ type: 'wrn://dxos.org/type/invalid' }).items).toHaveLength(0);
 
     expect(new Selection(items, new Event())
       .filter({ type: OBJECT_PERSON }).items).toHaveLength(3);

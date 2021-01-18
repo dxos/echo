@@ -18,7 +18,7 @@ const noopCodec: Codec<Uint8Array> = {
 // TODO(burdon): Optional. Set as null and ignore messages for items that have unregistered models?
 export class DefaultModel extends Model<Uint8Array> {
   static meta: ModelMeta = {
-    type: 'wrn://dxos/model/default',
+    type: 'wrn://dxos.org/model/default',
     mutation: noopCodec
   };
 

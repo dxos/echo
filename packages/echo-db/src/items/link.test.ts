@@ -6,9 +6,9 @@ import { ObjectModel } from '@dxos/object-model';
 
 import { createTestInstance } from '../testing/test-utils';
 
-const OBJECT_ORG = 'wrn://dxos/object/org';
-const OBJECT_PERSON = 'wrn://dxos/object/person';
-const LINK_EMPLOYEE = 'wrn://dxos/link/employee';
+const OBJECT_ORG = 'wrn://dxos.org/object/org';
+const OBJECT_PERSON = 'wrn://dxos.org/object/person';
+const LINK_EMPLOYEE = 'wrn://dxos.org/link/employee';
 
 test('directed links', async () => {
   const echo = await createTestInstance({ initialize: true });

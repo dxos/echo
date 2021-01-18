@@ -339,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consistent error logging.
 - Pipeline logging/metrics.
 - Consistent async functions (latch, trigger, etc.)
-- WRN model/item formats.
+- DXN model/item formats.
 - Rewrite FeedStore (remove hypertrie, path, etc.)
 
 NOTE: Issue with each module generating overlapping protobuf TS definitions.

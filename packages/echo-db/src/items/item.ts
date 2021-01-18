@@ -43,7 +43,7 @@ export class Item<M extends Model<any>> {
   /**
    * Items are constructed by the `Database` object.
    * @param {ItemID} _itemId      - Addressable ID.
-   * @param {ItemType} _itemType  - User defined type (WRN).
+   * @param {ItemType} _itemType  - User defined type (DXN).
    * @param {Model} _modelMeta    - Data model metadata.
    * @param {Model} _model        - Data model (provided by `ModelFactory`).
    * @param [_writeStream]        - Write stream (if not read-only).

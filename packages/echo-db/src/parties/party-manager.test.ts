@@ -245,7 +245,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'wrn://dxos/item/test' })
+    partyB.database.queryItems({ type: 'wrn://dxos.org/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -257,7 +257,7 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' });
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' });
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
@@ -327,7 +327,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'wrn://dxos/item/test' })
+    partyB.database.queryItems({ type: 'wrn://dxos.org/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -339,7 +339,7 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
@@ -400,7 +400,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on B.
-      identityManagerB.halo?.database.queryItems({ type: 'wrn://dxos/item/test' })
+      identityManagerB.halo?.database.queryItems({ type: 'wrn://dxos.org/item/test' })
         .subscribe((result) => {
           if (result.length) {
             if (itemA && result.find(item => item.id === itemA?.id)) {
@@ -412,7 +412,7 @@ describe('Party manager', () => {
 
       // Create a new Item on A.
       itemA = await identityManagerA.halo?.database
-        .createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
       log(`A created ${itemA.id}`);
 
       // Now wait to see it on B.
@@ -437,7 +437,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on A.
-      partyManagerA.parties[0].database.queryItems({ type: 'wrn://dxos/item/test' })
+      partyManagerA.parties[0].database.queryItems({ type: 'wrn://dxos.org/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -450,7 +450,7 @@ describe('Party manager', () => {
 
       // Create a new Item on B.
       itemA = await partyManagerB.parties[0].database
-        .createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
 
       // Now wait to see it on A.
       await updated;
@@ -536,7 +536,7 @@ describe('Party manager', () => {
     // Empty across the board.
     for (const partyManager of [partyManagerA1, partyManagerA2, partyManagerB1, partyManagerB2]) {
       const [party] = partyManager.parties;
-      expect(party.database.queryItems({ type: 'wrn://dxos/item/test' }).value.length).toBe(0);
+      expect(party.database.queryItems({ type: 'wrn://dxos.org/item/test' }).value.length).toBe(0);
     }
 
     for await (const partyManager of [partyManagerA1, partyManagerA2, partyManagerB1, partyManagerB2]) {
@@ -548,7 +548,7 @@ describe('Party manager', () => {
         if (partyManager !== otherManager) {
           const [otherParty] = otherManager.parties;
           const [updated, onUpdate] = latch();
-          otherParty.database.queryItems({ type: 'wrn://dxos/item/test' })
+          otherParty.database.queryItems({ type: 'wrn://dxos.org/item/test' })
             .subscribe((result) => {
               if (result.find(current => current.id === item?.id)) {
                 log(`other has ${item?.id}`);
@@ -559,7 +559,7 @@ describe('Party manager', () => {
         }
       }
 
-      item = await party.database.createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+      item = await party.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
       await Promise.all(itemPromises);
     }
   });
@@ -582,7 +582,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on B.
-      identityManagerB.halo?.database.queryItems({ type: 'wrn://dxos/item/test' })
+      identityManagerB.halo?.database.queryItems({ type: 'wrn://dxos.org/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -595,7 +595,7 @@ describe('Party manager', () => {
 
       // Create a new Item on A.
       itemA = await identityManagerA.halo?.database
-        .createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
       log(`A created ${itemA.id}`);
 
       // Now wait to see it on B.
@@ -622,7 +622,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on A.
-      partyManagerA.parties[0].database.queryItems({ type: 'wrn://dxos/item/test' })
+      partyManagerA.parties[0].database.queryItems({ type: 'wrn://dxos.org/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -635,7 +635,7 @@ describe('Party manager', () => {
 
       // Create a new Item on B.
       itemA = await partyManagerB.parties[0].database
-        .createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
 
       // Now wait to see it on A.
       await updated;
@@ -671,7 +671,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'wrn://dxos/item/test' })
+    partyB.database.queryItems({ type: 'wrn://dxos.org/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -683,7 +683,7 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
@@ -799,7 +799,7 @@ describe('Party manager', () => {
     let itemA: Item<any> | null = null;
     const [updated, onUpdate] = latch();
 
-    partyA.database.queryItems({ type: 'wrn://dxos/item/test' })
+    partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [receivedItem] = result;
@@ -809,10 +809,10 @@ describe('Party manager', () => {
         }
       });
 
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'wrn://dxos.org/item/test' }) as Item<any>;
     await updated; // wait to see the update
 
-    expect((await partyA.database.queryItems({ type: 'wrn://dxos/item/test' })).value.length).toEqual(1);
+    expect((await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length).toEqual(1);
 
     await partyA.deactivate({ global: true });
     await partyA.activate({ global: true });
@@ -820,8 +820,8 @@ describe('Party manager', () => {
     expect(partyA.isOpen).toBe(true);
     expect(partyA.isActive()).toBe(true);
 
-    await waitForCondition(() => partyA.database.queryItems({ type: 'wrn://dxos/item/test' }).value.length > 0, 5000);
-    expect((await partyA.database.queryItems({ type: 'wrn://dxos/item/test' })).value.length).toEqual(1);
+    await waitForCondition(() => partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' }).value.length > 0, 5000);
+    expect((await partyA.database.queryItems({ type: 'wrn://dxos.org/item/test' })).value.length).toEqual(1);
   }, 10000);
 
   test('Deactivate Party - multi device', async () => {
