@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import useResizeAware from 'react-resize-aware';
 import update from 'immutability-helper';
 
+import { makeStyles } from '@material-ui/core/styles';
+
 import {
   createSimulationDrag,
   Graph,
@@ -16,8 +18,6 @@ import {
   Markers,
 } from '@dxos/gem-spore';
 import { SVG, useGrid } from '@dxos/gem-core';
-import { makeStyles } from '@material-ui/core/styles';
-import grey from '@material-ui/core/colors/grey';
 
 interface LinksGraphProps {
   data: any, // TODO(burdon): Type?

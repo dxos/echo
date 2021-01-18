@@ -3,14 +3,18 @@
 //
 
 import React, {useState} from 'react';
-import { Input, IconButton, InputAdornment, TextField } from '@material-ui/core';
+import { IconButton, InputAdornment, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import ClearIcon from '@material-ui/icons/Clear';
 import SearchIcon from '@material-ui/icons/Search';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     flex: 1
+  },
+  searchIcon: {
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -18,15 +22,23 @@ const SearchBar = ({ classes = {}, onUpdate = console.log }) => {
   const clazzes = { ...useStyles(), ...classes };
   const [text, setText] = useState('');
 
+  const handleSearch = () => {
+    onUpdate(text);
+  }
+
+  const handleCancel = () => {
+    setText('');
+    onUpdate('');
+  };
+
   const handleKeyDown = ev => {
     switch (ev.key) {
       case 'Escape': {
-        setText('');
-        onUpdate('');
+        handleCancel();
         break;
       }
       case 'Enter': {
-        onUpdate(text);
+        handleSearch();
         break;
       }
     }
@@ -43,14 +55,25 @@ const SearchBar = ({ classes = {}, onUpdate = console.log }) => {
         onChange={ev => setText(ev.target.value)}
         onKeyUp={handleKeyDown}
         InputProps={{
+          startAdornment:
+            <InputAdornment position="end">
+              <IconButton
+                className={clazzes.searchIcon}
+                size='small'
+                onClick={handleSearch}
+                onMouseDown={handleSearch}
+              >
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>,
           endAdornment:
             <InputAdornment position="end">
               <IconButton
                 size='small'
-                onClick={() => onUpdate(text)}
-                onMouseDown={() => onUpdate(text)}
+                onClick={handleCancel}
+                onMouseDown={handleCancel}
               >
-                <SearchIcon/>
+                <ClearIcon />
               </IconButton>
             </InputAdornment>
         }}

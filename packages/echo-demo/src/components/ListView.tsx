@@ -19,17 +19,8 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ListView = ({ items = [], icons = undefined }) => {
+const ListView = ({ items = [], icon: Icon = undefined }) => {
   const classes = useStyles();
-
-  const Icon = ({ type }) => {
-    const Icon = icons[type];
-    if (!Icon) {
-      return null;
-    }
-
-    return <Icon />;
-  };
 
   return (
     <List dense className={classes.root}>
@@ -37,7 +28,7 @@ const ListView = ({ items = [], icons = undefined }) => {
         const title = item.model.getProperty('name');
         return title && (
           <ListItem key={item.id}>
-            {icons && (
+            {Icon && (
               <ListItemIcon className={classes.icon}>
                 <Icon type={item.type} />
               </ListItemIcon>

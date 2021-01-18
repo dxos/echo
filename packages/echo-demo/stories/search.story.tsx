@@ -8,15 +8,19 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import GridIcon from '@material-ui/icons/ViewComfy';
 import ListIcon from '@material-ui/icons/Reorder';
+import GraphIcon from '@material-ui/icons/BubbleChart';
+
 import OrgIcon from '@material-ui/icons/Business';
-import PersonIcon from '@material-ui/icons/Person';
-import GraphIcon from '@material-ui/icons/Share';
+import PersonIcon from '@material-ui/icons/PersonOutline';
+import ProjectIcon from '@material-ui/icons/WorkOutline';
+import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+
 import grey from '@material-ui/core/colors/grey';
 
 import {
   CardView, GraphView, ListView, SearchBar,
-  useTestDatabase, useSelection,
-  OBJECT_ORG, OBJECT_PERSON, LINK_PROJECT, LINK_EMPLOYEE, graphSelector
+  useTestDatabase, useSelection, graphSelector,
+  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE
 } from '../src';
 
 export default {
@@ -79,7 +83,15 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1)
   },
   sublist: {
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
+    '& table': {
+      tableLayout: 'fixed',
+      borderCollapse: 'collapse',
+      borderSpacing: 0
+    }
+  },
+  subheader: {
+    color: theme.palette.info.dark
   }
 }));
 
@@ -89,7 +101,17 @@ const VIEW_GRAPH = 3;
 
 const icons = {
   [OBJECT_ORG]: OrgIcon,
-  [OBJECT_PERSON]: PersonIcon
+  [OBJECT_PERSON]: PersonIcon,
+  [OBJECT_PROJECT]: ProjectIcon
+};
+
+const Icon = ({ type }) => {
+  const Icon = icons[type] || DefaultIcon;
+  if (!Icon) {
+    return null;
+  }
+
+  return <Icon />;
 };
 
 export const withSearch = () => {
@@ -110,7 +132,29 @@ export const withSearch = () => {
 
   const handleUpdate = text => setSearch(text.toLowerCase());
 
-  const customContent = item => {
+  const ItemContent = ({ item }) => {
+    const List = ({ items, title }) => (
+      <div className={classes.sublist}>
+        <Typography variant='caption' className={classes.subheader}>{title}</Typography>
+        <table>
+          <tbody>
+            {items.map(item => (
+              <tr key={item.id} >
+                <td>
+                  <Typography variant='body2'>&#x2022;</Typography>
+                </td>
+                <td>
+                  <Typography variant='body2'>
+                    {item.model.getProperty('name')}
+                  </Typography>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+
     switch (item.type) {
       case OBJECT_ORG: {
         const projects = item.select().links({ type: LINK_PROJECT }).target().items;
@@ -118,29 +162,27 @@ export const withSearch = () => {
         return (
           <>
             {(projects.length !== 0) && (
-              <div className={classes.sublist}>
-                <Typography variant='caption'>Projects</Typography>
-                {projects.map(item => (
-                  <Typography key={item.id} variant='body2'>
-                    {item.model.getProperty('name')}
-                  </Typography>
-                ))}
-              </div>
+              <List items={projects} title='Projects' />
             )}
             {(employees.length !== 0) && (
-              <div className={classes.sublist}>
-                <Typography variant='caption'>Employees</Typography>
-                {employees.map(item => (
-                  <Typography key={item.id} variant='body2'>
-                    {item.model.getProperty('name')}
-                  </Typography>
-                ))}
-              </div>
+              <List items={employees} title='Employees' />
+            )}
+          </>
+        );
+      }
+      case OBJECT_PROJECT: {
+        const tasks = item.select().children().items;
+        return (
+          <>
+            {(tasks.length !== 0) && (
+              <List items={tasks} title='Tasks' />
             )}
           </>
         );
       }
     }
+
+    return null;
   };
 
   const ViewButton = ({ view: type, icon: Icon }) => (
@@ -164,14 +206,14 @@ export const withSearch = () => {
         {view === VIEW_LIST && (
           <ListView
             items={items}
-            icons={icons}
+            icon={Icon}
           />
         )}
         {view === VIEW_CARDS && (
           <CardView
             items={items}
-            icons={icons}
-            customConent={customContent}
+            icon={Icon}
+            CustomContent={ItemContent}
           />
         )}
         {view === VIEW_GRAPH && (

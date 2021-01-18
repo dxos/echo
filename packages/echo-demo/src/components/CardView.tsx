@@ -8,10 +8,8 @@ import { grey } from '@material-ui/core/colors';
 import {
   Button,
   Card,
-  CardActionArea,
   CardActions,
   CardContent, CardHeader,
-  CardMedia,
   Grid,
   Typography,
 } from '@material-ui/core';
@@ -36,17 +34,8 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const CardView = ({ items = [], icons = undefined, customConent = undefined }) => {
+const CardView = ({ items = [], icon: Icon = undefined, CustomContent = undefined }) => {
   const classes = useStyles();
-
-  const Icon = ({ type }) => {
-    const Icon = icons[type];
-    if (!Icon) {
-      return null;
-    }
-
-    return <Icon />;
-  };
 
   return (
     <Grid container spacing={2} className={classes.root}>
@@ -63,7 +52,7 @@ const CardView = ({ items = [], icons = undefined, customConent = undefined }) =
               <CardHeader
                 classes={{ root: classes.header }}
                 avatar={
-                  icons && (
+                  Icon && (
                     <Icon type={item.type} />
                   )
                 }
@@ -75,7 +64,7 @@ const CardView = ({ items = [], icons = undefined, customConent = undefined }) =
                     {description}
                   </Typography>
                 )}
-                {customConent && customConent(item)}
+                {CustomContent && <CustomContent item={item} />}
               </CardContent>
               <CardActions>
                 <Button size="small" color="primary">
