@@ -2,14 +2,14 @@
 // Copyright 2020 DXOS.org
 //
 
-export const OBJECT_ORG = 'wrn://example/object/org';
-export const OBJECT_PERSON = 'wrn://example/object/person';
-export const OBJECT_PROJECT = 'wrn://example/object/project';
-export const OBJECT_TASK = 'wrn://example/object/task';
+export const OBJECT_ORG = 'dxn://example/object/org';
+export const OBJECT_PERSON = 'dxn://example/object/person';
+export const OBJECT_PROJECT = 'dxn://example/object/project';
+export const OBJECT_TASK = 'dxn://example/object/task';
 
-export const LINK_EMPLOYEE = 'wrn://example/link/employee';
-export const LINK_PROJECT = 'wrn://example/link/project';
-export const LINK_ASSIGNED = 'wrn://example/link/assigned';
+export const LINK_EMPLOYEE = 'dxn://example/link/employee';
+export const LINK_PROJECT = 'dxn://example/link/project';
+export const LINK_ASSIGNED = 'dxn://example/link/assigned';
 
 export const itemSelector = selection => {
   return selection.items;

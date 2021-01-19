@@ -25,7 +25,7 @@ import { Pipeline } from './pipeline';
 
 // TODO(burdon): Format?
 const DEFAULT_SNAPSHOT_INTERVAL = 100; // every 100 messages
-export const PARTY_ITEM_TYPE = 'wrn://dxos/item/party';
+export const PARTY_ITEM_TYPE = 'dxn://dxos.org/item/party';
 export const PARTY_TITLE_PROPERTY = 'title';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
