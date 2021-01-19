@@ -105,16 +105,17 @@ const Icon = ({ item: { type } }) => {
 };
 
 const itemAdapter: ItemAdapter = {
-  icon: Icon,
   key: item => item.id,
   primary: item => item.model.getProperty('name'),
-  secondary: item => item.model.getProperty('description')
+  secondary: item => item.model.getProperty('description'),
+  icon: Icon
 };
 
 const cardAdapter = (classes): CardAdapter => ({
-  icon: Icon,
+  key: item => item.id,
   primary: item => item.model.getProperty('name'),
   secondary: item => item.model.getProperty('description'),
+  icon: Icon,
   slices: item => {
     // TODO(burdon): Default value in getter.
     const labels = item.model.getProperty('labels') || {};

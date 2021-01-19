@@ -3,8 +3,6 @@
 //
 
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { grey } from '@material-ui/core/colors';
 import {
   Button,
   Card,
@@ -14,6 +12,8 @@ import {
   Grid,
   Typography,
 } from '@material-ui/core';
+import { grey } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -39,9 +39,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 export interface CardAdapter {
-  icon?: (any) => any // TODO(burdon): Type.
+  key: (any) => string
   primary: (any) => string
   secondary: (any) => string
+  icon?: (any) => any // TODO(burdon): Type.
   slices: (any) => any[] | void
 }
 
@@ -90,13 +91,8 @@ const CardView = ({ adapter, items = [] }: CardViewProps) => {
   return (
     <Grid container spacing={2} className={classes.root}>
       {items.map((item) => {
-        const title = item.model.getProperty('name');
-        if (!title) {
-          return null;
-        }
-
         return (
-          <Grid item key={item.id}>
+          <Grid item key={adapter.key(item)}>
             <ItemCard adapter={adapter} item={item} />
           </Grid>
         );
