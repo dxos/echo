@@ -3,13 +3,9 @@
 //
 
 import React from 'react';
+
+import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -19,15 +15,15 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export interface ListAdapter {
+export interface ItemAdapter {
   icon?: (any) => any // TODO(burdon): Type.
   primary: (any) => string
-  secondary: (any) => string
+  secondary?: (any) => string
 }
 
 export interface ListViewProps {
-  items: any[],
-  adapter: ListAdapter
+  adapter: ItemAdapter
+  items: any[]
 }
 
 const ListView = ({ adapter, items = [] }: ListViewProps) => {

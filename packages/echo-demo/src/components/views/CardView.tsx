@@ -9,7 +9,8 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent, CardHeader,
+  CardContent,
+  CardHeader,
   Grid,
   Typography,
 } from '@material-ui/core';
@@ -20,6 +21,9 @@ const useStyles = makeStyles(() => ({
   },
   card: {
     width: 280
+  },
+  cardContent: {
+    paddingBottom: 0
   },
   header: {
     backgroundColor: grey[200]
@@ -34,31 +38,37 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export const ItemCard = ({ item, icon: Icon = undefined, CustomContent = undefined }) => {
+export interface CardAdapter {
+  icon?: (any) => any // TODO(burdon): Type.
+  primary: (any) => string
+  secondary: (any) => string
+  slices: (any) => any[] | void
+}
+
+export const ItemCard = ({ adapter, item }: { adapter: CardAdapter, item: any }) => {
   const classes = useStyles();
 
-  const title = item.model.getProperty('name');
-  const description = item.model.getProperty('description');
+  const title = adapter.primary(item);
+  const description = adapter.secondary(item);
+  const slices = adapter.slices(item);
 
   return (
     <Card classes={{ root: classes.card }}>
       <CardHeader
         classes={{ root: classes.header, content: classes.nowrap, title: classes.nowrap }}
-        avatar={
-          Icon && (
-            <Icon type={item.type} />
-          )
-        }
+        avatar={adapter.icon && <adapter.icon type={item.type} />}
         title={title}
         titleTypographyProps={{ variant: 'h6' }}
       />
-      <CardContent>
+      <CardContent classes={{ root: classes.cardContent }}>
         {description && (
           <Typography component="p" className={classes.description}>
             {description}
           </Typography>
         )}
-        {CustomContent && <CustomContent item={item} />}
+        {slices && slices.map((slice, i) => (
+          <div key={i}>{slice}</div>
+        ))}
       </CardContent>
       <CardActions>
         <Button size="small" color="primary">
@@ -69,7 +79,12 @@ export const ItemCard = ({ item, icon: Icon = undefined, CustomContent = undefin
   );
 };
 
-const CardView = ({ items = [], icon: Icon = undefined, CustomContent = undefined }) => {
+export interface CardViewProps {
+  adapter: CardAdapter
+  items: any[]
+}
+
+const CardView = ({ adapter, items = [] }: CardViewProps) => {
   const classes = useStyles();
 
   return (
@@ -82,7 +97,7 @@ const CardView = ({ items = [], icon: Icon = undefined, CustomContent = undefine
 
         return (
           <Grid item key={item.id}>
-            <ItemCard item={item} icon={Icon} CustomContent={CustomContent} />
+            <ItemCard adapter={adapter} item={item} />
           </Grid>
         );
       })}

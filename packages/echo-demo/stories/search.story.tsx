@@ -3,24 +3,23 @@
 //
 
 import React, { useState } from 'react';
-import { IconButton, Toolbar, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 
-import GridIcon from '@material-ui/icons/ViewComfy';
-import ListIcon from '@material-ui/icons/Reorder';
-import GraphIcon from '@material-ui/icons/BubbleChart';
-
-import OrgIcon from '@material-ui/icons/Business';
-import PersonIcon from '@material-ui/icons/PersonOutline';
-import ProjectIcon from '@material-ui/icons/WorkOutline';
-import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-
+import { Chip, IconButton, Toolbar, Typography } from '@material-ui/core';
 import grey from '@material-ui/core/colors/grey';
+import { makeStyles } from '@material-ui/core/styles';
+import GraphIcon from '@material-ui/icons/BubbleChart';
+import OrgIcon from '@material-ui/icons/Business';
+import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import PersonIcon from '@material-ui/icons/PersonOutline';
+import ListIcon from '@material-ui/icons/Reorder';
+import CardIcon from '@material-ui/icons/ViewComfy';
+import GridIcon from '@material-ui/icons/ViewModule';
+import ProjectIcon from '@material-ui/icons/WorkOutline';
 
 import {
-  CardView, GraphView, ListView, ListAdapter, SearchBar, ItemCard,
+  CardView, GraphView, ListView, ItemAdapter, GridView, SearchBar, ItemCard,
   useTestDatabase, useSelection, graphSelector, searchSelector,
-  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE,
+  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE
 } from '../src';
 
 export default {
@@ -39,6 +38,7 @@ const useStyles = makeStyles(theme => ({
   },
   toolbar: {
     display: 'flex',
+    flexShrink: 0,
     padding: theme.spacing(1)
   },
   search: {
@@ -47,16 +47,11 @@ const useStyles = makeStyles(theme => ({
   buttons: {
     paddingLeft: theme.spacing(2)
   },
-  // TODO(burdon): Scroll.
   content: {
     display: 'flex',
     flex: 1,
     overflow: 'auto',
-    padding: theme.spacing(1),
-
-    '& g.selected circle': {
-      fill: 'red'
-    }
+    margin: theme.spacing(1)
   },
   sublist: {
     marginTop: theme.spacing(1),
@@ -72,12 +67,27 @@ const useStyles = makeStyles(theme => ({
   card: {
     position: 'absolute',
     zIndex: 100
+  },
+  chips: {
+    marginTop: theme.spacing(2)
+  },
+  chip: {
+    height: 20,
+    padding: 2,
+    marginRight: 4,
+    borderRadius: 6,
+    '& span': {
+      paddingLeft: 6,
+      paddingRight: 6,
+      fontSize: 12
+    }
   }
 }));
 
 const VIEW_LIST = 1;
 const VIEW_CARDS = 2;
-const VIEW_GRAPH = 3;
+const VIEW_GRID = 3;
+const VIEW_GRAPH = 4;
 
 const icons = {
   [OBJECT_ORG]: OrgIcon,
@@ -94,32 +104,21 @@ const Icon = ({ type }) => {
   return <Icon />;
 };
 
-const listAdapter: ListAdapter = {
+const itemAdapter: ItemAdapter = {
   icon: Icon,
   primary: item => item.model.getProperty('name'),
   secondary: item => item.model.getProperty('description')
 };
 
-export const withSearch = () => {
-  const classes = useStyles();
-  const database = useTestDatabase({
-    numOrgs: 10,
-    numPeople: 20,
-    numProjects: 20,
-    numTasks: 30
-  });
-  const [search, setSearch] = useState(undefined);
-  const items = useSelection(database && database.select(), searchSelector(search), [search]);
-  // TODO(burdon): Use subset.
-  // console.log(items);
-  // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
-  const data = useSelection(database && database.select(), graphSelector);
-  const [selected, setSelected] = useState();
-  const [view, setView] = useState(VIEW_LIST);
+const cardAdapter = classes => ({
+  icon: Icon,
+  primary: item => item.model.getProperty('name'),
+  secondary: item => item.model.getProperty('description'),
+  slices: item => {
+    // TODO(burdon): Default value in getter.
+    const labels = item.model.getProperty('labels') || {};
 
-  const handleUpdate = text => setSearch(text.toLowerCase());
-
-  const ItemContent = ({ item }) => {
+    // Sublist.
     const List = ({ items, title }) => (
       <div className={classes.sublist}>
         <Typography variant='caption' className={classes.subheader}>{title}</Typography>
@@ -142,35 +141,63 @@ export const withSearch = () => {
       </div>
     );
 
+    const Chips = ({ labels }) => {
+      return (
+        <div className={classes.chips}>
+          {Object.values(labels).map((label, i) => (
+            <Chip key={i} label={label} className={classes.chip} />
+          ))}
+        </div>
+      );
+    };
+
+    const slices = [];
     switch (item.type) {
       case OBJECT_ORG: {
         const projects = item.select().links({ type: LINK_PROJECT }).target().items;
+        if (projects.length !== 0) {
+          slices.push(<List items={projects} title='Projects' />);
+        }
+
         const employees = item.select().links({ type: LINK_EMPLOYEE }).target().items;
-        return (
-          <>
-            {(projects.length !== 0) && (
-              <List items={projects} title='Projects' />
-            )}
-            {(employees.length !== 0) && (
-              <List items={employees} title='Employees' />
-            )}
-          </>
-        );
+        if (employees.length !== 0) {
+          slices.push(<List items={employees} title='Employees' />);
+        }
+        break;
       }
+
       case OBJECT_PROJECT: {
         const tasks = item.select().children().items;
-        return (
-          <>
-            {(tasks.length !== 0) && (
-              <List items={tasks} title='Tasks' />
-            )}
-          </>
-        );
+        if (tasks.length !== 0) {
+          slices.push(<List items={tasks} title='Tasks' />);
+        }
+        break;
       }
     }
 
-    return null;
-  };
+    slices.push(<Chips labels={labels} />);
+    return slices;
+  }
+});
+
+export const withSearch = () => {
+  const classes = useStyles();
+  const database = useTestDatabase({
+    numOrgs: 10,
+    numPeople: 20,
+    numProjects: 20,
+    numTasks: 30
+  });
+  const [search, setSearch] = useState(undefined);
+  const items = useSelection(database && database.select(), searchSelector(search), [search]);
+  // TODO(burdon): Use subset.
+  // console.log(items);
+  // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
+  const data = useSelection(database && database.select(), graphSelector(itemAdapter));
+  const [selected, setSelected] = useState();
+  const [view, setView] = useState(VIEW_LIST);
+
+  const handleUpdate = text => setSearch(text.toLowerCase());
 
   const ViewButton = ({ view: type, icon: Icon }) => (
     <IconButton color={type === view ? 'primary' : 'default'} size='small' onClick={() => setView(type)}>
@@ -185,7 +212,8 @@ export const withSearch = () => {
         <SearchBar onUpdate={handleUpdate} />
         <div className={classes.buttons}>
           <ViewButton view={VIEW_LIST} icon={ListIcon} />
-          <ViewButton view={VIEW_CARDS} icon={GridIcon} />
+          <ViewButton view={VIEW_CARDS} icon={CardIcon} />
+          <ViewButton view={VIEW_GRID} icon={GridIcon} />
           <ViewButton view={VIEW_GRAPH} icon={GraphIcon} />
         </div>
       </Toolbar>
@@ -193,15 +221,20 @@ export const withSearch = () => {
       <div className={classes.content}>
         {view === VIEW_LIST && (
           <ListView
-            adapter={listAdapter}
+            adapter={itemAdapter}
             items={items}
           />
         )}
         {view === VIEW_CARDS && (
           <CardView
+            adapter={cardAdapter(classes)}
             items={items}
-            icon={Icon}
-            CustomContent={ItemContent}
+          />
+        )}
+        {view === VIEW_GRID && (
+          <GridView
+            adapter={itemAdapter}
+            items={items}
           />
         )}
         {view === VIEW_GRAPH && (
@@ -209,9 +242,8 @@ export const withSearch = () => {
             {selected && (
               <div className={classes.card}>
                 <ItemCard
+                  adapter={cardAdapter(classes)}
                   item={selected}
-                  icon={Icon}
-                  CustomContent={ItemContent}
                 />
               </div>
             )}

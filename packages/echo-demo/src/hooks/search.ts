@@ -19,12 +19,13 @@ export const searchSelector = search => selection => {
 
   // TODO(burdon): Use selection to filter.
   return selection.items.filter(item => {
-    // TODO(burdon): Filter types,
-    if (item.type) {
+    // TODO(burdon): Filter types.
+    if (item.type.indexOf('example') === -1) {
       return false;
     }
 
-    const text = item.model.getProperty('name'); // TODO(burdon): Generalize.
+    // TODO(burdon): Generalize.
+    const text = item.model.getProperty('name');
     return match(search, text);
   });
 };

@@ -4,7 +4,9 @@
 
 import debug from 'debug';
 import React from 'react';
+
 import * as colors from '@material-ui/core/colors';
+import grey from '@material-ui/core/colors/grey';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -18,9 +20,9 @@ import {
   itemSelector,
   useMutator,
   useSelection,
-  useTestDatabase
+  useTestDatabase,
+  ItemAdapter
 } from '../src';
-import grey from '@material-ui/core/colors/grey';
 
 export default {
   title: 'Links',
@@ -40,6 +42,10 @@ const propertyAdapter = (node) => ({
     [OBJECT_TASK]: 6
   }[node.type] || 8
 });
+
+const itemAdapter: ItemAdapter = {
+  primary: item => item.model.getProperty('name')
+};
 
 const useStyles = makeStyles(() => ({
   // TODO(burdon): Container.
@@ -122,7 +128,7 @@ export const withLinks = () => {
     numProjects: 6
   });
 
-  const data = useSelection(database && database.select(), graphSelector);
+  const data = useSelection(database && database.select(), graphSelector(itemAdapter));
   const items = useSelection(database && database.select(), itemSelector);
   const mutator = useMutator(database);
 

@@ -2,12 +2,13 @@
 // Copyright 2020 DXOS.org
 //
 
+import update from 'immutability-helper';
 import React, { useState } from 'react';
 import useResizeAware from 'react-resize-aware';
-import update from 'immutability-helper';
 
 import { makeStyles } from '@material-ui/core/styles';
 
+import { SVG, useGrid } from '@dxos/gem-core';
 import {
   createSimulationDrag,
   Graph,
@@ -17,15 +18,6 @@ import {
   NodeProjector,
   Markers,
 } from '@dxos/gem-spore';
-import { SVG, useGrid } from '@dxos/gem-core';
-
-interface LinksGraphProps {
-  data: any, // TODO(burdon): Type?
-  onCreate?: Function,
-  onSelect?: Function,
-  classes?: any,
-  propertyAdapter?: Function
-}
 
 // TODO(burdon): Create container.
 const useStyles = makeStyles(() => ({
@@ -36,7 +28,34 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const GraphView = ({ data, onSelect = () => {}, onCreate = () => {}, classes = {}, propertyAdapter = () => ({}) }: LinksGraphProps) => {
+// TODO(burdon): Move to gem.
+interface Node {
+  id: string
+  title: string | undefined
+}
+
+interface Link {
+  id: string
+  source: Node | string
+  target: Node | string
+}
+
+interface Data {
+  nodes: Node[]
+  links: Link[]
+}
+
+interface LinksGraphProps {
+  data: Data,
+  onCreate?: Function,
+  onSelect?: Function,
+  classes?: any,
+  propertyAdapter?: Function
+}
+
+const GraphView = ({
+  data, onSelect = () => {}, onCreate = () => {}, classes = {}, propertyAdapter = () => ({})
+}: LinksGraphProps) => {
   const clazzes = { ...useStyles(), ...classes }; // TODO(burdon): merge()
   const [resizeListener, size] = useResizeAware();
   const { width, height } = size;

@@ -11,35 +11,34 @@ export const LINK_EMPLOYEE = 'wrn://example/link/employee';
 export const LINK_PROJECT = 'wrn://example/link/project';
 export const LINK_ASSIGNED = 'wrn://example/link/assigned';
 
-// TODO(burdon): Query objects-only (i.e., not root party item).
 export const itemSelector = selection => {
   return selection.items;
 };
 
-export const graphSelector = selection => {
+export const graphSelector = adapter => selection => {
   const nodes = [];
   const links = [];
 
   selection
     .filter({ type: OBJECT_ORG })
-    .each(item => nodes.push({ id: item.id, type: OBJECT_ORG, title: item.model.getProperty('name') }))
+    .each(item => nodes.push({ id: item.id, type: OBJECT_ORG, title: adapter.primary(item) }))
     .call(selection => {
       selection.links({ type: LINK_PROJECT })
         .each(link => {
-          nodes.push({ id: link.target.id, type: OBJECT_PROJECT, title: link.target.model.getProperty('name') });
+          nodes.push({ id: link.target.id, type: OBJECT_PROJECT, title: adapter.primary(link.target) });
           links.push({ id: link.id, source: link.source.id, target: link.target.id });
         })
         .target()
         .children()
         .each(item => {
-          nodes.push({ id: item.id, type: OBJECT_TASK, title: item.model.getProperty('name') });
+          nodes.push({ id: item.id, type: OBJECT_TASK, title: adapter.primary(item) });
           links.push({ id: `${item.parent.id}-${item.id}`, source: item.parent.id, target: item.id });
         });
     })
     .links({ type: LINK_EMPLOYEE })
     .each(link => links.push({ id: link.id, source: link.source.id, target: link.target.id }))
     .target()
-    .each(item => nodes.push({ id: item.id, type: OBJECT_PERSON, title: item.model.getProperty('name') }));
+    .each(item => nodes.push({ id: item.id, type: OBJECT_PERSON, title: adapter.primary(item) }));
 
   return { nodes, links };
 };
