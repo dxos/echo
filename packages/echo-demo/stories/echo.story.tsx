@@ -2,17 +2,18 @@
 // Copyright 2020 DXOS.org
 //
 
+import { withKnobs, number } from '@storybook/addon-knobs';
 import debug from 'debug';
 import React, { useEffect, useState } from 'react';
 import useResizeAware from 'react-resize-aware';
-import { withKnobs, number } from '@storybook/addon-knobs';
-import { makeStyles } from '@material-ui/core/styles';
-import { blueGrey } from '@material-ui/core/colors';
 
+import { blueGrey } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
+
+import { createId } from '@dxos/crypto';
 import { createTestInstance } from '@dxos/echo-db';
 import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
-import { createId } from '@dxos/crypto';
 
 import { EchoContext, EchoGraph, useEcho } from '../src';
 
@@ -52,7 +53,7 @@ export const withDatabase = () => {
   useEffect(() => {
     if (n > peers.length) {
       setImmediate(async () => {
-        const newPeers = await Promise.all([...new Array(n - peers.length)].map(async (_, i) => {
+        const newPeers = await Promise.all([...new Array(n - peers.length)].map(async () => {
           const id = createId();
           const echo = await createTestInstance({ initialize: true });
           console.log('Created:', String(echo));
@@ -105,18 +106,18 @@ const Test = ({ peers }) => {
   // Click to invite.
   const handleInvite = async (peer, node) => {
     const party = await peer.database.getParty(node.partyKey);
-    await Promise.all(peers.map(async peer => {
-      if (peer.id !== peer.id) {
-        log(`Inviting ${peer.id} => ${peer.id} [${String(party)}]`);
+    await Promise.all(peers.map(async other => {
+      if (peer.id !== other.id) {
+        log(`Inviting ${peer.id} => ${other.id} [${String(party)}]`);
 
         // Invite party.
         const invitation = await party.createInvitation({
           secretProvider: () => Buffer.from('0000'),
-          secretValidator: () => true,
+          secretValidator: () => true
         });
         log('Invitation request:', invitation);
 
-        const remoteParty = await peer.database.joinParty(invitation, () => Buffer.from('0000'));
+        const remoteParty = await other.database.joinParty(invitation, () => Buffer.from('0000'));
         await remoteParty.open();
         log('Invited Party:', String(remoteParty));
 
@@ -170,7 +171,7 @@ const Test = ({ peers }) => {
       </SVG>
 
       <div className={classes.info}>
-        {peers.map((peer, i) => {
+        {peers.map((peer) => {
           const { id, echo } = peer;
           return (
             <EchoContext.Provider key={id} value={{ echo }}>

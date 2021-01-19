@@ -3,8 +3,8 @@
 //
 
 import assert from 'assert';
-import Chance from 'chance';
 import debug from 'debug';
+import faker from 'faker';
 import hypercore from 'hypercore';
 import pify from 'pify';
 import ram from 'random-access-memory';
@@ -18,10 +18,10 @@ import { Timeframe } from '../spacetime';
 import { FeedBlock, FeedKey } from '../types';
 import { createIterator, FeedSelector } from './feed-store-iterator';
 
-const chance = new Chance(999); // TODO(burdon): Use faker.
-
 const log = debug('dxos:echo:feed-store-iterator:test');
 debug.enable('dxos:echo:*');
+
+faker.seed(1);
 
 describe('feed store iterator', () => {
   test('test message order', async () => {
@@ -92,7 +92,7 @@ describe('feed store iterator', () => {
     // TODO(burdon): Randomly create items.
     //
     for (let i = 0; i < config.numMessages; i++) {
-      const feed = chance.pickone(Array.from(feeds.values()));
+      const feed = faker.random.arrayElement(Array.from(feeds.values()));
 
       // Create timeframe dependency.
       const timeframe = new Timeframe(Array.from(feeds.values())
@@ -101,7 +101,7 @@ describe('feed store iterator', () => {
       );
 
       // Create data.
-      const word = chance.word();
+      const word = faker.lorem.word();
       const value = { i, word };
       const message = createTestItemMutation(createId(), String(i), word, timeframe);
 

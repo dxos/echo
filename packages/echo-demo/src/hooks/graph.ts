@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { truncateString } from '@dxos/debug';
 import { Party, Item } from '@dxos/echo-db';
 import { PartyKey } from '@dxos/echo-protocol';
+import {
+  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, OBJECT_TASK, LINK_EMPLOYEE, LINK_PROJECT
+} from '@dxos/echo-testing';
 import { ComplexMap } from '@dxos/util';
 
 import { useParties } from './useEcho';
@@ -17,6 +20,34 @@ interface GraphData {
   nodes: any[],
   links: any[]
 }
+
+export const graphSelector = adapter => selection => {
+  const nodes = [];
+  const links = [];
+
+  selection
+    .filter({ type: OBJECT_ORG })
+    .each(item => nodes.push({ id: item.id, type: OBJECT_ORG, title: adapter.primary(item) }))
+    .call(selection => {
+      selection.links({ type: LINK_PROJECT })
+        .each(link => {
+          nodes.push({ id: link.target.id, type: OBJECT_PROJECT, title: adapter.primary(link.target) });
+          links.push({ id: link.id, source: link.source.id, target: link.target.id });
+        })
+        .target()
+        .children()
+        .each(item => {
+          nodes.push({ id: item.id, type: OBJECT_TASK, title: adapter.primary(item) });
+          links.push({ id: `${item.parent.id}-${item.id}`, source: item.parent.id, target: item.id });
+        });
+    })
+    .links({ type: LINK_EMPLOYEE })
+    .each(link => links.push({ id: link.id, source: link.source.id, target: link.target.id }))
+    .target()
+    .each(item => nodes.push({ id: item.id, type: OBJECT_PERSON, title: adapter.primary(item) }));
+
+  return { nodes, links };
+};
 
 const createGraphData = (
   id, partyMap: ComplexMap<PartyKey, { party: Party, items: Item<any>[] }> = undefined

@@ -16,10 +16,11 @@ import CardIcon from '@material-ui/icons/ViewComfy';
 import GridIcon from '@material-ui/icons/ViewModule';
 import ProjectIcon from '@material-ui/icons/WorkOutline';
 
+import { OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE } from '@dxos/echo-testing';
+
 import {
-  CardView, GraphView, ListView, CardAdapter, ItemAdapter, GridView, SearchBar, ItemCard,
-  useTestDatabase, useSelection, graphSelector, searchSelector,
-  OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE
+  CardView, GraphView, ListView, GridView, SearchBar, ItemCard, CardAdapter, ItemAdapter,
+  useGenerator, useSelection, graphSelector, searchSelector
 } from '../src';
 
 export default {
@@ -186,18 +187,18 @@ const cardAdapter = (classes): CardAdapter => ({
 
 export const withSearch = () => {
   const classes = useStyles();
-  const database = useTestDatabase({
+  const generator = useGenerator({
     numOrgs: 10,
     numPeople: 20,
     numProjects: 20,
     numTasks: 30
   });
   const [search, setSearch] = useState(undefined);
-  const items = useSelection(database && database.select(), searchSelector(search), [search]);
+  const items = useSelection(generator && generator.database.select(), searchSelector(search), [search]);
   // TODO(burdon): Use subset.
   // console.log(items);
   // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
-  const data = useSelection(database && database.select(), graphSelector(itemAdapter));
+  const data = useSelection(generator && generator.database.select(), graphSelector(itemAdapter));
   const [selected, setSelected] = useState();
   const [view, setView] = useState(VIEW_LIST);
 
@@ -209,7 +210,7 @@ export const withSearch = () => {
     </IconButton>
   );
 
-  // TODO(burdon): Show/hide components to maintain state. Show for first time on select.
+  // TODO(burdon): Show/hide components to maintain state (and test subscriptions). Show for first time on select.
   return (
     <div className={classes.root}>
       <Toolbar variant='dense' disableGutters classes={{ root: classes.toolbar }}>
