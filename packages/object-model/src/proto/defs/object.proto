@@ -54,9 +54,10 @@ message ObjectMutation {
   enum Operation {
     SET                               = 0;    // Default.
     DELETE                            = 1;
-    ARRAY_PUSH                        = 2;
-    SET_ADD                           = 3;
-    SET_DELETE                        = 4;
+    ARRAY_PUSH                        = 2;    // TODO(burdon): Is it possible to delete an array value (which one?)
+//  ARRAY_DELETE                      = 3;    // TODO(burdon): Identify by value.
+    SET_ADD                           = 4;    // TODO(burdon): Identify by value.
+    SET_DELETE                        = 5;
   }
 
   Operation operation                 = 1;

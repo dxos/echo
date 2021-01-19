@@ -14,7 +14,7 @@ import { FullScreen, SVG, useGrid } from '@dxos/gem-core';
 import { Markers } from '@dxos/gem-spore';
 import { createId } from '@dxos/crypto';
 
-import { EchoContext, EchoGraph, useDatabase } from '../src';
+import { EchoContext, EchoGraph, useEcho } from '../src';
 
 const log = debug('dxos:echo:story');
 
@@ -56,7 +56,7 @@ export const withDatabase = () => {
           const id = createId();
           const echo = await createTestInstance({ initialize: true });
           console.log('Created:', String(echo));
-          return { id, database: echo };
+          return { id, echo };
         }));
 
         setPeers([...peers, ...newPeers]);
@@ -75,21 +75,21 @@ export const withDatabase = () => {
 
 const Info = () => {
   // TODO(burdon): Subscribe to events.
-  const database = useDatabase();
-  const [info, setInfo] = useState(String(database));
+  const echo = useEcho();
+  const [info, setInfo] = useState(String(echo));
   useEffect(() => {
     let unsubscribe;
     setImmediate(async () => {
-      const result = await database.queryParties();
+      const result = await echo.queryParties();
       unsubscribe = result.subscribe(() => {
-        setInfo(String(database));
+        setInfo(String(echo));
       });
     });
 
     return () => {
       unsubscribe && unsubscribe();
     };
-  }, [database]);
+  }, [echo]);
 
   return (
     <div>{info}</div>
@@ -105,9 +105,9 @@ const Test = ({ peers }) => {
   // Click to invite.
   const handleInvite = async (peer, node) => {
     const party = await peer.database.getParty(node.partyKey);
-    await Promise.all(peers.map(async p => {
-      if (p.id !== peer.id) {
-        log(`Inviting ${peer.id} => ${p.id} [${String(party)}]`);
+    await Promise.all(peers.map(async peer => {
+      if (peer.id !== peer.id) {
+        log(`Inviting ${peer.id} => ${peer.id} [${String(party)}]`);
 
         // Invite party.
         const invitation = await party.createInvitation({
@@ -116,7 +116,7 @@ const Test = ({ peers }) => {
         });
         log('Invitation request:', invitation);
 
-        const remoteParty = await p.database.joinParty(invitation, () => Buffer.from('0000'));
+        const remoteParty = await peer.database.joinParty(invitation, () => Buffer.from('0000'));
         await remoteParty.open();
         log('Invited Party:', String(remoteParty));
 
@@ -148,7 +148,7 @@ const Test = ({ peers }) => {
         <Markers />
 
         {peers.map((peer, i) => {
-          const { id, database } = peer;
+          const { id, echo } = peer;
           const delta = (peers.length === 1) ? { x: 0, y: 0 } : {
             x: Math.sin(i * da + da / 2) * scale.x,
             y: Math.cos(i * da + da / 2) * scale.y
@@ -156,7 +156,7 @@ const Test = ({ peers }) => {
 
           // TODO(burdon): Does context change?
           return (
-            <EchoContext.Provider key={id} value={{ database }}>
+            <EchoContext.Provider key={id} value={{ echo }}>
               <EchoGraph
                 id={id}
                 grid={grid}
@@ -171,9 +171,9 @@ const Test = ({ peers }) => {
 
       <div className={classes.info}>
         {peers.map((peer, i) => {
-          const { id, database } = peer;
+          const { id, echo } = peer;
           return (
-            <EchoContext.Provider key={id} value={{ database }}>
+            <EchoContext.Provider key={id} value={{ echo }}>
               <Info />
             </EchoContext.Provider>
           );

@@ -13,34 +13,34 @@ import { asyncEffect, useResultSet } from './util';
 //
 
 interface Context {
-  database: ECHO
+  echo: ECHO
 }
 
 export const EchoContext = createContext<Context>(null);
 
 /**
- * Get database.
+ * Get ECHO instance.
  */
-export const useDatabase = (): ECHO => {
-  const { database } = useContext(EchoContext);
-  return database;
+export const useEcho = (): ECHO => {
+  const { echo } = useContext(EchoContext);
+  return echo;
 };
 
 /**
  * Get parties.
  */
 export const useParties = (): Party[] => {
-  const { database } = useContext(EchoContext);
+  const { echo } = useContext(EchoContext);
   const [parties, setParties] = useState<Party[]>([]);
 
   useEffect(asyncEffect(async () => {
-    const result = await database.queryParties();
+    const result = await echo.queryParties();
     setParties(result.value);
 
     return result.subscribe(() => {
       setParties(result.value);
     });
-  }), [database]);
+  }), [echo]);
 
   return parties;
 };
@@ -50,13 +50,13 @@ export const useParties = (): Party[] => {
  * @param partyKey
  */
 export const useItems = ({ partyKey }): Item<any>[] => {
-  const { database } = useContext(EchoContext);
+  const { echo } = useContext(EchoContext);
   const [items, setItems] = useState<Item<any>[]>([]);
 
   useEffect(() => {
     let unsubscribe;
     setImmediate(async () => {
-      const party = await database.getParty(partyKey);
+      const party = await echo.getParty(partyKey);
       const result = await party.database.queryItems();
       unsubscribe = result.subscribe(() => {
         setItems(result.value);

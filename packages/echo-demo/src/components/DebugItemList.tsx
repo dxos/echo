@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 /**
  * Items panel.
  */
-const ItemList = ({ items = [] }) => {
+const DebugItemList = ({ items = [] }) => {
   const classes = useStyles();
   if (!items.length) {
     return null;
@@ -42,13 +42,13 @@ const ItemList = ({ items = [] }) => {
     <div className={classes.root}>
       <table>
         <thead>
-        <tr>
-          <th>Type</th>
-          <th>Title</th>
-          <th>Child</th>
-          <th>Links</th>
-          <th>Refs</th>
-        </tr>
+          <tr>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Child</th>
+            <th>Links</th>
+            <th>Refs</th>
+          </tr>
         </thead>
         <tbody>
           {items.sort(sorter).map(item => (
@@ -76,4 +76,4 @@ const ItemList = ({ items = [] }) => {
   );
 };
 
-export default ItemList;
+export default DebugItemList;

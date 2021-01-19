@@ -2,28 +2,26 @@
 // Copyright 2020 DXOS.org
 //
 
-import React, { useState, useEffect, useRef } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import * as colors from '@material-ui/core/colors';
 import debug from 'debug';
-import faker from 'faker';
-import times from 'lodash/times';
+import React from 'react';
 
-import { createTestInstance, Database } from '@dxos/echo-db';
-import { ObjectModel } from '@dxos/object-model';
+import * as colors from '@material-ui/core/colors';
+import grey from '@material-ui/core/colors/grey';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
-  LINK_EMPLOYEE,
-  LINK_PROJECT,
   OBJECT_ORG,
   OBJECT_PERSON,
   OBJECT_PROJECT,
   OBJECT_TASK,
-  ItemList,
-  LinksGraph,
+  DebugItemList,
+  GraphView,
   graphSelector,
   itemSelector,
-  useSelection
+  useMutator,
+  useSelection,
+  useTestDatabase,
+  ItemAdapter
 } from '../src';
 
 export default {
@@ -35,8 +33,6 @@ const log = debug('dxos:echo:story');
 
 debug.enable('dxos:echo:story:*, dxos:*:error');
 
-faker.seed(1);
-
 const propertyAdapter = (node) => ({
   class: node.type.split('/').pop(),
   radius: {
@@ -47,7 +43,21 @@ const propertyAdapter = (node) => ({
   }[node.type] || 8
 });
 
+const itemAdapter: ItemAdapter = {
+  key: item => item.id,
+  primary: item => item.model.getProperty('name')
+};
+
 const useStyles = makeStyles(() => ({
+  // TODO(burdon): Container.
+  root: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    overflow: 'hidden',
+    height: '100vh',
+    backgroundColor: grey[50]
+  },
   items: {
     position: 'absolute',
     zIndex: 1,
@@ -109,86 +119,19 @@ const useGraphStyles = makeStyles(() => ({
   }
 }));
 
-const generate = async (database, config) => {
-  // Orgs.
-  const organizations = await Promise.all(times(config.numOrgs, () => faker.company.companyName()).map(name =>
-    database.createItem({ model: ObjectModel, type: OBJECT_ORG, props: { name } })
-  ));
-
-  // People.
-  const perope = await Promise.all(times(config.numPeople, () => faker.name.firstName()).map(async name => {
-    const person = await database.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } });
-    const count = faker.random.number({ min: 0, max: 2 });
-    const orgs = faker.random.arrayElements(organizations, count);
-    return orgs.map(org => database.createLink({ type: LINK_EMPLOYEE, source: org, target: person }));
-  }));
-
-  // Projects.
-  await Promise.all(times(config.numProjects, () => faker.commerce.productName()).map(async name => {
-    const project = await database.createItem({ model: ObjectModel, type: OBJECT_PROJECT, props: { name } });
-    const org = faker.random.arrayElement(organizations);
-    await database.createLink({ type: LINK_PROJECT, source: org, target: project });
-
-    // Task child nodes.
-    // TODO(burdon): Assign to people (query people from org).
-    await Promise.all(times(faker.random.number({ min: 0, max: 3 }), () => faker.git.commitMessage())
-      .map(async name => {
-        await database.createItem({ model: ObjectModel, type: OBJECT_TASK, props: { name }, parent: project.id });
-      }));
-  }));
-};
-
-// Mutator hook.
-const useMutator = (database) => {
-  const ref = useRef(database);
-  useEffect(() => { ref.current = database }, [database]);
-
-  // TODO(burdon): Parameterize.
-  const createItem = async (sourceId) => {
-    const source = ref.current.getItem(sourceId);
-    if (source.type === OBJECT_ORG) {
-      const name = faker.name.firstName();
-      const target = await ref.current.createItem({ model: ObjectModel, type: OBJECT_PERSON, props: { name } });
-      ref.current.createLink({ type: LINK_EMPLOYEE, source, target })
-    }
-  };
-
-  const linkItem = async (sourceId, targetId) => {
-    const source = ref.current.getItem(sourceId);
-    const target = ref.current.getItem(targetId);
-    if (source.type === OBJECT_ORG && target.type === OBJECT_PERSON) {
-      ref.current.createLink({ type: LINK_EMPLOYEE, source, target })
-    }
-  };
-
-  return {
-    createItem,
-    linkItem
-  };
-};
-
 export const withLinks = () => {
   const classes = useStyles();
   const graphClasses = useGraphStyles();
-  const [database, setDatabase] = useState<Database | undefined>();
-  const data = useSelection(database && database.select(), graphSelector);
+
+  const database = useTestDatabase({
+    numOrgs: 4,
+    numPeople: 16,
+    numProjects: 6
+  });
+
+  const data = useSelection(database && database.select(), graphSelector(itemAdapter));
   const items = useSelection(database && database.select(), itemSelector);
   const mutator = useMutator(database);
-
-  useEffect(() => {
-    setImmediate(async () => {
-      const echo = await createTestInstance({ initialize: true });
-      const party = await echo.createParty();
-      await generate(party.database, {
-        numOrgs: 4,
-        numPeople: 16,
-        numProjects: 6
-      });
-
-      // TODO(burdon): ItemList doesn't update if this call is moved ahead of generate.
-      setDatabase(party.database);
-    });
-  }, []);
 
   const handleCreate = data => {
     if (data.nodes.length) {
@@ -201,16 +144,21 @@ export const withLinks = () => {
   };
 
   return (
-    <>
+    <div className={classes.root}>
       <div className={classes.items}>
-        <ItemList items={items} />
+        <DebugItemList items={items} />
       </div>
 
       <div className={classes.info}>
         <div>Command-drag: Org &#x2192; Person</div>
       </div>
 
-      <LinksGraph classes={graphClasses} data={data} onCreate={handleCreate} propertyAdapter={propertyAdapter} />
-    </>
+      <GraphView
+        classes={graphClasses}
+        data={data}
+        propertyAdapter={propertyAdapter}
+        onCreate={handleCreate}
+      />
+    </div>
   );
 };

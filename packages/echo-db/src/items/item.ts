@@ -7,6 +7,7 @@ import { EchoEnvelope, ItemID, ItemMutation, ItemType, FeedWriter } from '@dxos/
 import { Model, ModelMeta } from '@dxos/model-factory';
 
 import type { Link } from './link';
+import { Selection } from './selection';
 
 export interface LinkData {
   sourceId: ItemID
@@ -114,6 +115,11 @@ export class Item<M extends Model<any>> {
   // TODO(burdon): Factor out link/object to derived classes from base item.
   get isLink () {
     return !!this._link;
+  }
+
+  // TODO(burdon): Experimental (event?)
+  select (): Selection<any> {
+    return new Selection([this], new Event());
   }
 
   /**

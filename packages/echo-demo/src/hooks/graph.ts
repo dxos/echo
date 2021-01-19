@@ -9,7 +9,7 @@ import { Party, Item } from '@dxos/echo-db';
 import { PartyKey } from '@dxos/echo-protocol';
 import { ComplexMap } from '@dxos/util';
 
-import { useParties } from './data';
+import { useParties } from './useEcho';
 import { asyncEffect, liftCallback } from './util';
 
 // TODO(burdon): Move to @dxos/gem.
