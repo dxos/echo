@@ -18,40 +18,13 @@ import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import grey from '@material-ui/core/colors/grey';
 
 import {
-  CardView, GraphView, ListView, SearchBar, ItemCard,
-  useTestDatabase, useSelection, graphSelector,
+  CardView, GraphView, ListView, ListAdapter, SearchBar, ItemCard,
+  useTestDatabase, useSelection, graphSelector, searchSelector,
   OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE,
 } from '../src';
 
 export default {
   title: 'Search'
-};
-
-// TODO(burdon): Create index.
-const searchSelector = search => selection => {
-  const items = [];
-
-  const match = (pattern, text) => {
-    if (!pattern) {
-      return true;
-    }
-
-    if (!text) {
-      return false;
-    }
-
-    // TODO(burdon): Prefix match.
-    return text.toLowerCase().indexOf(pattern) !== -1;
-  };
-
-  selection.each(item => {
-    const text = item.model.getProperty('name'); // TODO(burdon): Generalize.
-    if (match(search, text)) {
-      items.push(item);
-    }
-  });
-
-  return items;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -119,6 +92,12 @@ const Icon = ({ type }) => {
   }
 
   return <Icon />;
+};
+
+const listAdapter: ListAdapter = {
+  icon: Icon,
+  primary: item => item.model.getProperty('name'),
+  secondary: item => item.model.getProperty('description')
 };
 
 export const withSearch = () => {
@@ -199,6 +178,7 @@ export const withSearch = () => {
     </IconButton>
   );
 
+  // TODO(burdon): Show/hide components to maintain state. Show for first time on select.
   return (
     <div className={classes.root}>
       <Toolbar variant='dense' disableGutters classes={{ root: classes.toolbar }}>
@@ -213,8 +193,8 @@ export const withSearch = () => {
       <div className={classes.content}>
         {view === VIEW_LIST && (
           <ListView
+            adapter={listAdapter}
             items={items}
-            icon={Icon}
           />
         )}
         {view === VIEW_CARDS && (

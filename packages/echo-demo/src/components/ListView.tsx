@@ -19,26 +19,35 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ListView = ({ items = [], icon: Icon = undefined }) => {
+export interface ListAdapter {
+  icon?: (any) => any // TODO(burdon): Type.
+  primary: (any) => string
+  secondary: (any) => string
+}
+
+export interface ListViewProps {
+  items: any[],
+  adapter: ListAdapter
+}
+
+const ListView = ({ adapter, items = [] }: ListViewProps) => {
   const classes = useStyles();
 
   return (
     <List dense className={classes.root}>
-      {items.map((item) => {
-        const title = item.model.getProperty('name');
-        const description = item.model.getProperty('description');
-
-        return title && (
-          <ListItem key={item.id}>
-            {Icon && (
-              <ListItemIcon className={classes.icon}>
-                <Icon type={item.type} />
-              </ListItemIcon>
-            )}
-            <ListItemText primary={title} secondary={description} />
-          </ListItem>
-        );
-      })}
+      {items.map((item) => (
+        <ListItem key={item.id}>
+          {adapter.icon && (
+            <ListItemIcon className={classes.icon}>
+              <adapter.icon type={item.type} />
+            </ListItemIcon>
+          )}
+          <ListItemText
+            primary={adapter.primary(item)}
+            secondary={adapter.secondary(item)}
+          />
+        </ListItem>
+      ))}
     </List>
   );
 };
