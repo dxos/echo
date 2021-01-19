@@ -16,10 +16,10 @@ const useStyles = makeStyles(() => ({
 }));
 
 export interface ItemAdapter {
-  icon?: (any) => any // TODO(burdon): Type.
   key: (any) => string
   primary: (any) => string
   secondary?: (any) => string
+  icon?: (any) => any // TODO(burdon): Type.
 }
 
 export interface ListViewProps {

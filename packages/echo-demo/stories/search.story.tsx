@@ -143,7 +143,8 @@ const cardAdapter = (classes): CardAdapter => ({
       </div>
     );
 
-    const Chips = ({ labels }) => {
+    // TODO(burdon): Add/remove labels.
+    const Labels = ({ labels }) => {
       return (
         <div className={classes.chips}>
           {Object.values(labels).map((label, i) => (
@@ -177,7 +178,8 @@ const cardAdapter = (classes): CardAdapter => ({
       }
     }
 
-    slices.push(<Chips labels={labels} />);
+    slices.push(<Labels labels={labels} />);
+
     return slices;
   }
 });
