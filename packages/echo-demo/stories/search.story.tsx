@@ -3,12 +3,13 @@
 //
 
 import React, { useState } from 'react';
-import { IconButton, Toolbar, Typography } from '@material-ui/core';
+import { Chip, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import GridIcon from '@material-ui/icons/ViewComfy';
+import CardIcon from '@material-ui/icons/ViewComfy';
 import ListIcon from '@material-ui/icons/Reorder';
 import GraphIcon from '@material-ui/icons/BubbleChart';
+import GridIcon from '@material-ui/icons/ViewModule';
 
 import OrgIcon from '@material-ui/icons/Business';
 import PersonIcon from '@material-ui/icons/PersonOutline';
@@ -18,7 +19,7 @@ import DefaultIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import grey from '@material-ui/core/colors/grey';
 
 import {
-  CardView, GraphView, ListView, SearchBar, ItemCard,
+  CardView, GraphView, ListView, GridView, SearchBar, ItemCard,
   useTestDatabase, useSelection, graphSelector,
   OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE,
 } from '../src';
@@ -66,6 +67,7 @@ const useStyles = makeStyles(theme => ({
   },
   toolbar: {
     display: 'flex',
+    flexShrink: 0,
     padding: theme.spacing(1)
   },
   search: {
@@ -74,16 +76,11 @@ const useStyles = makeStyles(theme => ({
   buttons: {
     paddingLeft: theme.spacing(2)
   },
-  // TODO(burdon): Scroll.
   content: {
     display: 'flex',
     flex: 1,
     overflow: 'auto',
-    padding: theme.spacing(1),
-
-    '& g.selected circle': {
-      fill: 'red'
-    }
+    margin: theme.spacing(1)
   },
   sublist: {
     marginTop: theme.spacing(1),
@@ -99,12 +96,27 @@ const useStyles = makeStyles(theme => ({
   card: {
     position: 'absolute',
     zIndex: 100
+  },
+  chips: {
+    marginTop: theme.spacing(2)
+  },
+  chip: {
+    height: 20,
+    padding: 2,
+    marginRight: 4,
+    borderRadius: 6,
+    '& span': {
+      paddingLeft: 6,
+      paddingRight: 6,
+      fontSize: 12
+    }
   }
 }));
 
 const VIEW_LIST = 1;
 const VIEW_CARDS = 2;
-const VIEW_GRAPH = 3;
+const VIEW_GRID = 3;
+const VIEW_GRAPH = 4;
 
 const icons = {
   [OBJECT_ORG]: OrgIcon,
@@ -136,7 +148,7 @@ export const withSearch = () => {
   // const data = useSelection(items && new Selection(items, new Event()), graphSelector);
   const data = useSelection(database && database.select(), graphSelector);
   const [selected, setSelected] = useState();
-  const [view, setView] = useState(VIEW_LIST);
+  const [view, setView] = useState(VIEW_CARDS);
 
   const handleUpdate = text => setSearch(text.toLowerCase());
 
@@ -163,29 +175,46 @@ export const withSearch = () => {
       </div>
     );
 
+    const labels = item.model.getProperty('labels') || {}; // TODO(burdon): Default value in getter.
+    const Content = ({ children }) => {
+      return (
+        <>
+          {children}
+          {labels && (
+            <div className={classes.chips}>
+              {Object.values(labels).map((label, i) => (
+                <Chip key={i} label={label} className={classes.chip} />
+              ))}
+            </div>
+          )}
+        </>
+      );
+    };
+
     switch (item.type) {
       case OBJECT_ORG: {
         const projects = item.select().links({ type: LINK_PROJECT }).target().items;
         const employees = item.select().links({ type: LINK_EMPLOYEE }).target().items;
         return (
-          <>
+          <Content>
             {(projects.length !== 0) && (
               <List items={projects} title='Projects' />
             )}
             {(employees.length !== 0) && (
               <List items={employees} title='Employees' />
             )}
-          </>
+          </Content>
         );
       }
+
       case OBJECT_PROJECT: {
         const tasks = item.select().children().items;
         return (
-          <>
+          <Content>
             {(tasks.length !== 0) && (
               <List items={tasks} title='Tasks' />
             )}
-          </>
+          </Content>
         );
       }
     }
@@ -205,7 +234,8 @@ export const withSearch = () => {
         <SearchBar onUpdate={handleUpdate} />
         <div className={classes.buttons}>
           <ViewButton view={VIEW_LIST} icon={ListIcon} />
-          <ViewButton view={VIEW_CARDS} icon={GridIcon} />
+          <ViewButton view={VIEW_CARDS} icon={CardIcon} />
+          <ViewButton view={VIEW_GRID} icon={GridIcon} />
           <ViewButton view={VIEW_GRAPH} icon={GraphIcon} />
         </div>
       </Toolbar>
@@ -222,6 +252,11 @@ export const withSearch = () => {
             items={items}
             icon={Icon}
             CustomContent={ItemContent}
+          />
+        )}
+        {view === VIEW_GRID && (
+          <GridView
+            items={items}
           />
         )}
         {view === VIEW_GRAPH && (

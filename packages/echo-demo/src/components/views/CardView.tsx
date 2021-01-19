@@ -9,7 +9,8 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent, CardHeader,
+  CardContent,
+  CardHeader,
   Grid,
   Typography,
 } from '@material-ui/core';
@@ -20,6 +21,9 @@ const useStyles = makeStyles(() => ({
   },
   card: {
     width: 280
+  },
+  cardContent: {
+    paddingBottom: 0
   },
   header: {
     backgroundColor: grey[200]
@@ -52,7 +56,7 @@ export const ItemCard = ({ item, icon: Icon = undefined, CustomContent = undefin
         title={title}
         titleTypographyProps={{ variant: 'h6' }}
       />
-      <CardContent>
+      <CardContent classes={{ root: classes.cardContent }}>
         {description && (
           <Typography component="p" className={classes.description}>
             {description}

@@ -20,11 +20,15 @@ import {
 // TODO(burdon): Configure.
 faker.seed(1);
 
+const labels = ['low', 'high', 'extra', 'medium'];
+
 const createProps = type => {
   const generators = {
     [OBJECT_ORG]: () => ({
       name: faker.company.companyName(),
-      description: faker.lorem.sentence()
+      description: faker.lorem.sentence(),
+      // TODO(burdon): Converted to object.
+      labels: faker.random.arrayElements(labels, faker.random.number({ min: 0, max: 3 }))
     }),
     [OBJECT_PERSON]: () => ({
       name: `${faker.name.firstName()} ${faker.name.lastName()}`,
