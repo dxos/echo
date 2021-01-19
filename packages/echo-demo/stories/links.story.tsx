@@ -44,6 +44,7 @@ const propertyAdapter = (node) => ({
 });
 
 const itemAdapter: ItemAdapter = {
+  key: item => item.id,
   primary: item => item.model.getProperty('name')
 };
 

@@ -56,7 +56,7 @@ export const ItemCard = ({ adapter, item }: { adapter: CardAdapter, item: any })
     <Card classes={{ root: classes.card }}>
       <CardHeader
         classes={{ root: classes.header, content: classes.nowrap, title: classes.nowrap }}
-        avatar={adapter.icon && <adapter.icon type={item.type} />}
+        avatar={adapter.icon && <adapter.icon item={item} />}
         title={title}
         titleTypographyProps={{ variant: 'h6' }}
       />

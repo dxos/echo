@@ -17,7 +17,7 @@ import GridIcon from '@material-ui/icons/ViewModule';
 import ProjectIcon from '@material-ui/icons/WorkOutline';
 
 import {
-  CardView, GraphView, ListView, ItemAdapter, GridView, SearchBar, ItemCard,
+  CardView, GraphView, ListView, CardAdapter, ItemAdapter, GridView, SearchBar, ItemCard,
   useTestDatabase, useSelection, graphSelector, searchSelector,
   OBJECT_ORG, OBJECT_PERSON, OBJECT_PROJECT, LINK_PROJECT, LINK_EMPLOYEE
 } from '../src';
@@ -95,7 +95,7 @@ const icons = {
   [OBJECT_PROJECT]: ProjectIcon
 };
 
-const Icon = ({ type }) => {
+const Icon = ({ item: { type } }) => {
   const Icon = icons[type] || DefaultIcon;
   if (!Icon) {
     return null;
@@ -106,11 +106,12 @@ const Icon = ({ type }) => {
 
 const itemAdapter: ItemAdapter = {
   icon: Icon,
+  key: item => item.id,
   primary: item => item.model.getProperty('name'),
   secondary: item => item.model.getProperty('description')
 };
 
-const cardAdapter = classes => ({
+const cardAdapter = (classes): CardAdapter => ({
   icon: Icon,
   primary: item => item.model.getProperty('name'),
   secondary: item => item.model.getProperty('description'),

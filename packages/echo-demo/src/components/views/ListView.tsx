@@ -17,6 +17,7 @@ const useStyles = makeStyles(() => ({
 
 export interface ItemAdapter {
   icon?: (any) => any // TODO(burdon): Type.
+  key: (any) => string
   primary: (any) => string
   secondary?: (any) => string
 }
@@ -32,10 +33,10 @@ const ListView = ({ adapter, items = [] }: ListViewProps) => {
   return (
     <List dense className={classes.root}>
       {items.map((item) => (
-        <ListItem key={item.id}>
+        <ListItem key={adapter.key(item)}>
           {adapter.icon && (
             <ListItemIcon className={classes.icon}>
-              <adapter.icon type={item.type} />
+              <adapter.icon item={item} />
             </ListItemIcon>
           )}
           <ListItemText
