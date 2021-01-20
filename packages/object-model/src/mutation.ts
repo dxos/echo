@@ -88,6 +88,10 @@ export class ValueUtil {
       return ValueUtil.getObjectValue(value.object);
     }
 
+    if (value.array) {
+      return value.array.values!.map(value => ValueUtil.valueOf(value));
+    }
+
     if (value.string) {
       return value.string;
     }
