@@ -6,6 +6,28 @@ import { Predicate, Query } from './proto';
 import { QueryProcessor } from './queries';
 
 test('Basic queries', () => {
+  const items = [
+    {
+      name: 'item-0',
+      description: 'this should not match any text queries.'
+    },
+    {
+      name: 'item-1',
+      label: 'red',
+      description: 'this item -- references  dxos  projects.'
+    },
+    {
+      name: 'item-2',
+      label: 'green'
+    },
+    {
+      name: 'item-3'
+    },
+    {
+      name: 'item-4'
+    }
+  ];
+
   const queries: Query[] = [
     {
       root: {
@@ -143,22 +165,6 @@ test('Basic queries', () => {
     }
   ];
 
-  const items = [
-    {
-      name: 'item-0',
-      description: 'this should not match any text queries.'
-    },
-    {
-      name: 'item-1',
-      label: 'red',
-      description: 'this item -- references  dxos  projects.'
-    },
-    {
-      name: 'item-2',
-      label: 'green'
-    }
-  ];
-
   const getter = (item: any, key: string) => item[key];
 
   const results = queries.map(query => {
@@ -169,11 +175,11 @@ test('Basic queries', () => {
   expect(results).toEqual([
     [],
     [items[0]],
-    [items[0], items[2]],
+    [items[0], items[2], items[3], items[4]],
     [items[0], items[2]],
     [items[1], items[2]],
     [items[0], items[1], items[2]],
-    [items[0], items[1], items[2]],
+    [items[0], items[1], items[2], items[3], items[4]],
     [items[1]],
     []
   ]);
