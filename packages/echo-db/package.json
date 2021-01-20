@@ -17,9 +17,9 @@
   "scripts": {
     "build": "tsc --build",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
-    "coverage": "jest --coverage --verbose --rootDir=./src --forceExit",
+    "coverage": "jest --coverage --rootDir=./src --verbose --passWithNoTests",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests --testTimeout=10000 --forceExit",
+    "test": "jest --rootDir=./src --verbose --testTimeout=10000 --forceExit",
     "prepublishOnly": "npm run test && npm run build",
     "watch": "babel-watch src --out-dir ./dist --source-maps"
   },

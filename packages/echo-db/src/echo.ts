@@ -25,9 +25,8 @@ import {
   HALO_CONTACT_LIST_TYPE, IdentityManager, OpenProgress, Party, PartyFactory, PartyFilter, PartyManager, PartyMember
 } from './parties';
 import { ResultSet } from './result';
-import { SnapshotStore } from './snapshots/snapshot-store';
-import { FeedStoreAdapter } from './util/feed-store-adapter';
-import { createRamStorage } from './util/persistant-ram-storage';
+import { SnapshotStore } from './snapshots';
+import { FeedStoreAdapter, createRamStorage } from './util';
 
 const log = debug('dxos:echo');
 

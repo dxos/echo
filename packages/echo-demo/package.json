@@ -16,10 +16,10 @@
     "build": "tsc --build",
     "build-storybook": "build-storybook",
     "chromatic": "npx chromatic --project-token 5qr4dg9ty0v --auto-accept-changes",
-    "coverage": "jest --coverage --verbose  --rootDir=./src --passWithNoTests --forceExit",
+    "coverage": "jest --coverage --rootDir=./src --verbose --passWithNoTests",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit",
+    "test": "jest --rootDir=./src --verbose --passWithNoTests --passWithNoTests",
     "prepublishOnly": "npm run test && npm run build",
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook --ci",
     "watch": "babel-watch src --out-dir ./dist --source-maps"

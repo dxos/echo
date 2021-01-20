@@ -4,11 +4,12 @@
 
 import { ObjectModel } from '@dxos/object-model';
 
-import { createTestInstance } from '../testing/test-utils';
+import { createTestInstance } from '../util';
 
-const OBJECT_ORG = 'dxn://dxos.org/object/org';
-const OBJECT_PERSON = 'dxn://dxos.org/object/person';
-const LINK_EMPLOYEE = 'dxn://dxos.org/link/employee';
+// TODO(burdon): Replace with echo-testing.
+const OBJECT_ORG = 'dxn://example/object/org';
+const OBJECT_PERSON = 'dxn://example/object/person';
+const LINK_EMPLOYEE = 'dxn://example/link/employee';
 
 test('directed links', async () => {
   const echo = await createTestInstance({ initialize: true });
@@ -33,4 +34,6 @@ test('directed links', async () => {
   expect(
     p2.refs.filter(link => link.type === LINK_EMPLOYEE).map(link => link.source)
   ).toStrictEqual([org1, org2]);
+
+  await echo.close();
 });

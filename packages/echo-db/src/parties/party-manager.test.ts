@@ -33,9 +33,8 @@ import { checkType, createWritableFeedStream, latch } from '@dxos/util';
 
 import { InvitationDescriptor, OfflineInvitationClaimer } from '../invitations';
 import { Item } from '../items';
-import { SnapshotStore } from '../snapshots/snapshot-store';
-import { messageLogger } from '../testing/test-utils';
-import { FeedStoreAdapter } from '../util/feed-store-adapter';
+import { SnapshotStore } from '../snapshots';
+import { FeedStoreAdapter, messageLogger } from '../util';
 import { HALO_CONTACT_LIST_TYPE } from './halo-party';
 import { IdentityManager } from './identity-manager';
 import { Party } from './party';
@@ -45,52 +44,55 @@ import { PartyManager } from './party-manager';
 
 const log = debug('dxos:echo:parties:party-manager:test');
 
-describe('Party manager', () => {
-  const setup = async (open = true, createIdentity = true) => {
-    const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
-    const feedStoreAdapter = new FeedStoreAdapter(feedStore);
-    let seedPhrase;
+// TODO(burdon): Close cleanly.
+// This usually means that there are asynchronous operations that weren't stopped in your tests.
 
-    let identityManager;
+const setup = async (open = true, createIdentity = true) => {
+  const feedStore = new FeedStore(ram, { feedOptions: { valueEncoding: codec } });
+  const feedStoreAdapter = new FeedStoreAdapter(feedStore);
+  const keyring = new Keyring();
+
+  let seedPhrase;
+  if (createIdentity) {
+    seedPhrase = generateSeedPhrase();
+    const keyPair = keyPairFromSeedPhrase(seedPhrase);
+    await keyring.addKeyRecord({
+      publicKey: PublicKey.from(keyPair.publicKey),
+      secretKey: keyPair.secretKey,
+      type: KeyType.IDENTITY
+    });
+  }
+
+  const identityManager = new IdentityManager(keyring);
+  const snapshotStore = new SnapshotStore(ram);
+  const modelFactory = new ModelFactory().registerModel(ObjectModel);
+  const partyFactory = new PartyFactory(
+    identityManager,
+    feedStoreAdapter,
+    modelFactory,
+    new NetworkManager(),
+    snapshotStore,
     {
-      const keyring = new Keyring();
-      if (createIdentity) {
-        seedPhrase = generateSeedPhrase();
-        const keyPair = keyPairFromSeedPhrase(seedPhrase);
-        await keyring.addKeyRecord({
-          publicKey: PublicKey.from(keyPair.publicKey),
-          secretKey: keyPair.secretKey,
-          type: KeyType.IDENTITY
-        });
-      }
-      identityManager = new IdentityManager(keyring);
+      writeLogger: messageLogger('<<<'),
+      readLogger: messageLogger('>>>')
     }
+  );
 
-    const snapshotStore = new SnapshotStore(ram);
-    const modelFactory = new ModelFactory().registerModel(ObjectModel);
-    const partyFactory = new PartyFactory(
-      identityManager,
-      feedStoreAdapter,
-      modelFactory,
-      new NetworkManager(),
-      snapshotStore,
-      {
-        writeLogger: messageLogger('<<<'),
-        readLogger: messageLogger('>>>')
-      }
-    );
-    const partyManager = new PartyManager(identityManager, feedStoreAdapter, snapshotStore, partyFactory);
+  const partyManager = new PartyManager(identityManager, feedStoreAdapter, snapshotStore, partyFactory);
 
-    if (open) {
-      await partyManager.open();
-      if (createIdentity) {
-        await partyManager.createHalo({ identityDisplayName: identityManager.identityKey!.publicKey.humanize() });
-      }
+  if (open) {
+    await partyManager.open();
+    if (createIdentity) {
+      await partyManager.createHalo({
+        identityDisplayName: identityManager.identityKey!.publicKey.humanize()
+      });
     }
+  }
 
-    return { feedStore, partyManager, identityManager, seedPhrase };
-  };
+  return { feedStore, partyManager, identityManager, seedPhrase };
+};
 
+describe('Party manager', () => {
   test('Created locally', async () => {
     const { partyManager, identityManager } = await setup();
     await partyManager.open();
@@ -113,6 +115,7 @@ describe('Party manager', () => {
     expect(identityManager.keyring.hasSecretKey(partyKey)).toBe(false);
 
     await update;
+    await partyManager.close();
   });
 
   test('Created via sync', async () => {
@@ -150,6 +153,7 @@ describe('Party manager', () => {
     }]);
 
     await update;
+    await partyManager.close();
   });
 
   test('Create from cold start', async () => {
@@ -170,8 +174,6 @@ describe('Party manager', () => {
 
     await feedStore.open();
 
-    const numParties = 3;
-
     // TODO(telackey): Injecting "raw" Parties into the feeds behind the scenes seems fishy to me, as it writes the
     // Party messages in a slightly different way than the code inside PartyFactory does, and so could easily diverge
     // from reality. Perhaps the thing to do would be to setup temporary storage, add the Parties in the usual way
@@ -179,6 +181,7 @@ describe('Party manager', () => {
     // same storage.
 
     // Create raw parties.
+    const numParties = 3;
     for (let i = 0; i < numParties; i++) {
       const partyKey = await keyring.createKeyRecord({ type: KeyType.PARTY });
 
@@ -207,17 +210,17 @@ describe('Party manager', () => {
 
     // Open.
     await partyManager.open();
-
     expect(partyManager.parties).toHaveLength(numParties);
+    await partyManager.close();
   });
 
   test('Join a party - PIN', async () => {
+    const PIN = Buffer.from('0000');
+
     const { partyManager: partyManagerA, identityManager: identityManagerA } = await setup();
     const { partyManager: partyManagerB, identityManager: identityManagerB } = await setup();
     await partyManagerA.open();
     await partyManagerB.open();
-
-    const PIN = Buffer.from('0000');
 
     // Create the Party.
     expect(partyManagerA.parties).toHaveLength(0);
@@ -245,7 +248,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+    partyB.database.queryItems({ type: 'dxn://example/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -257,15 +260,15 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' });
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://example/item/test' });
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
     await updated;
 
     // Check Party membership and displayName.
-    for (const _party of [partyA, partyB]) {
-      const party = new Party(_party);
+    for (const p of [partyA, partyB]) {
+      const party = new Party(p);
       const members = party.queryMembers().value;
       expect(members.length).toBe(2);
       for (const member of members) {
@@ -279,6 +282,9 @@ describe('Party manager', () => {
         }
       }
     }
+
+    // await partyManagerA.close();
+    // await partyManagerB.close();
   });
 
   test('Join a party - signature', async () => {
@@ -327,7 +333,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+    partyB.database.queryItems({ type: 'dxn://example/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -339,7 +345,7 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
@@ -359,6 +365,9 @@ describe('Party manager', () => {
         }
       }
     }
+
+    // await partyManagerA.close();
+    // await partyManagerB.close();
   });
 
   test('One user, two devices', async () => {
@@ -400,7 +409,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on B.
-      identityManagerB.halo?.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+      identityManagerB.halo?.database.queryItems({ type: 'dxn://example/item/test' })
         .subscribe((result) => {
           if (result.length) {
             if (itemA && result.find(item => item.id === itemA?.id)) {
@@ -412,7 +421,7 @@ describe('Party manager', () => {
 
       // Create a new Item on A.
       itemA = await identityManagerA.halo?.database
-        .createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
       log(`A created ${itemA.id}`);
 
       // Now wait to see it on B.
@@ -437,7 +446,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on A.
-      partyManagerA.parties[0].database.queryItems({ type: 'dxn://dxos.org/item/test' })
+      partyManagerA.parties[0].database.queryItems({ type: 'dxn://example/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -450,7 +459,7 @@ describe('Party manager', () => {
 
       // Create a new Item on B.
       itemA = await partyManagerB.parties[0].database
-        .createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
 
       // Now wait to see it on A.
       await updated;
@@ -536,7 +545,7 @@ describe('Party manager', () => {
     // Empty across the board.
     for (const partyManager of [partyManagerA1, partyManagerA2, partyManagerB1, partyManagerB2]) {
       const [party] = partyManager.parties;
-      expect(party.database.queryItems({ type: 'dxn://dxos.org/item/test' }).value.length).toBe(0);
+      expect(party.database.queryItems({ type: 'dxn://example/item/test' }).value.length).toBe(0);
     }
 
     for await (const partyManager of [partyManagerA1, partyManagerA2, partyManagerB1, partyManagerB2]) {
@@ -548,7 +557,7 @@ describe('Party manager', () => {
         if (partyManager !== otherManager) {
           const [otherParty] = otherManager.parties;
           const [updated, onUpdate] = latch();
-          otherParty.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+          otherParty.database.queryItems({ type: 'dxn://example/item/test' })
             .subscribe((result) => {
               if (result.find(current => current.id === item?.id)) {
                 log(`other has ${item?.id}`);
@@ -559,7 +568,7 @@ describe('Party manager', () => {
         }
       }
 
-      item = await party.database.createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+      item = await party.database.createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
       await Promise.all(itemPromises);
     }
   });
@@ -582,7 +591,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on B.
-      identityManagerB.halo?.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+      identityManagerB.halo?.database.queryItems({ type: 'dxn://example/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -595,7 +604,7 @@ describe('Party manager', () => {
 
       // Create a new Item on A.
       itemA = await identityManagerA.halo?.database
-        .createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
       log(`A created ${itemA.id}`);
 
       // Now wait to see it on B.
@@ -622,7 +631,7 @@ describe('Party manager', () => {
       const [updated, onUpdate] = latch();
 
       // Subscribe to Item updates on A.
-      partyManagerA.parties[0].database.queryItems({ type: 'dxn://dxos.org/item/test' })
+      partyManagerA.parties[0].database.queryItems({ type: 'dxn://example/item/test' })
         .subscribe((result) => {
           if (result.length) {
             const [itemB] = result;
@@ -635,7 +644,7 @@ describe('Party manager', () => {
 
       // Create a new Item on B.
       itemA = await partyManagerB.parties[0].database
-        .createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+        .createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
 
       // Now wait to see it on A.
       await updated;
@@ -671,7 +680,7 @@ describe('Party manager', () => {
     const [updated, onUpdate] = latch();
 
     // Subscribe to Item updates on B.
-    partyB.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+    partyB.database.queryItems({ type: 'dxn://example/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [itemB] = result;
@@ -683,7 +692,7 @@ describe('Party manager', () => {
       });
 
     // Create a new Item on A.
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
     log(`A created ${itemA.id}`);
 
     // Now wait to see it on B.
@@ -799,7 +808,7 @@ describe('Party manager', () => {
     let itemA: Item<any> | null = null;
     const [updated, onUpdate] = latch();
 
-    partyA.database.queryItems({ type: 'dxn://dxos.org/item/test' })
+    partyA.database.queryItems({ type: 'dxn://example/item/test' })
       .subscribe((result) => {
         if (result.length) {
           const [receivedItem] = result;
@@ -809,10 +818,10 @@ describe('Party manager', () => {
         }
       });
 
-    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://dxos.org/item/test' }) as Item<any>;
+    itemA = await partyA.database.createItem({ model: ObjectModel, type: 'dxn://example/item/test' }) as Item<any>;
     await updated; // wait to see the update
 
-    expect((await partyA.database.queryItems({ type: 'dxn://dxos.org/item/test' })).value.length).toEqual(1);
+    expect((await partyA.database.queryItems({ type: 'dxn://example/item/test' })).value.length).toEqual(1);
 
     await partyA.deactivate({ global: true });
     await partyA.activate({ global: true });
@@ -820,8 +829,8 @@ describe('Party manager', () => {
     expect(partyA.isOpen).toBe(true);
     expect(partyA.isActive()).toBe(true);
 
-    await waitForCondition(() => partyA.database.queryItems({ type: 'dxn://dxos.org/item/test' }).value.length > 0, 5000);
-    expect((await partyA.database.queryItems({ type: 'dxn://dxos.org/item/test' })).value.length).toEqual(1);
+    await waitForCondition(() => partyA.database.queryItems({ type: 'dxn://example/item/test' }).value.length > 0, 5000);
+    expect((await partyA.database.queryItems({ type: 'dxn://example/item/test' })).value.length).toEqual(1);
   }, 10000);
 
   test('Deactivate Party - multi device', async () => {

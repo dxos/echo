@@ -21,7 +21,7 @@ const log = debug('dxos:echo:object-model');
  */
 export class ObjectModel extends Model<ObjectMutationSet> {
   static meta: ModelMeta = {
-    type: 'dxn://dxos.org/model/object',
+    type: 'dxn://dxos/model/object',
     mutation: schema.getCodecForType('dxos.echo.object.ObjectMutationSet'),
 
     // TODO(burdon): Remove.
