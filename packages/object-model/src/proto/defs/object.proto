@@ -29,7 +29,15 @@ message Value {
     bytes     bytes                   = 12;
 
     Object    object                  = 20;
+    Array     array                   = 21;
   }
+}
+
+//
+// Ordered collection of values.
+//
+message Array {
+  repeated Value values               = 1;
 }
 
 //
@@ -45,6 +53,38 @@ message KeyValue {
 //
 message Object {
   repeated KeyValue properties        = 1;
+}
+
+//
+// Query predicate.
+//
+message Predicate {
+  enum Operation { // TODO(burdon): Test prefix match.
+    EQUALS                            = 0;
+    OR                                = 1;
+    AND                               = 2;
+    NOT                               = 3;
+    IN                                = 4;
+  }
+
+  Operation op                        = 1;
+  string key                          = 2;
+  Value value                         = 3;
+  repeated Predicate predicates       = 4;
+}
+
+//
+// Query.
+//
+message Query {
+  Predicate root                      = 1;
+}
+
+//
+// State snapshot.
+//
+message ObjectSnapshot {
+  Value root                          = 1;
 }
 
 //
@@ -70,11 +110,4 @@ message ObjectMutation {
 //
 message ObjectMutationSet {
   repeated ObjectMutation mutations   = 1;
-}
-
-//
-// State snapshot.
-//
-message ObjectSnapshot {
-  Value root = 1;
 }
