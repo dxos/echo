@@ -60,16 +60,19 @@ message Object {
 //
 message Predicate {
   enum Operation {
-    EQUALS                            = 0;
-    PREFIX_MATCH                      = 1;
-    GTE                               = 2;
-    GT                                = 3;
-    LTE                               = 4;
-    LT                                = 5;
-    OR                                = 6;
-    AND                               = 7;
-    NOT                               = 8;
-    IN                                = 9;
+    OR                                = 0;
+    AND                               = 1;
+    NOT                               = 2;    // === NOT AND (NAND)
+
+    IN                                = 10;
+    EQUALS                            = 11;
+    GTE                               = 12;
+    GT                                = 13;
+    LTE                               = 14;
+    LT                                = 15;
+
+    PREFIX_MATCH                      = 20;   // String prefix (case insensitive).
+    TEXT_MATCH                        = 21;   // Split words (case insensitive).
   }
 
   Operation op                        = 1;
