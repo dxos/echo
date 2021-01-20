@@ -59,12 +59,17 @@ message Object {
 // Query predicate.
 //
 message Predicate {
-  enum Operation { // TODO(burdon): Test prefix match.
+  enum Operation {
     EQUALS                            = 0;
-    OR                                = 1;
-    AND                               = 2;
-    NOT                               = 3;
-    IN                                = 4;
+    PREFIX_MATCH                      = 1;
+    GTE                               = 2;
+    GT                                = 3;
+    LTE                               = 4;
+    LT                                = 5;
+    OR                                = 6;
+    AND                               = 7;
+    NOT                               = 8;
+    IN                                = 9;
   }
 
   Operation op                        = 1;
