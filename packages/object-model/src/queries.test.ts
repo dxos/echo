@@ -6,28 +6,6 @@ import { Predicate, Query } from './proto';
 import { QueryProcessor } from './queries';
 
 test('Basic queries', () => {
-  const items = [
-    {
-      name: 'item-0',
-      description: 'this should not match any text queries.'
-    },
-    {
-      name: 'item-1',
-      label: 'red',
-      description: 'this item -- references  dxos  projects.'
-    },
-    {
-      name: 'item-2',
-      label: 'green'
-    },
-    {
-      name: 'item-3'
-    },
-    {
-      name: 'item-4'
-    }
-  ];
-
   const queries: Query[] = [
     {
       root: {
@@ -44,6 +22,15 @@ test('Basic queries', () => {
         key: 'name',
         value: {
           string: 'item-0'
+        }
+      }
+    },
+    {
+      root: {
+        op: Predicate.Operation.EQUALS,
+        key: 'complete',
+        value: {
+          bool: true // TODO(burdon): Should false match undefined?
         }
       }
     },
@@ -165,16 +152,39 @@ test('Basic queries', () => {
     }
   ];
 
-  const getter = (item: any, key: string) => item[key];
+  const items = [
+    {
+      name: 'item-0',
+      description: 'this should not match any text queries.',
+      count: 0
+    },
+    {
+      name: 'item-1',
+      label: 'red',
+      description: 'this item -- references  dxos  projects.',
+      count: 1
+    },
+    {
+      name: 'item-2',
+      label: 'green',
+      complete: true,
+      count: 1
+    },
+    {
+      name: 'item-3',
+      complete: true,
+      count: 2
+    },
+    {
+      name: 'item-4',
+      complete: false
+    }
+  ];
 
-  const results = queries.map(query => {
-    const processor = new QueryProcessor(query, getter);
-    return items.filter(item => processor.match(item));
-  });
-
-  expect(results).toEqual([
+  const expected = [
     [],
     [items[0]],
+    [items[2], items[3]],
     [items[0], items[2], items[3], items[4]],
     [items[0], items[2]],
     [items[1], items[2]],
@@ -182,5 +192,20 @@ test('Basic queries', () => {
     [items[0], items[1], items[2], items[3], items[4]],
     [items[1]],
     []
-  ]);
+  ];
+
+  // TODO(burdon): Adapt for ObjectModel.
+  // TODO(burdon): Nested properties?
+  // TODO(burdon): Indexed properties? (schema?)
+  const getter = (item: any, key: string) => item[key];
+
+  const results = queries.map(query => {
+    const processor = new QueryProcessor(query, getter);
+    return items.filter(item => processor.match(item));
+  });
+
+  results.forEach((result, i) => {
+    // eslint-disable-next-line jest/valid-expect
+    expect(result, `Query failed: ${JSON.stringify(queries[i])}`).toEqual(expected[i]);
+  });
 });

@@ -23,6 +23,9 @@ export class QueryProcessor {
     return this._match(item, this._query.root!);
   }
 
+  /**
+   * Recursively match predicate tree.
+   */
   _match (item: any, predicate: Predicate): boolean {
     switch (predicate.op) {
       //
@@ -37,7 +40,7 @@ export class QueryProcessor {
         return predicate.predicates!.findIndex((predicate: Predicate) => !this._match(item, predicate)) === -1;
       }
 
-      case Predicate.Operation.NOT: {
+      case Predicate.Operation.NOT: { // NAND
         return predicate.predicates!.findIndex((predicate: Predicate) => !this._match(item, predicate)) !== -1;
       }
 
@@ -52,7 +55,8 @@ export class QueryProcessor {
       }
 
       case Predicate.Operation.EQUALS: {
-        return this._getter(item, predicate.key!) === ValueUtil.valueOf(predicate.value!);
+        const value = this._getter(item, predicate.key!);
+        return value === ValueUtil.valueOf(predicate.value!);
       }
 
       case Predicate.Operation.PREFIX_MATCH: {

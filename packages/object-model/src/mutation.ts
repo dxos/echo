@@ -84,16 +84,17 @@ export class ValueUtil {
   }
 
   static valueOf (value: Value): any {
-    if (value.object) {
+    if (value.object !== undefined) {
       return ValueUtil.getObjectValue(value.object);
     }
 
-    if (value.array) {
+    if (value.array !== undefined) {
       return value.array.values!.map(value => ValueUtil.valueOf(value));
     }
 
-    if (value.string) {
-      return value.string;
+    const type = SCALAR_TYPES.find(type => value[type] !== undefined);
+    if (type) {
+      return value[type];
     }
 
     return undefined;

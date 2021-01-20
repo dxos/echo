@@ -65,7 +65,7 @@ message Predicate {
     NOT                               = 2;    // === NOT AND (NAND)
 
     IN                                = 10;
-    EQUALS                            = 11;
+    EQUALS                            = 11;   // Exact
     GTE                               = 12;
     GT                                = 13;
     LTE                               = 14;
