@@ -74,6 +74,45 @@ export class ObjectModel extends Model<ObjectMutationSet> {
     await receipt.waitToBeProcessed();
   }
 
+  async addToSet (key: string, value: any) {
+    const receipt = await this.write({
+      mutations: [
+        {
+          operation: ObjectMutation.Operation.SET_ADD,
+          key,
+          value: ValueUtil.createMessage(value)
+        }
+      ]
+    });
+    await receipt.waitToBeProcessed();
+  }
+
+  async removeFromSet (key: string, value: any) {
+    const receipt = await this.write({
+      mutations: [
+        {
+          operation: ObjectMutation.Operation.SET_DELETE,
+          key,
+          value: ValueUtil.createMessage(value)
+        }
+      ]
+    });
+    await receipt.waitToBeProcessed();
+  }
+
+  async pushToArray (key: string, value: any) {
+    const receipt = await this.write({
+      mutations: [
+        {
+          operation: ObjectMutation.Operation.ARRAY_PUSH,
+          key,
+          value: ValueUtil.createMessage(value)
+        }
+      ]
+    });
+    await receipt.waitToBeProcessed();
+  }
+
   createSnapshot () {
     return {
       root: ValueUtil.createMessage(this._object)
