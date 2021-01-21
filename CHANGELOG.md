@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [2.6.22](https://www.github.com/dxos/echo/compare/v2.6.21...v2.6.22) (2021-01-21)
+
+
+### Features
+
+* Add set and array operations to the ObjectModel ([#398](https://www.github.com/dxos/echo/issues/398)) ([d049bc7](https://www.github.com/dxos/echo/commit/d049bc742d2b321aff42e8c528feb9c68e65b49c))
+
 ### [2.6.21](https://www.github.com/dxos/echo/compare/v2.6.20...v2.6.21) (2021-01-19)
 
 
