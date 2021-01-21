@@ -3,4 +3,3 @@
 //
 
 export * from './generator';
-export * from './testing';
