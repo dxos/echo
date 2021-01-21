@@ -27,6 +27,29 @@ test('Basic queries', () => {
     },
     {
       root: {
+        op: Predicate.Operation.EQUALS,
+        key: 'complete',
+        value: {
+          bool: true // TODO(burdon): Should false match undefined?
+        }
+      }
+    },
+    {
+      root: {
+        op: Predicate.Operation.NOT,
+        predicates: [
+          {
+            op: Predicate.Operation.EQUALS,
+            key: 'name',
+            value: {
+              string: 'item-1'
+            }
+          }
+        ]
+      }
+    },
+    {
+      root: {
         op: Predicate.Operation.OR,
         predicates: [
           {
@@ -99,23 +122,81 @@ test('Basic queries', () => {
           }
         ]
       }
+    },
+    {
+      root: {
+        op: Predicate.Operation.PREFIX_MATCH,
+        key: 'name',
+        value: {
+          string: 'item'
+        }
+      }
+    },
+    {
+      root: {
+        op: Predicate.Operation.TEXT_MATCH,
+        key: 'description',
+        value: {
+          string: 'dx'
+        }
+      }
+    },
+    {
+      root: {
+        op: Predicate.Operation.TEXT_MATCH,
+        key: 'description',
+        value: {
+          string: ''
+        }
+      }
     }
   ];
 
   const items = [
     {
-      name: 'item-0'
+      name: 'item-0',
+      description: 'this should not match any text queries.',
+      count: 0
     },
     {
       name: 'item-1',
-      label: 'red'
+      label: 'red',
+      description: 'this item -- references  dxos  projects.',
+      count: 1
     },
     {
       name: 'item-2',
-      label: 'green'
+      label: 'green',
+      complete: true,
+      count: 1
+    },
+    {
+      name: 'item-3',
+      complete: true,
+      count: 2
+    },
+    {
+      name: 'item-4',
+      complete: false
     }
   ];
 
+  const expected = [
+    [],
+    [items[0]],
+    [items[2], items[3]],
+    [items[0], items[2], items[3], items[4]],
+    [items[0], items[2]],
+    [items[1], items[2]],
+    [items[0], items[1], items[2]],
+    [items[0], items[1], items[2], items[3], items[4]],
+    [items[1]],
+    []
+  ];
+
+  // TODO(burdon): Adapt for ObjectModel.
+  // TODO(burdon): Nested properties?
+  // TODO(burdon): Indexed properties? (schema?)
   const getter = (item: any, key: string) => item[key];
 
   const results = queries.map(query => {
@@ -123,11 +204,8 @@ test('Basic queries', () => {
     return items.filter(item => processor.match(item));
   });
 
-  expect(results).toEqual([
-    [],
-    [items[0]],
-    [items[0], items[2]],
-    [items[1], items[2]],
-    [items[0], items[1], items[2]]
-  ]);
+  results.forEach((result, i) => {
+    // eslint-disable-next-line jest/valid-expect
+    expect(result, `Query failed: ${JSON.stringify(queries[i])}`).toEqual(expected[i]);
+  });
 });
