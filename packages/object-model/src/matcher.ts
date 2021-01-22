@@ -7,26 +7,32 @@ import { Predicate, Query } from './proto';
 
 export type Getter = (item: any, path: string) => any;
 
+interface MatcherOptions {
+  getter: Getter;
+  minisearch?: any;
+}
+
 /**
  * Query processor.
  */
-export class QueryProcessor {
+export class Matcher {
   constructor (
-    private readonly _query: Query,
-    private readonly _getter: Getter
+    private readonly _options: MatcherOptions
   ) {}
 
   /**
    * Returns true if item matches the query.
    */
-  match (item: any): boolean {
-    return this._match(item, this._query.root!);
+  match (query: Query, item: any): boolean {
+    return this._match(item, query.root!);
   }
 
   /**
    * Recursively match predicate tree.
    */
   _match (item: any, predicate: Predicate): boolean {
+    const { getter } = this._options;
+
     switch (predicate.op) {
       //
       // Boolean operators
@@ -50,17 +56,17 @@ export class QueryProcessor {
 
       case Predicate.Operation.IN: {
         const values = ValueUtil.valueOf(predicate.value!) || [];
-        const value = this._getter(item, predicate.key!);
+        const value = getter(item, predicate.key!);
         return value && values.indexOf(value) !== -1;
       }
 
       case Predicate.Operation.EQUALS: {
-        const value = this._getter(item, predicate.key!);
+        const value = getter(item, predicate.key!);
         return value === ValueUtil.valueOf(predicate.value!);
       }
 
       case Predicate.Operation.PREFIX_MATCH: {
-        const value = this._getter(item, predicate.key!);
+        const value = getter(item, predicate.key!);
         if (typeof value === 'string') {
           const match = ValueUtil.valueOf(predicate.value!)?.toLowerCase();
           return match && value.toLowerCase().indexOf(match) === 0;
@@ -69,7 +75,7 @@ export class QueryProcessor {
       }
 
       case Predicate.Operation.TEXT_MATCH: {
-        const value = this._getter(item, predicate.key!);
+        const value = getter(item, predicate.key!);
         if (typeof value === 'string') {
           const words = value.toLowerCase().split(/\s+/);
           const match = ValueUtil.valueOf(predicate.value!)?.toLowerCase();

@@ -5,7 +5,9 @@
 import MiniSearch from 'minisearch';
 
 test('minisearch', async () => {
+  // https://lucaong.github.io/minisearch/classes/_minisearch_.minisearch.html
   const miniSearch = new MiniSearch({
+    idField: 'id',
     fields: ['title', 'text'],
     storeFields: ['title', 'category']
   });
