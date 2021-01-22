@@ -31,9 +31,9 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@dxos/echo-db": "^2.6.22",
-    "@dxos/echo-protocol": "^2.6.22",
-    "@dxos/object-model": "^2.6.22",
+    "@dxos/echo-db": "~2.6.22",
+    "@dxos/echo-protocol": "~2.6.22",
+    "@dxos/object-model": "~2.6.22",
     "debug": "^4.1.1",
     "faker": "^5.1.0",
     "js-data-structs": "^1.1.2",
