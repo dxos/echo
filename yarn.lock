@@ -1259,15 +1259,15 @@
     lodash.set "^4.3.2"
     lodash.unset "^4.5.2"
 
-"@dxos/network-manager@~1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/network-manager/-/network-manager-1.0.6.tgz#79cc69e24c8a1a822f3596a56be41650033c0a88"
-  integrity sha512-2YyxrD8//4nJnCfAt+sV9y+HvPiIpTqqL/sTVwIiBw3gqe71A2EEYScS0LqZUmDYwd/qlAhzC3cfUT/omGSQeg==
+"@dxos/network-manager@1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dxos/network-manager/-/network-manager-1.0.7.tgz#d8c2a0be62c5b4037abc6014ac20e95d26879e9b"
+  integrity sha512-zJHSQDD8X8W5uTaG0TZGgWguULKZz8VbFx41aBeyKTXDH0flyQw7B6lZIG6gnTD3ma8vDpsyTFmTqM+bWsAxSw==
   dependencies:
     "@dxos/async" "~1.0.2-alpha.0"
     "@dxos/crypto" "~1.0.7"
     "@dxos/metrics" "~1.0.0-beta.9"
-    "@dxos/protocol" "1.0.6"
+    "@dxos/protocol" "1.0.7"
     "@dxos/util" "~2.6.16"
     "@types/mocha" "^8.0.4"
     "@types/simple-peer" "^9.6.1"
@@ -1304,21 +1304,21 @@
     queue-microtask "^1.1.2"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-plugin-replicator@~1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.0.6.tgz#6219c8fe61da8893a63e2d90a4e226f85a302ba9"
-  integrity sha512-GVorEzES9bHHJWmW2Vl8skie/50QhnigwgOygilevO6Z0REYJCZTcMVAe3W29LKcKj3v8n28RncXvCdYz5fGNw==
+"@dxos/protocol-plugin-replicator@1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.0.7.tgz#13fcdc117cc1a1e2efa88449dd9c48b5426149c4"
+  integrity sha512-KT2F53QUB95T4X0VfjmgAKeJs9GXtmxGOkinIoVuDN3LGSEq510tq1x99bYMQL5aX/uO+UgwG9e/gSF3xenmGg==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.10"
-    "@dxos/protocol" "1.0.6"
+    "@dxos/protocol" "1.0.7"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.0.6.tgz#c40af645b73d75d7e4dc8235e146b84bfb2f02d2"
-  integrity sha512-OeWGEeeDqmQfqkcA9XWBkAvC2hufy6LYcnflyaqMhqJh8rbrq5maGkJUjDIGZQjBzZdRptSyWGiXlgPL2YMohQ==
+"@dxos/protocol@1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.0.7.tgz#ce6c02a9b63c91d0d6d07ac2e77726d11dfe4af6"
+  integrity sha512-AWt29cDVKgvore2053bNUuLRr+bBq3QOiU6dvUle/Sjs2yCFHIvcilN61hF4KEa8ZuoQ731IKLLLuqtdbN6sPQ==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.10"
     assert "^2.0.0"
