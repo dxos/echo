@@ -12,10 +12,12 @@ interface IndexerOptions {
 }
 
 /**
- * Text indexer.
+ * Caching text search.
  */
-export class Indexer {
-  readonly _minisearch: MiniSearch;
+export class TextIndex {
+  private readonly _minisearch: MiniSearch;
+
+  private readonly _cache = new Map<string, any[]>();
 
   private _items: any[] = [];
 
@@ -28,17 +30,26 @@ export class Indexer {
     });
   }
 
+  // TODO(burdon): Monitor memory usage and timing.
+  // TODO(burdon): Calcuate diff.
   update (items: any[]) {
-    // TODO(burdon): Monitor memory usage and timing.
-    // TODO(burdon): Calcuate diff.
     this._items = items;
     this._minisearch.removeAll();
     this._minisearch.addAll(items);
+    this._cache.clear();
     return this;
   }
 
-  match (text: string) {
-    return this._minisearch.search(text)
-      .map(result => ({ ...result, item: this._items.find(item => item.id === result.id) }));
+  // TODO(burdon): Async API?
+  search (text: string) {
+    let results = this._cache.get(text);
+    if (!results) {
+      results = this._minisearch.search(text)
+        .map(result => ({ ...result, item: this._items.find(item => item.id === result.id) }));
+
+      this._cache.set(text, results);
+    }
+
+    return results;
   }
 }

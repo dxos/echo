@@ -4,16 +4,18 @@
 
 import { ValueUtil } from './mutation';
 import { Predicate, Query } from './proto';
+import { TextIndex } from './text-index';
 
 export type Getter = (item: any, path: string) => any;
 
 interface MatcherOptions {
   getter: Getter;
-  minisearch?: any;
+  textIndex?: TextIndex;
 }
 
 /**
- * Query processor.
+ * Predicate matcher.
+ * NOTE: The approach here is to match items against the DNF predicate tree.
  */
 export class Matcher {
   constructor (
@@ -21,16 +23,17 @@ export class Matcher {
   ) {}
 
   /**
-   * Returns true if item matches the query.
+   * Returns list of matched items.
    */
-  match (query: Query, item: any): boolean {
-    return this._match(item, query.root!);
+  // TODO(burdon): Async API?
+  matchItems (query: Query, items: any[]) {
+    return items.filter(item => this._matchItem(item, query.root!));
   }
 
   /**
-   * Recursively match predicate tree.
+   * Recursively match predicate tree against current item.
    */
-  _match (item: any, predicate: Predicate): boolean {
+  _matchItem (item: any, predicate: Predicate): boolean {
     const { getter } = this._options;
 
     switch (predicate.op) {
@@ -39,15 +42,15 @@ export class Matcher {
       //
 
       case Predicate.Operation.OR: {
-        return predicate.predicates!.findIndex((predicate: Predicate) => this._match(item, predicate)) !== -1;
+        return predicate.predicates!.findIndex((predicate: Predicate) => this._matchItem(item, predicate)) !== -1;
       }
 
       case Predicate.Operation.AND: {
-        return predicate.predicates!.findIndex((predicate: Predicate) => !this._match(item, predicate)) === -1;
+        return predicate.predicates!.findIndex((predicate: Predicate) => !this._matchItem(item, predicate)) === -1;
       }
 
       case Predicate.Operation.NOT: { // NAND
-        return predicate.predicates!.findIndex((predicate: Predicate) => !this._match(item, predicate)) !== -1;
+        return predicate.predicates!.findIndex((predicate: Predicate) => !this._matchItem(item, predicate)) !== -1;
       }
 
       //
@@ -75,11 +78,22 @@ export class Matcher {
       }
 
       case Predicate.Operation.TEXT_MATCH: {
+        const text = ValueUtil.valueOf(predicate.value!)?.trim().toLowerCase();
+        if (!text) {
+          break;
+        }
+
+        // Match text against cached text index.
+        if (this._options.textIndex) {
+          const matches = this._options.textIndex.search(text);
+          return matches.findIndex(match => match.id === item.id) !== -1;
+        }
+
+        // Match text against each word.
         const value = getter(item, predicate.key!);
         if (typeof value === 'string') {
           const words = value.toLowerCase().split(/\s+/);
-          const match = ValueUtil.valueOf(predicate.value!)?.toLowerCase();
-          return match && words.findIndex(word => word.indexOf(match) === 0) !== -1;
+          return words.findIndex(word => word.indexOf(text) === 0) !== -1;
         }
         break;
       }

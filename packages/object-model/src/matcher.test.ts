@@ -199,10 +199,8 @@ test('Basic queries', () => {
     []
   ];
 
-  const processor = new Matcher({ getter });
-  const results = queries.map(query => {
-    return items.filter(item => processor.match(query, item));
-  });
+  const matcher = new Matcher({ getter });
+  const results = queries.map(query => matcher.matchItems(query, items));
 
   results.forEach((result, i) => {
     // eslint-disable-next-line jest/valid-expect
