@@ -19,10 +19,8 @@ import { Protocol } from '@dxos/protocol';
 import { Presence } from '@dxos/protocol-plugin-presence';
 import { Replicator } from '@dxos/protocol-plugin-replicator';
 
-import { HaloRecoveryInitiator } from '../invitations/halo-recovery-initiator';
-import { InvitationManager } from '../invitations/invitation-manager';
-import { OfflineInvitationClaimer } from '../invitations/offline-invitation-claimer';
-import { FeedStoreAdapter } from '../util/feed-store-adapter';
+import { HaloRecoveryInitiator, InvitationManager, OfflineInvitationClaimer } from '../invitations';
+import { FeedStoreAdapter } from '../util';
 import { IdentityManager } from './identity-manager';
 import { PartyInternal } from './party-internal';
 

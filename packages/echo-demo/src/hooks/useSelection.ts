@@ -13,7 +13,7 @@ import { Selection } from '@dxos/echo-db';
  * @param selector Callback to generate data from the source selection.
  * @param [deps] Array of values that trigger the selector when changed.
  */
-// TODO(burdon): Factor out with tests (echo-db?)
+// TODO(burdon): Factor out (echo-hooks?)
 export function useSelection<T> (
   selection: Selection<any> | undefined,
   selector: (selection: Selection<any>) => T,
