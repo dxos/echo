@@ -21,7 +21,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - uses: P3TERX/ssh2actions@main
     - run: yarn install --frozen-lockfile
     - run: yarn lint:lockfile
     - run: yarn lint:version
