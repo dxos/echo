@@ -26,4 +26,27 @@ jobs:
     - run: yarn lint:version
     - run: yarn lint
     - run: yarn build
-    - run: yarn coverage
+    - name: Test echo-db
+      run: yarn coverage
+      working-directory: ./packages/echo-db
+    - name: Test echo-demo
+      run: yarn coverage
+      working-directory: ./packages/echo-demo
+    - name: Test echo-protocol
+      run: yarn coverage
+      working-directory: ./packages/echo-protocol
+    - name: Test echo-testing
+      run: yarn coverage
+      working-directory: ./packages/echo-testing
+    - name: Test model-factory
+      run: yarn coverage
+      working-directory: ./packages/model-factory
+    - name: Test object-model
+      run: yarn coverage
+      working-directory: ./packages/object-model
+    - name: Test text-model
+      run: yarn coverage
+      working-directory: ./packages/text-model
+    - name: Test util
+      run: yarn coverage
+      working-directory: ./packages/util

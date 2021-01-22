@@ -59,7 +59,7 @@ test('set-up', async () => {
   const message: EchoEnvelope = {
     itemId,
     genesis: {
-      itemType: 'dxn://dxos.org/item/test',
+      itemType: 'dxn://dxos/item/test',
       modelType: TestModel.meta.type
     }
   };

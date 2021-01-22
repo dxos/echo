@@ -177,7 +177,7 @@ export class Database {
    * Returns a selection context, which can be used to traverse the object graph.
    * @param [filter] {SelectFilter}
    */
-  select (filter?: SelectFilter): Selection<any> {
+  select (filter?: SelectFilter | undefined): Selection<any> {
     const result = this._itemManager.queryItems({});
     const selection = new Selection(result.value, result.update.discardParameter());
     return filter ? selection.filter(filter) : selection;

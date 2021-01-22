@@ -4,7 +4,7 @@
 
 import assert from 'assert';
 import debug from 'debug';
-import { unionWith } from 'lodash';
+import unionWith from 'lodash/unionWith';
 
 import { Event, synchronized } from '@dxos/async';
 import { KeyHint, KeyType } from '@dxos/credentials';
@@ -12,10 +12,9 @@ import { PublicKey } from '@dxos/crypto';
 import { PartyKey } from '@dxos/echo-protocol';
 import { ComplexMap, timed } from '@dxos/util';
 
-import { SecretProvider } from '../invitations/common';
-import { InvitationDescriptor } from '../invitations/invitation-descriptor';
-import { SnapshotStore } from '../snapshots/snapshot-store';
-import { FeedStoreAdapter } from '../util/feed-store-adapter';
+import { SecretProvider, InvitationDescriptor } from '../invitations';
+import { SnapshotStore } from '../snapshots';
+import { FeedStoreAdapter } from '../util';
 import { IdentityManager } from './identity-manager';
 import { HaloCreationOptions, PartyFactory } from './party-factory';
 import { PartyInternal, PARTY_ITEM_TYPE, PARTY_TITLE_PROPERTY } from './party-internal';
@@ -61,6 +60,8 @@ export class PartyManager {
     return Array.from(this._parties.values());
   }
 
+  // TODO(burdon): Rename isOpen.
+  // @deprecated
   get opened () {
     return this._opened;
   }
@@ -126,15 +127,19 @@ export class PartyManager {
   async close () {
     this._opened = false;
 
+    // Flush callbacks.
     this._subscriptions.forEach(cb => cb());
 
-    for (const party of this.parties) {
-      await party.close();
+    // Close parties.
+    for (const party of this._parties.values()) {
+      if (party.isOpen) {
+        await party.close();
+      }
     }
 
     await this._identityManager.halo?.close();
-
     await this._feedStore.close();
+
     this._parties.clear();
   }
 

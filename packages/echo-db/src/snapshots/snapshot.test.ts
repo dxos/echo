@@ -11,11 +11,13 @@ import { ObjectModel, ValueUtil } from '@dxos/object-model';
 
 import { ItemDemuxer, ItemManager, TimeframeClock } from '../items';
 import { PartyInternal } from '../parties';
-import { createTestInstance } from '../testing/test-utils';
+import { createTestInstance } from '../util';
 
 const log = debug('dxos:snapshot:test');
 
 jest.setTimeout(10000);
+
+// TODO(burdon): Remove "foo", etc. from tests.
 
 test('loading large party', async () => {
   const echo = await createTestInstance({ initialize: true });
@@ -50,9 +52,8 @@ test('loading large party', async () => {
     await echo.close();
   }
 
-  // TODO(burdon): Test.
   log(`Load took ${Date.now() - startTime}ms`);
-  expect(true).toBeTruthy();
+  expect(echo.isOpen).toBe(false);
 });
 
 test('produce & serialize a snapshot', async () => {
@@ -73,6 +74,9 @@ test('produce & serialize a snapshot', async () => {
 
   const serialized = schema.getCodecForType('dxos.echo.snapshot.PartySnapshot').encode(snapshot);
   expect(serialized instanceof Uint8Array).toBeTruthy();
+
+  await echo.close();
+  expect(echo.isOpen).toBe(false);
 });
 
 test('restore from empty snapshot', async () => {

@@ -8,28 +8,37 @@ import { TextModel } from './text-model';
 
 describe('TextModel', () => {
   test('insert', async () => {
-    const [peer1, peer2] = await createModelTestBench({ model: TextModel });
+    const { peers, items: [item1, item2] } = await createModelTestBench({ model: TextModel });
 
-    peer1.model.insert(0, 'INSERTED TEXT');
+    item1.model.insert(0, 'Hello World!');
 
-    await peer2.model.modelUpdate.waitForCount(1);
-    expect(peer2.model.textContent).toBe('INSERTED TEXT');
+    await item2.model.modelUpdate.waitForCount(1);
+    expect(item2.model.textContent).toBe('Hello World!');
 
-    peer2.model.insert(8, ' FOO');
+    // TODO(burdon): Test delete.
+    const words = item1.model.textContent.split(' ');
+    item2.model.insert(words[0].length, ' DXOS');
+    await item1.model.modelUpdate.waitForCount(1);
+    expect(item1.model.textContent).toBe('Hello DXOS World!');
 
-    await peer1.model.modelUpdate.waitForCount(1);
-    expect(peer1.model.textContent).toBe('INSERTED FOO TEXT');
+    // TODO(burdon): Errors. Race condition?
+    console.log(peers);
+    // for await (const peer of peers) {
+    //   await peer.close();
+    // }
   });
 
   test('snapshot', async () => {
-    const [peer1, peer2] = await createModelTestBench({ model: TextModel });
+    const { peers, items: [item1, item2] } = await createModelTestBench({ model: TextModel });
 
-    peer1.model.insert(0, 'INSERTED TEXT');
+    item1.model.insert(0, 'Hello World!');
 
-    const snapshot = peer1.modelMeta.snapshotCodec!.encode(peer1.model.createSnapshot());
+    const snapshot = item2.modelMeta.snapshotCodec!.encode(item1.model.createSnapshot());
+    await item2.model.restoreFromSnapshot(item2.modelMeta.snapshotCodec!.decode(snapshot));
+    expect(item2.model.textContent).toBe('Hello World!');
 
-    peer2.model.restoreFromSnapshot(peer2.modelMeta.snapshotCodec!.decode(snapshot));
-
-    expect(peer2.model.textContent).toBe('INSERTED TEXT');
+    for await (const peer of peers) {
+      await peer.close();
+    }
   });
 });

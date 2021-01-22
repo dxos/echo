@@ -2,7 +2,7 @@
 // Copyright 2020 DXOS.org
 //
 
-import debug from 'debug'
+import debug from 'debug';
 import leveljs from 'level-js';
 import React, { useEffect, useState } from 'react';
 import useResizeAware from 'react-resize-aware';
@@ -41,7 +41,7 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
           // TODO(burdon): Move const to config.
           networkManagerOptions: { signal: [signal] },
           snapshotStorage,
-          snapshotInterval: 10,
+          snapshotInterval: 10
         });
 
         log('Created:', String(echo));
@@ -52,7 +52,7 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
           await echo.createIdentity(createKeyPair());
           await echo.createHalo();
         }
-      } catch(err) {
+      } catch (err) {
         console.error(err);
       }
     });
@@ -69,25 +69,25 @@ export const withSwarm = ({ signal = 'wss://signal2.dxos.network/dxos/signal' })
     const party = await echo.getParty(node.partyKey);
     const invitation = await party.createInvitation({
       secretProvider: async () => Buffer.from('0000'),
-      secretValidator: async () => true,
+      secretValidator: async () => true
     });
 
     setInvitation(JSON.stringify(invitation.toQueryParameters()));
   };
 
-  async function handleJoin() {
+  async function handleJoin () {
     log('handleJoin', invitation);
     const party = await echo.joinParty(
       InvitationDescriptor.fromQueryParameters(JSON.parse(invitation)), async () => Buffer.from('0000'));
     await party.open();
   }
 
-  async function handleResetStorage() {
+  async function handleResetStorage () {
     await echo.reset();
     window.location.reload();
   }
 
-  const activeParty = echo?.queryParties().value[0]
+  const activeParty = echo?.queryParties().value[0];
 
   return (
     <FullScreen>
