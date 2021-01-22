@@ -62,6 +62,7 @@
   "devDependencies": {
     "@dxos/eslint-plugin": "~1.0.10",
     "@types/jest": "^25.2.3",
+    "@types/jest-expect-message": "^1.0.3",
     "eslint-plugin-jest": "^24.0.2",
     "jest": "^26.2.2",
     "jest-expect-message": "^1.0.2",

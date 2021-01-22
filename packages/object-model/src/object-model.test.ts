@@ -23,7 +23,7 @@ test('replication', async () => {
 });
 
 test('Add and remove from set', async () => {
-  const [peer1] = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
+  const { items: [peer1] } = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
   const { model } = peer1;
 
   expect(model.toObject()).toEqual({ x: 100 });
@@ -41,7 +41,7 @@ test('Add and remove from set', async () => {
 });
 
 test('Push to an array', async () => {
-  const [peer1] = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
+  const { items: [peer1] } = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
   const { model } = peer1;
 
   expect(model.toObject()).toEqual({ x: 100 });
