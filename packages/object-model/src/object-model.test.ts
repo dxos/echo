@@ -21,3 +21,36 @@ test('replication', async () => {
     await peer.close();
   }
 });
+
+test('Add and remove from set', async () => {
+  const [peer1] = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
+  const { model } = peer1;
+
+  expect(model.toObject()).toEqual({ x: 100 });
+
+  await model.addToSet('labels', 'green');
+  expect(model.toObject()).toEqual({ x: 100, labels: ['green'] });
+
+  await model.addToSet('labels', 'red');
+  await model.addToSet('labels', 'blue');
+  await model.addToSet('labels', 'green'); // duplicate
+  expect(model.toObject()).toEqual({ x: 100, labels: ['green', 'red', 'blue'] });
+
+  await model.removeFromSet('labels', 'blue');
+  expect(model.toObject()).toEqual({ x: 100, labels: ['green', 'red'] });
+});
+
+test('Push to an array', async () => {
+  const [peer1] = await createModelTestBench({ model: ObjectModel, props: { x: 100 } });
+  const { model } = peer1;
+
+  expect(model.toObject()).toEqual({ x: 100 });
+
+  await model.pushToArray('numbers', '1');
+  expect(model.toObject()).toEqual({ x: 100, numbers: ['1'] });
+
+  await model.pushToArray('numbers', '2');
+  await model.pushToArray('numbers', '3');
+  await model.pushToArray('numbers', '1'); // duplicate
+  expect(model.toObject()).toEqual({ x: 100, numbers: ['1', '2', '3', '1'] });
+});

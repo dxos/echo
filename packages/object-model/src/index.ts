@@ -5,3 +5,4 @@
 export * from './mutation';
 export * from './object-model';
 export * from './proto';
+export * from './queries';
