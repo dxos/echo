@@ -28,3 +28,18 @@ jobs:
     - run: yarn lint
     - run: yarn build
     - run: yarn coverage
+      working-directory: ./packages/echo-db
+    - run: yarn coverage
+      working-directory: ./packages/echo-demo
+    - run: yarn coverage
+      working-directory: ./packages/echo-protocol
+    - run: yarn coverage
+      working-directory: ./packages/echo-testing
+    - run: yarn coverage
+      working-directory: ./packages/model-factory
+    - run: yarn coverage
+      working-directory: ./packages/object-model
+    - run: yarn coverage
+      working-directory: ./packages/text-model
+    - run: yarn coverage
+      working-directory: ./packages/util
