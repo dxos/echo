@@ -172,7 +172,7 @@ export class GreetingInitiator {
           nonce)
       );
     } else {
-      assert(this._identityManager.deviceKeyChain, 'Device key required');
+      assert(this._identityManager.deviceKeyChain, 'Device key chain required');
       assert(this._identityManager.identityGenesis, 'Identity genesis message required');
 
       // For any other Party, add the IDENTITY, signed by the DEVICE keychain, which links back to that IDENTITY.
