@@ -38,7 +38,7 @@
     "@dxos/echo-protocol": "^2.6.22",
     "@dxos/feed-store": "~1.2.0-beta.30",
     "@dxos/model-factory": "^2.6.22",
-    "@dxos/network-manager": "~1.0.6",
+    "@dxos/network-manager": "~1.0.8",
     "@dxos/object-model": "^2.6.22",
     "@dxos/protocol-plugin-presence": "~1.1.0-beta.21",
     "@dxos/protocol-plugin-replicator": "~1.0.6",
