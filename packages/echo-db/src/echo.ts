@@ -226,7 +226,7 @@ export class ECHO {
    */
   async close () {
     if (this.isOpen) {
-      // TODO(marik-d): Close network manager.
+      await this._networkManager.destroy();
       await this._partyManager.close();
     }
   }
