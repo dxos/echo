@@ -1074,9 +1074,9 @@
   resolved "https://registry.yarnpkg.com/@dxos/async/-/async-1.0.2-alpha.0.tgz#cb46d597567a178225e8a67b71cf5e3e5e257a68"
   integrity sha512-d9UgIaLbmuYHP24WASQX8OI1GJbJVy2021VqczIuDF0m3C5tHIqC7yr75L5eC4BAalEQoPGYcpWnzgD6ZpjiBw==
 
-"@dxos/broadcast@^1.0.0-beta.6":
+"@dxos/broadcast@~1.0.0-beta.11":
   version "1.0.0-beta.11"
-  resolved "https://registry.yarnpkg.com/@dxos/broadcast/-/broadcast-1.0.0-beta.11.tgz#531a1e709332ab64b14b29b859343a8a09a9e0ba"
+  resolved "https://registry.npmjs.org/@dxos/broadcast/-/broadcast-1.0.0-beta.11.tgz#531a1e709332ab64b14b29b859343a8a09a9e0ba"
   integrity sha512-3EYET2GxFdl2/s3OqNmL27wMPLDoyt9hasdBuwpGCytGNud8XHtfbXI03UJsNSVMZqPkBH1H2HGs4IDO5iig2w==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.11"
@@ -1289,14 +1289,14 @@
     chalk "^4.1.0"
     read-pkg "^5.2.0"
 
-"@dxos/protocol-plugin-presence@~1.1.0-beta.21":
-  version "1.1.0-beta.21"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-presence/-/protocol-plugin-presence-1.1.0-beta.21.tgz#52eda5ffb27a6cb02c6f87ce3b51afb26a2ef5cb"
-  integrity sha512-AodMxY4u3TWpNYS5Kf4zbHauMyOmIpEfF4swbc3pFli0lyEvhEp4rODj2yaK7RDi+U0N4q5/yyviiDHEflRstA==
+"@dxos/protocol-plugin-presence@~1.0.8":
+  version "1.0.8"
+  resolved "https://registry.npmjs.org/@dxos/protocol-plugin-presence/-/protocol-plugin-presence-1.0.8.tgz#ae2eed56e0a9a0925c49a8f322c581e544a0d05e"
+  integrity sha512-bYVWhGDiHLTFQnnRSZzTzSYGbJGw0VmF9iVjAQlvf+sM38fcyhhuFIKZQlcz44x0U2ByMQsGxoj+c8stc0nvzw==
   dependencies:
-    "@dxos/broadcast" "^1.0.0-beta.6"
+    "@dxos/broadcast" "~1.0.0-beta.11"
     "@dxos/codec-protobuf" "1.1.0-beta.10"
-    "@dxos/protocol" "^1.1.0-beta.21"
+    "@dxos/protocol" "1.0.8"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
     ngraph.graph "^19.0.1"
@@ -1304,33 +1304,15 @@
     queue-microtask "^1.1.2"
     source-map-support "^0.5.12"
 
-"@dxos/protocol-plugin-replicator@~1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.0.6.tgz#6219c8fe61da8893a63e2d90a4e226f85a302ba9"
-  integrity sha512-GVorEzES9bHHJWmW2Vl8skie/50QhnigwgOygilevO6Z0REYJCZTcMVAe3W29LKcKj3v8n28RncXvCdYz5fGNw==
+"@dxos/protocol-plugin-replicator@~1.0.8":
+  version "1.0.8"
+  resolved "https://registry.npmjs.org/@dxos/protocol-plugin-replicator/-/protocol-plugin-replicator-1.0.8.tgz#4f429745f058ace9d665332a1104cfdd18c461d5"
+  integrity sha512-U0vW3v3tnAbTHrIC5RvSjTlrmxgvp+7EIJU+EcmV7X5f8s81wgtn1uql6eW5DqgxvKSlbeAjI0+VbhGPHjcaTg==
   dependencies:
     "@dxos/codec-protobuf" "1.1.0-beta.10"
-    "@dxos/protocol" "1.0.6"
+    "@dxos/protocol" "1.0.8"
     buffer-json-encoding "^1.0.2"
     debug "^4.1.1"
-    source-map-support "^0.5.12"
-
-"@dxos/protocol@1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.0.6.tgz#c40af645b73d75d7e4dc8235e146b84bfb2f02d2"
-  integrity sha512-OeWGEeeDqmQfqkcA9XWBkAvC2hufy6LYcnflyaqMhqJh8rbrq5maGkJUjDIGZQjBzZdRptSyWGiXlgPL2YMohQ==
-  dependencies:
-    "@dxos/codec-protobuf" "1.1.0-beta.10"
-    assert "^2.0.0"
-    buffer-json-encoding "^1.0.2"
-    debug "^4.1.1"
-    end-of-stream "^1.4.4"
-    humanhash "^1.0.4"
-    hypercore-protocol "^6.11.1"
-    nanoerror "^1.2.1"
-    nanomessage "^5.4.0"
-    nanoresource-promise "^2.0.0"
-    signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
 "@dxos/protocol@1.0.8":
@@ -1351,7 +1333,7 @@
     signal-promise "^1.0.3"
     source-map-support "^0.5.12"
 
-"@dxos/protocol@1.1.0-beta.21", "@dxos/protocol@^1.1.0-beta.21":
+"@dxos/protocol@1.1.0-beta.21":
   version "1.1.0-beta.21"
   resolved "https://registry.yarnpkg.com/@dxos/protocol/-/protocol-1.1.0-beta.21.tgz#f408b1dc1b62f22d1e1622ff2cae07bbf903948a"
   integrity sha512-6Yfem13SddgRtWmgO5TjPPO/gJR7oPeGaGwU9fiFPPugyo+gY/kiOF+nbJ8ATQLy+V9uTZKUq8d4IoAUH/S6xw==
