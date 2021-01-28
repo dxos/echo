@@ -2,7 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
+export * from './matcher';
 export * from './mutation';
 export * from './object-model';
 export * from './proto';
-export * from './queries';
+export * from './text-index';

@@ -72,7 +72,7 @@ message Predicate {
     LT                                = 15;
 
     PREFIX_MATCH                      = 20;   // String prefix (case insensitive).
-    TEXT_MATCH                        = 21;   // Split words (case insensitive).
+    TEXT_MATCH                        = 21;   // Simple prefix word match.
   }
 
   Operation op                        = 1;

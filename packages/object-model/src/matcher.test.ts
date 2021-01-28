@@ -2,8 +2,13 @@
 // Copyright 2020 DXOS.org
 //
 
+import { Matcher } from './matcher';
 import { Predicate, Query } from './proto';
-import { QueryProcessor } from './queries';
+
+// TODO(burdon): Adapt for ObjectModel.
+// TODO(burdon): Nested properties?
+// TODO(burdon): Indexed properties? (schema?)
+const getter = (item: any, key: string) => item[key];
 
 test('Basic queries', () => {
   const queries: Query[] = [
@@ -194,15 +199,8 @@ test('Basic queries', () => {
     []
   ];
 
-  // TODO(burdon): Adapt for ObjectModel.
-  // TODO(burdon): Nested properties?
-  // TODO(burdon): Indexed properties? (schema?)
-  const getter = (item: any, key: string) => item[key];
-
-  const results = queries.map(query => {
-    const processor = new QueryProcessor(query, getter);
-    return items.filter(item => processor.match(item));
-  });
+  const matcher = new Matcher({ getter });
+  const results = queries.map(query => matcher.matchItems(query, items));
 
   results.forEach((result, i) => {
     // eslint-disable-next-line jest/valid-expect

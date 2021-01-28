@@ -21,11 +21,11 @@
   "scripts": {
     "build": "yarn build:protobuf && tsc --build",
     "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/defs/object.proto -o src/proto/gen",
-    "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --rootDir=./src --verbose --passWithNoTests --forceExit",
+    "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit",
     "prepublishOnly": "npm run test && npm run build",
+    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit",
     "watch": "babel-watch src --out-dir ./dist --source-maps"
   },
   "browserslist": [
@@ -56,6 +56,7 @@
     "hypercore": "^7.7.1",
     "js-data-structs": "^1.1.2",
     "lodash.merge": "^4.6.2",
+    "minisearch": "^3.0.2",
     "protobufjs": "^6.9.0",
     "source-map-support": "^0.5.12"
   },
