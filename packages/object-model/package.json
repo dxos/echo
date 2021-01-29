@@ -1,6 +1,7 @@
 {
   "name": "@dxos/object-model",
   "version": "2.6.22",
+  "private": false,
   "description": "ECHO object model.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -17,7 +18,6 @@
     "dist",
     "src"
   ],
-  "private": false,
   "scripts": {
     "build": "yarn build:protobuf && tsc --build",
     "build:protobuf": "mkdir -p src/proto/gen && build-protobuf src/proto/defs/object.proto -o src/proto/gen",
@@ -25,18 +25,23 @@
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
     "prepublishOnly": "npm run test && npm run build",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit",
-    "watch": "babel-watch src --out-dir ./dist --source-maps"
+    "test": "jest --rootDir=./src --verbose --passWithNoTests --forceExit"
   },
   "browserslist": [
     "> 5%"
   ],
+  "eslintConfig": {
+    "extends": "plugin:@dxos/recomended",
+    "ignorePatterns": [
+      "src/proto/gen/*"
+    ]
+  },
   "jest": {
     "preset": "ts-jest/presets/default",
-    "testEnvironment": "node",
     "setupFilesAfterEnv": [
       "jest-expect-message"
-    ]
+    ],
+    "testEnvironment": "node"
   },
   "dependencies": {
     "@dxos/async": "~1.0.0-beta.10",
@@ -74,12 +79,6 @@
   },
   "peerDependencies": {
     "@dxos/echo-db": "^2.6.21"
-  },
-  "eslintConfig": {
-    "extends": "plugin:@dxos/recomended",
-    "ignorePatterns": [
-      "src/proto/gen/*"
-    ]
   },
   "publishConfig": {
     "access": "public"

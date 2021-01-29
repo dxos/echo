@@ -1,6 +1,7 @@
 {
   "name": "@dxos/echo-demo",
   "version": "2.6.22",
+  "private": true,
   "description": "ECHO database demo app.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -11,7 +12,6 @@
     "url": "git+https://github.com/dxos/echo.git"
   },
   "license": "AGPL-3.0",
-  "private": true,
   "scripts": {
     "build": "tsc --build",
     "build-storybook": "build-storybook",
@@ -19,14 +19,16 @@
     "coverage": "jest --coverage --rootDir=./src --verbose --passWithNoTests",
     "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests",
     "prepublishOnly": "npm run test && npm run build",
     "storybook": "start-storybook -s ./stories/static -p 9001 -c .storybook --ci",
-    "watch": "babel-watch src --out-dir ./dist --source-maps"
+    "test": "jest --rootDir=./src --verbose --passWithNoTests"
   },
   "browserslist": [
     "> 5%"
   ],
+  "eslintConfig": {
+    "extends": "plugin:@dxos/react"
+  },
   "jest": {
     "preset": "ts-jest/presets/default",
     "testEnvironment": "node"
@@ -36,9 +38,9 @@
     "@dxos/codec-protobuf": "~1.1.1",
     "@dxos/credentials": "~2.1.16-alpha.0",
     "@dxos/crypto": "~1.0.7",
-    "@dxos/echo-testing": "^2.6.22",
     "@dxos/echo-db": "^2.6.22",
     "@dxos/echo-protocol": "^2.6.22",
+    "@dxos/echo-testing": "^2.6.22",
     "@dxos/feed-store": "~1.2.0-beta.30",
     "@dxos/gem-core": "~1.0.0-beta.25",
     "@dxos/gem-spore": "~1.0.0-beta.25",
@@ -67,17 +69,14 @@
     "use-subscription": "^1.4.1"
   },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "^7.11.5",
     "@dxos/debug": "~1.0.0-beta.75",
     "@dxos/eslint-plugin": "~1.0.10",
-    "@storybook/addon-actions": "^6.1.14",
-    "@storybook/addon-knobs": "^6.1.14",
-    "@storybook/addon-links": "^6.1.14",
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-knobs": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
     "@storybook/react": "^6.0.21",
     "@types/jest": "^25.2.3",
     "awesome-typescript-loader": "^5.2.1",
-    "babel-loader": "8.1.0",
-    "babel-plugin-add-module-exports": "^1.0.4",
     "chromatic": "^5.6.0",
     "eslint-plugin-react": "^7.22.0",
     "jest": "^26.2.2",
@@ -85,9 +84,6 @@
     "tempy": "^0.6.0",
     "ts-jest": "^26.1.4",
     "typescript": "^4.0.2"
-  },
-  "eslintConfig": {
-    "extends": "plugin:@dxos/react"
   },
   "publishConfig": {
     "access": "public"

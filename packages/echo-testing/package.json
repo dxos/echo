@@ -1,6 +1,7 @@
 {
   "name": "@dxos/echo-testing",
   "version": "2.6.22",
+  "private": false,
   "description": "ECHO testing utils.",
   "homepage": "https://github.com/dxos/echo/tree/master/packages/echo#readme",
   "bugs": {
@@ -13,19 +14,20 @@
   "license": "AGPL-3.0",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
-  "private": false,
   "scripts": {
     "build": "tsc --build",
-    "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "coverage": "jest --coverage --rootDir=./src --verbose --passWithNoTests",
+    "depcheck": "npx depcheck --specials=bin,babel,eslint,lint-staged,jest",
     "lint": "eslint --format codeframe './src/**/*.ts'",
-    "test": "jest --rootDir=./src --verbose --passWithNoTests",
     "prepublishOnly": "npm run test && npm run build",
-    "watch": "babel-watch src --out-dir ./dist --source-maps"
+    "test": "jest --rootDir=./src --verbose --passWithNoTests"
   },
   "browserslist": [
     "> 5%"
   ],
+  "eslintConfig": {
+    "extends": "plugin:@dxos/recomended"
+  },
   "jest": {
     "preset": "ts-jest/presets/default",
     "testEnvironment": "node"
@@ -50,9 +52,6 @@
     "ts-jest": "^26.1.4",
     "typescript": "^4.0.2",
     "wait-for-expect": "^3.0.2"
-  },
-  "eslintConfig": {
-    "extends": "plugin:@dxos/recomended"
   },
   "publishConfig": {
     "access": "public"
