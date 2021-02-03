@@ -1181,10 +1181,10 @@
     source-map-support "^0.5.12"
     through2 "^3.0.1"
 
-"@dxos/gem-core@^1.0.0-beta.27", "@dxos/gem-core@~1.0.0-beta.27":
-  version "1.0.0-beta.27"
-  resolved "https://registry.yarnpkg.com/@dxos/gem-core/-/gem-core-1.0.0-beta.27.tgz#aadf61149d98537e9bc16f191b35953a4533636f"
-  integrity sha512-BYrqBiZkQj+GmeIqZ6nvpa7W90qI1YY3lCRJ0uz5U5QgyhWMVVxJ1ch27yCWU6XCJjxT8ZcYMr+BmK1yMtb6uA==
+"@dxos/gem-core@^1.0.0-beta.33", "@dxos/gem-core@~1.0.0-beta.33":
+  version "1.0.0-beta.33"
+  resolved "https://registry.yarnpkg.com/@dxos/gem-core/-/gem-core-1.0.0-beta.33.tgz#cf83c094d2642fdef321414877b016d622231b25"
+  integrity sha512-kSwl2NKN0YHP1pYO7oVX12YcSv7ZqOSRz1eBR4J3mk7dNxU9Rk+95OZ3OiaN/Wrr5EYVOk/hJjMfJHUJ9LM3JQ==
   dependencies:
     "@material-ui/core" "^4.9.10"
     "@types/d3" "^6.3.0"
@@ -1197,12 +1197,12 @@
     react-dom "^16.13.1"
     react-resize-aware "^3.0.0"
 
-"@dxos/gem-spore@~1.0.0-beta.27":
-  version "1.0.0-beta.27"
-  resolved "https://registry.yarnpkg.com/@dxos/gem-spore/-/gem-spore-1.0.0-beta.27.tgz#727cd2e4985ad79c96139791036733d3cb7f4b12"
-  integrity sha512-tqEc+n+1tqJv11w/JxfAIjq4jBUW+JJ1dFLCtPibGPw+u/Ba9wnGx38YSZTbDGjgFtkGH84CW/N4rhuXFMkCbQ==
+"@dxos/gem-spore@~1.0.0-beta.33":
+  version "1.0.0-beta.33"
+  resolved "https://registry.yarnpkg.com/@dxos/gem-spore/-/gem-spore-1.0.0-beta.33.tgz#5db16b4de040dbaf9da8f87581d5c7b954cafb15"
+  integrity sha512-Uc3/j1gx4n83+frL33hUH2+/ZNGnO1qpzfqS7nUCTyfI/1JfwikKFfGigNHtWIxgDHkarSuOnbHM7nLtcpzkwA==
   dependencies:
-    "@dxos/gem-core" "^1.0.0-beta.27"
+    "@dxos/gem-core" "^1.0.0-beta.33"
     "@material-ui/core" "^4.9.10"
     clsx "^1.1.0"
     d3 "^6.1.1"
